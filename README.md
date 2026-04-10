@@ -35,7 +35,7 @@ Algumas funcionalidades do sistema.
 Protótipo do Sistema
 Link do protótipo desenvolvido no Figma.
 Protótipo:
-(https://www.figma.com/make/5QbvhRGGR9rW5bN8RzvzW6/Sistema-de-Gerenciamento-de-Portf%C3%B3lio?t=vT0qjlA4I1MVNRn0-1)
+https://www.figma.com/make/5QbvhRGGR9rW5bN8RzvzW6/Sistema-de-Gerenciamento-de-Portf%C3%B3lio?t=4tOwiSSgM3mkl7hq-1
 
 Organização do Projeto
 O projeto está sendo organizado utilizando:
