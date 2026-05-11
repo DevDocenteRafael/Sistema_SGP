@@ -138,6 +138,76 @@ Campos esperados:
 9. Executar testes de QA.
 10. Revisar e ajustar bugs antes da entrega.
 
+## Cronograma Recomendado
+
+Este cronograma organiza as issues em etapas. A equipe deve tentar concluir uma etapa antes de depender fortemente da proxima.
+
+### Etapa 1 - Preparar O Projeto
+
+Issues:
+
+- `#1` Setup Laravel + Vue + Docker + MySQL
+- `#2` Modelagem do banco de dados
+- `#8` Layout principal, sidebar e rotas Vue
+- `#13` README com instalacao e fluxo de trabalho
+- `#15` Plano de testes
+
+Objetivo da etapa:
+
+- Todo mundo conseguir rodar o projeto.
+- Banco estar desenhado.
+- Frontend ter uma base de navegacao.
+- Documentacao inicial existir.
+- QA ja ter roteiro de testes.
+
+### Etapa 2 - Criar A Base Funcional
+
+Issues:
+
+- `#3` Migrations e seeders iniciais
+- `#4` Autenticacao e perfis de acesso
+- `#5` API CRUD de cursos
+- `#9` Telas de login, cadastro e recuperacao de senha
+- `#10` Tela de listagem de cursos por area/eixo
+
+Objetivo da etapa:
+
+- Banco criar tabelas e dados de teste.
+- Login comecar a funcionar.
+- Cursos poderem ser cadastrados, consultados, editados e excluidos pela API.
+- Frontend comecar a consumir dados reais.
+
+### Etapa 3 - Completar Modulos Principais
+
+Issues:
+
+- `#6` API de gerenciamento de usuarios
+- `#7` Endpoints para dashboard e relatorios
+- `#11` Formulario de novo curso e edicao
+- `#12` Dashboard com cards e graficos
+
+Objetivo da etapa:
+
+- Administrador conseguir gerenciar usuarios.
+- Dashboard mostrar indicadores reais.
+- Frontend permitir criar e editar cursos.
+- Sistema ficar proximo do fluxo principal do prototipo.
+
+### Etapa 4 - Fechamento E Validacao
+
+Issues:
+
+- `#14` Manual simples de uso do sistema
+- `#16` Testar ambiente Docker e instalacao do zero
+- Testes gerais de QA
+
+Objetivo da etapa:
+
+- Documentar como usar o sistema.
+- Validar instalacao em uma maquina limpa.
+- Registrar e corrigir bugs antes da entrega.
+- Preparar o projeto para apresentacao final.
+
 ## Issues Planejadas
 
 As issues do GitHub devem ser usadas como passo a passo. Cada issue deve conter:
