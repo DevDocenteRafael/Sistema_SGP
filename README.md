@@ -7,6 +7,7 @@ Equipe
 - Pedro Comis
 - Hillary Oliveira
 - Paloma Leandro
+- Maria stephanny
 
 Objetivo do Sistema
 Esse sistema tem o objetivo principal de gerenciar todos os cursos do SENAC.
