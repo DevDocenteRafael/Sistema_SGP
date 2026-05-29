@@ -1,0 +1,96 @@
+services:
+  # Serviço PHP-FPM
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sgp-app
+    restart: unless-stopped
+    working_dir: /var/www
+    environment:
+      - APP_NAME=Laravel
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-laravel}
+      - DB_USERNAME=${DB_USERNAME:-laravel}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+    volumes:
+      - ./:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+      - ./docker/php/conf.d/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
+    ports:
+      - "9000:9000"
+    depends_on:
+      - mysql
+    networks:
+      - sgp-network
+
+  # Serviço Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: sgp-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./docker/nginx/ssl/:/etc/nginx/ssl/
+    depends_on:
+      - app
+    networks:
+      - sgp-network
+
+  # Serviço MySQL 8
+  mysql:
+    image: mysql:8.0
+    container_name: sgp-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_ALLOW_EMPTY_PASSWORD: false
+    ports:
+      - "3306:3306"
+    volumes:
+      - sgp-mysql-data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - sgp-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Serviço Node.js/Vite (opcional)
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: sgp-node
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - node_modules:/var/www/node_modules
+    ports:
+      - "5173:5173"
+    networks:
+      - sgp-network
+
+volumes:
+  sgp-mysql-data:
+    driver: local
+  node_modules:
+    driver: local
+
+networks:
+  sgp-network:
+    driver: bridge

@@ -1,0 +1,20 @@
+# Use imagem oficial do Node.js
+FROM node:20-alpine
+
+# Definir diretório de trabalho
+WORKDIR /var/www
+
+# Copiar package.json e package-lock.json
+COPY package*.json ./
+
+# Instalar dependências (usa install quando não há package-lock.json)
+RUN npm install --legacy-peer-deps --no-audit --no-fund
+
+# Copiar aplicação
+COPY . .
+
+# Expor porta Vite
+EXPOSE 5173
+
+# Comando padrão
+CMD ["npm", "run", "dev"]
