@@ -94,10 +94,20 @@ O script `docker-start.cmd` faz automaticamente:
 | Início | http://localhost/app/inicio |
 | Cursos | http://localhost/app/cursos |
 
-### MySQL Workbench (banco do Docker)
+### MySQL Workbench (opcional — banco do SGP no Docker)
 
-O SGP **não usa** o MySQL local da máquina (3306 em casa / 3307 no trabalho).  
-O banco fica **dentro do Docker**, padronizado na porta **3308** para todo o time.
+O Workbench **não é obrigatório** para programar. O sistema roda em http://localhost/login sem ele.
+
+Na tela do Workbench você pode ver **duas conexões diferentes**:
+
+| Conexão | Porta | Uso |
+|---|---|---|
+| **Local instance MySQL80** | 3306 / 3307 | MySQL da máquina — **não é o SGP** |
+| **SGP Docker** | **3308** | Banco **do projeto SGP** (Docker) |
+
+**Padrão do time:** porta **3308** para o SGP Docker (`MYSQL_HOST_PORT=3308` no `.env.docker`).
+
+Conexão **SGP Docker** no Workbench:
 
 | Campo | Valor |
 |---|---|
@@ -106,6 +116,14 @@ O banco fica **dentro do Docker**, padronizado na porta **3308** para todo o tim
 | Banco | `SGP` |
 | Usuário | `laravel` |
 | Senha | `password` |
+
+> A porta 3308 é só em `localhost` (sua máquina). Em geral **não precisa de autorização da TI** — não é porta de rede externa.
+
+Se preferir não usar Workbench, acesse o banco pelo terminal:
+
+```cmd
+docker-compose exec mysql mysql -u laravel -ppassword SGP
+```
 
 ### Dia a dia (já configurou antes)
 
