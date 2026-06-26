@@ -46,7 +46,18 @@ docker-compose exec app php artisan key:generate
 
 - **Backend Laravel**: http://localhost
 - **Frontend Vite**: http://localhost:5173
-- **MySQL**: localhost:3306
+- **MySQL (Docker, Workbench)**: localhost:3308 (banco `SGP`)
+
+### Porta do MySQL — padrao do time (3308)
+
+O SGP com Docker **nao usa** o MySQL instalado no Windows (3306 em casa, 3307 no trabalho).
+
+| Uso | Host | Porta |
+|-----|------|-------|
+| Laravel (dentro do Docker) | `mysql` | `3306` (rede interna — `.env`: `DB_HOST=mysql`) |
+| Workbench / DBeaver (Windows) | `localhost` | **3308** (`.env`: `MYSQL_HOST_PORT=3308`) |
+
+Todo o time usa `MYSQL_HOST_PORT=3308` no `.env` — mesma configuracao em qualquer maquina.
 
 ## Comandos úteis
 
@@ -173,13 +184,13 @@ curl -I http://localhost
 ---
 
 ### Port already in use
-Se a porta 80 ou 3306 já estão em uso:
+Se a porta 80 ou 3308 ja estao em uso:
 
 Editar `docker-compose.yml` e mudar:
 ```yaml
 ports:
   - "8080:80"  # Muda 80 para 8080
-  - "3307:3306"  # Muda 3306 para 3307
+  - "3309:3306"  # Muda 3308 para 3309 no .env (MYSQL_HOST_PORT=3309)
 ```
 
 ### Permissões de arquivo

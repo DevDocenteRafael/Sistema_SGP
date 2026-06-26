@@ -3,6 +3,9 @@ import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 
+const host = process.env.VITE_HOST || '127.0.0.1';
+const hmrHost = process.env.VITE_HMR_HOST || host;
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -13,11 +16,11 @@ export default defineConfig({
         vue(),
     ],
     server: {
-        host: '127.0.0.1',
+        host,
         port: 5173,
         strictPort: true,
         hmr: {
-            host: '127.0.0.1',
+            host: hmrHost,
         },
         watch: {
             ignored: ['**/storage/framework/views/**'],

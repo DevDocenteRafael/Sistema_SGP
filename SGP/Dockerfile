@@ -43,8 +43,8 @@ RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage \
     && chmod -R 755 /var/www/bootstrap/cache
 
-# Instalar dependências do Composer
-RUN composer install --no-dev --optimize-autoloader
+# Instalar dependências do Composer (dev)
+RUN composer install --optimize-autoloader
 
 # Expor porta (não é necessário para FPM, mas fica documentado)
 EXPOSE 9000
