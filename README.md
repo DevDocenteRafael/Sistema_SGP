@@ -58,7 +58,106 @@ Exemplo:
 Status do Projeto
 Projeto em desenvolvimento.
 
-## Como rodar este projeto em outro computador
+## Guia para o time — como rodar o SGP
+
+**Forma recomendada:** Docker (mesmas versões de PHP, MySQL e Node em qualquer máquina).
+
+> **Importante:** não commite o arquivo `.env`. Use `.env.docker` como modelo.
+
+### Pré-requisito (único na máquina)
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e com **Engine running**
+
+Não é obrigatório instalar PHP, MySQL ou Node localmente para usar Docker.
+
+### Primeira vez (clone do repositório)
+
+```cmd
+git clone <url-do-repositorio>
+cd Sistema_SGP\SGP
+copy .env.docker .env
+docker-start.cmd
+```
+
+O script `docker-start.cmd` faz automaticamente:
+
+- Sobe os containers (PHP, Nginx, MySQL, Node/Vite)
+- Instala dependências PHP
+- Gera `APP_KEY`
+- Executa as migrations
+
+### Acessar o sistema
+
+| O quê | URL |
+|---|---|
+| Login | http://localhost/login |
+| Início | http://localhost/app/inicio |
+| Cursos | http://localhost/app/cursos |
+
+### MySQL Workbench (banco do Docker)
+
+O SGP **não usa** o MySQL local da máquina (3306 em casa / 3307 no trabalho).  
+O banco fica **dentro do Docker**, padronizado na porta **3308** para todo o time.
+
+| Campo | Valor |
+|---|---|
+| Host | `127.0.0.1` |
+| Porta | **3308** |
+| Banco | `SGP` |
+| Usuário | `laravel` |
+| Senha | `password` |
+
+### Dia a dia (já configurou antes)
+
+```cmd
+cd Sistema_SGP\SGP
+docker-compose up -d
+```
+
+Acesse: http://localhost/login
+
+Para parar:
+
+```cmd
+docker-compose down
+```
+
+### Comandos úteis
+
+```cmd
+docker-compose ps                              # status dos containers
+docker-compose logs -f                         # ver logs
+docker-compose exec app php artisan migrate    # rodar migrations
+docker-compose exec app php artisan tinker     # console Laravel
+docker-compose exec app composer install       # dependências PHP
+docker-compose exec node npm install           # dependências front
+docker-compose exec node npm run build         # build do front
+```
+
+### Atualizar o projeto (git pull)
+
+```cmd
+git pull
+cd SGP
+docker-compose up -d --build
+docker-compose exec app php artisan migrate
+```
+
+### Versões padronizadas no Docker
+
+| Tecnologia | Versão |
+|---|---|
+| PHP | 8.2-FPM |
+| Laravel | 12 |
+| MySQL | 8.0 |
+| Node.js | 20 |
+| Nginx | Alpine |
+
+Documentação detalhada: [SGP/DOCKER.md](SGP/DOCKER.md)
+
+---
+
+## Como rodar este projeto em outro computador (sem Docker)
 Este guia foi testado no Windows e mostra os passos necessários para instalar e executar o sistema sem perrengue.
 
 ### 1. Pré-requisitos
@@ -161,37 +260,19 @@ Acesse:
 ### 10. Dica final
 Sempre trabalhe na pasta `SGP` para comandos como `composer install`, `npm install`, `php artisan serve` e `npm run dev`. O caminho correto evita a maioria dos erros.
 
-## Como rodar com Docker
-Este projeto também pode ser executado usando Docker com PHP-FPM, Nginx e MySQL 8.
+## Como rodar com Docker (resumo)
 
-### Pré-requisitos
-- Docker instalado e rodando
-- Docker Compose
+Veja a seção **Guia para o time** no topo deste README.
 
-### Instruções rápidas
-1. Entre na pasta `SGP`:
+Passo rápido:
+
 ```cmd
-cd C:\Users\lucas\OneDrive\Desktop\Sistema_SGP\SGP
-```
-
-2. Copie o arquivo de configuração Docker:
-```cmd
+cd SGP
 copy .env.docker .env
+docker-start.cmd
 ```
 
-3. Construa e inicie os containers:
-```cmd
-docker-compose up -d --build
-```
-
-4. Execute as migrações:
-```cmd
-docker-compose exec app php artisan migrate
-```
-
-5. Acesse a aplicação:
-- Backend: `http://localhost`
-- Frontend Vite: `http://localhost:5173`
+Acesse: http://localhost/login
 
 ### Mais informações
 Leia o arquivo [DOCKER.md](SGP/DOCKER.md) para instruções detalhadas, troubleshooting e comandos úteis.
@@ -210,6 +291,6 @@ docker-compose logs -f
 # Executar comando Artisan
 docker-compose exec app php artisan tinker
 
-# Acessar banco de dados
-docker-compose exec mysql mysql -u laravel -p
+# Acessar MySQL no terminal
+docker-compose exec mysql mysql -u laravel -ppassword SGP
 ```
