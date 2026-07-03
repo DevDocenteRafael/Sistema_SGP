@@ -25,5 +25,11 @@ export default defineConfig({
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },
+        proxy: {
+            '/IMG': {
+                target: 'http://nginx:80',
+                changeOrigin: true,
+            },
+        },
     },
 });

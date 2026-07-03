@@ -60,6 +60,20 @@ router.beforeEach((to) => {
       hash: to.hash,
     };
   }
+
+  const token = localStorage.getItem('sgp_token');
+  const requiresAuth = to.path.startsWith('/app');
+
+  if (requiresAuth && !token) {
+    return {
+      name: 'login',
+      query: { redirect: to.fullPath },
+    };
+  }
+
+  if (to.name === 'login' && token) {
+    return { path: '/app/inicio' };
+  }
 });
 
 export default router;
