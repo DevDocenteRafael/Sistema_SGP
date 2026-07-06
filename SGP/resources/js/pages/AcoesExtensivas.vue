@@ -1,12 +1,9 @@
 <template>
-  <div>
+  <div class="page-placeholder">
     <h1>Ações Extensivas</h1>
-    <p class="text-muted">Página em construção.</p>
+    <p>Página em construção.</p>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AcoesExtensivas',
-};
-</script>
+<script src="../scripts/AcoesExtensivas.js"></script>
+<style scoped src="../../css/AcoesExtensivas.css"></style>

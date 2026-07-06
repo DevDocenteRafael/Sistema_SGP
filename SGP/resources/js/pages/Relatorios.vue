@@ -1,12 +1,9 @@
 <template>
-  <div>
+  <div class="page-placeholder">
     <h1>Relatórios</h1>
-    <p class="text-muted">Página em construção.</p>
+    <p>Página em construção.</p>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Relatorios',
-};
-</script>
+<script src="../scripts/Relatorios.js"></script>
+<style scoped src="../../css/Relatorios.css"></style>

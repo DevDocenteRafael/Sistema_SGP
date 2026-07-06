@@ -1,102 +1,51 @@
 <template>
-  <nav class="sidebar bg-dark text-white">
-    <div class="sidebar-header p-3">
-      <h5 class="mb-0">SGP</h5>
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <router-link to="/app/inicio" class="sidebar-logo-link" title="Ir para o início">
+        <img :src="logoSenac" alt="Senac" class="sidebar-logo" />
+      </router-link>
     </div>
 
-    <div class="sidebar-links p-3 pt-0">
-      <router-link class="sidebar-link" to="/app/inicio">Início</router-link>
-      <router-link class="sidebar-link" to="/app/dashboard">Dashboard</router-link>
-      <router-link class="sidebar-link" to="/app/relatorios">Relatórios</router-link>
-      <router-link class="sidebar-link" to="/app/importacoes">Importações</router-link>
-      <router-link class="sidebar-link" to="/app/cursos">Cursos</router-link>
-      <router-link class="sidebar-link" to="/app/plano-de-metas">Plano de Metas</router-link>
-      <router-link class="sidebar-link" to="/app/pca">PCA</router-link>
-      <router-link class="sidebar-link" to="/app/eixos">Eixos</router-link>
-      <router-link class="sidebar-link" to="/app/visitas-tecnicas">Visitas Técnicas</router-link>
-      <router-link class="sidebar-link" to="/app/horas-pedagogicas">Horas Pedagógicas</router-link>
-      <router-link class="sidebar-link" to="/app/acoes-extensivas">Ações Extensivas</router-link>
-      <router-link class="sidebar-link" to="/app/eventos">Eventos</router-link>
-      <router-link class="sidebar-link" to="/app/cped">CPED</router-link>
-      <router-link class="sidebar-link" to="/app/usuarios">Usuários</router-link>
+    <div class="sidebar-nav">
+      <div
+        v-for="(secao, index) in menuSecoes"
+        :key="secao.titulo ?? `secao-${index}`"
+        class="sidebar-section"
+      >
+        <p v-if="secao.titulo" class="sidebar-section-title">{{ secao.titulo }}</p>
+
+        <router-link
+          v-for="item in secao.itens"
+          :key="item.rota"
+          class="sidebar-link"
+          :to="item.path"
+        >
+          <span class="sidebar-link-icon" v-html="icons[item.icon]" />
+          <span class="sidebar-link-label">{{ item.label }}</span>
+        </router-link>
+      </div>
     </div>
 
-    <div class="sidebar-footer p-3">
+    <div class="sidebar-footer">
+      <div v-if="usuario" class="sidebar-user-card">
+        <span class="sidebar-avatar">{{ iniciais }}</span>
+        <div class="sidebar-user-info">
+          <p class="sidebar-user-nome">{{ usuario.nome }}</p>
+          <p v-if="usuario.unidade" class="sidebar-user-unidade">{{ usuario.unidade }}</p>
+        </div>
+      </div>
+
       <button type="button" class="sidebar-logout" @click="logout">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" x2="9" y1="12" y2="12" />
+        </svg>
         Sair
       </button>
     </div>
   </nav>
 </template>
 
-<script>
-export default {
-  name: 'Sidebar',
-  methods: {
-    async logout() {
-      try {
-        await window.axios.post('/api/logout');
-      } catch {
-        // Sessão já expirada ou token inválido — limpa localmente mesmo assim.
-      }
-
-      localStorage.removeItem('sgp_token');
-      localStorage.removeItem('sgp_usuario');
-      delete window.axios.defaults.headers.common.Authorization;
-      this.$router.push('/login');
-    },
-  },
-};
-</script>
-
-<style scoped>
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  width: 220px;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  flex-shrink: 0;
-}
-
-.sidebar-links {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.sidebar-link {
-  display: block;
-  color: #fff;
-  text-decoration: none;
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
-}
-
-.sidebar-link:hover,
-.sidebar-link.router-link-active {
-  color: #dee2e6;
-  text-decoration: underline;
-}
-
-.sidebar-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  flex-shrink: 0;
-}
-
-.sidebar-logout {
-  width: 100%;
-  padding: 0.5rem 1rem;
-  border: 1px solid #fff;
-  border-radius: 0.375rem;
-  background: transparent;
-  color: #fff;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-
-.sidebar-logout:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-</style>
+<script src="../scripts/Sidebar.js"></script>
+<style scoped src="../../css/Sidebar.css"></style>

@@ -1,12 +1,9 @@
 <template>
-  <div>
+  <div class="page-placeholder">
     <h1>Dashboard</h1>
-    <p class="text-muted">Página em construção.</p>
+    <p>Página em construção.</p>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Dashboard',
-};
-</script>
+<script src="../scripts/Dashboard.js"></script>
+<style scoped src="../../css/Dashboard.css"></style>

@@ -1,12 +1,9 @@
 <template>
-  <div>
+  <div class="page-placeholder">
     <h1>PCA</h1>
-    <p class="text-muted">Página em construção.</p>
+    <p>Página em construção.</p>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Pca',
-};
-</script>
+<script src="../scripts/Pca.js"></script>
+<style scoped src="../../css/Pca.css"></style>

@@ -1,20 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { getUsuario, podeAcessarMenu } from '../scripts/auth';
 
 const appChildren = [
-  { path: 'inicio', name: 'inicio', component: () => import('../pages/Inicio.vue') },
-  { path: 'dashboard', name: 'dashboard', component: () => import('../pages/Dashboard.vue') },
-  { path: 'relatorios', name: 'relatorios', component: () => import('../pages/Relatorios.vue') },
-  { path: 'importacoes', name: 'importacoes', component: () => import('../pages/Importacoes.vue') },
-  { path: 'cursos', name: 'cursos', component: () => import('../pages/Cursos.vue') },
-  { path: 'plano-de-metas', name: 'plano-de-metas', component: () => import('../pages/PlanoDeMetas.vue') },
-  { path: 'pca', name: 'pca', component: () => import('../pages/Pca.vue') },
-  { path: 'eixos', name: 'eixos', component: () => import('../pages/Eixos.vue') },
-  { path: 'visitas-tecnicas', name: 'visitas-tecnicas', component: () => import('../pages/VisitasTecnicas.vue') },
-  { path: 'horas-pedagogicas', name: 'horas-pedagogicas', component: () => import('../pages/HorasPedagogicas.vue') },
-  { path: 'acoes-extensivas', name: 'acoes-extensivas', component: () => import('../pages/AcoesExtensivas.vue') },
-  { path: 'eventos', name: 'eventos', component: () => import('../pages/Eventos.vue') },
-  { path: 'cped', name: 'cped', component: () => import('../pages/Cped.vue') },
-  { path: 'usuarios', name: 'usuarios', component: () => import('../pages/Usuarios.vue') },
+  { path: 'inicio', name: 'inicio', component: () => import('../pages/Inicio.vue'), meta: { menu: 'inicio' } },
+  { path: 'dashboard', name: 'dashboard', component: () => import('../pages/Dashboard.vue'), meta: { menu: 'dashboard' } },
+  { path: 'relatorios', name: 'relatorios', component: () => import('../pages/Relatorios.vue'), meta: { menu: 'relatorios' } },
+  { path: 'importacoes', name: 'importacoes', component: () => import('../pages/Importacoes.vue'), meta: { menu: 'importacoes' } },
+  { path: 'cursos', name: 'cursos', component: () => import('../pages/Cursos.vue'), meta: { menu: 'cursos' } },
+  { path: 'plano-de-metas', name: 'plano-de-metas', component: () => import('../pages/PlanoDeMetas.vue'), meta: { menu: 'plano-de-metas' } },
+  { path: 'pca', name: 'pca', component: () => import('../pages/Pca.vue'), meta: { menu: 'pca' } },
+  { path: 'eixos', name: 'eixos', component: () => import('../pages/Eixos.vue'), meta: { menu: 'eixos' } },
+  { path: 'visitas-tecnicas', name: 'visitas-tecnicas', component: () => import('../pages/VisitasTecnicas.vue'), meta: { menu: 'visitas-tecnicas' } },
+  { path: 'horas-pedagogicas', name: 'horas-pedagogicas', component: () => import('../pages/HorasPedagogicas.vue'), meta: { menu: 'horas-pedagogicas' } },
+  { path: 'acoes-extensivas', name: 'acoes-extensivas', component: () => import('../pages/AcoesExtensivas.vue'), meta: { menu: 'acoes-extensivas' } },
+  { path: 'eventos', name: 'eventos', component: () => import('../pages/Eventos.vue'), meta: { menu: 'eventos' } },
+  { path: 'cped', name: 'cped', component: () => import('../pages/Cped.vue'), meta: { menu: 'cped' } },
+  { path: 'usuarios', name: 'usuarios', component: () => import('../pages/Usuarios.vue'), meta: { menu: 'usuarios' } },
 ];
 
 const redirects = appChildren.map((route) => ({
@@ -73,6 +74,23 @@ router.beforeEach((to) => {
 
   if (to.name === 'login' && token) {
     return { path: '/app/inicio' };
+  }
+
+  if (requiresAuth && token) {
+    const usuario = getUsuario();
+
+    if (!usuario?.perfil) {
+      localStorage.removeItem('sgp_token');
+      localStorage.removeItem('sgp_usuario');
+
+      return { name: 'login' };
+    }
+
+    const menuKey = to.meta?.menu;
+
+    if (menuKey && !podeAcessarMenu(menuKey)) {
+      return { path: '/app/inicio' };
+    }
   }
 });
 

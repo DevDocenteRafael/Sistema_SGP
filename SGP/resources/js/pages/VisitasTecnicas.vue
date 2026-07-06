@@ -1,12 +1,9 @@
 <template>
-  <div>
+  <div class="page-placeholder">
     <h1>Visitas Técnicas</h1>
-    <p class="text-muted">Página em construção.</p>
+    <p>Página em construção.</p>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'VisitasTecnicas',
-};
-</script>
+<script src="../scripts/VisitasTecnicas.js"></script>
+<style scoped src="../../css/VisitasTecnicas.css"></style>
