@@ -222,44 +222,39 @@ Para produção, ajustar em `docker-compose.yml`:
 
 ## Como voltar para desenvolvimento local (sem Docker)
 
-Se quiser parar Docker e voltar a rodar local com SQLite:
-
 ### 1. Parar Docker
 ```bash
 docker-compose down
 ```
 
-### 2. Restaurar .env para SQLite
-O `.env` não está versionado no Git (está em `.gitignore`), então copie de `.env.example`:
+### 2. Restaurar `.env` local
 ```bash
 copy .env.example .env
+php artisan key:generate
 ```
 
-### 3. Editar `.env` para SQLite
-Altere essas linhas no `.env`:
-```
-DB_CONNECTION=sqlite
-# DB_HOST=127.0.0.1
-# DB_PORT=3306
-# DB_DATABASE=laravel
-# DB_USERNAME=laravel
-# DB_PASSWORD=password
+Ou use o bootstrap:
 
-SESSION_DRIVER=file
+```bash
+local-start.cmd
 ```
 
-### 4. Rodar localmente
+### 3. Rodar localmente
 ```bash
 php artisan serve
 npm run dev
 ```
+
+Login: http://127.0.0.1:8000/login
+
+O proxy de imagens do Vite usa `VITE_IMG_PROXY` (local: `http://127.0.0.1:8000`; Docker: `http://nginx:80`).
 
 ## Trocar entre Docker e local
 
 | Ação | Comando |
 |------|---------|
 | Usar Docker | `copy .env.docker .env && docker-compose up -d --build` |
-| Usar local | `copy .env.example .env && php artisan serve` |
+| Usar local | `copy .env.example .env` → `local-start.cmd` → `php artisan serve` + `npm run dev` |
 | Ver qual está ativo | `type .env \| findstr DB_CONNECTION` |
 
 ## Volumes

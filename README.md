@@ -60,9 +60,14 @@ Projeto em desenvolvimento.
 
 ## Guia para o time — como rodar o SGP
 
-**Forma recomendada:** Docker (mesmas versões de PHP, MySQL e Node em qualquer máquina).
+Há **duas formas** de rodar o projeto:
 
-> **Importante:** não commite o arquivo `.env`. Use `.env.docker` como modelo.
+| Forma | Quando usar | URL do login |
+|---|---|---|
+| **Local (PHP + Vite)** | Time sem Docker / desenvolvimento no Windows | http://127.0.0.1:8000/login |
+| **Docker** | Mesmas versões em qualquer máquina | http://localhost/login |
+
+> **Importante:** não commite o arquivo `.env`. Local usa `.env.example`; Docker usa `.env.docker`.
 
 ### Pré-requisito (único na máquina)
 
@@ -175,108 +180,93 @@ Documentação detalhada: [SGP/DOCKER.md](SGP/DOCKER.md)
 
 ---
 
-## Como rodar este projeto em outro computador (sem Docker)
-Este guia foi testado no Windows e mostra os passos necessários para instalar e executar o sistema sem perrengue.
+## Como rodar localmente (sem Docker) — recomendado para o time
+
+Não precisa de Docker. Cada pessoa instala PHP, Composer e Node na máquina.
 
 ### 1. Pré-requisitos
-- PHP 8.2 ou superior (recomendado 8.5). No Windows, use uma instalação manual ou o instalador oficial.
-- Composer instalado e disponível no PATH.
-- Node.js 20.19+ ou 22.12+ (a versão 20.16 não funciona bem com Vite 7).
-- npm (vem com o Node.js).
-- Editor/terminal com privilégios normais.
+- **PHP 8.2+** no PATH (extensões: `mbstring`, `fileinfo`, `openssl`, `pdo_mysql`, `gd`, `bcmath`)
+- **Composer** no PATH
+- **Node.js 20.19+** ou **22.12+** (Vite 7 não roda bem em Node antigo)
+- Banco: **SQLite** (padrão, zero configuração) **ou** MySQL 8 local
 
-### 2. Preparar o PHP no Windows
-1. Baixe uma versão compatível de PHP (8.2+).
-2. Extraia para `C:\php` ou outra pasta de sua escolha.
-3. Copie `php.ini-development` para `php.ini` em `C:\php`.
-4. No `php.ini`, habilite as extensões necessárias:
-   - `extension=mbstring`
-   - `extension=fileinfo`
-   - `extension=php_openssl.dll`
-5. Opcional, mas recomendado para Composer HTTPS:
-   - baixe `cacert.pem` em `https://curl.se/ca/cacert.pem`
-   - defina em `php.ini`:
-     - `curl.cainfo = C:/php/extras/cacert.pem`
-     - `openssl.cafile = C:/php/extras/cacert.pem`
-6. Adicione `C:\php` ao PATH do Windows.
-7. Feche e reabra o terminal.
+### 2. Primeira vez
 
-### 3. Instalar Composer
-No terminal CMD, verifique:
 ```cmd
-php -v
-composer -V
-```
-Se o Composer não estiver disponível, use:
-```cmd
-php C:\php\composer.phar install
-```
-ou instale o Composer globalmente.
-
-### 4. Instalar Node.js
-- Baixe o instalador oficial em https://nodejs.org/
-- Instale a versão LTS compatível: `20.19+` ou `22.12+`.
-- Verifique no CMD:
-```cmd
-node -v
-npm -v
+cd Sistema_SGP\SGP
+local-start.cmd
 ```
 
-### 5. Clonar o projeto e entrar na pasta correta
-No CMD do Windows:
-```cmd
-cd C:\Users\lucas\OneDrive\Desktop\Sistema_SGP\SGP
-```
-O `package.json` e o backend estão dentro de `SGP`, então todos os comandos npm devem ser executados lá.
+O script prepara `.env`, instala dependências, gera a chave e roda as migrations (SQLite por padrão).
 
-### 6. Instalar dependências
-No diretório `SGP` no CMD:
-```cmd
-composer install
-npm install
-```
+Depois, em **dois terminais** (sempre dentro de `SGP`):
 
-### 7. Preparar o ambiente Laravel
-Ainda em `SGP` no CMD:
-```cmd
-copy .env.example .env
-php artisan key:generate
-```
-Se estiver usando SQLite, crie o arquivo de banco:
-```cmd
-type nul > database\database.sqlite
-```
-Se preferir usar MySQL, configure `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` e `DB_PASSWORD` no `.env`.
-
-### 8. Executar o projeto
-No terminal 1 (Laravel) no CMD:
 ```cmd
 php artisan serve
 ```
-Acesse:
-- `http://127.0.0.1:8000`
 
-No terminal 2 (Vite) no CMD:
 ```cmd
 npm run dev
 ```
-Acesse:
-- `http://localhost:5173`
 
-### 9. Erros comuns e como resolver
-- `ERR_CONNECTION_REFUSED` em `http://localhost/`:
-  - não use apenas `http://localhost/`; use `http://127.0.0.1:8000` para o Laravel ou `http://localhost:5173` para o Vite.
-- `Call to undefined function mb_split()`:
-  - habilite `extension=mbstring` no `php.ini`.
-- `Database file ... does not exist`:
-  - crie `database\database.sqlite` ou configure corretamente o `.env`.
-- `Could not read package.json`:
-  - execute `npm install` dentro de `SGP`, não na pasta pai.
-- `Vite requires Node.js version 20.19+ or 22.12+`:
-  - atualize o Node.js para a versão exigida.
+Ou tudo junto: `composer dev`
 
-### 10. Dica final
-Sempre trabalhe na pasta `SGP` para comandos como `composer install`, `npm install`, `php artisan serve` e `npm run dev`. O caminho correto evita a maioria dos erros.
+| O quê | URL |
+|---|---|
+| Login | http://127.0.0.1:8000/login |
+| Início | http://127.0.0.1:8000/app/inicio |
+
+Dados de exemplo (usuários + cursos):
+
+```cmd
+php artisan db:seed
+```
+
+| Perfil | E-mail | Senha |
+|---|---|---|
+| Admin | `administrador@df.senac.br` | `senac2025` |
+| Editor | `editor@df.senac.br` | `editor2025` |
+| Consultor | `consultor@df.senac.br` | `consultor2025` |
+
+### 3. Se você vinha do Docker
+
+```cmd
+cd Sistema_SGP\SGP
+docker-compose down
+copy .env.example .env
+php artisan key:generate
+local-start.cmd
+```
+
+> Não use `.env.docker` fora do Docker (`DB_HOST=mysql` só existe dentro da rede Docker).
+
+### 4. MySQL local (opcional)
+
+No `.env`, troque SQLite por:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=SGP
+DB_USERNAME=laravel
+DB_PASSWORD=password
+```
+
+Crie o banco `SGP` no MySQL da máquina e rode `php artisan migrate`.
+
+### 5. Erros comuns
+- `http://localhost/` sem porta → use **http://127.0.0.1:8000** (local não usa a porta 80).
+- `mb_split()` → habilite `extension=mbstring` no `php.ini`.
+- `Database file ... does not exist` → `type nul > database\database.sqlite`
+- `Could not read package.json` → rode os comandos **dentro de `SGP`**, não na pasta pai.
+- Node antigo → atualize para 20.19+ ou 22.12+.
+
+### 6. PHP no Windows (se ainda não tiver)
+1. Baixe PHP 8.2+, extraia em `C:\php`, copie `php.ini-development` → `php.ini`.
+2. Habilite as extensões listadas no passo 1.
+3. (Opcional) ca-certs: `curl.cainfo` e `openssl.cafile` apontando para `cacert.pem`.
+4. Adicione `C:\php` ao PATH e reinstale/abra o Composer.
 
 ## Como rodar com Docker (resumo)
 

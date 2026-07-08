@@ -80,6 +80,7 @@ services:
     environment:
       - VITE_HOST=0.0.0.0
       - VITE_HMR_HOST=localhost
+      - VITE_IMG_PROXY=http://nginx:80
     volumes:
       - ./:/var/www
       - node_modules:/var/www/node_modules
