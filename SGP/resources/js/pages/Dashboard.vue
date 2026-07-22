@@ -1,7 +1,7 @@
 <template>
-  <div class="page-placeholder">
+  <div class="page-dashboard">
     <h1>Dashboard</h1>
-    <p>Página em construção.</p>
+    <p>Página em Construção.</p>
   </div>
 </template>
 
