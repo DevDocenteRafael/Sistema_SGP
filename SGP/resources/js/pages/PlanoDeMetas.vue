@@ -25,83 +25,59 @@
           type="search"
           placeholder="Buscar por curso, SEI, SIG, observação..."
           aria-label="Buscar registros"
+          @input="carregarRegistros"
         />
       </div>
 
-      <label class="filtro-select">
-        <span>Ano</span>
-        <select v-model="filtros.ano" aria-label="Filtrar por ano">
-          <option value="">Todos</option>
-          <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
-        </select>
-      </label>
+      <select v-model="filtros.ano" aria-label="Filtrar por ano" @change="carregarRegistros">
+        <option value="">Todos os anos</option>
+        <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
+      </select>
 
-      <label class="filtro-select">
-        <span>Segmento</span>
-        <select v-model="filtros.segmento" aria-label="Filtrar por segmento">
-          <option value="">Todos</option>
-          <option value="infraestrutura">Infraestrutura</option>
-          <option value="educacao">Educação</option>
-        </select>
-      </label>
+      <select v-model="filtros.segmento" aria-label="Filtrar por segmento" @change="carregarRegistros">
+        <option value="">Todos os segmentos</option>
+        <option v-for="segmento in segmentosDisponiveis" :key="segmento" :value="segmento">
+          {{ segmento }}
+        </option>
+      </select>
 
-      <label class="filtro-select">
-        <span>Tipo</span>
-        <select v-model="filtros.tipo" aria-label="Filtrar por tipo">
-          <option value="">Todos</option>
-          <option value="presencial">Presencial</option>
-          <option value="hibrido">Híbrido</option>
-        </select>
-      </label>
+      <select v-model="filtros.tipo" aria-label="Filtrar por tipo" @change="carregarRegistros">
+        <option value="">Todos os tipos</option>
+        <option v-for="tipo in tiposDisponiveis" :key="tipo" :value="tipo">{{ tipo }}</option>
+      </select>
 
-      <label class="filtro-select">
-        <span>Mês</span>
-        <select v-model="filtros.mes" aria-label="Filtrar por mês">
-          <option value="">Todos</option>
-          <option value="jan">Janeiro</option>
-          <option value="fev">Fevereiro</option>
-        </select>
-      </label>
+      <select v-model="filtros.mes" aria-label="Filtrar por mês" @change="carregarRegistros">
+        <option value="">Todos os meses</option>
+        <option v-for="mes in mesesDisponiveis" :key="mes" :value="mes">{{ mes }}</option>
+      </select>
 
-      <label class="filtro-select">
-        <span>Status do Registro</span>
-        <select v-model="filtros.status" aria-label="Filtrar por status do registro">
-          <option value="">Todos</option>
-          <option value="planejado">Planejado</option>
-          <option value="em_andamento">Em andamento</option>
-          <option value="concluido">Concluído</option>
-        </select>
-      </label>
+      <select v-model="filtros.status" aria-label="Filtrar por status do registro" @change="carregarRegistros">
+        <option value="">Todos os status</option>
+        <option v-for="status in statusDisponiveis" :key="status" :value="status">{{ status }}</option>
+      </select>
 
-      <label class="filtro-select">
-        <span>Situação Final</span>
-        <select v-model="filtros.situacao" aria-label="Filtrar por situação final">
-          <option value="">Todos</option>
-          <option value="PUBLICADO">PUBLICADO</option>
-          <option value="ENTREGUE">ENTREGUE</option>
-          <option value="EM ANALISE">EM ANALISE</option>
-          <option value="PENDENTE">PENDENTE</option>
-        </select>
-      </label>
-
-      <button type="button" class="btn-filtrar" @click="aplicarFiltros">Filtrar</button>
-
-      <button
-        v-if="temFiltro"
-        type="button"
-        class="btn-limpar"
-        @click="limparFiltros"
-      >
-        Limpar
-      </button>
+      <select v-model="filtros.situacao" aria-label="Filtrar por situação final" @change="carregarRegistros">
+        <option value="">Todas as situações</option>
+        <option v-for="situacao in situacoesDisponiveis" :key="situacao" :value="situacao">
+          {{ situacao }}
+        </option>
+      </select>
     </section>
 
     <section class="tabela-card" aria-label="Tabela de Plano de Metas">
       <div class="tabela-header">
-        <span>{{ totalRegistros }} registros — todos os anos</span>
+        <span>
+          {{ totalRegistros }} registro{{ totalRegistros !== 1 ? 's' : '' }}
+          — {{ filtros.ano || 'todos os anos' }}
+        </span>
       </div>
 
       <div v-if="carregando" class="tabela-loading">Carregando...</div>
+
+      <div v-else-if="totalRegistros === 0 && !temFiltro" class="tabela-vazia estado-vazio">
+        <p class="estado-vazio-titulo">Nenhum registro cadastrado ainda.</p>
+        <p class="estado-vazio-texto">Os registros aparecerão aqui após o cadastro ou a importação.</p>
+      </div>
 
       <div v-else class="tabela-wrap">
         <div v-if="mensagemSucesso" class="mensagem-sucesso">{{ mensagemSucesso }}</div>
@@ -125,7 +101,9 @@
           </thead>
           <tbody>
             <tr v-if="totalRegistros === 0">
-              <td colspan="11" class="tabela-vazia">Nenhum registro encontrado.</td>
+              <td colspan="11" class="tabela-vazia">
+                Nenhum registro encontrado para os filtros selecionados.
+              </td>
             </tr>
             <tr v-for="registro in registros" :key="registro.id">
               <td>{{ registro.segmento || '—' }}</td>

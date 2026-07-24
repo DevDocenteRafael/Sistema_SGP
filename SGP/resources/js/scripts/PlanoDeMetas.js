@@ -1,20 +1,41 @@
 import { podeEditarDados } from './auth';
 
+const FILTROS_VAZIOS = () => ({
+  busca: '',
+  ano: '',
+  segmento: '',
+  tipo: '',
+  mes: '',
+  status: '',
+  situacao: '',
+});
+
 export default {
   name: 'PlanoDeMetas',
   data() {
     return {
       carregando: false,
-      filtros: {
-        busca: '',
-        ano: '',
-        segmento: '',
-        tipo: '',
-        mes: '',
-        status: '',
-        situacao: '',
-      },
+      filtros: FILTROS_VAZIOS(),
+      buscaTimeout: null,
       anosDisponiveis: ['2024', '2025', '2026', '2027'],
+      segmentosDisponiveis: ['Infraestrutura', 'Educação'],
+      tiposDisponiveis: ['QUALIFICAÇÃO', 'PRESENCIAL', 'HÍBRIDO'],
+      mesesDisponiveis: [
+        'Janeiro',
+        'Fevereiro',
+        'Março',
+        'Abril',
+        'Maio',
+        'Junho',
+        'Julho',
+        'Agosto',
+        'Setembro',
+        'Outubro',
+        'Novembro',
+        'Dezembro',
+      ],
+      statusDisponiveis: ['PLANEJADO', 'EM ANÁLISE', 'EM ANDAMENTO', 'CONCLUÍDO'],
+      situacoesDisponiveis: ['PENDENTE', 'EM ANALISE', 'ENTREGUE', 'PUBLICADO'],
       registros: [],
       mensagemSucesso: '',
       mensagemErro: '',
@@ -76,26 +97,61 @@ export default {
       };
     },
     async carregarRegistros() {
-      this.carregando = true;
-      this.mensagemErro = '';
+      clearTimeout(this.buscaTimeout);
 
-      try {
-        const params = {};
+      this.buscaTimeout = setTimeout(async () => {
+        this.carregando = true;
+        this.mensagemErro = '';
 
-        Object.entries(this.filtros).forEach(([chave, valor]) => {
-          if (valor) {
-            params[chave] = valor;
+        try {
+          const params = {};
+
+          Object.entries(this.filtros).forEach(([chave, valor]) => {
+            if (valor) {
+              params[chave] = valor;
+            }
+          });
+
+          const { data } = await window.axios.get('/api/plano-de-metas', { params });
+          this.registros = Array.isArray(data.data)
+            ? data.data.map((registro) => this.normalizarRegistro(registro))
+            : [];
+
+          if (data.meta) {
+            if (Array.isArray(data.meta.anos) && data.meta.anos.length) {
+              this.anosDisponiveis = data.meta.anos;
+            }
+
+            if (Array.isArray(data.meta.segmentos) && data.meta.segmentos.length) {
+              this.segmentosDisponiveis = data.meta.segmentos;
+            }
+
+            if (Array.isArray(data.meta.tipos) && data.meta.tipos.length) {
+              this.tiposDisponiveis = data.meta.tipos;
+            }
+
+            if (Array.isArray(data.meta.meses) && data.meta.meses.length) {
+              this.mesesDisponiveis = data.meta.meses;
+            }
+
+            if (Array.isArray(data.meta.status) && data.meta.status.length) {
+              this.statusDisponiveis = data.meta.status;
+            }
+
+            if (Array.isArray(data.meta.situacoes) && data.meta.situacoes.length) {
+              this.situacoesDisponiveis = data.meta.situacoes;
+            }
           }
-        });
-
-        const { data } = await window.axios.get('/api/plano-de-metas', { params });
-        this.registros = Array.isArray(data.data) ? data.data.map((registro) => this.normalizarRegistro(registro)) : [];
-      } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível carregar os registros de Plano de Metas.');
-        this.registros = [];
-      } finally {
-        this.carregando = false;
-      }
+        } catch (error) {
+          this.mensagemErro = this.extrairErro(
+            error,
+            'Não foi possível carregar os registros de Plano de Metas.'
+          );
+          this.registros = [];
+        } finally {
+          this.carregando = false;
+        }
+      }, 200);
     },
     abrirModalNovo() {
       if (!this.podeEditar) {
@@ -134,16 +190,16 @@ export default {
       this.modalModo = 'editar';
       this.editandoId = registro.id;
       this.novoRegistroForm = {
-        segmento: registro.segmento || '',
-        tipo: registro.tipo || 'QUALIFICAÇÃO',
-        mes_entrega: registro.mesEntrega || '',
-        curso: registro.curso || '',
-        numero_sei: registro.sei || '',
-        codigo_sig: registro.sig || '',
-        status: registro.status || 'EM ANÁLISE',
+        segmento: registro.segmento === '—' ? '' : registro.segmento || '',
+        tipo: registro.tipo === '—' ? 'QUALIFICAÇÃO' : registro.tipo || 'QUALIFICAÇÃO',
+        mes_entrega: registro.mesEntrega === '—' ? '' : registro.mesEntrega || '',
+        curso: registro.curso === '—' ? '' : registro.curso || '',
+        numero_sei: registro.sei === '—' ? '' : registro.sei || '',
+        codigo_sig: registro.sig === '—' ? '' : registro.sig || '',
+        status: registro.status === '—' ? 'EM ANÁLISE' : registro.status || 'EM ANÁLISE',
         origem: registro.origem || 'Plano de Metas',
-        status_final: registro.statusFinal || 'PENDENTE',
-        observacao: registro.observacao || '',
+        status_final: registro.statusFinal === '—' ? 'PENDENTE' : registro.statusFinal || 'PENDENTE',
+        observacao: registro.observacao === '—' ? '' : registro.observacao || '',
       };
       this.mostrarModalNovo = true;
     },
@@ -152,23 +208,6 @@ export default {
       this.editandoId = null;
       this.modalModo = 'novo';
       this.novoRegistroForm = this.formNovoVazio();
-    },
-    limparFiltros() {
-      this.filtros = {
-        busca: '',
-        ano: '',
-        segmento: '',
-        tipo: '',
-        mes: '',
-        status: '',
-        situacao: '',
-      };
-      this.carregarRegistros();
-    },
-    aplicarFiltros() {
-      this.mensagemSucesso = '';
-      this.mensagemErro = '';
-      this.carregarRegistros();
     },
     validarFormularioPlanoDeMeta() {
       if (!this.novoRegistroForm.segmento?.trim()) {

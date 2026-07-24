@@ -92,18 +92,6 @@ export default {
       };
     },
 
-    limparFiltros() {
-      this.filtros = {
-        busca: '',
-        ano: '',
-        eixo: '',
-        status: '',
-        tipo: '',
-        unidade: '',
-      };
-      this.carregarCursos();
-    },
-
     async carregarCursos() {
       clearTimeout(this.buscaTimeout);
 

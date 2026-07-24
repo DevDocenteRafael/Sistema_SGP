@@ -1,0 +1,58 @@
+# =============================================================================
+# Sistema_SGP — raiz do repositório
+# =============================================================================
+
+# SO / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+.fleet/
+.zed/
+.nova/
+*.code-workspace
+
+# Env e segredos (nunca sobem)
+.env
+.env.*
+!.env.example
+!.env.docker
+
+# Dependências e builds (se alguém instalar na raiz)
+node_modules/
+vendor/
+dist/
+build/
+coverage/
+
+# Logs e caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.phpunit.result.cache
+.phpunit.cache/
+
+# Bancos locais
+*.sqlite
+*.sqlite3
+*.db
+
+# Artefatos temporários de análise / scripts
+_xlsx*/
+_xlsx_*
+*.tmp
+*.temp
+.tmp/
+.temp/
+.cache/
+
+# Planilhas baixadas/copiadas por engano na raiz
+*.xlsx
+*.xls
+*.sql.gz
+dump.sql

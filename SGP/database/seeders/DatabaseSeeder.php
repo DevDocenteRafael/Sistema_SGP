@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             UsuarioSeeder::class,
             CursoSeeder::class,
             PlanoDeMetaSeeder::class,
+            CursoPorEixoSeeder::class,
         ]);
     }
 }

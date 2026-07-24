@@ -41,14 +41,6 @@
           <option value="true">Ativo</option>
           <option value="false">Inativo</option>
         </select>
-        <button
-          v-if="temFiltro"
-          type="button"
-          class="btn-limpar"
-          @click="limparFiltros"
-        >
-          Limpar
-        </button>
       </section>
 
       <section class="tabela-card">
