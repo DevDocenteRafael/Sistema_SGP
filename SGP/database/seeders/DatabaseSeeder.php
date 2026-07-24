@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             CursoPorEixoSeeder::class,
             VisitaTecnicaSeeder::class,
             HoraPedagogicaSeeder::class,
+            AcaoExtensivaSeeder::class,
         ]);
     }
 }

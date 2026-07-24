@@ -32,7 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('curso-por-eixos', CursoPorEixoController::class);
     Route::apiResource('horas-pedagogicas', HoraPedagogicaController::class);
     Route::apiResource('visitas-tecnicas', VisitaTecnicaController::class);
-    Route::apiResource('acoes-extensivas', AcaoExtensivaController::class);
+    Route::apiResource('acoes-extensivas', AcaoExtensivaController::class)
+        ->parameters(['acoes-extensivas' => 'acaoExtensiva']);
     Route::apiResource('eventos', EventoController::class);
     Route::apiResource('cped-equipes', CpedEquipeController::class);
 });
