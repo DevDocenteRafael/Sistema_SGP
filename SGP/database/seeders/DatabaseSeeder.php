@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             VisitaTecnicaSeeder::class,
             HoraPedagogicaSeeder::class,
             AcaoExtensivaSeeder::class,
+            EventoSeeder::class,
         ]);
     }
 }
