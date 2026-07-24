@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             CursoSeeder::class,
             PlanoDeMetaSeeder::class,
             CursoPorEixoSeeder::class,
+            VisitaTecnicaSeeder::class,
+            HoraPedagogicaSeeder::class,
         ]);
     }
 }

@@ -27,6 +27,7 @@ export default {
   name: 'Eixos',
   data() {
     return {
+      modo: 'lista',
       registros: [],
       meta: {
         eixos: [],
@@ -40,7 +41,6 @@ export default {
       buscaTimeout: null,
       detalheAberto: false,
       registroDetalhe: null,
-      formAberto: false,
       editandoId: null,
       form: FORM_VAZIO(),
       salvando: false,
@@ -122,14 +122,27 @@ export default {
     },
 
     abrirNovo() {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil só permite consultar cursos por eixo.';
+        return;
+      }
+
+      this.modo = 'novo';
       this.editandoId = null;
       this.form = FORM_VAZIO();
       this.erroFormulario = '';
+      this.mensagemSucesso = '';
+      this.mensagemErro = '';
       this.fecharDetalhes();
-      this.formAberto = true;
     },
 
     abrirEdicao(registro) {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil só permite consultar cursos por eixo.';
+        return;
+      }
+
+      this.modo = 'editar';
       this.editandoId = registro.id;
       this.form = {
         curso: registro.curso ?? '',
@@ -145,8 +158,9 @@ export default {
         observacao: registro.observacao ?? '',
       };
       this.erroFormulario = '';
+      this.mensagemSucesso = '';
+      this.mensagemErro = '';
       this.fecharDetalhes();
-      this.formAberto = true;
     },
 
     editarDoDetalhe() {
@@ -157,12 +171,16 @@ export default {
       this.abrirEdicao(this.registroDetalhe);
     },
 
-    fecharFormulario() {
-      this.formAberto = false;
+    voltarLista() {
+      this.modo = 'lista';
       this.editandoId = null;
       this.form = FORM_VAZIO();
       this.erroFormulario = '';
       this.salvando = false;
+    },
+
+    fecharFormulario() {
+      this.voltarLista();
     },
 
     validarFormulario() {
@@ -222,7 +240,7 @@ export default {
           this.mensagemSucesso = data.message;
         }
 
-        this.fecharFormulario();
+        this.voltarLista();
         await this.carregarRegistros();
       } catch (error) {
         this.erroFormulario = this.extrairErro(error, 'Não foi possível salvar o registro.');

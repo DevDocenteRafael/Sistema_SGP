@@ -1,11 +1,11 @@
 <template>
-  <div class="horas-page">
+  <div class="horas-page" :class="{ 'horas-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
       <header class="horas-top">
         <div class="horas-top-row">
           <div>
             <h1>Horas Pedagógicas</h1>
-            <p class="horas-subtitle">Gestão e acompanhamento das horas pedagógicas e processos vinculados ao portfólio institucional.</p>
+            <p class="horas-subtitle">Controle de horas pedagógicas e processos SEI — SENAC DF</p>
           </div>
 
           <button v-if="podeEditarHoras" type="button" class="btn-novo" @click="abrirNovo">
@@ -15,7 +15,7 @@
         </div>
 
         <div class="horas-info">
-          Acompanhe registros em andamento, concluídos e pendentes com foco em unidade, responsável, atividade e status.
+          Consulte e filtre os registros de horas pedagógicas por SEI, eixo, pessoa, matrícula, ano e situação.
         </div>
       </header>
 
@@ -26,82 +26,119 @@
         Você não possui autorização para consultar esta funcionalidade. Verifique seu perfil de acesso.
       </div>
 
-      <section class="horas-summary-grid" aria-label="Resumo de horas pedagógicas">
-        <article v-for="card in resumoCards" :key="card.label" class="horas-summary-card">
-          <p class="horas-summary-label">{{ card.label }}</p>
-          <p class="horas-summary-value">{{ card.value }}</p>
-          <p class="horas-summary-help">{{ card.help }}</p>
-        </article>
-      </section>
+      <section class="filtros-panel" aria-label="Filtros de horas pedagógicas">
+        <div class="filtros-row">
+          <div class="filtro-busca">
+            <span class="filtro-busca-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </span>
+            <input
+              v-model="filtros.busca"
+              type="search"
+              placeholder="Buscar por SEI, eixo, pessoa, matrícula ou motivo..."
+              aria-label="Buscar hora pedagógica"
+              @input="aplicarFiltros"
+            />
+          </div>
 
-      <section class="filtros-bar">
-        <div class="filtro-busca">
-          <input
-            v-model.trim="filtroBusca"
-            type="search"
-            placeholder="Buscar identificação, responsável, unidade ou atividade..."
-            aria-label="Buscar hora pedagógica"
-          />
+          <div class="filtro-campo">
+            <label for="filtro-ano-hora">Ano</label>
+            <select id="filtro-ano-hora" v-model="filtros.ano" @change="aplicarFiltros">
+              <option value="">Todos</option>
+              <option v-for="ano in anos" :key="ano" :value="ano">{{ ano }}</option>
+            </select>
+          </div>
+
+          <div class="filtro-campo filtro-campo-eixo">
+            <label for="filtro-eixo-hora">Eixo Tecnológico</label>
+            <select id="filtro-eixo-hora" v-model="filtros.eixo" @change="aplicarFiltros">
+              <option value="">Todos</option>
+              <option v-for="eixo in eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
+            </select>
+          </div>
+
+          <div class="filtro-campo">
+            <label for="filtro-status-hora">Status</label>
+            <select id="filtro-status-hora" v-model="filtros.status" @change="aplicarFiltros">
+              <option value="">Todos</option>
+              <option v-for="status in statusLista" :key="status" :value="status">{{ status }}</option>
+            </select>
+          </div>
+
+          <div class="filtro-campo">
+            <label for="filtro-situacao-hora">Situação</label>
+            <select id="filtro-situacao-hora" v-model="filtros.ativo" @change="aplicarFiltros">
+              <option value="">Todas</option>
+              <option value="true">Ativos</option>
+              <option value="false">Inativos</option>
+            </select>
+          </div>
         </div>
-
-        <select v-model="filtroStatus" aria-label="Filtrar por status">
-          <option value="">Todos os status</option>
-          <option value="Planejada">Planejada</option>
-          <option value="Em Andamento">Em Andamento</option>
-          <option value="Concluída">Concluída</option>
-          <option value="Cancelada">Cancelada</option>
-        </select>
-
-        <button v-if="temFiltro" type="button" class="btn-limpar" @click="limparFiltros">
-          Limpar
-        </button>
       </section>
 
-      <section class="tabela-card">
+      <section class="tabela-card" aria-label="Tabela de horas pedagógicas">
         <div class="tabela-header">
-          <span>{{ horasFiltradas.length }} hora{{ horasFiltradas.length !== 1 ? 's' : '' }} pedagógica{{ horasFiltradas.length !== 1 ? 's' : '' }}</span>
+          <span>
+            {{ totalHoras }} registro{{ totalHoras !== 1 ? 's' : '' }}
+            <span class="tabela-header-meta">{{ totalAtivos }} ativo{{ totalAtivos !== 1 ? 's' : '' }}</span>
+          </span>
         </div>
 
-        <div v-if="carregando" class="tabela-loading">Carregando horas pedagógicas...</div>
+        <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
-        <div v-else-if="horasFiltradas.length === 0" class="tabela-vazia estado-vazio">
-          <p class="estado-vazio-titulo">Nenhuma hora pedagógica encontrada.</p>
-          <p class="estado-vazio-texto">Tente ajustar a busca ou limpar os filtros para localizar o registro desejado.</p>
+        <div v-else-if="horas.length === 0" class="tabela-vazia estado-vazio">
+          <p class="estado-vazio-titulo">Nenhuma hora pedagógica cadastrada ainda.</p>
+          <p class="estado-vazio-texto">Os registros aparecerão aqui após o cadastro ou a importação.</p>
         </div>
 
         <div v-else class="tabela-wrap">
           <table class="horas-table">
             <thead>
               <tr>
-                <th>Identificação</th>
-                <th>Unidade</th>
-                <th>Responsável</th>
-                <th>Atividade</th>
-                <th>Período</th>
+                <th>Pessoa</th>
+                <th>Matrícula</th>
+                <th>Segmento</th>
+                <th>Eixo</th>
+                <th>Processo SEI</th>
+                <th>Ano</th>
+                <th>Motivo</th>
                 <th>Status</th>
+                <th>Ativo</th>
                 <th class="text-center">Ações</th>
               </tr>
             </thead>
             <tbody>
+              <tr v-if="totalHoras === 0">
+                <td colspan="10" class="tabela-vazia">
+                  Nenhum registro encontrado para os filtros selecionados.
+                </td>
+              </tr>
               <tr v-for="hora in horasFiltradas" :key="hora.id">
                 <td>
-                  <strong class="hora-identificador">{{ hora.identificador }}</strong>
+                  <strong class="hora-pessoa">{{ hora.pessoa || '—' }}</strong>
                 </td>
-                <td>{{ hora.unidade }}</td>
-                <td>{{ hora.responsavel }}</td>
-                <td>{{ hora.atividade }}</td>
-                <td>{{ formatarData(hora.data) }}</td>
+                <td>{{ hora.matricula || '—' }}</td>
+                <td>{{ hora.segmento || '—' }}</td>
+                <td>{{ hora.eixo || '—' }}</td>
+                <td>{{ hora.processo_sei || '—' }}</td>
+                <td>{{ hora.ano || '—' }}</td>
+                <td class="col-motivo" :title="hora.motivo || ''">{{ hora.motivo || '—' }}</td>
                 <td>
                   <span class="badge-status" :class="statusClass(hora.status)">{{ hora.status }}</span>
                 </td>
+                <td>
+                  <span class="badge-ativo" :class="hora.ativo ? 'ativo-sim' : 'ativo-nao'">
+                    {{ rotuloAtivo(hora.ativo) }}
+                  </span>
+                </td>
                 <td class="text-center acoes">
-                  <button type="button" class="btn-icon btn-view" title="Visualizar detalhes" @click="abrirDetalhes(hora)">
+                  <button type="button" class="btn-icon btn-view" title="Visualizar" @click="abrirDetalhes(hora)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
-                  <button v-if="podeEditarHoras" type="button" class="btn-icon btn-edit" title="Editar hora" @click="abrirEdicao(hora)">
+                  <button v-if="podeEditarHoras" type="button" class="btn-icon btn-edit" title="Editar" @click="abrirEdicao(hora)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                   </button>
-                  <button v-if="podeEditarHoras" type="button" class="btn-icon btn-delete" title="Cancelar hora" @click="cancelarHora(hora)">
+                  <button v-if="podeEditarHoras" type="button" class="btn-icon btn-delete" title="Excluir" @click="excluirHora(hora)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                   </button>
                 </td>
@@ -115,15 +152,33 @@
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-hora-titulo">
           <div class="modal-detalhes-header">
             <h2 id="detalhe-hora-titulo">Detalhes da Hora Pedagógica</h2>
-            <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">
-              ×
-            </button>
+            <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">×</button>
           </div>
 
           <div class="detalhe-grid">
             <div class="detalhe-campo">
-              <span class="detalhe-label">Identificação</span>
-              <span class="detalhe-valor">{{ horaDetalhe.identificador }}</span>
+              <span class="detalhe-label">Pessoa</span>
+              <span class="detalhe-valor">{{ horaDetalhe.pessoa || '—' }}</span>
+            </div>
+            <div class="detalhe-campo">
+              <span class="detalhe-label">Matrícula</span>
+              <span class="detalhe-valor">{{ horaDetalhe.matricula || '—' }}</span>
+            </div>
+            <div class="detalhe-campo">
+              <span class="detalhe-label">Segmento</span>
+              <span class="detalhe-valor">{{ horaDetalhe.segmento || '—' }}</span>
+            </div>
+            <div class="detalhe-campo">
+              <span class="detalhe-label">Eixo</span>
+              <span class="detalhe-valor">{{ horaDetalhe.eixo || '—' }}</span>
+            </div>
+            <div class="detalhe-campo">
+              <span class="detalhe-label">Processo SEI</span>
+              <span class="detalhe-valor">{{ horaDetalhe.processo_sei || '—' }}</span>
+            </div>
+            <div class="detalhe-campo">
+              <span class="detalhe-label">Ano</span>
+              <span class="detalhe-valor">{{ horaDetalhe.ano || '—' }}</span>
             </div>
             <div class="detalhe-campo">
               <span class="detalhe-label">Status</span>
@@ -132,33 +187,23 @@
               </span>
             </div>
             <div class="detalhe-campo">
-              <span class="detalhe-label">Responsável</span>
-              <span class="detalhe-valor">{{ horaDetalhe.responsavel }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Unidade</span>
-              <span class="detalhe-valor">{{ horaDetalhe.unidade }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Atividade</span>
-              <span class="detalhe-valor">{{ horaDetalhe.atividade }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Data</span>
-              <span class="detalhe-valor">{{ formatarData(horaDetalhe.data) }}</span>
+              <span class="detalhe-label">Ativo</span>
+              <span class="detalhe-valor">{{ rotuloAtivo(horaDetalhe.ativo) }}</span>
             </div>
             <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Objetivo</span>
-              <span class="detalhe-valor detalhe-valor-texto">{{ horaDetalhe.objetivo }}</span>
+              <span class="detalhe-label">Motivo</span>
+              <span class="detalhe-valor detalhe-valor-texto">{{ horaDetalhe.motivo || '—' }}</span>
             </div>
             <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Observações</span>
-              <span class="detalhe-valor detalhe-valor-texto">{{ horaDetalhe.observacoes }}</span>
+              <span class="detalhe-label">Observação</span>
+              <span class="detalhe-valor detalhe-valor-texto">{{ horaDetalhe.observacao || '—' }}</span>
             </div>
           </div>
 
           <div class="modal-detalhes-actions">
-            <button v-if="podeEditarHoras" type="button" class="btn-editar-modal" @click="abrirEdicao(horaDetalhe)">Editar Hora</button>
+            <button v-if="podeEditarHoras" type="button" class="btn-editar-modal" @click="abrirEdicao(horaDetalhe)">
+              Editar Hora
+            </button>
             <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
           </div>
         </div>
@@ -175,7 +220,7 @@
             <p>
               {{
                 modo === 'novo'
-                  ? 'Preencha os dados para registrar uma nova hora pedagógica no sistema.'
+                  ? 'Preencha os dados para registrar uma nova hora pedagógica.'
                   : 'Atualize as informações da hora pedagógica selecionada.'
               }}
             </p>
@@ -186,54 +231,87 @@
           <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
 
           <section class="form-section">
-            <h2>Dados da Hora</h2>
+            <h2>Dados da pessoa</h2>
             <div class="form-grid">
-              <div class="form-group full">
-                <label for="identificador">Identificador <span>*</span></label>
-                <input id="identificador" v-model="form.identificador" type="text" maxlength="50" required placeholder="Ex: HP-2026-010" />
+              <div class="form-group">
+                <label for="pessoa">Pessoa <span>*</span></label>
+                <input id="pessoa" v-model="form.pessoa" type="text" maxlength="100" required placeholder="Nome completo" />
               </div>
               <div class="form-group">
-                <label for="unidade">Unidade <span>*</span></label>
-                <select id="unidade" v-model="form.unidade" required>
-                  <option value="" disabled>Selecione a unidade</option>
-                  <option v-for="unidade in unidades" :key="unidade" :value="unidade">{{ unidade }}</option>
+                <label for="matricula">Matrícula <span>*</span></label>
+                <input id="matricula" v-model="form.matricula" type="text" maxlength="20" required placeholder="Ex: 2026001" />
+              </div>
+              <div class="form-group">
+                <label for="segmento">Segmento <span>*</span></label>
+                <select id="segmento" v-model="form.segmento" required>
+                  <option value="" disabled>Selecione o segmento</option>
+                  <option v-for="segmento in segmentos" :key="segmento" :value="segmento">{{ segmento }}</option>
                 </select>
               </div>
               <div class="form-group">
-                <label for="responsavel">Responsável <span>*</span></label>
-                <input id="responsavel" v-model="form.responsavel" type="text" maxlength="100" required placeholder="Nome do responsável" />
-              </div>
-              <div class="form-group">
-                <label for="atividade">Atividade <span>*</span></label>
-                <input id="atividade" v-model="form.atividade" type="text" maxlength="120" required placeholder="Atividade pedagógica" />
-              </div>
-              <div class="form-group">
-                <label for="data">Data <span>*</span></label>
-                <input id="data" v-model="form.data" type="date" required />
-              </div>
-              <div class="form-group">
-                <label for="status">Status <span>*</span></label>
-                <select id="status" v-model="form.status" required>
-                  <option value="" disabled>Selecione o status</option>
-                  <option value="Planejada">Planejada</option>
-                  <option value="Em Andamento">Em Andamento</option>
-                  <option value="Concluída">Concluída</option>
-                  <option value="Cancelada">Cancelada</option>
+                <label for="eixo">Eixo <span>*</span></label>
+                <select id="eixo" v-model="form.eixo" required>
+                  <option value="" disabled>Selecione o eixo</option>
+                  <option v-for="eixo in eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
                 </select>
               </div>
             </div>
           </section>
 
           <section class="form-section">
-            <h2>Detalhes da Hora</h2>
+            <h2>Processo</h2>
             <div class="form-grid">
-              <div class="form-group full">
-                <label for="objetivo">Objetivo <span>*</span></label>
-                <textarea id="objetivo" v-model="form.objetivo" rows="4" required placeholder="Descreva o objetivo da hora pedagógica"></textarea>
+              <div class="form-group">
+                <label for="processo_sei">Processo SEI <span>*</span></label>
+                <input
+                  id="processo_sei"
+                  v-model="form.processo_sei"
+                  type="text"
+                  maxlength="50"
+                  required
+                  placeholder="Ex: 00002.000111/2026-01"
+                />
+              </div>
+              <div class="form-group">
+                <label for="ano">Ano <span>*</span></label>
+                <select id="ano" v-model="form.ano" required>
+                  <option value="" disabled>Selecione o ano</option>
+                  <option v-for="ano in anos" :key="ano" :value="ano">{{ ano }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="status">Status <span>*</span></label>
+                <select id="status" v-model="form.status" required>
+                  <option value="" disabled>Selecione o status</option>
+                  <option v-for="status in statusLista" :key="status" :value="status">{{ status }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="ativo">Ativo</label>
+                <select id="ativo" v-model="form.ativo">
+                  <option value="true">Sim</option>
+                  <option value="false">Não</option>
+                </select>
               </div>
               <div class="form-group full">
-                <label for="observacoes">Observações</label>
-                <textarea id="observacoes" v-model="form.observacoes" rows="4" placeholder="Informações adicionais, pendências ou observações relevantes"></textarea>
+                <label for="motivo">Motivo <span>*</span></label>
+                <input
+                  id="motivo"
+                  v-model="form.motivo"
+                  type="text"
+                  maxlength="200"
+                  required
+                  placeholder="Motivo da solicitação de horas"
+                />
+              </div>
+              <div class="form-group full">
+                <label for="observacao">Observação</label>
+                <textarea
+                  id="observacao"
+                  v-model="form.observacao"
+                  rows="3"
+                  placeholder="Informações adicionais ou pendências"
+                ></textarea>
               </div>
             </div>
           </section>

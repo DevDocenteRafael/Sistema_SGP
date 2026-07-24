@@ -1,61 +1,42 @@
 import { UNIDADES } from './unidades';
 import { getPerfil, podeEditarDados, podeConsultarDados } from './auth';
 
+const EIXOS = [
+  'Gastronomia',
+  'Ambiente e Saúde',
+  'Gestão e Moda',
+  'Tecnologia e Economia Criativa',
+  'Beleza e Cuidado Pessoal',
+  'Turismo e Hospitalidade',
+  'Comunicação e Audiovisual',
+  'Artes e Design',
+];
+
+const STATUS_LISTA = ['Pendente', 'Em andamento', 'Realizada', 'Cancelada', 'Atrasada'];
+
+const ANOS = ['2024', '2025', '2026', '2027'];
+
+const PRAZO_LISTA = [
+  { value: 'dentro', label: 'Dentro do prazo' },
+  { value: 'fora', label: 'Fora do prazo' },
+];
+
 export default {
   name: 'VisitasTecnicas',
 
   data() {
     return {
       modo: 'lista',
-      visitasBase: [
-        {
-          id: 1,
-          identificador: 'VT-2026-001',
-          unidade: 'SENAC DF',
-          responsavel: 'Ana Souza',
-          local: 'CPED',
-          data: '2026-07-24',
-          status: 'Realizada',
-          objetivo: 'Acompanhamento de ações de formação e atualização do portfólio pedagógico.',
-          observacoes: 'Visita concluída com relatório encaminhado para coordenação.',
-        },
-        {
-          id: 2,
-          identificador: 'VT-2026-002',
-          unidade: 'SENAC DF',
-          responsavel: 'Bruno Lima',
-          local: 'Centro de Formação',
-          data: '2026-07-26',
-          status: 'Agendada',
-          objetivo: 'Verificação de estrutura e logística para a próxima ação programada.',
-          observacoes: 'A visita está aguardando confirmação final de horário e equipe.',
-        },
-        {
-          id: 3,
-          identificador: 'VT-2026-003',
-          unidade: 'SENAC DF',
-          responsavel: 'Carla Mendes',
-          local: 'Escola Técnica',
-          data: '2026-07-28',
-          status: 'Planejada',
-          objetivo: 'Mapeamento inicial das necessidades e oportunidades de melhoria.',
-          observacoes: 'Registro em preparação com foco em cronograma e participantes.',
-        },
-        {
-          id: 4,
-          identificador: 'VT-2026-004',
-          unidade: 'SENAC DF',
-          responsavel: 'Daniel Rego',
-          local: 'Unidade de Educação',
-          data: '2026-07-30',
-          status: 'Cancelada',
-          objetivo: 'Análise de processo em andamento.',
-          observacoes: 'Visita cancelada por ajuste de agenda institucional.',
-        },
-      ],
       visitas: [],
-      filtroBusca: '',
-      filtroStatus: '',
+      filtros: {
+        busca: '',
+        ano: '',
+        unidade: '',
+        eixo: '',
+        status: '',
+        prazo: '',
+      },
+      buscaTimeout: null,
       carregando: true,
       erro: '',
       mensagemSucesso: '',
@@ -65,6 +46,10 @@ export default {
       editandoId: null,
       form: this.formVazio(),
       unidades: UNIDADES,
+      eixos: EIXOS,
+      statusLista: STATUS_LISTA,
+      anosDisponiveis: ANOS,
+      prazoLista: PRAZO_LISTA,
     };
   },
 
@@ -85,43 +70,16 @@ export default {
       return podeConsultarDados();
     },
 
-    resumoCards() {
-      const total = this.visitas.length;
-      const realizadas = this.visitas.filter((visita) => visita.status === 'Realizada').length;
-      const agendadas = this.visitas.filter((visita) => visita.status === 'Agendada').length;
-      const pendentes = this.visitas.filter((visita) => ['Planejada', 'Agendada'].includes(visita.status)).length;
-
-      return [
-        { label: 'Total', value: String(total).padStart(2, '0'), help: 'Visitas registradas no período' },
-        { label: 'Realizadas', value: String(realizadas).padStart(2, '0'), help: 'Concluídas com registro' },
-        { label: 'Agendadas', value: String(agendadas).padStart(2, '0'), help: 'Próximas visitas' },
-        { label: 'Pendentes', value: String(pendentes).padStart(2, '0'), help: 'Aguardando confirmação' },
-      ];
+    temFiltro() {
+      return Object.values(this.filtros).some(Boolean);
     },
 
     visitasFiltradas() {
-      const busca = this.filtroBusca.toLowerCase();
-
-      return this.visitas.filter((visita) => {
-        const atendeBusca = !busca || [
-          visita.identificador,
-          visita.unidade,
-          visita.responsavel,
-          visita.local,
-          visita.status,
-        ]
-          .join(' ')
-          .toLowerCase()
-          .includes(busca);
-
-        const atendeStatus = !this.filtroStatus || visita.status === this.filtroStatus;
-
-        return atendeBusca && atendeStatus;
-      });
+      return this.visitas;
     },
 
-    temFiltro() {
-      return Boolean(this.filtroBusca || this.filtroStatus);
+    totalVisitas() {
+      return this.visitasFiltradas.length;
     },
   },
 
@@ -132,18 +90,47 @@ export default {
   methods: {
     formVazio() {
       return {
-        identificador: '',
         unidade: '',
-        responsavel: '',
-        local: '',
-        data: '',
+        eixo: '',
+        processo_sei: '',
+        data_solicitacao: '',
+        data_visita_prevista: '',
+        prazo_limite: '',
         status: '',
-        objetivo: '',
-        observacoes: '',
+        responsavel: '',
+        relatorio: '',
+        observacao: '',
       };
     },
 
-    carregarVisitas() {
+    normalizarRegistro(registro) {
+      return {
+        ...registro,
+        processo_sei: registro.processo_sei || registro.processo_SEI || '',
+        data_solicitacao: this.normalizarData(registro.data_solicitacao),
+        data_visita_prevista: this.normalizarData(registro.data_visita_prevista),
+        prazo_limite: this.normalizarData(registro.prazo_limite),
+        relatorio: registro.relatorio || '',
+        observacao: registro.observacao || '',
+      };
+    },
+
+    normalizarData(valor) {
+      if (!valor) {
+        return '';
+      }
+
+      return String(valor).slice(0, 10);
+    },
+
+    aplicarFiltros() {
+      clearTimeout(this.buscaTimeout);
+      this.buscaTimeout = setTimeout(() => {
+        this.carregarVisitas();
+      }, 200);
+    },
+
+    async carregarVisitas() {
       this.carregando = true;
       this.erro = '';
 
@@ -154,20 +141,47 @@ export default {
         return;
       }
 
-      setTimeout(() => {
-        try {
-          this.visitas = [...this.visitasBase];
-          this.carregando = false;
-        } catch (error) {
-          this.carregando = false;
-          this.erro = 'Não foi possível carregar as visitas técnicas. Tente novamente.';
-        }
-      }, 450);
-    },
+      try {
+        const params = {};
 
-    limparFiltros() {
-      this.filtroBusca = '';
-      this.filtroStatus = '';
+        ['busca', 'ano', 'unidade', 'eixo', 'status', 'prazo'].forEach((chave) => {
+          if (this.filtros[chave]) {
+            params[chave] = this.filtros[chave];
+          }
+        });
+
+        const { data } = await window.axios.get('/api/visitas-tecnicas', { params });
+        this.visitas = Array.isArray(data.data)
+          ? data.data.map((item) => this.normalizarRegistro(item))
+          : [];
+
+        if (data.meta) {
+          if (Array.isArray(data.meta.anos) && data.meta.anos.length) {
+            this.anosDisponiveis = data.meta.anos;
+          }
+
+          if (Array.isArray(data.meta.eixos) && data.meta.eixos.length) {
+            this.eixos = data.meta.eixos;
+          }
+
+          if (Array.isArray(data.meta.status) && data.meta.status.length) {
+            this.statusLista = data.meta.status;
+          }
+
+          if (Array.isArray(data.meta.unidades) && data.meta.unidades.length) {
+            this.unidades = data.meta.unidades;
+          }
+
+          if (Array.isArray(data.meta.prazos) && data.meta.prazos.length) {
+            this.prazoLista = data.meta.prazos;
+          }
+        }
+      } catch (error) {
+        this.erro = this.extrairErro(error, 'Não foi possível carregar as visitas técnicas.');
+        this.visitas = [];
+      } finally {
+        this.carregando = false;
+      }
     },
 
     bloquearSemPermissao(mensagem = 'Seu perfil só permite consultar visitas técnicas.') {
@@ -189,6 +203,8 @@ export default {
       this.form = this.formVazio();
       this.erroFormulario = '';
       this.mensagemSucesso = '';
+      this.erro = '';
+      this.fecharDetalhes();
     },
 
     abrirEdicao(visita) {
@@ -200,18 +216,21 @@ export default {
       this.modo = 'editar';
       this.editandoId = visita.id ?? null;
       this.form = {
-        identificador: visita.identificador ?? '',
         unidade: visita.unidade ?? '',
-        responsavel: visita.responsavel ?? '',
-        local: visita.local ?? '',
-        data: visita.data ?? '',
+        eixo: visita.eixo ?? '',
+        processo_sei: visita.processo_sei ?? '',
+        data_solicitacao: this.normalizarData(visita.data_solicitacao),
+        data_visita_prevista: this.normalizarData(visita.data_visita_prevista),
+        prazo_limite: this.normalizarData(visita.prazo_limite),
         status: visita.status ?? '',
-        objetivo: visita.objetivo ?? '',
-        observacoes: visita.observacoes ?? '',
+        responsavel: visita.responsavel ?? '',
+        relatorio: visita.relatorio ?? '',
+        observacao: visita.observacao ?? '',
       };
       this.erroFormulario = '';
       this.mensagemSucesso = '';
-      this.visitaDetalhe = null;
+      this.erro = '';
+      this.fecharDetalhes();
     },
 
     voltarLista() {
@@ -219,6 +238,19 @@ export default {
       this.editandoId = null;
       this.erroFormulario = '';
       this.form = this.formVazio();
+      this.salvando = false;
+    },
+
+    validarFormulario() {
+      if (!this.form.unidade) return 'A unidade é obrigatória.';
+      if (!this.form.eixo) return 'O eixo é obrigatório.';
+      if (!this.form.processo_sei?.trim()) return 'O processo SEI é obrigatório.';
+      if (!this.form.data_solicitacao) return 'A data de solicitação é obrigatória.';
+      if (!this.form.data_visita_prevista) return 'A data prevista da visita é obrigatória.';
+      if (!this.form.prazo_limite) return 'O prazo limite é obrigatório.';
+      if (!this.form.status) return 'O status é obrigatório.';
+      if (!this.form.responsavel?.trim()) return 'O responsável é obrigatório.';
+      return '';
     },
 
     async salvarVisita() {
@@ -228,82 +260,89 @@ export default {
         return;
       }
 
-      if (
-        !this.form.identificador ||
-        !this.form.unidade ||
-        !this.form.responsavel ||
-        !this.form.local ||
-        !this.form.data ||
-        !this.form.status ||
-        !this.form.objetivo
-      ) {
-        this.erroFormulario = 'Preencha todos os campos obrigatórios antes de salvar.';
+      const erroValidacao = this.validarFormulario();
+
+      if (erroValidacao) {
+        this.erroFormulario = erroValidacao;
         return;
       }
 
       this.salvando = true;
       this.erroFormulario = '';
       this.mensagemSucesso = '';
+      this.erro = '';
 
-      setTimeout(() => {
-        const payload = {
-          ...this.form,
-          id: this.modo === 'editar' && this.editandoId ? this.editandoId : Date.now(),
-        };
+      const payload = {
+        unidade: this.form.unidade,
+        eixo: this.form.eixo,
+        processo_sei: this.form.processo_sei.trim(),
+        data_solicitacao: this.form.data_solicitacao,
+        data_visita_prevista: this.form.data_visita_prevista,
+        prazo_limite: this.form.prazo_limite,
+        status: this.form.status,
+        responsavel: this.form.responsavel.trim(),
+        relatorio: this.form.relatorio?.trim() || null,
+        observacao: this.form.observacao?.trim() || null,
+      };
 
-        if (this.modo === 'editar') {
-          const index = this.visitas.findIndex((item) => item.id === this.editandoId);
-
-          if (index >= 0) {
-            this.visitas.splice(index, 1, payload);
-          }
+      try {
+        if (this.modo === 'editar' && this.editandoId) {
+          const { data } = await window.axios.put(`/api/visitas-tecnicas/${this.editandoId}`, payload);
+          this.mensagemSucesso = data.message;
         } else {
-          this.visitas.unshift(payload);
+          const { data } = await window.axios.post('/api/visitas-tecnicas', payload);
+          this.mensagemSucesso = data.message;
         }
 
-        this.mensagemSucesso = this.modo === 'editar'
-          ? 'Visita técnica atualizada com sucesso.'
-          : 'Visita técnica cadastrada com sucesso.';
-
-        this.salvando = false;
         this.voltarLista();
-      }, 250);
+        await this.carregarVisitas();
+      } catch (error) {
+        this.erroFormulario = this.extrairErro(error, 'Não foi possível salvar a visita técnica.');
+      } finally {
+        this.salvando = false;
+      }
     },
 
-    cancelarVisita(visita) {
+    async excluirVisita(visita) {
       if (!this.podeEditarVisita) {
         this.bloquearSemPermissao();
         return;
       }
 
-      if (!visita || visita.status === 'Cancelada') {
+      if (!visita) {
         return;
       }
 
-      const confirmar = window.confirm(`Deseja cancelar a visita ${visita.identificador}?`);
+      const confirmar = window.confirm(
+        `Deseja excluir a visita do processo ${visita.processo_sei || visita.id}?`
+      );
 
       if (!confirmar) {
         return;
       }
 
-      const index = this.visitas.findIndex((item) => item.id === visita.id);
-
-      if (index >= 0) {
-        this.visitas[index] = {
-          ...this.visitas[index],
-          status: 'Cancelada',
-          observacoes: `${this.visitas[index].observacoes || ''} Visita cancelada pelo usuário.`.trim(),
-        };
-      }
-
-      this.mensagemSucesso = 'Visita técnica cancelada com sucesso.';
       this.erro = '';
-      this.erroFormulario = '';
-      this.visitaDetalhe = null;
+      this.mensagemSucesso = '';
+
+      try {
+        const { data } = await window.axios.delete(`/api/visitas-tecnicas/${visita.id}`);
+        this.mensagemSucesso = data.message;
+        this.fecharDetalhes();
+        await this.carregarVisitas();
+      } catch (error) {
+        this.erro = this.extrairErro(error, 'Não foi possível excluir a visita técnica.');
+      }
     },
 
-    abrirDetalhes(visita) {
-      this.visitaDetalhe = { ...visita };
+    async abrirDetalhes(visita) {
+      this.visitaDetalhe = this.normalizarRegistro(visita);
+
+      try {
+        const { data } = await window.axios.get(`/api/visitas-tecnicas/${visita.id}`);
+        this.visitaDetalhe = this.normalizarRegistro(data.visitaTecnica ?? visita);
+      } catch (error) {
+        this.erro = this.extrairErro(error, 'Não foi possível carregar os detalhes da visita.');
+      }
     },
 
     fecharDetalhes() {
@@ -311,11 +350,13 @@ export default {
     },
 
     formatarData(data) {
-      if (!data) {
+      const normalizada = this.normalizarData(data);
+
+      if (!normalizada) {
         return '—';
       }
 
-      const [ano, mes, dia] = String(data).split('-');
+      const [ano, mes, dia] = normalizada.split('-');
 
       if (!ano || !mes || !dia) {
         return data;
@@ -325,19 +366,31 @@ export default {
     },
 
     statusClass(status) {
-      if (status === 'Realizada') {
-        return 'badge-realizada';
+      const mapa = {
+        Realizada: 'badge-realizada',
+        'Em andamento': 'badge-andamento',
+        Pendente: 'badge-pendente',
+        Atrasada: 'badge-atrasada',
+        Cancelada: 'badge-cancelada',
+      };
+
+      return mapa[status] || 'badge-pendente';
+    },
+
+    extrairErro(error, fallback) {
+      if (error.response?.data?.message) {
+        return error.response.data.message;
       }
 
-      if (status === 'Agendada') {
-        return 'badge-agendada';
+      const errors = error.response?.data?.errors;
+
+      if (errors) {
+        const primeiro = Object.values(errors)[0];
+
+        return Array.isArray(primeiro) ? primeiro[0] : fallback;
       }
 
-      if (status === 'Planejada') {
-        return 'badge-planejada';
-      }
-
-      return 'badge-cancelada';
+      return fallback;
     },
   },
 };

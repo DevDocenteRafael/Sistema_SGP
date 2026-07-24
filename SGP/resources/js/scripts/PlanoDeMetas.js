@@ -14,6 +14,7 @@ export default {
   name: 'PlanoDeMetas',
   data() {
     return {
+      modo: 'lista',
       carregando: false,
       filtros: FILTROS_VAZIOS(),
       buscaTimeout: null,
@@ -40,12 +41,10 @@ export default {
       mensagemSucesso: '',
       mensagemErro: '',
       salvando: false,
-      mostrarModalNovo: false,
       detalheAberto: false,
       registroDetalhe: null,
       editandoId: null,
-      modalModo: 'novo',
-      novoRegistroForm: this.formNovoVazio(),
+      form: this.formVazio(),
     };
   },
   computed: {
@@ -63,7 +62,7 @@ export default {
     this.carregarRegistros();
   },
   methods: {
-    formNovoVazio() {
+    formVazio() {
       return {
         segmento: '',
         tipo: '',
@@ -153,18 +152,18 @@ export default {
         }
       }, 200);
     },
-    abrirModalNovo() {
+    abrirNovo() {
       if (!this.podeEditar) {
         this.mensagemErro = 'Seu perfil só permite consultar registros de Plano de Metas.';
         return;
       }
 
-      this.modalModo = 'novo';
+      this.modo = 'novo';
       this.editandoId = null;
-      this.novoRegistroForm = this.formNovoVazio();
-      this.mostrarModalNovo = true;
+      this.form = this.formVazio();
       this.mensagemSucesso = '';
       this.mensagemErro = '';
+      this.fecharDetalhes();
     },
     async abrirDetalhes(registro) {
       this.detalheAberto = true;
@@ -187,70 +186,74 @@ export default {
         return;
       }
 
-      this.modalModo = 'editar';
+      this.modo = 'editar';
       this.editandoId = registro.id;
-      this.novoRegistroForm = {
+      this.form = {
         segmento: registro.segmento === '—' ? '' : registro.segmento || '',
-        tipo: registro.tipo === '—' ? 'QUALIFICAÇÃO' : registro.tipo || 'QUALIFICAÇÃO',
-        mes_entrega: registro.mesEntrega === '—' ? '' : registro.mesEntrega || '',
+        tipo: registro.tipo === '—' ? '' : registro.tipo || '',
+        mes_entrega: registro.mesEntrega === '—' ? (registro.mes_entrega || '') : registro.mesEntrega || '',
         curso: registro.curso === '—' ? '' : registro.curso || '',
-        numero_sei: registro.sei === '—' ? '' : registro.sei || '',
-        codigo_sig: registro.sig === '—' ? '' : registro.sig || '',
-        status: registro.status === '—' ? 'EM ANÁLISE' : registro.status || 'EM ANÁLISE',
+        numero_sei: registro.sei === '—' ? (registro.numero_sei || '') : registro.sei || '',
+        codigo_sig: registro.sig === '—' ? (registro.codigo_sig || '') : registro.sig || '',
+        status: registro.status === '—' ? '' : registro.status || '',
         origem: registro.origem || 'Plano de Metas',
-        status_final: registro.statusFinal === '—' ? 'PENDENTE' : registro.statusFinal || 'PENDENTE',
+        status_final: registro.statusFinal === '—'
+          ? (registro.status_final || '')
+          : registro.statusFinal || '',
         observacao: registro.observacao === '—' ? '' : registro.observacao || '',
       };
-      this.mostrarModalNovo = true;
+      this.mensagemSucesso = '';
+      this.mensagemErro = '';
+      this.fecharDetalhes();
     },
-    fecharModalNovo() {
-      this.mostrarModalNovo = false;
+    voltarLista() {
+      this.modo = 'lista';
       this.editandoId = null;
-      this.modalModo = 'novo';
-      this.novoRegistroForm = this.formNovoVazio();
+      this.form = this.formVazio();
+      this.salvando = false;
     },
-    validarFormularioPlanoDeMeta() {
-      if (!this.novoRegistroForm.segmento?.trim()) {
+    validarFormulario() {
+      if (!this.form.segmento?.trim()) {
         return 'O segmento é obrigatório.';
       }
 
-      if (!this.novoRegistroForm.curso?.trim()) {
+      if (!this.form.curso?.trim()) {
         return 'O curso é obrigatório.';
       }
 
-      if (!this.novoRegistroForm.tipo?.trim()) {
+      if (!this.form.tipo?.trim()) {
         return 'O tipo é obrigatório.';
       }
 
-      if (!this.novoRegistroForm.numero_sei?.trim()) {
+      if (!this.form.numero_sei?.trim()) {
         return 'Informe o número SEI.';
       }
 
-      if (!this.novoRegistroForm.codigo_sig?.trim()) {
+      if (!this.form.codigo_sig?.trim()) {
         return 'Informe o código SIG.';
       }
 
-      if (!this.novoRegistroForm.mes_entrega?.trim()) {
+      if (!this.form.mes_entrega?.trim()) {
         return 'Informe o mês de entrega.';
       }
 
-      if (!this.novoRegistroForm.status?.trim()) {
+      if (!this.form.status?.trim()) {
         return 'Informe o status do registro.';
       }
 
-      if (!this.novoRegistroForm.status_final?.trim()) {
+      if (!this.form.status_final?.trim()) {
         return 'Informe o status final.';
       }
 
       return '';
     },
-    async salvarNovoRegistro() {
+    async salvarRegistro() {
       if (!this.podeEditar) {
         this.mensagemErro = 'Seu perfil só permite consultar registros de Plano de Metas.';
         return;
       }
 
-      const erroValidacao = this.validarFormularioPlanoDeMeta();
+      const erroValidacao = this.validarFormulario();
 
       if (erroValidacao) {
         this.mensagemErro = erroValidacao;
@@ -262,16 +265,16 @@ export default {
       this.mensagemErro = '';
 
       const payload = {
-        segmento: this.novoRegistroForm.segmento,
-        curso: this.novoRegistroForm.curso,
-        tipo: this.novoRegistroForm.tipo,
-        numero_sei: this.novoRegistroForm.numero_sei,
-        codigo_sig: this.novoRegistroForm.codigo_sig,
-        mes_entrega: this.novoRegistroForm.mes_entrega,
-        status: this.novoRegistroForm.status,
-        origem: this.novoRegistroForm.origem,
-        observacao: this.novoRegistroForm.observacao,
-        status_final: this.novoRegistroForm.status_final,
+        segmento: this.form.segmento,
+        curso: this.form.curso,
+        tipo: this.form.tipo,
+        numero_sei: this.form.numero_sei,
+        codigo_sig: this.form.codigo_sig,
+        mes_entrega: this.form.mes_entrega,
+        status: this.form.status,
+        origem: this.form.origem,
+        observacao: this.form.observacao,
+        status_final: this.form.status_final,
         ano: Number(this.filtros.ano || new Date().getFullYear()),
       };
 
@@ -284,7 +287,7 @@ export default {
           this.mensagemSucesso = data.message;
         }
 
-        this.fecharModalNovo();
+        this.voltarLista();
         await this.carregarRegistros();
       } catch (error) {
         this.mensagemErro = this.extrairErro(error, 'Não foi possível salvar o registro de Plano de Metas.');

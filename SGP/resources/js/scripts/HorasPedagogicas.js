@@ -1,5 +1,21 @@
-import { UNIDADES } from './unidades';
 import { getPerfil, podeEditarDados, podeConsultarDados } from './auth';
+
+const SEGMENTOS = [
+  'Gastronomia',
+  'Ambiente e Saúde',
+  'Gestão e Moda',
+  'Tecnologia e Economia Criativa',
+  'Beleza e Cuidado Pessoal',
+  'Turismo e Hospitalidade',
+  'Comunicação e Audiovisual',
+  'Artes e Design',
+];
+
+const EIXOS = [...SEGMENTOS];
+
+const STATUS_LISTA = ['Pendente', 'Em andamento', 'Concluída', 'Cancelada'];
+
+const ANOS = ['2024', '2025', '2026', '2027'];
 
 export default {
   name: 'HorasPedagogicas',
@@ -7,55 +23,15 @@ export default {
   data() {
     return {
       modo: 'lista',
-      horasBase: [
-        {
-          id: 1,
-          identificador: 'HP-2026-001',
-          unidade: 'SENAC DF',
-          responsavel: 'Ana Souza',
-          atividade: 'Acompanhamento pedagógico',
-          data: '2026-07-24',
-          status: 'Concluída',
-          objetivo: 'Acompanhamento e validação do planejamento pedagógico do módulo.',
-          observacoes: 'Registro concluído com análise final encaminhada ao gestor.',
-        },
-        {
-          id: 2,
-          identificador: 'HP-2026-002',
-          unidade: 'SENAC DF',
-          responsavel: 'Bruno Lima',
-          atividade: 'Preparação de materiais',
-          data: '2026-07-26',
-          status: 'Em Andamento',
-          objetivo: 'Organização e revisão de materiais para atividades de formação.',
-          observacoes: 'Pendência na revisão final de versão impressa.',
-        },
-        {
-          id: 3,
-          identificador: 'HP-2026-003',
-          unidade: 'SENAC DF',
-          responsavel: 'Carla Mendes',
-          atividade: 'Reunião de coordenação',
-          data: '2026-07-28',
-          status: 'Planejada',
-          objetivo: 'Definição de cronograma e alinhamento operacional da próxima etapa.',
-          observacoes: 'Registro em análise para confirmação da agenda.',
-        },
-        {
-          id: 4,
-          identificador: 'HP-2026-004',
-          unidade: 'SENAC DF',
-          responsavel: 'Daniel Rego',
-          atividade: 'Monitoria e apoio ao processo',
-          data: '2026-07-30',
-          status: 'Cancelada',
-          objetivo: 'Apoio ao acompanhamento do processo em revisão.',
-          observacoes: 'Solicitação cancelada por ajuste de agenda institucional.',
-        },
-      ],
       horas: [],
-      filtroBusca: '',
-      filtroStatus: '',
+      filtros: {
+        busca: '',
+        ano: '',
+        eixo: '',
+        status: '',
+        ativo: '',
+      },
+      buscaTimeout: null,
       carregando: true,
       erro: '',
       mensagemSucesso: '',
@@ -64,7 +40,10 @@ export default {
       salvando: false,
       editandoId: null,
       form: this.formVazio(),
-      unidades: UNIDADES,
+      segmentos: SEGMENTOS,
+      eixos: EIXOS,
+      statusLista: STATUS_LISTA,
+      anos: ANOS,
     };
   },
 
@@ -85,43 +64,20 @@ export default {
       return podeConsultarDados();
     },
 
-    resumoCards() {
-      const total = this.horas.length;
-      const concluidas = this.horas.filter((hora) => hora.status === 'Concluída').length;
-      const emAndamento = this.horas.filter((hora) => hora.status === 'Em Andamento').length;
-      const pendentes = this.horas.filter((hora) => ['Planejada', 'Em Andamento'].includes(hora.status)).length;
-
-      return [
-        { label: 'Total', value: String(total).padStart(2, '0'), help: 'Registros no período' },
-        { label: 'Concluídas', value: String(concluidas).padStart(2, '0'), help: 'Atividades encerradas' },
-        { label: 'Em Andamento', value: String(emAndamento).padStart(2, '0'), help: 'Processos ativos' },
-        { label: 'Pendentes', value: String(pendentes).padStart(2, '0'), help: 'Aguardando conclusão' },
-      ];
+    temFiltro() {
+      return Object.values(this.filtros).some((valor) => valor !== '' && valor != null);
     },
 
     horasFiltradas() {
-      const busca = this.filtroBusca.toLowerCase();
-
-      return this.horas.filter((hora) => {
-        const atendeBusca = !busca || [
-          hora.identificador,
-          hora.unidade,
-          hora.responsavel,
-          hora.atividade,
-          hora.status,
-        ]
-          .join(' ')
-          .toLowerCase()
-          .includes(busca);
-
-        const atendeStatus = !this.filtroStatus || hora.status === this.filtroStatus;
-
-        return atendeBusca && atendeStatus;
-      });
+      return this.horas;
     },
 
-    temFiltro() {
-      return Boolean(this.filtroBusca || this.filtroStatus);
+    totalHoras() {
+      return this.horasFiltradas.length;
+    },
+
+    totalAtivos() {
+      return this.horasFiltradas.filter((hora) => hora.ativo === true).length;
     },
   },
 
@@ -132,18 +88,38 @@ export default {
   methods: {
     formVazio() {
       return {
-        identificador: '',
-        unidade: '',
-        responsavel: '',
-        atividade: '',
-        data: '',
+        matricula: '',
+        pessoa: '',
+        segmento: '',
+        eixo: '',
+        processo_sei: '',
+        ano: '',
+        motivo: '',
         status: '',
-        objetivo: '',
-        observacoes: '',
+        ativo: 'true',
+        observacao: '',
       };
     },
 
-    carregarHoras() {
+    normalizarRegistro(registro) {
+      return {
+        ...registro,
+        processo_sei: registro.processo_sei || registro.processo_SEI || '',
+        ano: registro.ano != null ? Number(registro.ano) : null,
+        ativo: registro.ativo !== false,
+        motivo: registro.motivo || '',
+        observacao: registro.observacao || '',
+      };
+    },
+
+    aplicarFiltros() {
+      clearTimeout(this.buscaTimeout);
+      this.buscaTimeout = setTimeout(() => {
+        this.carregarHoras();
+      }, 200);
+    },
+
+    async carregarHoras() {
       this.carregando = true;
       this.erro = '';
 
@@ -154,20 +130,43 @@ export default {
         return;
       }
 
-      setTimeout(() => {
-        try {
-          this.horas = [...this.horasBase];
-          this.carregando = false;
-        } catch (error) {
-          this.carregando = false;
-          this.erro = 'Não foi possível carregar as horas pedagógicas. Tente novamente.';
-        }
-      }, 450);
-    },
+      try {
+        const params = {};
 
-    limparFiltros() {
-      this.filtroBusca = '';
-      this.filtroStatus = '';
+        ['busca', 'ano', 'eixo', 'status', 'ativo'].forEach((chave) => {
+          if (this.filtros[chave] !== '' && this.filtros[chave] != null) {
+            params[chave] = this.filtros[chave];
+          }
+        });
+
+        const { data } = await window.axios.get('/api/horas-pedagogicas', { params });
+        this.horas = Array.isArray(data.data)
+          ? data.data.map((item) => this.normalizarRegistro(item))
+          : [];
+
+        if (data.meta) {
+          if (Array.isArray(data.meta.anos) && data.meta.anos.length) {
+            this.anos = data.meta.anos.map(String);
+          }
+
+          if (Array.isArray(data.meta.eixos) && data.meta.eixos.length) {
+            this.eixos = data.meta.eixos;
+          }
+
+          if (Array.isArray(data.meta.segmentos) && data.meta.segmentos.length) {
+            this.segmentos = data.meta.segmentos;
+          }
+
+          if (Array.isArray(data.meta.status) && data.meta.status.length) {
+            this.statusLista = data.meta.status;
+          }
+        }
+      } catch (error) {
+        this.erro = this.extrairErro(error, 'Não foi possível carregar as horas pedagógicas.');
+        this.horas = [];
+      } finally {
+        this.carregando = false;
+      }
     },
 
     bloquearSemPermissao(mensagem = 'Seu perfil só permite consultar horas pedagógicas.') {
@@ -189,6 +188,8 @@ export default {
       this.form = this.formVazio();
       this.erroFormulario = '';
       this.mensagemSucesso = '';
+      this.erro = '';
+      this.fecharDetalhes();
     },
 
     abrirEdicao(hora) {
@@ -200,18 +201,21 @@ export default {
       this.modo = 'editar';
       this.editandoId = hora.id ?? null;
       this.form = {
-        identificador: hora.identificador ?? '',
-        unidade: hora.unidade ?? '',
-        responsavel: hora.responsavel ?? '',
-        atividade: hora.atividade ?? '',
-        data: hora.data ?? '',
+        matricula: hora.matricula ?? '',
+        pessoa: hora.pessoa ?? '',
+        segmento: hora.segmento ?? '',
+        eixo: hora.eixo ?? '',
+        processo_sei: hora.processo_sei ?? '',
+        ano: hora.ano != null ? String(hora.ano) : '',
+        motivo: hora.motivo ?? '',
         status: hora.status ?? '',
-        objetivo: hora.objetivo ?? '',
-        observacoes: hora.observacoes ?? '',
+        ativo: hora.ativo !== false ? 'true' : 'false',
+        observacao: hora.observacao ?? '',
       };
       this.erroFormulario = '';
       this.mensagemSucesso = '';
-      this.horaDetalhe = null;
+      this.erro = '';
+      this.fecharDetalhes();
     },
 
     voltarLista() {
@@ -219,6 +223,19 @@ export default {
       this.editandoId = null;
       this.erroFormulario = '';
       this.form = this.formVazio();
+      this.salvando = false;
+    },
+
+    validarFormulario() {
+      if (!this.form.matricula?.trim()) return 'A matrícula é obrigatória.';
+      if (!this.form.pessoa?.trim()) return 'O nome da pessoa é obrigatório.';
+      if (!this.form.segmento) return 'O segmento é obrigatório.';
+      if (!this.form.eixo) return 'O eixo é obrigatório.';
+      if (!this.form.processo_sei?.trim()) return 'O processo SEI é obrigatório.';
+      if (!this.form.ano) return 'O ano é obrigatório.';
+      if (!this.form.motivo?.trim()) return 'O motivo é obrigatório.';
+      if (!this.form.status) return 'O status é obrigatório.';
+      return '';
     },
 
     async salvarHora() {
@@ -228,116 +245,124 @@ export default {
         return;
       }
 
-      if (
-        !this.form.identificador ||
-        !this.form.unidade ||
-        !this.form.responsavel ||
-        !this.form.atividade ||
-        !this.form.data ||
-        !this.form.status ||
-        !this.form.objetivo
-      ) {
-        this.erroFormulario = 'Preencha todos os campos obrigatórios antes de salvar.';
+      const erroValidacao = this.validarFormulario();
+
+      if (erroValidacao) {
+        this.erroFormulario = erroValidacao;
         return;
       }
 
       this.salvando = true;
       this.erroFormulario = '';
       this.mensagemSucesso = '';
+      this.erro = '';
 
-      setTimeout(() => {
-        const payload = {
-          ...this.form,
-          id: this.modo === 'editar' && this.editandoId ? this.editandoId : Date.now(),
-        };
+      const payload = {
+        matricula: this.form.matricula.trim(),
+        pessoa: this.form.pessoa.trim(),
+        segmento: this.form.segmento,
+        eixo: this.form.eixo,
+        processo_sei: this.form.processo_sei.trim(),
+        ano: Number(this.form.ano),
+        motivo: this.form.motivo.trim(),
+        status: this.form.status,
+        ativo: this.form.ativo === true || this.form.ativo === 'true',
+        observacao: this.form.observacao?.trim() || null,
+      };
 
-        if (this.modo === 'editar') {
-          const index = this.horas.findIndex((item) => item.id === this.editandoId);
-
-          if (index >= 0) {
-            this.horas.splice(index, 1, payload);
-          }
+      try {
+        if (this.modo === 'editar' && this.editandoId) {
+          const { data } = await window.axios.put(`/api/horas-pedagogicas/${this.editandoId}`, payload);
+          this.mensagemSucesso = data.message;
         } else {
-          this.horas.unshift(payload);
+          const { data } = await window.axios.post('/api/horas-pedagogicas', payload);
+          this.mensagemSucesso = data.message;
         }
 
-        this.mensagemSucesso = this.modo === 'editar'
-          ? 'Hora pedagógica atualizada com sucesso.'
-          : 'Hora pedagógica cadastrada com sucesso.';
-
-        this.salvando = false;
         this.voltarLista();
-      }, 250);
+        await this.carregarHoras();
+      } catch (error) {
+        this.erroFormulario = this.extrairErro(error, 'Não foi possível salvar a hora pedagógica.');
+      } finally {
+        this.salvando = false;
+      }
     },
 
-    cancelarHora(hora) {
+    async excluirHora(hora) {
       if (!this.podeEditarHoras) {
         this.bloquearSemPermissao();
         return;
       }
 
-      if (!hora || hora.status === 'Cancelada') {
+      if (!hora) {
         return;
       }
 
-      const confirmar = window.confirm(`Deseja cancelar a hora ${hora.identificador}?`);
+      const confirmar = window.confirm(
+        `Deseja excluir o registro de ${hora.pessoa || hora.matricula || hora.id}?`
+      );
 
       if (!confirmar) {
         return;
       }
 
-      const index = this.horas.findIndex((item) => item.id === hora.id);
-
-      if (index >= 0) {
-        this.horas[index] = {
-          ...this.horas[index],
-          status: 'Cancelada',
-          observacoes: `${this.horas[index].observacoes || ''} Registro cancelado pelo usuário.`.trim(),
-        };
-      }
-
-      this.mensagemSucesso = 'Hora pedagógica cancelada com sucesso.';
       this.erro = '';
-      this.erroFormulario = '';
-      this.horaDetalhe = null;
+      this.mensagemSucesso = '';
+
+      try {
+        const { data } = await window.axios.delete(`/api/horas-pedagogicas/${hora.id}`);
+        this.mensagemSucesso = data.message;
+        this.fecharDetalhes();
+        await this.carregarHoras();
+      } catch (error) {
+        this.erro = this.extrairErro(error, 'Não foi possível excluir a hora pedagógica.');
+      }
     },
 
-    abrirDetalhes(hora) {
-      this.horaDetalhe = { ...hora };
+    async abrirDetalhes(hora) {
+      this.horaDetalhe = this.normalizarRegistro(hora);
+
+      try {
+        const { data } = await window.axios.get(`/api/horas-pedagogicas/${hora.id}`);
+        this.horaDetalhe = this.normalizarRegistro(data.horaPedagogica ?? hora);
+      } catch (error) {
+        this.erro = this.extrairErro(error, 'Não foi possível carregar os detalhes.');
+      }
     },
 
     fecharDetalhes() {
       this.horaDetalhe = null;
     },
 
-    formatarData(data) {
-      if (!data) {
-        return '—';
-      }
-
-      const [ano, mes, dia] = String(data).split('-');
-
-      if (!ano || !mes || !dia) {
-        return data;
-      }
-
-      return `${dia}/${mes}/${ano}`;
+    rotuloAtivo(ativo) {
+      return ativo ? 'Sim' : 'Não';
     },
 
     statusClass(status) {
-      if (status === 'Concluída') {
-        return 'badge-concluida';
+      const mapa = {
+        Concluída: 'badge-concluida',
+        'Em andamento': 'badge-andamento',
+        Pendente: 'badge-pendente',
+        Cancelada: 'badge-cancelada',
+      };
+
+      return mapa[status] || 'badge-pendente';
+    },
+
+    extrairErro(error, fallback) {
+      if (error.response?.data?.message) {
+        return error.response.data.message;
       }
 
-      if (status === 'Em Andamento') {
-        return 'badge-andamento';
+      const errors = error.response?.data?.errors;
+
+      if (errors) {
+        const primeiro = Object.values(errors)[0];
+
+        return Array.isArray(primeiro) ? primeiro[0] : fallback;
       }
 
-      if (status === 'Planejada') {
-        return 'badge-planejada';
-      }
-
-      return 'badge-cancelada';
+      return fallback;
     },
   },
 };
