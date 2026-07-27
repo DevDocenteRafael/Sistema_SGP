@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             UsuarioSeeder::class,
             CursoSeeder::class,
             PlanoDeMetaSeeder::class,
+            PcaSeeder::class,
             CursoPorEixoSeeder::class,
             VisitaTecnicaSeeder::class,
             HoraPedagogicaSeeder::class,

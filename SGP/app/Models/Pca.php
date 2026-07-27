@@ -9,17 +9,23 @@ class Pca extends Model
     protected $table = 'pcas';
 
     protected $fillable = [
-        'unidade',
-        'curso',
-        'tipo',
-        'periodo',
+        'titulo',
+        'semestre',
         'numero_sei',
         'codigo_sig',
+        'eixo',
+        'unidade',
+        'carga_horaria',
+        'precificacao',
+        'valor_primeiro_modulo',
+        'valor',
+        'parcelas_boleto',
+        'valor_parcela_boleto',
+        'parcelas_cartao',
+        'valor_cartao',
+        'parcela_desc_20',
+        'parcela_desc_15',
         'status',
-        'responsavel',
-        'objetivo',
-        'data_inicio',
-        'data_fim',
         'observacao',
         'ano',
     ];
@@ -28,8 +34,6 @@ class Pca extends Model
     {
         return [
             'ano' => 'integer',
-            'data_inicio' => 'date',
-            'data_fim' => 'date',
         ];
     }
 }
