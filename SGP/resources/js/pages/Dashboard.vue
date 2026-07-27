@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-page">
-    <div class="dashboard-header">
+    <header class="dashboard-header">
       <div>
         <h1>Dashboard</h1>
         <p class="dashboard-description">Indicadores do portfólio de cursos — SENAC DF · CPED</p>
@@ -13,114 +13,355 @@
           <option value="horas">Indicadores de Horas Pedagógicas</option>
         </select>
 
-        <select v-model="filtros.ano" @change="carregarDashboard" aria-label="Ano">
-          <option value="">Todos</option>
-          <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
-        </select>
+        <template v-if="filtros.grupo === 'gerais'">
+          <select v-model="filtros.ano" aria-label="Ano">
+            <option value="">Todos</option>
+            <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
+          </select>
 
-        <select v-model="filtros.unidade" @change="carregarDashboard" aria-label="Unidade">
-          <option value="">Todos</option>
-          <option v-for="unidade in unidadesDisponiveis" :key="unidade" :value="unidade">{{ unidade }}</option>
-        </select>
+          <select v-model="filtros.unidade" aria-label="Unidade">
+            <option value="">Todos</option>
+            <option v-for="unidade in unidadesDisponiveis" :key="unidade" :value="unidade">{{ unidade }}</option>
+          </select>
 
-        <select v-model="filtros.eixo" @change="carregarDashboard" aria-label="Eixo">
-          <option value="">Todos</option>
-          <option v-for="eixo in meta.eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
-        </select>
+          <select v-model="filtros.eixo" aria-label="Eixo">
+            <option value="">Todos</option>
+            <option v-for="eixo in meta.eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
+          </select>
 
-        <select v-model="filtros.status" @change="carregarDashboard" aria-label="Status">
-          <option value="">Todos</option>
-          <option v-for="status in meta.status" :key="status" :value="status">{{ status }}</option>
-        </select>
+          <select v-model="filtros.status" aria-label="Status">
+            <option value="">Todos</option>
+            <option v-for="status in meta.status" :key="status" :value="status">{{ status }}</option>
+          </select>
+
+          <button v-if="temFiltro" type="button" class="btn-limpar" @click="limparFiltros">Limpar</button>
+        </template>
       </div>
-    </div>
+    </header>
 
-    <section class="dashboard-alert-card">
-      <div class="dashboard-alert-header">
-        <div>
-          <h2>Alertas de prazo</h2>
-          <p>Visitas e metas com entrega nos próximos 15 dias ou vencidas</p>
-        </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      </div>
+    <div v-if="erro" class="alert alert-error">{{ erro }}</div>
 
-      <div class="dashboard-alert-body">
-        Nenhum prazo vencendo nos próximos 15 dias.
-      </div>
-    </section>
-
-    <section class="dashboard-metrics-grid">
-      <article class="dashboard-metric-card" v-for="card in metricCards" :key="card.label">
-        <div class="dashboard-metric-icon" v-html="card.icon"></div>
-        <div>
-          <p class="dashboard-metric-title">{{ card.label }}</p>
+    <template v-if="filtros.grupo === 'gerais'">
+      <section class="dashboard-metrics-grid">
+        <article
+          v-for="card in metricCards"
+          :key="card.label"
+          class="dashboard-metric-card"
+          :class="{ 'is-accent': card.accent, 'is-warn': card.warn }"
+        >
+          <div class="dashboard-metric-top">
+            <div class="dashboard-metric-icon" v-html="card.icon"></div>
+            <span v-if="card.sub" class="dashboard-metric-sub">{{ card.sub }}</span>
+          </div>
           <p class="dashboard-metric-value">{{ card.value }}</p>
+          <p class="dashboard-metric-title">{{ card.label }}</p>
+        </article>
+      </section>
+
+      <div class="dashboard-content-grid">
+        <div class="dashboard-charts-grid">
+          <section class="dashboard-chart-card">
+            <h3>Eixos Tecnológicos</h3>
+            <p class="dashboard-chart-subtitle">Quantidade de cursos por eixo</p>
+            <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
+            <div v-else-if="chartEixos.length === 0" class="dashboard-chart-empty">Sem dados para os filtros selecionados</div>
+            <div v-else class="dashboard-bars">
+              <div v-for="item in chartEixos" :key="item.label" class="dashboard-bar-item">
+                <div class="dashboard-bar-head">
+                  <span class="dashboard-bar-dot" :style="{ background: item.color }"></span>
+                  <span class="dashboard-bar-label" :title="item.label">{{ item.label }}</span>
+                  <span class="dashboard-bar-meta">
+                    <strong>{{ item.value }}</strong>
+                    <small>{{ item.share }}%</small>
+                  </span>
+                </div>
+                <div class="dashboard-bar-track">
+                  <div class="dashboard-bar-fill" :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="dashboard-chart-card">
+            <h3>Tipos de Curso</h3>
+            <p class="dashboard-chart-subtitle">Distribuição por tipo de oferta</p>
+            <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
+            <div v-else-if="chartTipos.length === 0" class="dashboard-chart-empty">Sem dados para os filtros selecionados</div>
+            <div v-else class="dashboard-bars">
+              <div v-for="item in chartTipos" :key="item.label" class="dashboard-bar-item">
+                <div class="dashboard-bar-head">
+                  <span class="dashboard-bar-dot" :style="{ background: item.color }"></span>
+                  <span class="dashboard-bar-label" :title="item.label">{{ item.label }}</span>
+                  <span class="dashboard-bar-meta">
+                    <strong>{{ item.value }}</strong>
+                    <small>{{ item.share }}%</small>
+                  </span>
+                </div>
+                <div class="dashboard-bar-track">
+                  <div class="dashboard-bar-fill" :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="dashboard-chart-card">
+            <h3>Status dos Cursos</h3>
+            <p class="dashboard-chart-subtitle">Situação atual do portfólio</p>
+            <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
+            <div v-else-if="chartStatus.length === 0" class="dashboard-chart-empty">Sem dados para os filtros selecionados</div>
+            <div v-else class="dashboard-status-grid">
+              <div v-for="item in chartStatus" :key="item.label" class="dashboard-status-card">
+                <span class="dashboard-status-dot" :style="{ background: item.color }"></span>
+                <div>
+                  <p class="dashboard-status-value">{{ item.value }}</p>
+                  <p class="dashboard-status-label">{{ item.label }}</p>
+                  <p class="dashboard-status-share">{{ item.share }}% do total</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="dashboard-chart-card">
+            <h3>Faixas de Carga Horária</h3>
+            <p class="dashboard-chart-subtitle">Cursos agrupados por carga horária</p>
+            <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
+            <div v-else class="dashboard-bars">
+              <div v-for="item in chartCargaHoraria" :key="item.label" class="dashboard-bar-item">
+                <div class="dashboard-bar-head">
+                  <span class="dashboard-bar-dot" :style="{ background: item.color }"></span>
+                  <span class="dashboard-bar-label">{{ item.label }}</span>
+                  <span class="dashboard-bar-meta">
+                    <strong>{{ item.value }}</strong>
+                    <small>{{ item.share }}%</small>
+                  </span>
+                </div>
+                <div class="dashboard-bar-track">
+                  <div class="dashboard-bar-fill" :style="{ width: `${Math.max(item.bar, item.value ? 4 : 0)}%`, background: item.color }"></div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
-      </article>
-    </section>
 
-    <p class="dashboard-note">* Gráficos exibem apenas cursos ativos. Use o filtro de Status para incluir inativos.</p>
-
-    <div class="dashboard-content-grid">
-      <div class="dashboard-charts-grid">
-        <section class="dashboard-chart-card">
-          <h3>Eixos Tecnológicos</h3>
-          <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
-          <div v-else-if="chartEixos.length === 0" class="dashboard-chart-empty">Sem dados para os filtros selecionados</div>
-          <ul v-else class="dashboard-chart-list">
-            <li v-for="item in chartEixos" :key="item.label">
-              <span>{{ item.label }}</span>
-              <span>{{ item.value }}</span>
-            </li>
-          </ul>
-        </section>
-
-        <section class="dashboard-chart-card">
-          <h3>Tipos de Curso</h3>
-          <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
-          <div v-else-if="chartTipos.length === 0" class="dashboard-chart-empty">Sem dados para os filtros selecionados</div>
-          <ul v-else class="dashboard-chart-list">
-            <li v-for="item in chartTipos" :key="item.label">
-              <span>{{ item.label }}</span>
-              <span>{{ item.value }}</span>
-            </li>
-          </ul>
-        </section>
-
-        <section class="dashboard-chart-card">
-          <h3>Status dos Cursos</h3>
-          <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
-          <div v-else-if="chartStatus.length === 0" class="dashboard-chart-empty">Sem dados para os filtros selecionados</div>
-          <ul v-else class="dashboard-chart-list">
-            <li v-for="item in chartStatus" :key="item.label">
-              <span>{{ item.label }}</span>
-              <span>{{ item.value }}</span>
-            </li>
-          </ul>
-        </section>
-
-        <section class="dashboard-chart-card">
-          <h3>Faixas de Carga Horária</h3>
-          <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
-          <div v-else class="dashboard-chart-list">
-            <li v-for="item in chartCargaHoraria" :key="item.label">
-              <span>{{ item.label }}</span>
-              <span>{{ item.value }}</span>
-            </li>
+        <section class="dashboard-summary-panel">
+          <h3>Resumo por Eixo</h3>
+          <p class="dashboard-chart-subtitle">Participação de cada eixo no resultado filtrado</p>
+          <div v-if="resumoPorEixo.length === 0" class="dashboard-chart-empty">Sem dados para exibir.</div>
+          <div v-else class="dashboard-summary-list">
+            <div v-for="item in resumoPorEixo" :key="item.label" class="dashboard-summary-item">
+              <div class="dashboard-summary-row">
+                <span class="dashboard-summary-name" :title="item.label">{{ item.label }}</span>
+                <span class="dashboard-summary-meta">
+                  <strong>{{ item.value }}</strong>
+                  <small>{{ item.share }}%</small>
+                </span>
+              </div>
+              <div class="dashboard-summary-track">
+                <div class="dashboard-summary-fill" :style="{ width: `${Math.max(item.bar, 4)}%` }"></div>
+              </div>
+            </div>
           </div>
         </section>
       </div>
+    </template>
 
-      <section class="dashboard-summary-panel">
-        <h3>Resumo por Eixo</h3>
-        <div class="dashboard-summary-list">
-          <div class="dashboard-summary-row" v-for="item in resumoPorEixo" :key="item.eixo">
-            <span>{{ item.eixo }}</span>
-            <span>{{ item.count }}</span>
-          </div>
-        </div>
+    <template v-else-if="filtros.grupo === 'visitas'">
+      <section class="dashboard-group-intro">
+        <h2>Indicadores de Visitas Técnicas</h2>
+        <p>Dados consolidados a partir dos registros de visitas técnicas.</p>
       </section>
-    </div>
+
+      <section class="dashboard-kpi-grid visitas">
+        <article v-for="card in indicadoresVisitas.cards" :key="card.title" class="dashboard-kpi-card">
+          <p class="dashboard-kpi-value">{{ card.value }}</p>
+          <p class="dashboard-kpi-title">{{ card.title }}</p>
+          <p class="dashboard-kpi-subtitle">{{ card.subtitle }}</p>
+          <div class="dashboard-kpi-track">
+            <div class="dashboard-kpi-fill" :style="{ width: `${card.percent}%`, background: card.color }"></div>
+          </div>
+        </article>
+      </section>
+
+      <div class="dashboard-split-grid">
+        <section class="dashboard-chart-card">
+          <h3>Visitas por Eixo Tecnológico</h3>
+          <p class="dashboard-chart-subtitle">Quantas visitas cada eixo realizou no período</p>
+          <div v-if="indicadoresVisitas.porEixo.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
+          <div v-else class="dashboard-bars">
+            <div v-for="item in indicadoresVisitas.porEixo" :key="item.label" class="dashboard-bar-item">
+              <div class="dashboard-bar-head">
+                <span class="dashboard-bar-dot" :style="{ background: item.color }"></span>
+                <span class="dashboard-bar-label" :title="item.label">{{ item.label }}</span>
+                <span class="dashboard-bar-meta">
+                  <strong>{{ item.value }}</strong>
+                  <small>{{ item.share }}%</small>
+                </span>
+              </div>
+              <div class="dashboard-bar-track">
+                <div class="dashboard-bar-fill" :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-chart-card">
+          <h3>Distribuição por Status</h3>
+          <p class="dashboard-chart-subtitle">Situação atual de cada solicitação</p>
+          <div v-if="indicadoresVisitas.porStatus.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
+          <div v-else class="dashboard-status-grid">
+            <div v-for="item in indicadoresVisitas.porStatus" :key="item.label" class="dashboard-status-card">
+              <span class="dashboard-status-dot" :style="{ background: item.color }"></span>
+              <div>
+                <p class="dashboard-status-value">{{ item.value }}</p>
+                <p class="dashboard-status-label">{{ item.label }}</p>
+                <p class="dashboard-status-share">{{ item.share }}% do total</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-chart-card">
+          <h3>Visitas por Unidade Solicitante</h3>
+          <p class="dashboard-chart-subtitle">Qual unidade mais solicitou visitas técnicas</p>
+          <div v-if="indicadoresVisitas.porUnidade.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
+          <div v-else class="dashboard-bars">
+            <div v-for="item in indicadoresVisitas.porUnidade" :key="item.label" class="dashboard-bar-item">
+              <div class="dashboard-bar-head">
+                <span class="dashboard-bar-dot" :style="{ background: item.color }"></span>
+                <span class="dashboard-bar-label" :title="item.label">{{ item.label }}</span>
+                <span class="dashboard-bar-meta">
+                  <strong>{{ item.value }}</strong>
+                  <small>{{ item.share }}%</small>
+                </span>
+              </div>
+              <div class="dashboard-bar-track">
+                <div class="dashboard-bar-fill" :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-chart-card">
+          <h3>Pessoas Mais Acionadas</h3>
+          <p class="dashboard-chart-subtitle">Quantas vezes cada pessoa foi chamada</p>
+          <div v-if="indicadoresVisitas.porResponsavel.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
+          <div v-else class="dashboard-bars">
+            <div v-for="item in indicadoresVisitas.porResponsavel" :key="item.label" class="dashboard-bar-item">
+              <div class="dashboard-bar-head">
+                <span class="dashboard-bar-dot" :style="{ background: item.color }"></span>
+                <span class="dashboard-bar-label" :title="item.label">{{ item.label }}</span>
+                <span class="dashboard-bar-meta">
+                  <strong>{{ item.value }}</strong>
+                  <small>{{ item.share }}%</small>
+                </span>
+              </div>
+              <div class="dashboard-bar-track">
+                <div class="dashboard-bar-fill" :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </template>
+
+    <template v-else>
+      <section class="dashboard-group-intro">
+        <h2>Indicadores de Horas Pedagógicas</h2>
+        <p>Dados consolidados a partir das solicitações de horas pedagógicas.</p>
+      </section>
+
+      <section class="dashboard-kpi-grid horas">
+        <article v-for="card in indicadoresHoras.cards" :key="card.title" class="dashboard-kpi-card">
+          <p class="dashboard-kpi-value">{{ card.value }}</p>
+          <p class="dashboard-kpi-title">{{ card.title }}</p>
+          <p class="dashboard-kpi-subtitle">{{ card.subtitle }}</p>
+          <div class="dashboard-kpi-track">
+            <div class="dashboard-kpi-fill" :style="{ width: `${card.percent}%`, background: card.color }"></div>
+          </div>
+        </article>
+      </section>
+
+      <div class="dashboard-split-grid">
+        <section class="dashboard-chart-card">
+          <h3>Solicitações por Eixo Tecnológico</h3>
+          <p class="dashboard-chart-subtitle">Distribuição das solicitações por eixo</p>
+          <div v-if="indicadoresHoras.porEixo.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
+          <div v-else class="dashboard-bars">
+            <div v-for="item in indicadoresHoras.porEixo" :key="item.label" class="dashboard-bar-item">
+              <div class="dashboard-bar-head">
+                <span class="dashboard-bar-dot" :style="{ background: item.color }"></span>
+                <span class="dashboard-bar-label" :title="item.label">{{ item.label }}</span>
+                <span class="dashboard-bar-meta">
+                  <strong>{{ item.value }}</strong>
+                  <small>{{ item.share }}%</small>
+                </span>
+              </div>
+              <div class="dashboard-bar-track">
+                <div class="dashboard-bar-fill" :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-chart-card">
+          <h3>Distribuição por Status</h3>
+          <p class="dashboard-chart-subtitle">Situação atual das solicitações</p>
+          <div v-if="indicadoresHoras.porStatus.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
+          <div v-else class="dashboard-status-grid">
+            <div v-for="item in indicadoresHoras.porStatus" :key="item.label" class="dashboard-status-card">
+              <span class="dashboard-status-dot" :style="{ background: item.color }"></span>
+              <div>
+                <p class="dashboard-status-value">{{ item.value }}</p>
+                <p class="dashboard-status-label">{{ item.label }}</p>
+                <p class="dashboard-status-share">{{ item.share }}% do total</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-chart-card">
+          <h3>Solicitações por Segmento</h3>
+          <p class="dashboard-chart-subtitle">Segmentos com maior volume de solicitações</p>
+          <div v-if="indicadoresHoras.porSegmento.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
+          <div v-else class="dashboard-bars">
+            <div v-for="item in indicadoresHoras.porSegmento" :key="item.label" class="dashboard-bar-item">
+              <div class="dashboard-bar-head">
+                <span class="dashboard-bar-dot" :style="{ background: item.color }"></span>
+                <span class="dashboard-bar-label" :title="item.label">{{ item.label }}</span>
+                <span class="dashboard-bar-meta">
+                  <strong>{{ item.value }}</strong>
+                  <small>{{ item.share }}%</small>
+                </span>
+              </div>
+              <div class="dashboard-bar-track">
+                <div class="dashboard-bar-fill" :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-chart-card">
+          <h3>Pessoas Mais Acionadas</h3>
+          <p class="dashboard-chart-subtitle">Quantidade de solicitações por pessoa</p>
+          <div v-if="indicadoresHoras.porPessoa.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
+          <div v-else class="dashboard-bars">
+            <div v-for="item in indicadoresHoras.porPessoa" :key="item.label" class="dashboard-bar-item">
+              <div class="dashboard-bar-head">
+                <span class="dashboard-bar-dot" :style="{ background: item.color }"></span>
+                <span class="dashboard-bar-label" :title="item.label">{{ item.label }}</span>
+                <span class="dashboard-bar-meta">
+                  <strong>{{ item.value }}</strong>
+                  <small>{{ item.share }}%</small>
+                </span>
+              </div>
+              <div class="dashboard-bar-track">
+                <div class="dashboard-bar-fill" :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </template>
   </div>
 </template>
 
