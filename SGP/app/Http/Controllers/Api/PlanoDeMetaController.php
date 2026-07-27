@@ -66,6 +66,50 @@ class PlanoDeMetaController extends Controller
             'data' => $registros,
             'meta' => [
                 'total' => $registros->count(),
+                'total_geral' => PlanoDeMeta::query()->count(),
+                'anos' => ['2024', '2025', '2026', '2027'],
+                'segmentos' => PlanoDeMeta::query()
+                    ->whereNotNull('segmento')
+                    ->distinct()
+                    ->orderBy('segmento')
+                    ->pluck('segmento')
+                    ->values()
+                    ->all(),
+                'tipos' => PlanoDeMeta::query()
+                    ->whereNotNull('tipo')
+                    ->distinct()
+                    ->orderBy('tipo')
+                    ->pluck('tipo')
+                    ->values()
+                    ->all(),
+                'meses' => [
+                    'Janeiro',
+                    'Fevereiro',
+                    'Março',
+                    'Abril',
+                    'Maio',
+                    'Junho',
+                    'Julho',
+                    'Agosto',
+                    'Setembro',
+                    'Outubro',
+                    'Novembro',
+                    'Dezembro',
+                ],
+                'status' => PlanoDeMeta::query()
+                    ->whereNotNull('status')
+                    ->distinct()
+                    ->orderBy('status')
+                    ->pluck('status')
+                    ->values()
+                    ->all(),
+                'situacoes' => PlanoDeMeta::query()
+                    ->whereNotNull('status_final')
+                    ->distinct()
+                    ->orderBy('status_final')
+                    ->pluck('status_final')
+                    ->values()
+                    ->all(),
             ],
         ]);
     }

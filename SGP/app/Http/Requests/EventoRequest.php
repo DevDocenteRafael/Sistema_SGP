@@ -2,28 +2,46 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class EventoRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->podeEditarDados() === true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'nome' => ['required', 'string', 'max:200'],
+            'ano' => ['nullable', 'string', 'max:4', Rule::in(config('eventos.anos'))],
+            'data' => ['required', 'date'],
+            'unidade' => ['required', 'string', 'max:100', Rule::in(config('unidades'))],
+            'eixo' => ['required', 'string', 'max:150', Rule::in(config('eventos.eixos'))],
+            'quantidade_pessoas' => ['nullable', 'integer', 'min:0'],
+            'equipe' => ['nullable', 'string', 'max:255'],
+            'possui_acao_extensiva' => ['required', 'string', 'max:3', Rule::in(config('eventos.possui_acao_extensiva'))],
+            'acao_vinculada' => ['nullable', 'string', 'max:255'],
+            'status' => ['required', 'string', 'max:50', Rule::in(config('eventos.status'))],
+            'observacao' => ['nullable', 'string'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nome.required' => 'Preencha o nome e a data do evento.',
+            'data.required' => 'Preencha o nome e a data do evento.',
+            'unidade.required' => 'A unidade é obrigatória.',
+            'unidade.in' => 'Selecione uma unidade válida.',
+            'eixo.required' => 'O eixo é obrigatório.',
+            'eixo.in' => 'Selecione um eixo válido.',
+            'possui_acao_extensiva.required' => 'Informe se possui ação extensiva.',
+            'possui_acao_extensiva.in' => 'Valor inválido para ação extensiva.',
+            'status.required' => 'O status é obrigatório.',
+            'status.in' => 'Status inválido.',
         ];
     }
 }

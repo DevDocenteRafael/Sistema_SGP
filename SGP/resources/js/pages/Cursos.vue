@@ -55,14 +55,6 @@
           <option value="">Todas as unidades</option>
           <option v-for="unidade in unidades" :key="unidade" :value="unidade">{{ unidade }}</option>
         </select>
-        <button
-          v-if="temFiltro"
-          type="button"
-          class="btn-limpar"
-          @click="limparFiltros"
-        >
-          Limpar
-        </button>
       </section>
 
       <section class="tabela-card">

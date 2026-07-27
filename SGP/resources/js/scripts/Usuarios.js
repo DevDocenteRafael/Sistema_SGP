@@ -23,11 +23,6 @@ export default {
       unidades: UNIDADES,
     };
   },
-  computed: {
-    temFiltro() {
-      return Boolean(this.filtros.busca || this.filtros.perfil || this.filtros.status);
-    },
-  },
   mounted() {
     this.carregarUsuarios();
   },
@@ -75,11 +70,6 @@ export default {
         'badge-editor': perfil === 'Editor',
         'badge-consultor': perfil === 'Consultor',
       };
-    },
-
-    limparFiltros() {
-      this.filtros = { busca: '', perfil: '', status: '' };
-      this.carregarUsuarios();
     },
 
     async carregarUsuarios() {
