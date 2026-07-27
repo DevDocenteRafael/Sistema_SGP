@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CpedEquipeController;
 use App\Http\Controllers\Api\CursoController;
 use App\Http\Controllers\Api\CursoPorEixoController;
 use App\Http\Controllers\Api\EventoController;
+use App\Http\Controllers\Api\FerramentaController;
 use App\Http\Controllers\Api\HoraPedagogicaController;
 use App\Http\Controllers\Api\PcaController;
 use App\Http\Controllers\Api\PlanoDeMetaController;
@@ -36,4 +37,5 @@ Route::middleware('auth:sanctum')->group(function () {
         ->parameters(['acoes-extensivas' => 'acaoExtensiva']);
     Route::apiResource('eventos', EventoController::class);
     Route::apiResource('cped-equipes', CpedEquipeController::class);
+    Route::get('ferramentas', [FerramentaController::class, 'index']);
 });

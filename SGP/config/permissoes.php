@@ -54,6 +54,7 @@ return [
         'horas-pedagogicas' => ['Administrador', 'Editor', 'Consultor'],
         'acoes-extensivas' => ['Administrador', 'Editor', 'Consultor'],
         'eventos' => ['Administrador', 'Editor', 'Consultor'],
+        'ferramentas' => ['Administrador', 'Editor', 'Consultor'],
         'cped' => ['Administrador', 'Editor', 'Consultor'],
         'usuarios' => ['Administrador'],
     ],
