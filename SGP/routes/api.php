@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('acoes-extensivas', AcaoExtensivaController::class)
         ->parameters(['acoes-extensivas' => 'acaoExtensiva']);
     Route::apiResource('eventos', EventoController::class);
-    Route::apiResource('cped-equipes', CpedEquipeController::class);
+    Route::apiResource('cped-equipes', CpedEquipeController::class)
+        ->parameters(['cped-equipes' => 'cpedEquipe']);
     Route::get('ferramentas', [FerramentaController::class, 'index']);
 });

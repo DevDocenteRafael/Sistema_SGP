@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             HoraPedagogicaSeeder::class,
             AcaoExtensivaSeeder::class,
             EventoSeeder::class,
+            CpedEquipeSeeder::class,
         ]);
     }
 }
