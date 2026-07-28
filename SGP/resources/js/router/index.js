@@ -33,6 +33,12 @@ const appChildren = [
     component: () => import('../pages/Organograma.vue'),
     meta: { menu: 'ferramentas' },
   },
+  {
+    path: 'ferramentas/carometro',
+    name: 'ferramentas-carometro',
+    component: () => import('../pages/Carometro.vue'),
+    meta: { menu: 'ferramentas' },
+  },
   { path: 'cped', name: 'cped', component: () => import('../pages/Cped.vue'), meta: { menu: 'cped' } },
   { path: 'usuarios', name: 'usuarios', component: () => import('../pages/Usuarios.vue'), meta: { menu: 'usuarios' } },
 ];

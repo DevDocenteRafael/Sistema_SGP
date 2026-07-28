@@ -51,6 +51,7 @@ class FerramentaApiTest extends TestCase
 
         $this->assertContains('kanban', $keys);
         $this->assertContains('organograma', $keys);
+        $this->assertContains('carometro', $keys);
         $this->assertContains('fluxograma', $keys);
         $this->assertContains('microsoft_loop', $keys);
         $this->assertContains('canva', $keys);
@@ -65,6 +66,11 @@ class FerramentaApiTest extends TestCase
         $this->assertSame('available', $organograma['status']);
         $this->assertTrue($organograma['enabled']);
         $this->assertSame('/app/ferramentas/organograma', $organograma['route']);
+
+        $carometro = collect($response->json('data'))->firstWhere('key', 'carometro');
+        $this->assertSame('available', $carometro['status']);
+        $this->assertTrue($carometro['enabled']);
+        $this->assertSame('/app/ferramentas/carometro', $carometro['route']);
 
         $loop = collect($response->json('data'))->firstWhere('key', 'microsoft_loop');
         $this->assertSame('available', $loop['status']);

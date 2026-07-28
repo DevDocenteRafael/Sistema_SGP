@@ -35,6 +35,18 @@ return [
             'icon' => 'organograma',
         ],
         [
+            'key' => 'carometro',
+            'label' => 'Carômetro',
+            'description' => 'Álbum da equipe CPED com fotos, cargos e contatos.',
+            'type' => 'internal',
+            'route' => '/app/ferramentas/carometro',
+            'url' => null,
+            'default_enabled' => true,
+            'status' => 'available',
+            'profiles' => ['Administrador', 'Editor', 'Consultor'],
+            'icon' => 'carometro',
+        ],
+        [
             'key' => 'fluxograma',
             'label' => 'Fluxograma',
             'description' => 'Consulta aos fluxos oficiais dos processos da CPED.',

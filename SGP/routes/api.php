@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AcaoExtensivaController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CadastroController;
+use App\Http\Controllers\Api\CarometroController;
 use App\Http\Controllers\Api\CpedEquipeController;
 use App\Http\Controllers\Api\CursoController;
 use App\Http\Controllers\Api\CursoPorEixoController;
@@ -42,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->parameters(['cped-equipes' => 'cpedEquipe']);
     Route::get('ferramentas', [FerramentaController::class, 'index']);
     Route::get('organograma', [OrganogramaController::class, 'index']);
+    Route::get('carometro', [CarometroController::class, 'index']);
 
     Route::prefix('kanban')->group(function () {
         Route::get('quadros', [KanbanController::class, 'indexQuadros']);
