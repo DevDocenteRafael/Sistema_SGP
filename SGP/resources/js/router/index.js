@@ -15,6 +15,18 @@ const appChildren = [
   { path: 'acoes-extensivas', name: 'acoes-extensivas', component: () => import('../pages/AcoesExtensivas.vue'), meta: { menu: 'acoes-extensivas' } },
   { path: 'eventos', name: 'eventos', component: () => import('../pages/Eventos.vue'), meta: { menu: 'eventos' } },
   { path: 'ferramentas', name: 'ferramentas', component: () => import('../pages/Ferramentas.vue'), meta: { menu: 'ferramentas' } },
+  {
+    path: 'ferramentas/kanban',
+    name: 'ferramentas-kanban',
+    component: () => import('../pages/KanbanQuadros.vue'),
+    meta: { menu: 'ferramentas' },
+  },
+  {
+    path: 'ferramentas/kanban/:slug',
+    name: 'ferramentas-kanban-quadro',
+    component: () => import('../pages/Kanban.vue'),
+    meta: { menu: 'ferramentas' },
+  },
   { path: 'cped', name: 'cped', component: () => import('../pages/Cped.vue'), meta: { menu: 'cped' } },
   { path: 'usuarios', name: 'usuarios', component: () => import('../pages/Usuarios.vue'), meta: { menu: 'usuarios' } },
 ];

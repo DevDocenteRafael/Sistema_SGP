@@ -11,7 +11,7 @@
       </div>
 
       <div class="ferramentas-info">
-        Ferramentas internas em breve. Links externos abrem em nova aba.
+        Clique em uma ferramenta disponível para abrir. Links externos abrem em nova aba.
         O catálogo é controlado pelo sistema — não há cadastro manual nesta versão.
       </div>
     </header>

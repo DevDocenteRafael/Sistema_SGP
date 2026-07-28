@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\CursoPorEixoController;
 use App\Http\Controllers\Api\EventoController;
 use App\Http\Controllers\Api\FerramentaController;
 use App\Http\Controllers\Api\HoraPedagogicaController;
+use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\PcaController;
 use App\Http\Controllers\Api\PlanoDeMetaController;
 use App\Http\Controllers\Api\UsuarioController;
@@ -39,4 +40,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('cped-equipes', CpedEquipeController::class)
         ->parameters(['cped-equipes' => 'cpedEquipe']);
     Route::get('ferramentas', [FerramentaController::class, 'index']);
+
+    Route::prefix('kanban')->group(function () {
+        Route::get('quadros', [KanbanController::class, 'indexQuadros']);
+        Route::post('quadros', [KanbanController::class, 'storeQuadro']);
+        Route::get('quadros/{kanbanQuadro}', [KanbanController::class, 'showQuadro']);
+        Route::put('quadros/{kanbanQuadro}', [KanbanController::class, 'updateQuadro']);
+        Route::delete('quadros/{kanbanQuadro}', [KanbanController::class, 'destroyQuadro']);
+
+        Route::post('quadros/{kanbanQuadro}/colunas', [KanbanController::class, 'storeColuna']);
+        Route::post('quadros/{kanbanQuadro}/cartoes', [KanbanController::class, 'store']);
+
+        Route::put('colunas/{kanbanColuna}', [KanbanController::class, 'updateColuna']);
+        Route::delete('colunas/{kanbanColuna}', [KanbanController::class, 'destroyColuna']);
+        Route::put('cartoes/{kanbanCartao}', [KanbanController::class, 'update']);
+        Route::delete('cartoes/{kanbanCartao}', [KanbanController::class, 'destroy']);
+        Route::put('cartoes/{kanbanCartao}/mover', [KanbanController::class, 'mover']);
+    });
 });

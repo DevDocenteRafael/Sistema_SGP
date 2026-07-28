@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             AcaoExtensivaSeeder::class,
             EventoSeeder::class,
             CpedEquipeSeeder::class,
+            KanbanSeeder::class,
         ]);
     }
 }

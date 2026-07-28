@@ -56,8 +56,10 @@ class FerramentaApiTest extends TestCase
         $this->assertContains('canva', $keys);
 
         $kanban = collect($response->json('data'))->firstWhere('key', 'kanban');
-        $this->assertSame('coming_soon', $kanban['status']);
-        $this->assertFalse($kanban['enabled']);
+        $this->assertSame('available', $kanban['status']);
+        $this->assertTrue($kanban['enabled']);
+        $this->assertSame('internal', $kanban['type']);
+        $this->assertSame('/app/ferramentas/kanban', $kanban['route']);
 
         $loop = collect($response->json('data'))->firstWhere('key', 'microsoft_loop');
         $this->assertSame('available', $loop['status']);
