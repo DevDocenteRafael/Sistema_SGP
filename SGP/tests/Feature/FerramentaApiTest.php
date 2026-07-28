@@ -61,6 +61,11 @@ class FerramentaApiTest extends TestCase
         $this->assertSame('internal', $kanban['type']);
         $this->assertSame('/app/ferramentas/kanban', $kanban['route']);
 
+        $organograma = collect($response->json('data'))->firstWhere('key', 'organograma');
+        $this->assertSame('available', $organograma['status']);
+        $this->assertTrue($organograma['enabled']);
+        $this->assertSame('/app/ferramentas/organograma', $organograma['route']);
+
         $loop = collect($response->json('data'))->firstWhere('key', 'microsoft_loop');
         $this->assertSame('available', $loop['status']);
         $this->assertTrue($loop['enabled']);

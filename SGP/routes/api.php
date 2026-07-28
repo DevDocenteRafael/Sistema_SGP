@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\EventoController;
 use App\Http\Controllers\Api\FerramentaController;
 use App\Http\Controllers\Api\HoraPedagogicaController;
 use App\Http\Controllers\Api\KanbanController;
+use App\Http\Controllers\Api\OrganogramaController;
 use App\Http\Controllers\Api\PcaController;
 use App\Http\Controllers\Api\PlanoDeMetaController;
 use App\Http\Controllers\Api\UsuarioController;
@@ -40,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('cped-equipes', CpedEquipeController::class)
         ->parameters(['cped-equipes' => 'cpedEquipe']);
     Route::get('ferramentas', [FerramentaController::class, 'index']);
+    Route::get('organograma', [OrganogramaController::class, 'index']);
 
     Route::prefix('kanban')->group(function () {
         Route::get('quadros', [KanbanController::class, 'indexQuadros']);

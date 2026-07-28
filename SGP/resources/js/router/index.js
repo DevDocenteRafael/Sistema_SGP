@@ -27,6 +27,12 @@ const appChildren = [
     component: () => import('../pages/Kanban.vue'),
     meta: { menu: 'ferramentas' },
   },
+  {
+    path: 'ferramentas/organograma',
+    name: 'ferramentas-organograma',
+    component: () => import('../pages/Organograma.vue'),
+    meta: { menu: 'ferramentas' },
+  },
   { path: 'cped', name: 'cped', component: () => import('../pages/Cped.vue'), meta: { menu: 'cped' } },
   { path: 'usuarios', name: 'usuarios', component: () => import('../pages/Usuarios.vue'), meta: { menu: 'usuarios' } },
 ];
