@@ -50,7 +50,9 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => (($minutes = env('SANCTUM_TOKEN_EXPIRATION', 480)) === null || $minutes === '')
+        ? null
+        : (int) $minutes,
 
     /*
     |--------------------------------------------------------------------------

@@ -50,5 +50,10 @@ class UsuarioSeeder extends Seeder
                 ]
             );
         }
+
+        if ($this->command) {
+            $this->command->warn('Usuários demo: administrador@df.senac.br / editor@df.senac.br / consultor@df.senac.br');
+            $this->command->warn('Troque as senhas padrão antes de qualquer ambiente compartilhado ou homologação.');
+        }
     }
 }

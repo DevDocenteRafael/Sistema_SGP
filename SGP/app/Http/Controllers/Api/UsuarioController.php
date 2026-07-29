@@ -103,6 +103,13 @@ class UsuarioController extends Controller
         $alterados = array_keys($usuario->getDirty());
         $usuario->save();
 
+        // Inativação ou troca de senha invalida sessões abertas.
+        if (in_array('status', $alterados, true) && $usuario->status === false) {
+            $usuario->tokens()->delete();
+        } elseif (in_array('senha', $alterados, true)) {
+            $usuario->tokens()->delete();
+        }
+
         $this->auditoria->registrarModelo(
             CadastroAuditoriaService::ACAO_EDITAR,
             $usuario,
