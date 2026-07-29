@@ -250,6 +250,26 @@ class CpedEquipeSeeder extends Seeder
                 'iniciais' => 'HC',
                 'cor' => '#00796B',
             ],
+            [
+                'nome' => 'Eduardo Ferreira de Lima',
+                'cargo' => 'Supervisor',
+                'setor' => 'CPED',
+                'contato' => 'Edu@gmail.com',
+                'tipo' => 'ordenador',
+                'eixo_vinculado' => null,
+                'iniciais' => 'EL',
+                'cor' => '#003F7D',
+            ],
+            [
+                'nome' => 'Lucas Leal',
+                'cargo' => 'Desenvolvedor',
+                'setor' => 'TI / Sistemas',
+                'contato' => 'lucaseduleal@gmail.com',
+                'tipo' => 'administrativo',
+                'eixo_vinculado' => null,
+                'iniciais' => 'LL',
+                'cor' => '#00796B',
+            ],
         ];
 
         foreach ($registros as $registro) {
