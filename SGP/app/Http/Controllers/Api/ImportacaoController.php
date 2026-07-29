@@ -130,6 +130,7 @@ class ImportacaoController extends Controller
             'importados' => $resultado['total'],
             'ignoradas' => $resultado['ignoradas'],
             'erros' => $resultado['erros'],
+            'backup' => $resultado['backup'] ?? null,
         ]);
     }
 }

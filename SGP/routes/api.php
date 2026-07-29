@@ -40,8 +40,10 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::apiResource('plano-de-metas', PlanoDeMetaController::class);
     Route::apiResource('pcas', PcaController::class);
     Route::apiResource('curso-por-eixos', CursoPorEixoController::class);
-    Route::apiResource('horas-pedagogicas', HoraPedagogicaController::class);
-    Route::apiResource('visitas-tecnicas', VisitaTecnicaController::class);
+    Route::apiResource('horas-pedagogicas', HoraPedagogicaController::class)
+        ->parameters(['horas-pedagogicas' => 'horaPedagogica']);
+    Route::apiResource('visitas-tecnicas', VisitaTecnicaController::class)
+        ->parameters(['visitas-tecnicas' => 'visitaTecnica']);
     Route::apiResource('acoes-extensivas', AcaoExtensivaController::class)
         ->parameters(['acoes-extensivas' => 'acaoExtensiva']);
     Route::apiResource('eventos', EventoController::class);

@@ -15,6 +15,11 @@ class ImportacaoService
 {
     use ExcelImportHelper;
 
+    public function __construct(
+        private readonly ImportBackupService $backupService,
+    ) {
+    }
+
     public function catalogo(): array
     {
         return array_values(config('importacoes.catalogo', []));
@@ -87,8 +92,11 @@ class ImportacaoService
         $defaults = $def['defaults'] ?? [];
 
         $usuarioId = Auth::id();
+        $backup = null;
 
-        DB::transaction(function () use ($modelClass, $campos, $resultado, $agora, $modulo, $camposUnicos, $defaults, $usuarioId, $def) {
+        DB::transaction(function () use ($modelClass, $campos, $resultado, $agora, $modulo, $camposUnicos, $defaults, $usuarioId, $def, &$backup) {
+            $backup = $this->backupService->backupAntesDeSubstituir($modulo, $modelClass);
+
             $modelClass::query()->delete();
 
             $lote = [];
@@ -160,11 +168,13 @@ class ImportacaoService
                     'total' => count($lote),
                     'ignoradas' => $resultado['ignoradas'] ?? 0,
                     'aba' => $resultado['aba'] ?? null,
+                    'backup' => $backup,
                 ],
             );
         });
 
         $resultado['total'] = $modelClass::query()->count();
+        $resultado['backup'] = $backup;
 
         return $resultado;
     }

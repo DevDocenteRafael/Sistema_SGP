@@ -98,6 +98,16 @@ class ImportacaoAcaoExtensivaTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonPath('importados', 2);
+        $response->assertJsonPath('backup.total', 1);
+        $this->assertNotEmpty($response->json('backup.path'));
+        $this->assertTrue(
+            \Illuminate\Support\Facades\Storage::disk('local')->exists($response->json('backup.path'))
+        );
+        $backupJson = json_decode(
+            \Illuminate\Support\Facades\Storage::disk('local')->get($response->json('backup.path')),
+            true
+        );
+        $this->assertSame('Registro antigo', $backupJson['registros'][0]['assunto'] ?? null);
         $this->assertDatabaseCount('acao_extensivas', 2);
         $this->assertDatabaseMissing('acao_extensivas', ['assunto' => 'Registro antigo']);
         $this->assertDatabaseHas('acao_extensivas', [
