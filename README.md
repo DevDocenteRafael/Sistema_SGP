@@ -28,10 +28,11 @@ Quem irá utilizar o sistema?
 Funcionalidades principais
 Algumas funcionalidades do sistema.
 
-- Cadastro completo de cursos.
-- Gerenciamento de usuários e controle de acesso.
-- Integração com sistemas institucionais (SENAC e SIG).
-- Edição e exclusão de cursos.
+- Cadastro e gestão do portfólio (cursos, metas, PCA, eixos).
+- Processos pedagógicos (visitas, horas, ações extensivas, eventos).
+- Importação de planilhas com backup automático pré-substituição.
+- Relatórios em PDF, auditoria de alterações e ferramentas (Kanban, fluxograma, CPED).
+- Gerenciamento de usuários e controle de acesso por perfil.
 
 Protótipo do Sistema
 Link do protótipo desenvolvido no Figma.
@@ -48,15 +49,14 @@ O projeto está sendo organizado utilizando:
 
 
 Tecnologias utilizadas
-Tecnologias que poderão ser utilizadas no desenvolvimento.
-Exemplo:
-- PHP
-- MySQL
+- PHP / Laravel
+- Vue 3 + Vite
+- MySQL / SQLite
 - GitHub
 - Figma
 
 Status do Projeto
-Projeto em desenvolvimento.
+Em uso interno pela CPED / SENAC DF (testes internos). Pronto para homologação com ressalvas técnicas.
 
 ## Guia para o time — como rodar o SGP
 

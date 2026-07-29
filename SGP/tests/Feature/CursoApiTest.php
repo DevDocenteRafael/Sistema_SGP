@@ -93,4 +93,9 @@ class CursoApiTest extends TestCase
         $filtered->assertJsonPath('meta.total', 1);
         $filtered->assertJsonPath('data.0.titulo', 'Curso Saúde');
     }
+
+    public function test_guest_cannot_list_cursos(): void
+    {
+        $this->getJson('/api/cursos')->assertUnauthorized();
+    }
 }

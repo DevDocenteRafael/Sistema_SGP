@@ -130,8 +130,14 @@ class PlanoDeMetaController extends Controller
         ], 201);
     }
 
-    public function show(PlanoDeMeta $planoDeMeta): JsonResponse
+    public function show(Request $request, PlanoDeMeta $planoDeMeta): JsonResponse
     {
+        if (! $request->user()?->podeConsultarDados()) {
+            return response()->json([
+                'message' => 'Você não tem permissão para consultar este plano de metas.',
+            ], 403);
+        }
+
         return response()->json([
             'planoDeMeta' => $planoDeMeta,
         ]);

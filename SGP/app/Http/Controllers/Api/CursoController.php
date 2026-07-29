@@ -12,6 +12,12 @@ class CursoController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        if (! $request->user()?->podeConsultarDados()) {
+            return response()->json([
+                'message' => 'Você não tem permissão para consultar cursos.',
+            ], 403);
+        }
+
         $query = Curso::query()->orderBy('id');
 
         if ($request->filled('busca')) {
@@ -84,8 +90,14 @@ class CursoController extends Controller
         ], 201);
     }
 
-    public function show(Curso $curso): JsonResponse
+    public function show(Request $request, Curso $curso): JsonResponse
     {
+        if (! $request->user()?->podeConsultarDados()) {
+            return response()->json([
+                'message' => 'Você não tem permissão para consultar este curso.',
+            ], 403);
+        }
+
         return response()->json([
             'curso' => $curso,
         ]);

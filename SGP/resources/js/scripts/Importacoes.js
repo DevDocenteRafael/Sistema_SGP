@@ -143,7 +143,7 @@ export default {
       if (!this.arquivo || this.processando || !this.previa.total || !this.moduloAtivo) return;
 
       const ok = window.confirm(
-        `Isso vai APAGAR todos os registros atuais de ${this.previa.label || this.moduloAtivo.label} e importar ${this.previa.total} linha(s).\n\nDeseja continuar?`,
+        `Isso vai APAGAR todos os registros atuais de ${this.previa.label || this.moduloAtivo.label} e importar ${this.previa.total} linha(s).\n\nAntes da substituição, o sistema grava um backup automático dos dados atuais.\n\nDeseja continuar?`,
       );
       if (!ok) return;
 
@@ -158,7 +158,15 @@ export default {
           { headers: { 'Content-Type': 'multipart/form-data' } },
         );
 
-        this.mensagem = data.message || `Importação concluída: ${data.importados} registro(s).`;
+        const backupTotal = data.backup?.total;
+        const backupPath = data.backup?.path;
+        let msg = data.message || `Importação concluída: ${data.importados} registro(s).`;
+
+        if (backupPath) {
+          msg += ` Backup prévio: ${backupTotal ?? 0} registro(s) em ${backupPath}.`;
+        }
+
+        this.mensagem = msg;
         this.voltarCatalogo();
       } catch (error) {
         this.erro = error.response?.data?.message || 'Não foi possível concluir a importação.';

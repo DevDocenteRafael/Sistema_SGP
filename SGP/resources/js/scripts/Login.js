@@ -30,7 +30,9 @@ export default {
         const redirect = this.$route.query.redirect || '/app/inicio';
         this.$router.push(redirect);
       } catch (error) {
-        if (error.response?.status === 422) {
+        if (error.response?.status === 429) {
+          this.errorMessage = 'Muitas tentativas de login. Aguarde cerca de 1 minuto e tente novamente.';
+        } else if (error.response?.status === 422) {
           const errors = error.response.data.errors;
           this.errorMessage = errors?.email?.[0] || errors?.senha?.[0] || 'Dados inválidos.';
         } else {
