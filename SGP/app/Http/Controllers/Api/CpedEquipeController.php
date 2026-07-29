@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CpedEquipeRequest;
 use App\Models\CpedEquipe;
@@ -10,12 +11,12 @@ use Illuminate\Http\Request;
 
 class CpedEquipeController extends Controller
 {
+    use AutorizaConsulta;
+
     public function index(Request $request): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar a equipe CPED.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar a equipe CPED.')) {
+            return $negado;
         }
 
         $query = CpedEquipe::query()
@@ -105,10 +106,8 @@ class CpedEquipeController extends Controller
 
     public function show(Request $request, CpedEquipe $cpedEquipe): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar este membro.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar este membro.')) {
+            return $negado;
         }
 
         return response()->json([

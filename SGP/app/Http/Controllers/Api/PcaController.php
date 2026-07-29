@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PcaRequest;
 use App\Models\Pca;
@@ -10,12 +11,12 @@ use Illuminate\Http\Request;
 
 class PcaController extends Controller
 {
+    use AutorizaConsulta;
+
     public function index(Request $request): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar PCA.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar PCA.')) {
+            return $negado;
         }
 
         $query = Pca::query()->orderBy('id');
@@ -137,10 +138,8 @@ class PcaController extends Controller
 
     public function show(Request $request, Pca $pca): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar este PCA.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar este PCA.')) {
+            return $negado;
         }
 
         return response()->json([

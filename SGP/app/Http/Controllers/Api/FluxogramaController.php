@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FluxogramaRequest;
 use App\Models\Fluxograma;
@@ -11,16 +12,16 @@ use Illuminate\Http\Request;
 
 class FluxogramaController extends Controller
 {
+    use AutorizaConsulta;
+
     public function __construct(
         private readonly FluxogramaService $fluxogramaService
     ) {}
 
     public function index(Request $request): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar os fluxogramas.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar os fluxogramas.')) {
+            return $negado;
         }
 
         $itens = $this->fluxogramaService->listar();
@@ -49,10 +50,8 @@ class FluxogramaController extends Controller
 
     public function show(Request $request, Fluxograma $fluxograma): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar este fluxograma.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar este fluxograma.')) {
+            return $negado;
         }
 
         if (! $fluxograma->ativo) {

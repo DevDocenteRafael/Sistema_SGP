@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AcaoExtensivaRequest;
 use App\Models\AcaoExtensiva;
@@ -10,12 +11,12 @@ use Illuminate\Http\Request;
 
 class AcaoExtensivaController extends Controller
 {
+    use AutorizaConsulta;
+
     public function index(Request $request): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar ações extensivas.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar ações extensivas.')) {
+            return $negado;
         }
 
         $query = AcaoExtensiva::query()->orderBy('id');
@@ -92,10 +93,8 @@ class AcaoExtensivaController extends Controller
 
     public function show(Request $request, AcaoExtensiva $acaoExtensiva): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar esta ação extensiva.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar esta ação extensiva.')) {
+            return $negado;
         }
 
         return response()->json([

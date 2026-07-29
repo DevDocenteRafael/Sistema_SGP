@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\KanbanCartaoRequest;
 use App\Http\Requests\KanbanColunaRequest;
@@ -17,16 +18,16 @@ use InvalidArgumentException;
 
 class KanbanController extends Controller
 {
+    use AutorizaConsulta;
+
     public function __construct(
         private readonly KanbanService $kanbanService
     ) {}
 
     public function indexQuadros(Request $request): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar o Kanban.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar o Kanban.')) {
+            return $negado;
         }
 
         $quadros = $this->kanbanService->listarQuadros();
@@ -52,10 +53,8 @@ class KanbanController extends Controller
 
     public function showQuadro(Request $request, KanbanQuadro $kanbanQuadro): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar este quadro.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar este quadro.')) {
+            return $negado;
         }
 
         if (! $kanbanQuadro->ativo) {

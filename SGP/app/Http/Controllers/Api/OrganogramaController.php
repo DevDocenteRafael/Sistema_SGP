@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Services\OrganogramaService;
 use Illuminate\Http\JsonResponse;
@@ -9,16 +10,16 @@ use Illuminate\Http\Request;
 
 class OrganogramaController extends Controller
 {
+    use AutorizaConsulta;
+
     public function __construct(
         private readonly OrganogramaService $organogramaService
     ) {}
 
     public function index(Request $request): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar o organograma.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar o organograma.')) {
+            return $negado;
         }
 
         $dados = $this->organogramaService->montar();

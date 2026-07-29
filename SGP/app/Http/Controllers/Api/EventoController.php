@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EventoRequest;
 use App\Models\AcaoExtensiva;
@@ -11,12 +12,12 @@ use Illuminate\Http\Request;
 
 class EventoController extends Controller
 {
+    use AutorizaConsulta;
+
     public function index(Request $request): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar eventos.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar eventos.')) {
+            return $negado;
         }
 
         $query = Evento::query()
@@ -121,10 +122,8 @@ class EventoController extends Controller
 
     public function show(Request $request, Evento $evento): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar este evento.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar este evento.')) {
+            return $negado;
         }
 
         return response()->json([

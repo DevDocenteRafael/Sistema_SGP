@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\HoraPedagogicaRequest;
 use App\Models\HoraPedagogica;
@@ -10,12 +11,12 @@ use Illuminate\Http\Request;
 
 class HoraPedagogicaController extends Controller
 {
+    use AutorizaConsulta;
+
     public function index(Request $request): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar horas pedagógicas.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar horas pedagógicas.')) {
+            return $negado;
         }
 
         $query = HoraPedagogica::query()
@@ -88,10 +89,8 @@ class HoraPedagogicaController extends Controller
 
     public function show(Request $request, HoraPedagogica $horaPedagogica): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar esta hora pedagógica.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar esta hora pedagógica.')) {
+            return $negado;
         }
 
         return response()->json([

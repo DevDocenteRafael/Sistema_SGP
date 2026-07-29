@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VisitaTecnicaRequest;
 use App\Models\VisitaTecnica;
@@ -11,12 +12,12 @@ use Illuminate\Http\Request;
 
 class VisitaTecnicaController extends Controller
 {
+    use AutorizaConsulta;
+
     public function index(Request $request): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar visitas técnicas.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar visitas técnicas.')) {
+            return $negado;
         }
 
         $query = VisitaTecnica::query()
@@ -85,10 +86,8 @@ class VisitaTecnicaController extends Controller
 
     public function show(Request $request, VisitaTecnica $visitaTecnica): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar esta visita técnica.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar esta visita técnica.')) {
+            return $negado;
         }
 
         return response()->json([

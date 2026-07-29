@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Services\RelatorioService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -12,16 +13,16 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class RelatorioController extends Controller
 {
+    use AutorizaConsulta;
+
     public function __construct(
         private readonly RelatorioService $relatorioService
     ) {}
 
     public function index(Request $request): JsonResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para consultar relatórios.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar relatórios.')) {
+            return $negado;
         }
 
         $contagens = $this->relatorioService->contagens();
@@ -52,10 +53,8 @@ class RelatorioController extends Controller
 
     public function pdf(Request $request, string $tipo): Response|JsonResponse|SymfonyResponse
     {
-        if (! $request->user()?->podeConsultarDados()) {
-            return response()->json([
-                'message' => 'Você não tem permissão para exportar relatórios.',
-            ], 403);
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para exportar relatórios.')) {
+            return $negado;
         }
 
         if (! $this->relatorioService->tipoExiste($tipo)) {
