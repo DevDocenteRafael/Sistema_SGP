@@ -157,4 +157,51 @@ class PcaApiTest extends TestCase
         $this->getJson("/api/pcas/{$pca->id}")
             ->assertUnauthorized();
     }
+
+    public function test_can_show_update_and_delete_pca(): void
+    {
+        $usuario = Usuario::create([
+            'nome' => 'Editor PCA CRUD',
+            'email' => 'editor-pca-crud@teste.com',
+            'senha' => Hash::make('senha123'),
+            'cpf' => '12345678904',
+            'perfil' => Usuario::PERFIL_EDITOR,
+            'status' => true,
+            'unidade' => 'Asa Norte',
+            'area' => 'Portfólio',
+            'telefone' => '11999999996',
+        ]);
+
+        $this->actingAs($usuario, 'sanctum');
+
+        $payload = [
+            'titulo' => 'PCA para CRUD',
+            'semestre' => '2026/1',
+            'numero_sei' => 'SEI-CRUD-01',
+            'codigo_sig' => 'SIG-CRUD-01',
+            'eixo' => 'Gestão e Moda',
+            'unidade' => 'Taguatinga',
+            'carga_horaria' => '400',
+            'status' => 'Vigente',
+            'ano' => 2026,
+        ];
+
+        $id = $this->postJson('/api/pcas', $payload)->json('pca.id');
+
+        $this->getJson("/api/pcas/{$id}")
+            ->assertOk()
+            ->assertJsonPath('pca.titulo', 'PCA para CRUD');
+
+        $this->putJson("/api/pcas/{$id}", [
+            ...$payload,
+            'titulo' => 'PCA atualizado',
+            'status' => 'Suspenso',
+        ])
+            ->assertOk()
+            ->assertJsonPath('pca.titulo', 'PCA atualizado')
+            ->assertJsonPath('pca.status', 'Suspenso');
+
+        $this->deleteJson("/api/pcas/{$id}")->assertOk();
+        $this->assertDatabaseMissing('pcas', ['id' => $id]);
+    }
 }

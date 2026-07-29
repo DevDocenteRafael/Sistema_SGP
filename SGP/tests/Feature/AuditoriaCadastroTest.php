@@ -128,4 +128,24 @@ class AuditoriaCadastroTest extends TestCase
         $response->assertJsonPath('meta.total', 1);
         $response->assertJsonPath('data.0.resumo', 'Cadastrou curso teste');
     }
+
+    public function test_admin_pode_ver_detalhe_da_auditoria(): void
+    {
+        $admin = $this->admin();
+        $editor = $this->editor();
+
+        $evento = Cadastro::query()->create([
+            'usuario_id' => $editor->id,
+            'acao' => 'excluir',
+            'modulo' => 'eventos',
+            'resumo' => 'Excluiu evento X',
+            'dados' => ['id' => 99],
+        ]);
+
+        $this->actingAs($admin, 'sanctum')
+            ->getJson("/api/cadastros/{$evento->id}")
+            ->assertOk()
+            ->assertJsonPath('cadastro.acao', 'excluir')
+            ->assertJsonPath('cadastro.resumo', 'Excluiu evento X');
+    }
 }
