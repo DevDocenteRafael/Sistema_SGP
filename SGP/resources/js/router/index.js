@@ -39,6 +39,18 @@ const appChildren = [
     component: () => import('../pages/Carometro.vue'),
     meta: { menu: 'ferramentas' },
   },
+  {
+    path: 'ferramentas/fluxograma',
+    name: 'ferramentas-fluxograma',
+    component: () => import('../pages/Fluxogramas.vue'),
+    meta: { menu: 'ferramentas' },
+  },
+  {
+    path: 'ferramentas/fluxograma/:slug',
+    name: 'ferramentas-fluxograma-editor',
+    component: () => import('../pages/FluxogramaEditor.vue'),
+    meta: { menu: 'ferramentas' },
+  },
   { path: 'cped', name: 'cped', component: () => import('../pages/Cped.vue'), meta: { menu: 'cped' } },
   { path: 'usuarios', name: 'usuarios', component: () => import('../pages/Usuarios.vue'), meta: { menu: 'usuarios' } },
 ];

@@ -72,6 +72,12 @@ class FerramentaApiTest extends TestCase
         $this->assertTrue($carometro['enabled']);
         $this->assertSame('/app/ferramentas/carometro', $carometro['route']);
 
+        $fluxograma = collect($response->json('data'))->firstWhere('key', 'fluxograma');
+        $this->assertSame('available', $fluxograma['status']);
+        $this->assertTrue($fluxograma['enabled']);
+        $this->assertSame('internal', $fluxograma['type']);
+        $this->assertSame('/app/ferramentas/fluxograma', $fluxograma['route']);
+
         $loop = collect($response->json('data'))->firstWhere('key', 'microsoft_loop');
         $this->assertSame('available', $loop['status']);
         $this->assertTrue($loop['enabled']);

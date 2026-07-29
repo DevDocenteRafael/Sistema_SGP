@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\CursoController;
 use App\Http\Controllers\Api\CursoPorEixoController;
 use App\Http\Controllers\Api\EventoController;
 use App\Http\Controllers\Api\FerramentaController;
+use App\Http\Controllers\Api\FluxogramaController;
 use App\Http\Controllers\Api\HoraPedagogicaController;
 use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\OrganogramaController;
@@ -60,5 +61,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('cartoes/{kanbanCartao}', [KanbanController::class, 'update']);
         Route::delete('cartoes/{kanbanCartao}', [KanbanController::class, 'destroy']);
         Route::put('cartoes/{kanbanCartao}/mover', [KanbanController::class, 'mover']);
+    });
+
+    Route::prefix('fluxogramas')->group(function () {
+        Route::get('/', [FluxogramaController::class, 'index']);
+        Route::post('/', [FluxogramaController::class, 'store']);
+        Route::get('{fluxograma}', [FluxogramaController::class, 'show']);
+        Route::put('{fluxograma}', [FluxogramaController::class, 'update']);
+        Route::delete('{fluxograma}', [FluxogramaController::class, 'destroy']);
     });
 });
