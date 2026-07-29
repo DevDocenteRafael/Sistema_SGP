@@ -76,16 +76,9 @@ class PcaSeeder extends Seeder
         ];
 
         foreach ($registros as $registro) {
-            // Use apenas as colunas atualmente presentes na tabela pcas
-            $dados = array_intersect_key($registro, array_flip([
-                'titulo', 'semestre', 'eixo', 'carga_horaria', 'precificacao',
-                'valor_primeiro_modulo', 'valor', 'parcelas_boleto', 'valor_parcela_boleto',
-                'parcelas_cartao', 'valor_cartao', 'parcela_desc_20', 'parcela_desc_15',
-            ]));
-
             Pca::query()->updateOrCreate(
-                ['titulo' => $registro['titulo'], 'semestre' => $registro['semestre']],
-                $dados
+                ['numero_sei' => $registro['numero_sei']],
+                $registro
             );
         }
     }
