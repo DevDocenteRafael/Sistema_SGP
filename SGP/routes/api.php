@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\OrganogramaController;
 use App\Http\Controllers\Api\PcaController;
 use App\Http\Controllers\Api\PlanoDeMetaController;
+use App\Http\Controllers\Api\RelatorioController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\VisitaTecnicaController;
 use App\Models\Usuario;
@@ -45,6 +46,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('ferramentas', [FerramentaController::class, 'index']);
     Route::get('organograma', [OrganogramaController::class, 'index']);
     Route::get('carometro', [CarometroController::class, 'index']);
+
+    Route::get('relatorios', [RelatorioController::class, 'index']);
+    Route::get('relatorios/{tipo}/pdf', [RelatorioController::class, 'pdf']);
 
     Route::prefix('kanban')->group(function () {
         Route::get('quadros', [KanbanController::class, 'indexQuadros']);
