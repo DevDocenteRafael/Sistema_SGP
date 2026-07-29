@@ -271,16 +271,3 @@
   font-size: 0.9rem;
 }
 
-@media (max-width: 768px) {
-  .rel-header,
-  .rel-catalogo,
-  .rel-detalhe {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  .alert {
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-}

@@ -509,20 +509,3 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
-  .kanban-top,
-  .kanban-content {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  .alert {
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-
-  .kanban-coluna {
-    flex-basis: 16.5rem;
-    width: 16.5rem;
-  }
-}

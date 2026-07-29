@@ -676,38 +676,3 @@
   line-height: 1.4;
 }
 
-@media (max-width: 1024px) {
-  .org-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .org-detalhe {
-    position: static;
-    order: -1;
-  }
-
-  .org-detalhe:not(.ativo) {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .org-top-inner,
-  .org-content {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  .alert {
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-
-  .org-ramos {
-    grid-template-columns: 1fr;
-  }
-
-  .org-node-raiz {
-    min-width: 100%;
-  }
-}

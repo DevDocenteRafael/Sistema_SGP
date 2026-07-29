@@ -61,6 +61,13 @@ const MENU_SECOES = [
 
 export default {
   name: 'Sidebar',
+  props: {
+    aberto: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  emits: ['fechar'],
   data() {
     return {
       logoSenac,
@@ -96,6 +103,9 @@ export default {
     },
   },
   methods: {
+    onNavigate() {
+      this.$emit('fechar');
+    },
     async logout() {
       try {
         await window.axios.post('/api/logout');
@@ -106,6 +116,7 @@ export default {
       localStorage.removeItem('sgp_token');
       localStorage.removeItem('sgp_usuario');
       delete window.axios.defaults.headers.common.Authorization;
+      this.$emit('fechar');
       this.$router.push('/login');
     },
   },

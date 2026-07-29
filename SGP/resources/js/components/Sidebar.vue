@@ -1,7 +1,7 @@
 <template>
-  <nav class="sidebar">
+  <nav class="sidebar" :class="{ 'sidebar--open': aberto }">
     <div class="sidebar-header">
-      <router-link to="/app/inicio" class="sidebar-logo-link" title="Ir para o início">
+      <router-link to="/app/inicio" class="sidebar-logo-link" title="Ir para o início" @click="onNavigate">
         <img :src="logoSenac" alt="Senac" class="sidebar-logo" />
       </router-link>
     </div>
@@ -19,6 +19,7 @@
           :key="item.rota"
           class="sidebar-link"
           :to="item.path"
+          @click="onNavigate"
         >
           <span class="sidebar-link-icon" v-html="icons[item.icon]" />
           <span class="sidebar-link-label">{{ item.label }}</span>

@@ -180,8 +180,3 @@
   font-weight: 400;
 }
 
-@media (max-width: 680px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-}

@@ -293,15 +293,3 @@
   font-size: 0.8rem;
 }
 
-@media (max-width: 768px) {
-  .auditoria-top,
-  .filtros-bar {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  .tabela-card {
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-}

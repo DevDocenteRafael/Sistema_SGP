@@ -1014,38 +1014,3 @@
   gap: 0.5rem;
 }
 
-@media (max-width: 900px) {
-  .cped-hero {
-    padding: 1.25rem 1rem;
-  }
-
-  .cped-hero-side {
-    align-items: stretch;
-    width: 100%;
-  }
-
-  .cped-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .btn-novo {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .cped-body {
-    padding: 1rem 1rem 2rem;
-  }
-
-  .funcao-grid-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .org-eixo-card {
-    width: 6.5rem;
-  }
-}

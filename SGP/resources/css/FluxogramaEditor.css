@@ -756,32 +756,3 @@
   line-height: 1.35;
 }
 
-@media (max-width: 960px) {
-  .flux-editor-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(22rem, 1fr) auto;
-    height: auto;
-  }
-
-  .flux-palette,
-  .flux-props {
-    border: none;
-    border-bottom: 1px solid #d5e4e2;
-  }
-
-  .flux-canvas-wrap {
-    min-height: 22rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .flux-editor-top {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  .alert {
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-}
