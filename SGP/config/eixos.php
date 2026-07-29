@@ -1,16 +1,15 @@
 <?php
 
 /**
- * Segmentos / áreas usados no cadastro de Cursos.
- * A página Eixos usa a taxonomia detalhada da planilha (ver Eixos.js).
+ * Abas / eixos do portfólio usados no cadastro e filtro de Cursos.
+ * Alinhado às abas da planilha Portfólio (Grupo da Aprendizagem).
  */
 return [
-    'Gastronomia',
-    'Ambiente e Saúde',
+    'Gastronomia e Turismo',
+    'Saúde',
     'Gestão e Moda',
     'Tecnologia e Economia Criativa',
     'Beleza e Cuidado Pessoal',
-    'Turismo e Hospitalidade',
-    'Comunicação e Audiovisual',
-    'Artes e Design',
+    'Ensino Médio 2025',
+    '60+',
 ];

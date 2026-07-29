@@ -18,7 +18,7 @@ class PcaController extends Controller
             ], 403);
         }
 
-        $query = Pca::query()->orderByDesc('ano')->orderByDesc('id');
+        $query = Pca::query()->orderBy('id');
 
         if ($request->filled('busca')) {
             $busca = $request->busca;

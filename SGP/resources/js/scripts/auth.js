@@ -80,3 +80,9 @@ export function podeEditarDados() {
 export function podeConsultarDados() {
   return Boolean(getPerfil());
 }
+
+export function podeImportarDados() {
+  const perfil = getPerfil();
+
+  return perfil === PERFIS.ADMINISTRADOR || perfil === PERFIS.EDITOR;
+}

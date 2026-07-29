@@ -18,9 +18,7 @@ class AcaoExtensivaController extends Controller
             ], 403);
         }
 
-        $query = AcaoExtensiva::query()
-            ->orderByDesc('ultima_atualizacao')
-            ->orderByDesc('id');
+        $query = AcaoExtensiva::query()->orderBy('id');
 
         if ($request->filled('busca')) {
             $busca = $request->busca;

@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\EventoController;
 use App\Http\Controllers\Api\FerramentaController;
 use App\Http\Controllers\Api\FluxogramaController;
 use App\Http\Controllers\Api\HoraPedagogicaController;
+use App\Http\Controllers\Api\ImportacaoController;
 use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\OrganogramaController;
 use App\Http\Controllers\Api\PcaController;
@@ -49,6 +50,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('relatorios', [RelatorioController::class, 'index']);
     Route::get('relatorios/{tipo}/pdf', [RelatorioController::class, 'pdf']);
+
+    Route::get('importacoes', [ImportacaoController::class, 'catalogo']);
+    Route::post('importacoes/{modulo}/preview', [ImportacaoController::class, 'preview']);
+    Route::post('importacoes/{modulo}/commit', [ImportacaoController::class, 'commit']);
 
     Route::prefix('kanban')->group(function () {
         Route::get('quadros', [KanbanController::class, 'indexQuadros']);

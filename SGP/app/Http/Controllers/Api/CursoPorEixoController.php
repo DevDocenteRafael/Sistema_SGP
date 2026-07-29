@@ -18,10 +18,7 @@ class CursoPorEixoController extends Controller
             ], 403);
         }
 
-        $query = CursoPorEixo::query()
-            ->orderByDesc('ano')
-            ->orderBy('eixo')
-            ->orderBy('curso');
+        $query = CursoPorEixo::query()->orderBy('id');
 
         if ($request->filled('busca')) {
             $busca = $request->busca;

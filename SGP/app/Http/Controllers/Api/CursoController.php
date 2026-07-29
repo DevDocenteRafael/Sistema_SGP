@@ -12,7 +12,7 @@ class CursoController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Curso::query()->orderBy('titulo');
+        $query = Curso::query()->orderBy('id');
 
         if ($request->filled('busca')) {
             $busca = $request->busca;
@@ -51,11 +51,21 @@ class CursoController extends Controller
 
         $cursos = $query->get();
 
+        $eixosConfig = config('eixos', []);
+        $eixosDb = Curso::query()
+            ->whereNotNull('eixo')
+            ->where('eixo', '!=', '')
+            ->distinct()
+            ->orderBy('eixo')
+            ->pluck('eixo')
+            ->all();
+        $eixos = array_values(array_unique(array_merge($eixosConfig, $eixosDb)));
+
         return response()->json([
             'data' => $cursos,
             'meta' => [
                 'total' => $cursos->count(),
-                'eixos' => config('eixos'),
+                'eixos' => $eixos,
                 'status' => config('cursos.status'),
                 'tipos' => config('cursos.tipos'),
                 'modalidades' => config('cursos.modalidades'),
