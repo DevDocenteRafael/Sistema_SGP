@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditaCadastro;
 use Illuminate\Database\Eloquent\Model;
 
 class Curso extends Model
 {
+    use AuditaCadastro;
+
     protected $fillable = [
         'titulo',
         'eixo',
@@ -33,6 +36,8 @@ class Curso extends Model
         'comercial',
         'pcn',
         'pcr',
+        'criado_por',
+        'atualizado_por',
     ];
 
     protected function casts(): array

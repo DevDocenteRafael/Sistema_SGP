@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditaCadastro;
 use Illuminate\Database\Eloquent\Model;
 
 class AcaoExtensiva extends Model
 {
+    use AuditaCadastro;
+
     protected $table = 'acao_extensivas';
 
     protected $fillable = [
@@ -18,6 +21,8 @@ class AcaoExtensiva extends Model
         'objetivo',
         'status',
         'ultima_atualizacao',
+        'criado_por',
+        'atualizado_por',
     ];
 
     protected function casts(): array

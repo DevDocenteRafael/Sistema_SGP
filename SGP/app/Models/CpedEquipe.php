@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditaCadastro;
 use Illuminate\Database\Eloquent\Model;
 
 class CpedEquipe extends Model
 {
+    use AuditaCadastro;
+
     protected $table = 'cped_equipes';
 
     protected $fillable = [
@@ -20,6 +23,8 @@ class CpedEquipe extends Model
         'cor',
         'ativo',
         'observacao',
+        'criado_por',
+        'atualizado_por',
     ];
 
     protected function casts(): array

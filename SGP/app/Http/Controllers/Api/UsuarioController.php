@@ -5,12 +5,18 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UsuarioRequest;
 use App\Models\Usuario;
+use App\Services\CadastroAuditoriaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
+    public function __construct(
+        private CadastroAuditoriaService $auditoria,
+    ) {
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = Usuario::query()->orderBy('nome');
@@ -45,6 +51,8 @@ class UsuarioController extends Controller
         $dados['status'] = $dados['status'] ?? true;
 
         $usuario = Usuario::create($dados);
+
+        $this->auditoria->registrarModelo(CadastroAuditoriaService::ACAO_CRIAR, $usuario);
 
         return response()->json([
             'message' => 'Usuário cadastrado com sucesso. Informe o e-mail e a senha ao colaborador.',
@@ -91,7 +99,16 @@ class UsuarioController extends Controller
             ], 422);
         }
 
-        $usuario->update($dados);
+        $usuario->fill($dados);
+        $alterados = array_keys($usuario->getDirty());
+        $usuario->save();
+
+        $this->auditoria->registrarModelo(
+            CadastroAuditoriaService::ACAO_EDITAR,
+            $usuario,
+            null,
+            ['alterados' => $alterados],
+        );
 
         return response()->json([
             'message' => 'Usuário atualizado com sucesso.',
@@ -115,6 +132,8 @@ class UsuarioController extends Controller
 
         $usuario->tokens()->delete();
         $usuario->delete();
+
+        $this->auditoria->registrarModelo(CadastroAuditoriaService::ACAO_EXCLUIR, $usuario);
 
         return response()->json([
             'message' => 'Usuário excluído com sucesso.',

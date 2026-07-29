@@ -88,4 +88,9 @@ class Usuario extends Authenticatable
     {
         return $this->pode('importar_dados');
     }
+
+    public function podeConsultarAuditoria(): bool
+    {
+        return $this->pode('consultar_auditoria');
+    }
 }

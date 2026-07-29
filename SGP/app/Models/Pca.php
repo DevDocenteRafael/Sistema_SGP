@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditaCadastro;
 use Illuminate\Database\Eloquent\Model;
 
 class Pca extends Model
 {
+    use AuditaCadastro;
+
     protected $table = 'pcas';
 
     protected $fillable = [
@@ -28,6 +31,8 @@ class Pca extends Model
         'status',
         'observacao',
         'ano',
+        'criado_por',
+        'atualizado_por',
     ];
 
     protected function casts(): array

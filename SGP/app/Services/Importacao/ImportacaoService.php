@@ -2,8 +2,10 @@
 
 namespace App\Services\Importacao;
 
+use App\Services\CadastroAuditoriaService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -84,7 +86,9 @@ class ImportacaoService
         $camposUnicos = $def['unique_fields'] ?? [];
         $defaults = $def['defaults'] ?? [];
 
-        DB::transaction(function () use ($modelClass, $campos, $resultado, $agora, $modulo, $camposUnicos, $defaults) {
+        $usuarioId = Auth::id();
+
+        DB::transaction(function () use ($modelClass, $campos, $resultado, $agora, $modulo, $camposUnicos, $defaults, $usuarioId, $def) {
             $modelClass::query()->delete();
 
             $lote = [];
@@ -136,12 +140,28 @@ class ImportacaoService
 
                 $row['created_at'] = $agora;
                 $row['updated_at'] = $agora;
+                if ($usuarioId) {
+                    $row['criado_por'] = $usuarioId;
+                    $row['atualizado_por'] = $usuarioId;
+                }
                 $lote[] = $row;
             }
 
             foreach (array_chunk($lote, 200) as $chunk) {
                 $modelClass::query()->insert($chunk);
             }
+
+            app(CadastroAuditoriaService::class)->registrar(
+                CadastroAuditoriaService::ACAO_IMPORTAR,
+                $modulo,
+                null,
+                'Importou '.count($lote).' registro(s) em '.($def['label'] ?? $modulo),
+                [
+                    'total' => count($lote),
+                    'ignoradas' => $resultado['ignoradas'] ?? 0,
+                    'aba' => $resultado['aba'] ?? null,
+                ],
+            );
         });
 
         $resultado['total'] = $modelClass::query()->count();

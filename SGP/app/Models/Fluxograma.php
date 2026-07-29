@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditaCadastro;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Fluxograma extends Model
 {
+    use AuditaCadastro;
+
     public const TIPO_LINEAR = 'linear';
 
     public const TIPO_FUNCIONAL = 'funcional';
@@ -21,6 +24,7 @@ class Fluxograma extends Model
         'diagrama',
         'ativo',
         'criado_por',
+        'atualizado_por',
     ];
 
     protected function casts(): array

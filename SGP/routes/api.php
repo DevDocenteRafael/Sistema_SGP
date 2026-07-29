@@ -32,7 +32,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('perfil:'.Usuario::PERFIL_ADMINISTRADOR)
         ->apiResource('usuarios', UsuarioController::class);
 
-    Route::apiResource('cadastros', CadastroController::class);
+    // Auditoria (tabela cadastros) — somente leitura para Administrador.
+    Route::get('cadastros', [CadastroController::class, 'index']);
+    Route::get('cadastros/{cadastro}', [CadastroController::class, 'show']);
     Route::apiResource('cursos', CursoController::class);
     Route::apiResource('plano-de-metas', PlanoDeMetaController::class);
     Route::apiResource('pcas', PcaController::class);

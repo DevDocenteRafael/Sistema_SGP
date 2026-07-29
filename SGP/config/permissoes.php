@@ -33,6 +33,7 @@ return [
         'consultar_dados' => ['Administrador', 'Editor', 'Consultor'],
         'importar_dados' => ['Administrador', 'Editor'],
         'ver_relatorios' => ['Administrador', 'Editor', 'Consultor'],
+        'consultar_auditoria' => ['Administrador'],
     ],
 
     /*
@@ -46,6 +47,7 @@ return [
         'dashboard' => ['Administrador', 'Editor', 'Consultor'],
         'relatorios' => ['Administrador', 'Editor', 'Consultor'],
         'importacoes' => ['Administrador', 'Editor'],
+        'auditoria' => ['Administrador'],
         'cursos' => ['Administrador', 'Editor', 'Consultor'],
         'plano-de-metas' => ['Administrador', 'Editor', 'Consultor'],
         'pca' => ['Administrador', 'Editor', 'Consultor'],

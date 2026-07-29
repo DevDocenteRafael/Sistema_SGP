@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditaCadastro;
 use Illuminate\Database\Eloquent\Model;
 
 class Evento extends Model
 {
+    use AuditaCadastro;
+
     protected $table = 'eventos';
 
     protected $fillable = [
@@ -20,6 +23,8 @@ class Evento extends Model
         'acao_vinculada',
         'status',
         'observacao',
+        'criado_por',
+        'atualizado_por',
     ];
 
     protected function casts(): array

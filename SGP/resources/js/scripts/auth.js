@@ -17,6 +17,7 @@ export const MENU_POR_PERFIL = {
   dashboard: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
   relatorios: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
   importacoes: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR],
+  auditoria: [PERFIS.ADMINISTRADOR],
   cursos: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
   'plano-de-metas': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
   pca: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
@@ -85,4 +86,8 @@ export function podeImportarDados() {
   const perfil = getPerfil();
 
   return perfil === PERFIS.ADMINISTRADOR || perfil === PERFIS.EDITOR;
+}
+
+export function podeConsultarAuditoria() {
+  return isAdministrador();
 }

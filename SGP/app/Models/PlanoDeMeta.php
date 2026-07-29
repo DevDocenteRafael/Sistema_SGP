@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditaCadastro;
 use Illuminate\Database\Eloquent\Model;
 
 class PlanoDeMeta extends Model
 {
+    use AuditaCadastro;
+
     protected $table = 'plano_de_metas';
 
     protected $fillable = [
@@ -20,6 +23,8 @@ class PlanoDeMeta extends Model
         'status_final',
         'observacao',
         'ano',
+        'criado_por',
+        'atualizado_por',
     ];
 
     protected function casts(): array

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditaCadastro;
 use Illuminate\Database\Eloquent\Model;
 
 class VisitaTecnica extends Model
 {
+    use AuditaCadastro;
+
     protected $table = 'visita_tecnicas';
 
     protected $fillable = [
@@ -19,6 +22,8 @@ class VisitaTecnica extends Model
         'responsavel',
         'relatorio',
         'observacao',
+        'criado_por',
+        'atualizado_por',
     ];
 
     protected function casts(): array
