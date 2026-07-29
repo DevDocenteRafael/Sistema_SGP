@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Usuario;
-use App\Models\User;
 
 return [
 
@@ -56,7 +55,8 @@ return [
     |
     | If you have multiple user tables or models you may configure multiple
     | providers to represent the model / table. These providers may then
-    | be assigned to any extra authentication guards you have defined.
+    | be assigned to any of your authentication guards to define how those
+    | guards authenticate users.
     |
     | Supported: "database", "eloquent"
     |
@@ -65,18 +65,8 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
+            'model' => env('AUTH_MODEL', Usuario::class),
         ],
-
-        'usuarios' => [
-            'driver' => 'eloquent',
-            'model' => Usuario::class,
-        ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
 
     /*
@@ -90,7 +80,7 @@ return [
     |
     | The expiry time is the number of minutes that each reset token will be
     | considered valid. This security feature keeps tokens short-lived so
-    | they have less time to be guessed. You may change this as needed.
+    | they have less time to be guessed. You may change these as needed.
     |
     | The throttle setting is the number of seconds a user must wait before
     | generating more password reset tokens. This prevents the user from
@@ -112,7 +102,7 @@ return [
     | Password Confirmation Timeout
     |--------------------------------------------------------------------------
     |
-    | Here you may define the number of seconds before a password confirmation
+    | Here you may define the amount of seconds before a password confirmation
     | window expires and users are asked to re-enter their password via the
     | confirmation screen. By default, the timeout lasts for three hours.
     |
