@@ -1,23 +1,19 @@
 <template>
-  <div class="planos-meta-page" :class="{ 'planos-meta-page-form': modo !== 'lista' }">
+  <div class="crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
-      <header class="planos-meta-top">
-        <div class="planos-meta-top-row">
-          <div>
-            <h1>Plano de Metas</h1>
-            <p class="planos-meta-subtitle">Mapeamento de produção, produtividade e estratégias por ano</p>
-          </div>
+      <CrudPageHeader
+        title="Plano de Metas"
+        subtitle="Mapeamento de produção, produtividade e estratégias por ano"
+        info="Ajuste filtros para visualizar registros de produção, infraestrutura e indicadores do portfólio."
+        :show-novo="podeEditar"
+        novo-label="Novo Registro"
+        @novo="abrirNovo"
+      />
 
-          <button v-if="podeEditar" type="button" class="btn-novo" @click="abrirNovo">
-            <span class="btn-novo-icon">+</span>
-            Novo Registro
-          </button>
-        </div>
-
-        <div class="planos-meta-info">
-          Ajuste filtros para visualizar registros de produção, infraestrutura e indicadores do portfólio.
-        </div>
-      </header>
+      <CrudAlerts
+        :sucesso="mensagemSucesso"
+        :erro="mensagemErro"
+      />
 
       <section class="filtros-bar" aria-label="Filtros de Plano de Metas">
         <div class="filtro-busca">
@@ -81,10 +77,7 @@
         </div>
 
         <div v-else class="tabela-wrap">
-          <div v-if="mensagemSucesso" class="mensagem-sucesso">{{ mensagemSucesso }}</div>
-          <div v-if="mensagemErro" class="mensagem-erro">{{ mensagemErro }}</div>
-
-          <table class="planos-meta-table">
+          <table class="crud-table">
             <thead>
               <tr>
                 <th>Segmento</th>
@@ -203,22 +196,11 @@
     </template>
 
     <template v-else>
-      <div class="form-page">
-        <div class="form-top-bar"></div>
-        <header class="form-header">
-          <button type="button" class="btn-voltar" @click="voltarLista">←</button>
-          <div>
-            <h1>{{ modo === 'novo' ? 'Cadastrar Registro do Plano de Metas' : 'Editar Registro do Plano de Metas' }}</h1>
-            <p>
-              {{
-                modo === 'novo'
-                  ? 'Preencha os dados no mesmo formato da planilha de plano de metas.'
-                  : 'Atualize as informações do registro selecionado.'
-              }}
-            </p>
-          </div>
-        </header>
-
+      <CrudFormShell
+        :title="modo === 'novo' ? 'Cadastrar Registro do Plano de Metas' : 'Editar Registro do Plano de Metas'"
+        :subtitle="modo === 'novo' ? 'Preencha os dados no mesmo formato da planilha de plano de metas.' : 'Atualize as informações do registro selecionado.'"
+        @voltar="voltarLista"
+      >
         <form class="form-body" novalidate @submit.prevent="salvarRegistro">
           <div v-if="mensagemErro" class="mensagem-erro mensagem-form">{{ mensagemErro }}</div>
 
@@ -299,7 +281,7 @@
             </button>
           </div>
         </form>
-      </div>
+      </CrudFormShell>
     </template>
   </div>
 </template>

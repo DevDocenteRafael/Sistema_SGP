@@ -1,25 +1,18 @@
 <template>
-  <div class="eixos-page" :class="{ 'eixos-page-form': modo !== 'lista' }">
+  <div class="crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
-      <header class="eixos-top">
-        <div class="eixos-top-row">
-          <div>
-            <h1>Eixos</h1>
-            <p class="eixos-subtitle">
-              Comparativo entre anos e distribuição por eixo tecnológico
-            </p>
-          </div>
-          <button
-            v-if="podeEditar"
-            type="button"
-            class="btn-novo"
-            @click="abrirNovo"
-          >
-            <span class="btn-novo-icon">+</span>
-            Novo Curso
-          </button>
-        </div>
-      </header>
+      <CrudPageHeader
+        title="Eixos"
+        subtitle="Comparativo entre anos e distribuição por eixo tecnológico"
+        :show-novo="podeEditar"
+        novo-label="Novo Curso"
+        @novo="abrirNovo"
+      />
+
+      <CrudAlerts
+        :sucesso="mensagemSucesso"
+        :erro="mensagemErro"
+      />
 
       <section class="filtros-panel">
         <div class="filtros-row">
@@ -71,9 +64,6 @@
       </section>
 
       <section class="tabela-card">
-        <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
-        <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
-
         <div class="tabela-header">
           <span>
             {{ totalFiltrado }} curso{{ totalFiltrado !== 1 ? 's' : '' }}
@@ -96,7 +86,7 @@
         </div>
 
         <div v-else class="tabela-wrap">
-          <table class="eixos-table">
+          <table class="crud-table">
             <thead>
               <tr>
                 <th>Nome do curso</th>
@@ -251,22 +241,11 @@
     </template>
 
     <template v-else>
-      <div class="form-page">
-        <div class="form-top-bar"></div>
-        <header class="form-header">
-          <button type="button" class="btn-voltar" @click="voltarLista">←</button>
-          <div>
-            <h1>{{ modo === 'novo' ? 'Cadastrar Curso por Eixo' : 'Editar Curso por Eixo' }}</h1>
-            <p>
-              {{
-                modo === 'novo'
-                  ? 'Preencha os dados para adicionar um novo curso por eixo tecnológico.'
-                  : 'Atualize as informações do curso por eixo selecionado.'
-              }}
-            </p>
-          </div>
-        </header>
-
+      <CrudFormShell
+        :title="modo === 'novo' ? 'Cadastrar Curso por Eixo' : 'Editar Curso por Eixo'"
+        :subtitle="modo === 'novo' ? 'Preencha os dados para adicionar um novo curso por eixo tecnológico.' : 'Atualize as informações do curso por eixo selecionado.'"
+        @voltar="voltarLista"
+      >
         <form class="form-body" novalidate @submit.prevent="salvarRegistro">
           <div v-if="erroFormulario" class="alert alert-error form-alert">{{ erroFormulario }}</div>
 
@@ -347,7 +326,7 @@
             </button>
           </div>
         </form>
-      </div>
+      </CrudFormShell>
     </template>
   </div>
 </template>

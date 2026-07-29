@@ -1,0 +1,31 @@
+<template>
+  <header class="crud-top">
+    <div class="crud-top-row">
+      <div>
+        <h1>{{ title }}</h1>
+        <p v-if="subtitle" class="crud-subtitle">{{ subtitle }}</p>
+      </div>
+
+      <button v-if="showNovo" type="button" class="btn-novo" @click="$emit('novo')">
+        <span class="btn-novo-icon">+</span>
+        {{ novoLabel }}
+      </button>
+    </div>
+
+    <div v-if="info" class="crud-info">{{ info }}</div>
+  </header>
+</template>
+
+<script>
+export default {
+  name: 'CrudPageHeader',
+  props: {
+    title: { type: String, required: true },
+    subtitle: { type: String, default: '' },
+    info: { type: String, default: '' },
+    showNovo: { type: Boolean, default: false },
+    novoLabel: { type: String, default: 'Novo' },
+  },
+  emits: ['novo'],
+};
+</script>

@@ -1,30 +1,20 @@
 <template>
-  <div class="visitas-page" :class="{ 'visitas-page-form': modo !== 'lista' }">
+  <div class="crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
-      <header class="visitas-top">
-        <div class="visitas-top-row">
-          <div>
-            <h1>Visitas Técnicas</h1>
-            <p class="visitas-subtitle">Processos de visitas técnicas registradas — SENAC DF</p>
-          </div>
+      <CrudPageHeader
+        title="Visitas Técnicas"
+        subtitle="Processos de visitas técnicas registradas — SENAC DF"
+        info="Consulte e filtre os processos de visita técnica por unidade, eixo, SEI, responsável, ano, status e prazo."
+        :show-novo="podeEditarVisita"
+        novo-label="Nova Visita"
+        @novo="abrirNovo"
+      />
 
-          <button v-if="podeEditarVisita" type="button" class="btn-novo" @click="abrirNovo">
-            <span class="btn-novo-icon">+</span>
-            Nova Visita
-          </button>
-        </div>
-
-        <div class="visitas-info">
-          Consulte e filtre os processos de visita técnica por unidade, eixo, SEI, responsável, ano, status e prazo.
-        </div>
-      </header>
-
-      <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
-      <div v-if="erro" class="alert alert-error">{{ erro }}</div>
-
-      <div v-if="acessoBloqueado" class="alert alert-error">
-        Você não possui autorização para consultar esta funcionalidade. Verifique seu perfil de acesso.
-      </div>
+      <CrudAlerts
+        :sucesso="mensagemSucesso"
+        :erro="erro"
+        :bloqueado="acessoBloqueado"
+      />
 
       <section class="filtros-panel" aria-label="Filtros de visitas técnicas">
         <div class="filtros-row">
@@ -98,7 +88,7 @@
         </div>
 
         <div v-else class="tabela-wrap">
-          <table class="visitas-table">
+          <table class="crud-table">
             <thead>
               <tr>
                 <th>Processo SEI</th>
@@ -211,22 +201,11 @@
     </template>
 
     <template v-else>
-      <div class="form-page">
-        <div class="form-top-bar"></div>
-        <header class="form-header">
-          <button type="button" class="btn-voltar" @click="voltarLista">←</button>
-          <div>
-            <h1>{{ modo === 'novo' ? 'Cadastrar Nova Visita Técnica' : 'Editar Visita Técnica' }}</h1>
-            <p>
-              {{
-                modo === 'novo'
-                  ? 'Preencha os dados para registrar um novo processo de visita técnica.'
-                  : 'Atualize as informações da visita técnica selecionada.'
-              }}
-            </p>
-          </div>
-        </header>
-
+      <CrudFormShell
+        :title="modo === 'novo' ? 'Cadastrar Nova Visita Técnica' : 'Editar Visita Técnica'"
+        :subtitle="modo === 'novo' ? 'Preencha os dados para registrar um novo processo de visita técnica.' : 'Atualize as informações da visita técnica selecionada.'"
+        @voltar="voltarLista"
+      >
         <form class="form-body" @submit.prevent="salvarVisita">
           <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
 
@@ -328,7 +307,7 @@
             </button>
           </div>
         </form>
-      </div>
+      </CrudFormShell>
     </template>
   </div>
 </template>

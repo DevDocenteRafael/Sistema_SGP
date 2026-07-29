@@ -1,4 +1,7 @@
 import { getPerfil, podeEditarDados, podeConsultarDados } from './auth';
+import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
+import CrudAlerts from '../components/crud/CrudAlerts.vue';
+import CrudFormShell from '../components/crud/CrudFormShell.vue';
 
 /**
  * Factory de páginas CRUD (Vue Options API).
@@ -395,6 +398,9 @@ export function createCrudPage(config) {
     name,
 
     components: {
+      CrudPageHeader,
+      CrudAlerts,
+      CrudFormShell,
       ...components,
     },
 

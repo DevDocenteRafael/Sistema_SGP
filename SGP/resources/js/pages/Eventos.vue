@@ -1,30 +1,20 @@
 <template>
-  <div class="eventos-page" :class="{ 'eventos-page-form': modo !== 'lista' }">
+  <div class="crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
-      <header class="eventos-top">
-        <div class="eventos-top-row">
-          <div>
-            <h1>Eventos</h1>
-            <p class="eventos-subtitle">Cadastro e acompanhamento de eventos por eixo, unidade e ação extensiva</p>
-          </div>
+      <CrudPageHeader
+        title="Eventos"
+        subtitle="Cadastro e acompanhamento de eventos por eixo, unidade e ação extensiva"
+        info="Nenhuma planilha oficial de Eventos foi disponibilizada ainda. Os cadastros seguem o modelo do protótipo."
+        :show-novo="podeEditar"
+        novo-label="Novo Evento"
+        @novo="abrirNovo"
+      />
 
-          <button v-if="podeEditar" type="button" class="btn-novo" @click="abrirNovo">
-            <span class="btn-novo-icon">+</span>
-            Novo Evento
-          </button>
-        </div>
-
-        <div class="eventos-info">
-          Nenhuma planilha oficial de Eventos foi disponibilizada ainda. Os cadastros seguem o modelo do protótipo.
-        </div>
-      </header>
-
-      <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
-      <div v-if="erro" class="alert alert-error">{{ erro }}</div>
-
-      <div v-if="acessoBloqueado" class="alert alert-error">
-        Você não possui autorização para consultar esta funcionalidade. Verifique seu perfil de acesso.
-      </div>
+      <CrudAlerts
+        :sucesso="mensagemSucesso"
+        :erro="erro"
+        :bloqueado="acessoBloqueado"
+      />
 
       <section class="filtros-panel" aria-label="Filtros de eventos">
         <div class="filtros-row">
@@ -96,7 +86,7 @@
         </div>
 
         <div v-else class="tabela-wrap">
-          <table class="eventos-table">
+          <table class="crud-table">
             <thead>
               <tr>
                 <th>Evento</th>
@@ -221,22 +211,11 @@
     </template>
 
     <template v-else>
-      <div class="form-page">
-        <div class="form-top-bar"></div>
-        <header class="form-header">
-          <button type="button" class="btn-voltar" @click="voltarLista">←</button>
-          <div>
-            <h1>{{ modo === 'novo' ? 'Cadastrar Evento' : 'Editar Evento' }}</h1>
-            <p>
-              {{
-                modo === 'novo'
-                  ? 'Preencha os dados conforme o cadastro de eventos do protótipo.'
-                  : 'Atualize as informações do evento selecionado.'
-              }}
-            </p>
-          </div>
-        </header>
-
+      <CrudFormShell
+        :title="modo === 'novo' ? 'Cadastrar Evento' : 'Editar Evento'"
+        :subtitle="modo === 'novo' ? 'Preencha os dados conforme o cadastro de eventos do protótipo.' : 'Atualize as informações do evento selecionado.'"
+        @voltar="voltarLista"
+      >
         <form class="form-body" @submit.prevent="salvarRegistro">
           <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
 
@@ -346,7 +325,7 @@
             </button>
           </div>
         </form>
-      </div>
+      </CrudFormShell>
     </template>
   </div>
 </template>

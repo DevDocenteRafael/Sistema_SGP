@@ -1,28 +1,19 @@
 <template>
-  <div class="pca-page" :class="{ 'pca-page-form': modo !== 'lista' }">
+  <div class="crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
-      <header class="pca-top">
-        <div class="pca-top-row">
-          <div>
-            <h1>PCA</h1>
-            <p class="pca-subtitle">
-              Planejamento de cursos abertos por período (2025 e 2026) — visão de gestão
-            </p>
-          </div>
+      <CrudPageHeader
+        title="PCA"
+        subtitle="Planejamento de cursos abertos por período (2025 e 2026) — visão de gestão"
+        :show-novo="podeEditar"
+        novo-label="Novo Registro"
+        @novo="abrirNovo"
+      />
 
-          <button v-if="podeEditar" type="button" class="btn-novo" @click="abrirNovo">
-            <span class="btn-novo-icon">+</span>
-            Novo Registro
-          </button>
-        </div>
-      </header>
-
-      <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
-      <div v-if="erro" class="alert alert-error">{{ erro }}</div>
-
-      <div v-if="acessoBloqueado" class="alert alert-error">
-        Você não possui autorização para consultar esta funcionalidade. Verifique seu perfil de acesso.
-      </div>
+      <CrudAlerts
+        :sucesso="mensagemSucesso"
+        :erro="erro"
+        :bloqueado="acessoBloqueado"
+      />
 
       <section class="filtros-panel" aria-label="Filtros de PCA">
         <div class="filtros-row">
@@ -94,7 +85,7 @@
         </div>
 
         <div v-else class="tabela-wrap">
-          <table class="pca-table">
+          <table class="crud-table">
             <thead>
               <tr>
                 <th>Ano</th>
@@ -249,22 +240,11 @@
     </template>
 
     <template v-else>
-      <div class="form-page">
-        <div class="form-top-bar"></div>
-        <header class="form-header">
-          <button type="button" class="btn-voltar" @click="voltarLista">←</button>
-          <div>
-            <h1>{{ modo === 'novo' ? 'Cadastrar Registro PCA' : 'Editar Registro PCA' }}</h1>
-            <p>
-              {{
-                modo === 'novo'
-                  ? 'Registre os dados do curso previsto no planejamento do período.'
-                  : 'Atualize as informações do curso previsto no planejamento.'
-              }}
-            </p>
-          </div>
-        </header>
-
+      <CrudFormShell
+        :title="modo === 'novo' ? 'Cadastrar Registro PCA' : 'Editar Registro PCA'"
+        :subtitle="modo === 'novo' ? 'Registre os dados do curso previsto no planejamento do período.' : 'Atualize as informações do curso previsto no planejamento.'"
+        @voltar="voltarLista"
+      >
         <form class="form-body" novalidate @submit.prevent="salvarRegistro">
           <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
 
@@ -407,7 +387,7 @@
             </button>
           </div>
         </form>
-      </div>
+      </CrudFormShell>
     </template>
   </div>
 </template>

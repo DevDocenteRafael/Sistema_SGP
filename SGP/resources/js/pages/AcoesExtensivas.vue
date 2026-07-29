@@ -1,30 +1,20 @@
 <template>
-  <div class="acoes-page" :class="{ 'acoes-page-form': modo !== 'lista' }">
+  <div class="crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
-      <header class="acoes-top">
-        <div class="acoes-top-row">
-          <div>
-            <h1>Ações Extensivas</h1>
-            <p class="acoes-subtitle">Processos SEI de ações extensivas — atribuições CPED</p>
-          </div>
+      <CrudPageHeader
+        title="Ações Extensivas"
+        subtitle="Processos SEI de ações extensivas — atribuições CPED"
+        info="Consulte e filtre as ações extensivas por SEI, atribuído, eixo, priorização e status — conforme a planilha de atribuições."
+        :show-novo="podeEditar"
+        novo-label="Nova Ação"
+        @novo="abrirNovo"
+      />
 
-          <button v-if="podeEditar" type="button" class="btn-novo" @click="abrirNovo">
-            <span class="btn-novo-icon">+</span>
-            Nova Ação
-          </button>
-        </div>
-
-        <div class="acoes-info">
-          Consulte e filtre as ações extensivas por SEI, atribuído, eixo, priorização e status — conforme a planilha de atribuições.
-        </div>
-      </header>
-
-      <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
-      <div v-if="erro" class="alert alert-error">{{ erro }}</div>
-
-      <div v-if="acessoBloqueado" class="alert alert-error">
-        Você não possui autorização para consultar esta funcionalidade. Verifique seu perfil de acesso.
-      </div>
+      <CrudAlerts
+        :sucesso="mensagemSucesso"
+        :erro="erro"
+        :bloqueado="acessoBloqueado"
+      />
 
       <section class="filtros-panel" aria-label="Filtros de ações extensivas">
         <div class="filtros-row">
@@ -88,7 +78,7 @@
         </div>
 
         <div v-else class="tabela-wrap">
-          <table class="acoes-table">
+          <table class="crud-table">
             <thead>
               <tr>
                 <th>Priorização</th>
@@ -211,22 +201,11 @@
     </template>
 
     <template v-else>
-      <div class="form-page">
-        <div class="form-top-bar"></div>
-        <header class="form-header">
-          <button type="button" class="btn-voltar" @click="voltarLista">←</button>
-          <div>
-            <h1>{{ modo === 'novo' ? 'Cadastrar Ação Extensiva' : 'Editar Ação Extensiva' }}</h1>
-            <p>
-              {{
-                modo === 'novo'
-                  ? 'Preencha os dados no formato da planilha de atribuições SEI.'
-                  : 'Atualize as informações da ação extensiva selecionada.'
-              }}
-            </p>
-          </div>
-        </header>
-
+      <CrudFormShell
+        :title="modo === 'novo' ? 'Cadastrar Ação Extensiva' : 'Editar Ação Extensiva'"
+        :subtitle="modo === 'novo' ? 'Preencha os dados no formato da planilha de atribuições SEI.' : 'Atualize as informações da ação extensiva selecionada.'"
+        @voltar="voltarLista"
+      >
         <form class="form-body" @submit.prevent="salvarRegistro">
           <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
 
@@ -316,7 +295,7 @@
             </button>
           </div>
         </form>
-      </div>
+      </CrudFormShell>
     </template>
   </div>
 </template>

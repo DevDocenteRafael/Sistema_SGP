@@ -1,30 +1,20 @@
 <template>
-  <div class="horas-page" :class="{ 'horas-page-form': modo !== 'lista' }">
+  <div class="crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
-      <header class="horas-top">
-        <div class="horas-top-row">
-          <div>
-            <h1>Horas Pedagógicas</h1>
-            <p class="horas-subtitle">Controle de horas pedagógicas e processos SEI — SENAC DF</p>
-          </div>
+      <CrudPageHeader
+        title="Horas Pedagógicas"
+        subtitle="Controle de horas pedagógicas e processos SEI — SENAC DF"
+        info="Consulte e filtre os registros de horas pedagógicas por SEI, eixo, pessoa, matrícula, ano e situação."
+        :show-novo="podeEditarHoras"
+        novo-label="Nova Hora"
+        @novo="abrirNovo"
+      />
 
-          <button v-if="podeEditarHoras" type="button" class="btn-novo" @click="abrirNovo">
-            <span class="btn-novo-icon">+</span>
-            Nova Hora
-          </button>
-        </div>
-
-        <div class="horas-info">
-          Consulte e filtre os registros de horas pedagógicas por SEI, eixo, pessoa, matrícula, ano e situação.
-        </div>
-      </header>
-
-      <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
-      <div v-if="erro" class="alert alert-error">{{ erro }}</div>
-
-      <div v-if="acessoBloqueado" class="alert alert-error">
-        Você não possui autorização para consultar esta funcionalidade. Verifique seu perfil de acesso.
-      </div>
+      <CrudAlerts
+        :sucesso="mensagemSucesso"
+        :erro="erro"
+        :bloqueado="acessoBloqueado"
+      />
 
       <section class="filtros-panel" aria-label="Filtros de horas pedagógicas">
         <div class="filtros-row">
@@ -92,7 +82,7 @@
         </div>
 
         <div v-else class="tabela-wrap">
-          <table class="horas-table">
+          <table class="crud-table">
             <thead>
               <tr>
                 <th>Pessoa</th>
@@ -211,22 +201,11 @@
     </template>
 
     <template v-else>
-      <div class="form-page">
-        <div class="form-top-bar"></div>
-        <header class="form-header">
-          <button type="button" class="btn-voltar" @click="voltarLista">←</button>
-          <div>
-            <h1>{{ modo === 'novo' ? 'Cadastrar Nova Hora Pedagógica' : 'Editar Hora Pedagógica' }}</h1>
-            <p>
-              {{
-                modo === 'novo'
-                  ? 'Preencha os dados para registrar uma nova hora pedagógica.'
-                  : 'Atualize as informações da hora pedagógica selecionada.'
-              }}
-            </p>
-          </div>
-        </header>
-
+      <CrudFormShell
+        :title="modo === 'novo' ? 'Cadastrar Nova Hora Pedagógica' : 'Editar Hora Pedagógica'"
+        :subtitle="modo === 'novo' ? 'Preencha os dados para registrar uma nova hora pedagógica.' : 'Atualize as informações da hora pedagógica selecionada.'"
+        @voltar="voltarLista"
+      >
         <form class="form-body" @submit.prevent="salvarHora">
           <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
 
@@ -323,7 +302,7 @@
             </button>
           </div>
         </form>
-      </div>
+      </CrudFormShell>
     </template>
   </div>
 </template>
