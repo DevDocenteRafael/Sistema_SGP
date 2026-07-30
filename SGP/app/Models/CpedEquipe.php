@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Services\CpedEquipeFotoService;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class CpedEquipe extends Model
@@ -32,5 +34,23 @@ class CpedEquipe extends Model
         return [
             'ativo' => 'boolean',
         ];
+    }
+
+    /**
+     * Na API/JSON, `foto` é a URL pública.
+     * O caminho relativo no disco fica em getRawOriginal('foto').
+     */
+    protected function foto(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => app(CpedEquipeFotoService::class)->urlPublica($value),
+        );
+    }
+
+    public function caminhoFoto(): ?string
+    {
+        $caminho = $this->getRawOriginal('foto');
+
+        return is_string($caminho) && $caminho !== '' ? $caminho : null;
     }
 }

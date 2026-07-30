@@ -12,6 +12,29 @@ class CpedEquipeRequest extends FormRequest
         return $this->user()?->podeEditarDados() === true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $merge = [];
+
+        if ($this->has('ativo')) {
+            $merge['ativo'] = filter_var($this->input('ativo'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        }
+
+        if ($this->has('remover_foto')) {
+            $merge['remover_foto'] = filter_var($this->input('remover_foto'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        }
+
+        foreach (['eixo_vinculado', 'cor', 'observacao', 'iniciais'] as $campo) {
+            if ($this->exists($campo) && $this->input($campo) === '') {
+                $merge[$campo] = null;
+            }
+        }
+
+        if ($merge !== []) {
+            $this->merge($merge);
+        }
+    }
+
     public function rules(): array
     {
         $tiposComEixo = ['responsavel', 'instrutor'];
@@ -30,7 +53,8 @@ class CpedEquipeRequest extends FormRequest
                 Rule::in(config('cped_equipes.eixos')),
             ],
             'iniciais' => ['nullable', 'string', 'max:20'],
-            'foto' => ['nullable', 'string'],
+            'foto' => ['nullable', 'image', 'max:2048'],
+            'remover_foto' => ['nullable', 'boolean'],
             'cor' => ['nullable', 'string', 'max:20'],
             'ativo' => ['nullable', 'boolean'],
             'observacao' => ['nullable', 'string'],
@@ -50,6 +74,8 @@ class CpedEquipeRequest extends FormRequest
             'tipo.in' => 'Tipo inválido.',
             'eixo_vinculado.required' => 'Informe o eixo vinculado para este tipo.',
             'eixo_vinculado.in' => 'Eixo vinculado inválido.',
+            'foto.image' => 'A foto deve ser uma imagem válida.',
+            'foto.max' => 'A foto deve ter no máximo 2 MB.',
         ];
     }
 }

@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Models\CpedEquipe;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CpedEquipeApiTest extends TestCase
@@ -14,6 +16,8 @@ class CpedEquipeApiTest extends TestCase
 
     public function test_can_list_create_show_update_and_delete_cped_equipe(): void
     {
+        Storage::fake('public');
+
         $usuario = Usuario::create([
             'nome' => 'Teste Editor',
             'email' => 'editor-cped@teste.com',
@@ -66,13 +70,38 @@ class CpedEquipeApiTest extends TestCase
         $createResponse->assertJsonPath('cped_equipe.nome', 'Membro Teste API');
         $createResponse->assertJsonPath('cped_equipe.tipo', 'instrutor');
         $createResponse->assertJsonPath('cped_equipe.eixo_vinculado', 'Gastronomia');
+        $this->assertNull($createResponse->json('cped_equipe.foto'));
 
         $id = $createResponse->json('cped_equipe.id');
         $this->assertNotNull($id);
 
+        $jpegMinimo = base64_decode(
+            '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAGcP//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAQUCf//EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQMBAT8Bf//EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQIBAT8Bf//Z'
+        );
+
+        $foto = UploadedFile::fake()->createWithContent('membro.jpg', $jpegMinimo);
+
+        $uploadResponse = $this->post("/api/cped-equipes/{$id}", [
+            ...$payload,
+            'nome' => 'Membro Com Foto',
+            'foto' => $foto,
+            '_method' => 'PUT',
+        ], [
+            'Accept' => 'application/json',
+        ]);
+        $uploadResponse->assertOk();
+        $uploadResponse->assertJsonPath('cped_equipe.nome', 'Membro Com Foto');
+        $this->assertNotEmpty($uploadResponse->json('cped_equipe.foto'));
+        $this->assertStringContainsString('/storage/cped/', $uploadResponse->json('cped_equipe.foto'));
+
+        $caminhoRelativo = CpedEquipe::query()->find($id)?->caminhoFoto();
+        $this->assertNotNull($caminhoRelativo);
+        Storage::disk('public')->assertExists($caminhoRelativo);
+
         $showResponse = $this->getJson("/api/cped-equipes/{$id}");
         $showResponse->assertOk();
         $showResponse->assertJsonPath('cped_equipe.id', $id);
+        $this->assertStringContainsString('/storage/cped/', $showResponse->json('cped_equipe.foto'));
 
         $updatePayload = [
             ...$payload,
@@ -84,10 +113,13 @@ class CpedEquipeApiTest extends TestCase
         $updateResponse->assertOk();
         $updateResponse->assertJsonPath('cped_equipe.nome', 'Membro Atualizado');
         $updateResponse->assertJsonPath('cped_equipe.cargo', 'Instrutor Sênior');
+        // Atualização sem nova foto mantém a existente
+        $this->assertStringContainsString('/storage/cped/', $updateResponse->json('cped_equipe.foto'));
 
         $deleteResponse = $this->deleteJson("/api/cped-equipes/{$id}");
         $deleteResponse->assertOk();
         $this->assertDatabaseMissing('cped_equipes', ['id' => $id]);
+        Storage::disk('public')->assertMissing($caminhoRelativo);
     }
 
     public function test_filters_cped_equipes_by_tipo_and_eixo(): void

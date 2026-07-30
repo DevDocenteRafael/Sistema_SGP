@@ -6,12 +6,17 @@ use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CpedEquipeRequest;
 use App\Models\CpedEquipe;
+use App\Services\CpedEquipeFotoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CpedEquipeController extends Controller
 {
     use AutorizaConsulta;
+
+    public function __construct(
+        private readonly CpedEquipeFotoService $fotos,
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -94,13 +99,19 @@ class CpedEquipeController extends Controller
 
     public function store(CpedEquipeRequest $request): JsonResponse
     {
-        $payload = $this->normalizarPayload($request->validated());
+        $payload = $this->normalizarPayload(
+            $request->safe()->except(['foto', 'remover_foto'])
+        );
+
+        if ($request->hasFile('foto')) {
+            $payload['foto'] = $this->fotos->salvar($request->file('foto'));
+        }
 
         $registro = CpedEquipe::create($payload);
 
         return response()->json([
             'message' => 'Membro cadastrado com sucesso.',
-            'cped_equipe' => $registro,
+            'cped_equipe' => $registro->fresh(),
         ], 201);
     }
 
@@ -117,7 +128,19 @@ class CpedEquipeController extends Controller
 
     public function update(CpedEquipeRequest $request, CpedEquipe $cpedEquipe): JsonResponse
     {
-        $payload = $this->normalizarPayload($request->validated());
+        $payload = $this->normalizarPayload(
+            $request->safe()->except(['foto', 'remover_foto'])
+        );
+
+        $fotoAnterior = $cpedEquipe->caminhoFoto();
+
+        if ($request->boolean('remover_foto')) {
+            $payload['foto'] = null;
+            $this->fotos->apagar($fotoAnterior);
+        } elseif ($request->hasFile('foto')) {
+            $payload['foto'] = $this->fotos->salvar($request->file('foto'));
+            $this->fotos->apagar($fotoAnterior);
+        }
 
         $cpedEquipe->update($payload);
 
@@ -136,6 +159,7 @@ class CpedEquipeController extends Controller
         }
 
         $nome = $cpedEquipe->nome ?: 'Membro';
+        $this->fotos->apagar($cpedEquipe->caminhoFoto());
         $cpedEquipe->delete();
 
         return response()->json([

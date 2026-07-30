@@ -413,7 +413,7 @@
                 Enviar foto
                 <input type="file" accept="image/*" @change="onFotoSelecionada" />
               </label>
-              <button v-if="form.foto" type="button" class="link-btn" @click="form.foto = ''">Remover foto</button>
+              <button v-if="form.foto" type="button" class="link-btn" @click="limparFoto">Remover foto</button>
             </div>
           </div>
 

@@ -212,6 +212,8 @@ export default {
         eixo_vinculado: '',
         iniciais: '',
         foto: '',
+        fotoArquivo: null,
+        removerFoto: false,
         cor: CORES_TIPO.assistente,
         ativo: true,
         observacao: '',
@@ -336,6 +338,7 @@ export default {
     },
 
     abrirNovo() {
+      this.revogarPreviewLocal();
       this.editandoId = null;
       this.form = this.formVazio();
       this.erroFormulario = '';
@@ -345,6 +348,7 @@ export default {
     },
 
     abrirEdicao(pessoa) {
+      this.revogarPreviewLocal();
       this.editandoId = pessoa.id;
       this.form = {
         nome: pessoa.nome || '',
@@ -355,6 +359,8 @@ export default {
         eixo_vinculado: pessoa.eixo_vinculado || '',
         iniciais: pessoa.iniciais || '',
         foto: pessoa.foto || '',
+        fotoArquivo: null,
+        removerFoto: false,
         cor: pessoa.cor || this.coresTipo[pessoa.tipo] || '#003F7D',
         ativo: pessoa.ativo !== false,
         observacao: pessoa.observacao || '',
@@ -370,15 +376,28 @@ export default {
     },
 
     fecharModal() {
+      this.revogarPreviewLocal();
       this.modalAberto = false;
       this.editandoId = null;
       this.erroFormulario = '';
       this.form = this.formVazio();
     },
 
+    revogarPreviewLocal() {
+      if (this.form?.foto && String(this.form.foto).startsWith('blob:')) {
+        URL.revokeObjectURL(this.form.foto);
+      }
+    },
+
     onFotoSelecionada(event) {
       const arquivo = event.target.files?.[0];
       if (!arquivo) {
+        return;
+      }
+
+      if (!arquivo.type.startsWith('image/')) {
+        this.erroFormulario = 'Selecione um arquivo de imagem.';
+        event.target.value = '';
         return;
       }
 
@@ -388,27 +407,49 @@ export default {
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.form.foto = String(reader.result || '');
-      };
-      reader.readAsDataURL(arquivo);
+      this.revogarPreviewLocal();
+      this.form.fotoArquivo = arquivo;
+      this.form.removerFoto = false;
+      this.form.foto = URL.createObjectURL(arquivo);
+      this.erroFormulario = '';
     },
 
-    payloadAtual() {
-      return {
+    limparFoto() {
+      this.revogarPreviewLocal();
+      this.form.foto = '';
+      this.form.fotoArquivo = null;
+      this.form.removerFoto = true;
+    },
+
+    montarFormData() {
+      const dados = {
         nome: this.form.nome?.trim(),
         cargo: this.form.cargo?.trim(),
         setor: this.form.setor,
         contato: this.form.contato?.trim(),
         tipo: this.form.tipo,
-        eixo_vinculado: this.precisaEixo ? this.form.eixo_vinculado || null : null,
+        eixo_vinculado: this.precisaEixo ? this.form.eixo_vinculado || '' : '',
         iniciais: (this.form.iniciais || this.gerarIniciais(this.form.nome)).trim(),
-        foto: this.form.foto || null,
-        cor: this.form.cor || null,
-        ativo: !!this.form.ativo,
-        observacao: this.form.observacao?.trim() || null,
+        cor: this.form.cor || '',
+        ativo: this.form.ativo ? '1' : '0',
+        observacao: this.form.observacao?.trim() || '',
       };
+
+      const formData = new FormData();
+
+      Object.entries(dados).forEach(([chave, valor]) => {
+        formData.append(chave, valor ?? '');
+      });
+
+      if (this.form.fotoArquivo) {
+        formData.append('foto', this.form.fotoArquivo);
+      }
+
+      if (this.form.removerFoto && !this.form.fotoArquivo) {
+        formData.append('remover_foto', '1');
+      }
+
+      return formData;
     },
 
     async salvar() {
@@ -416,13 +457,14 @@ export default {
       this.erroFormulario = '';
 
       try {
-        const payload = this.payloadAtual();
+        const formData = this.montarFormData();
 
         if (this.editandoId) {
-          const { data } = await window.axios.put(`/api/cped-equipes/${this.editandoId}`, payload);
+          formData.append('_method', 'PUT');
+          const { data } = await window.axios.post(`/api/cped-equipes/${this.editandoId}`, formData);
           this.mensagemSucesso = data.message || 'Membro atualizado com sucesso.';
         } else {
-          const { data } = await window.axios.post('/api/cped-equipes', payload);
+          const { data } = await window.axios.post('/api/cped-equipes', formData);
           this.mensagemSucesso = data.message || 'Membro cadastrado com sucesso.';
         }
 
