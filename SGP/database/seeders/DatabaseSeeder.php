@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             EventoSeeder::class,
             CpedEquipeSeeder::class,
             KanbanSeeder::class,
+            FluxogramaSeeder::class,
         ]);
     }
 }

@@ -10,15 +10,15 @@ return new class extends Migration
     {
         Schema::create('plano_de_metas', function (Blueprint $table) {
             $table->id();
-            $table->string('segmento', 100)->nullable();
-            $table->string('curso', 255)->nullable();
-            $table->string('tipo', 100)->nullable();
+            $table->string('segmento', 255)->nullable();
+            $table->string('curso', 500)->nullable();
+            $table->string('tipo', 150)->nullable();
             $table->string('numero_sei', 100)->nullable();
             $table->string('codigo_sig', 100)->nullable();
-            $table->string('mes_entrega', 50)->nullable();
-            $table->string('status', 50)->nullable();
-            $table->string('origem', 100)->nullable();
-            $table->string('status_final', 50)->nullable();
+            $table->string('mes_entrega', 100)->nullable();
+            $table->text('status')->nullable();
+            $table->text('origem')->nullable();
+            $table->text('status_final')->nullable();
             $table->text('observacao')->nullable();
             $table->integer('ano')->nullable();
             $table->timestamps();

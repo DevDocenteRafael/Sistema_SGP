@@ -131,6 +131,10 @@ class ImportacaoService
                     $row[$campo] = $valor;
                 }
 
+                if ($modulo === 'cursos') {
+                    $row = $this->normalizarCamposCurso($row);
+                }
+
                 // Se o valor UNIQUE já apareceu, zera o campo (mantém a linha)
                 foreach ($camposUnicos as $campoUnico) {
                     $val = $row[$campoUnico] ?? null;
@@ -203,6 +207,92 @@ class ImportacaoService
         }
 
         return $valor;
+    }
+
+    /**
+     * Planilha de portfólio às vezes desloca colunas: tipo/unidade caem em
+     * compatível com bolsa / comercial. Mantém só SIM/NÃO válidos.
+     *
+     * @param  array<string, mixed>  $registro
+     * @return array<string, mixed>
+     */
+    private function normalizarCamposCurso(array $registro): array
+    {
+        foreach (['compativel_bolsa', 'comercial'] as $campo) {
+            if (array_key_exists($campo, $registro)) {
+                $registro[$campo] = $this->normalizarFlagSimNao($registro[$campo] ?? null);
+            }
+        }
+
+        foreach (['pcn', 'pcr'] as $campo) {
+            if (! array_key_exists($campo, $registro)) {
+                continue;
+            }
+
+            $flag = $this->normalizarFlagSimNao($registro[$campo] ?? null);
+            if ($flag !== null) {
+                $registro[$campo] = $flag;
+                continue;
+            }
+
+            $bruto = is_string($registro[$campo] ?? null) ? trim((string) $registro[$campo]) : null;
+            if ($bruto === null || $bruto === '' || in_array($bruto, ['?', '-', '—', '.'], true)) {
+                $registro[$campo] = null;
+            }
+        }
+
+        foreach (['codigo_dn', 'codigo_sig'] as $campo) {
+            $valor = $registro[$campo] ?? null;
+            if (! is_string($valor)) {
+                continue;
+            }
+
+            $valor = trim($valor);
+            if ($valor === '' || mb_strlen($valor) > 80) {
+                // Vazio ou texto de observação que caiu na coluna de código
+                $registro[$campo] = null;
+                continue;
+            }
+
+            $registro[$campo] = mb_substr($valor, 0, 100);
+        }
+
+        return $registro;
+    }
+
+    private function normalizarFlagSimNao(mixed $valor): ?string
+    {
+        if ($valor === null) {
+            return null;
+        }
+
+        $texto = trim((string) $valor);
+        if ($texto === '') {
+            return null;
+        }
+
+        $normalizado = mb_strtoupper($texto, 'UTF-8');
+        $normalizado = strtr($normalizado, [
+            'Ã' => 'A',
+            'Á' => 'A',
+            'À' => 'A',
+            'Â' => 'A',
+            'Õ' => 'O',
+            'Ó' => 'O',
+            'Ô' => 'O',
+        ]);
+        $normalizado = preg_replace('/\s+/u', '', $normalizado) ?? $normalizado;
+
+        if (in_array($normalizado, ['SIM', 'S', 'YES', 'Y', '1', 'TRUE', 'VERDADEIRO'], true)) {
+            return 'SIM';
+        }
+
+        if (in_array($normalizado, ['NAO', 'N', 'NO', '0', 'FALSE', 'FALSO'], true)) {
+            return 'NÃO';
+        }
+
+        // Ex.: "Programa Socioprofissional", "NUCOMP", "NC" — coluna errada
+        return null;
     }
 
     /**
@@ -406,6 +496,10 @@ class ImportacaoService
             }
             if (isset($registro['ch']) && is_string($registro['ch'])) {
                 $registro['ch'] = trim(str_ireplace(['h', 'horas'], '', $registro['ch']));
+            }
+
+            if (($def['key'] ?? '') === 'cursos') {
+                $registro = $this->normalizarCamposCurso($registro);
             }
 
             $linhas[] = $registro;
