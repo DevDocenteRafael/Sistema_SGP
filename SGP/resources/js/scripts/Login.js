@@ -1,4 +1,5 @@
 import logoSenac from '../../images/Logo-Senac-branco.png';
+import { marcarSessao } from './auth';
 
 export default {
   name: 'Login',
@@ -23,12 +24,10 @@ export default {
           senha: this.senha,
         });
 
-        localStorage.setItem('sgp_token', data.token);
-        localStorage.setItem('sgp_usuario', JSON.stringify(data.usuario));
-        window.axios.defaults.headers.common.Authorization = `Bearer ${data.token}`;
+        marcarSessao(data.token, data.usuario);
 
         const redirect = this.$route.query.redirect || '/app/inicio';
-        this.$router.push(redirect);
+        this.$router.replace(redirect);
       } catch (error) {
         if (error.response?.status === 429) {
           this.errorMessage = 'Muitas tentativas de login. Aguarde cerca de 1 minuto e tente novamente.';

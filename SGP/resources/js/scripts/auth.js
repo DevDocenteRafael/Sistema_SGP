@@ -31,6 +31,10 @@ export const MENU_POR_PERFIL = {
   usuarios: [PERFIS.ADMINISTRADOR],
 };
 
+/** null = ainda não validou; true/false = resultado da última checagem */
+let sessaoValida = null;
+let validacaoEmAndamento = null;
+
 export function getUsuario() {
   const raw = localStorage.getItem('sgp_usuario');
 
@@ -47,6 +51,74 @@ export function getUsuario() {
 
 export function getPerfil() {
   return getUsuario()?.perfil ?? null;
+}
+
+export function clearSessao() {
+  localStorage.removeItem('sgp_token');
+  localStorage.removeItem('sgp_usuario');
+  delete window.axios?.defaults?.headers?.common?.Authorization;
+  sessaoValida = false;
+  validacaoEmAndamento = null;
+}
+
+export function marcarSessao(token, usuario) {
+  localStorage.setItem('sgp_token', token);
+  localStorage.setItem('sgp_usuario', JSON.stringify(usuario));
+  window.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+  sessaoValida = true;
+  validacaoEmAndamento = null;
+}
+
+/**
+ * Confirma se o token local ainda é válido no backend.
+ * Evita abrir /app com token expirado e só depois cair no login.
+ */
+export async function garantirSessao() {
+  const token = localStorage.getItem('sgp_token');
+
+  if (!token) {
+    sessaoValida = false;
+    return false;
+  }
+
+  if (sessaoValida === true) {
+    return true;
+  }
+
+  if (validacaoEmAndamento) {
+    return validacaoEmAndamento;
+  }
+
+  window.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+  validacaoEmAndamento = window.axios
+    .get('/api/user', { skipAuthRedirect: true })
+    .then(({ data }) => {
+      const usuario = data.usuario ?? data;
+
+      if (!usuario?.perfil) {
+        clearSessao();
+        return false;
+      }
+
+      localStorage.setItem('sgp_usuario', JSON.stringify({
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        perfil: usuario.perfil,
+      }));
+      sessaoValida = true;
+      return true;
+    })
+    .catch(() => {
+      clearSessao();
+      return false;
+    })
+    .finally(() => {
+      validacaoEmAndamento = null;
+    });
+
+  return validacaoEmAndamento;
 }
 
 export function isAdministrador() {

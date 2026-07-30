@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clearSessao } from './scripts/auth';
 
 window.axios = axios;
 
@@ -15,12 +16,13 @@ window.axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('sgp_token');
-      localStorage.removeItem('sgp_usuario');
-      delete window.axios.defaults.headers.common.Authorization;
+      clearSessao();
 
-      if (!window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login';
+      const skipRedirect = error.config?.skipAuthRedirect;
+      const jaNoLogin = window.location.pathname.toLowerCase().startsWith('/login');
+
+      if (!skipRedirect && !jaNoLogin) {
+        window.location.replace('/login');
       }
     }
 

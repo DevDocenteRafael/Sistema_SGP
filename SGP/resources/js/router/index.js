@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { getUsuario, podeAcessarMenu } from '../scripts/auth';
+import { garantirSessao, podeAcessarMenu } from '../scripts/auth';
 
 const appChildren = [
   { path: 'inicio', name: 'inicio', component: () => import('../pages/Inicio.vue'), meta: { menu: 'inicio' } },
@@ -89,7 +89,7 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const normalizedPath = to.path.toLowerCase();
 
   if (to.path !== normalizedPath) {
@@ -100,30 +100,23 @@ router.beforeEach((to) => {
     };
   }
 
-  const token = localStorage.getItem('sgp_token');
   const requiresAuth = to.path.startsWith('/app');
+  const sessaoOk = await garantirSessao();
 
-  if (requiresAuth && !token) {
+  if (requiresAuth && !sessaoOk) {
     return {
       name: 'login',
-      query: { redirect: to.fullPath },
+      query: to.fullPath !== '/app/inicio' && to.fullPath !== '/app'
+        ? { redirect: to.fullPath }
+        : {},
     };
   }
 
-  if (to.name === 'login' && token) {
+  if (to.name === 'login' && sessaoOk) {
     return { path: '/app/inicio' };
   }
 
-  if (requiresAuth && token) {
-    const usuario = getUsuario();
-
-    if (!usuario?.perfil) {
-      localStorage.removeItem('sgp_token');
-      localStorage.removeItem('sgp_usuario');
-
-      return { name: 'login' };
-    }
-
+  if (requiresAuth && sessaoOk) {
     const menuKey = to.meta?.menu;
 
     if (menuKey && !podeAcessarMenu(menuKey)) {
