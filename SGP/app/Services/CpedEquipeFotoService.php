@@ -37,7 +37,8 @@ class CpedEquipeFotoService
             return $caminho;
         }
 
-        return Storage::disk(self::DISK)->url($caminho);
+        // URL relativa: funciona no artisan serve e via proxy do Vite.
+        return '/storage/'.ltrim($caminho, '/');
     }
 
     private function ehUrlExternaOuData(string $valor): bool

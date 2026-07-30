@@ -32,6 +32,10 @@ export default defineConfig({
                 target: imgProxyTarget,
                 changeOrigin: true,
             },
+            '/storage': {
+                target: imgProxyTarget,
+                changeOrigin: true,
+            },
         },
     },
 });
