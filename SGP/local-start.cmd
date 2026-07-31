@@ -59,6 +59,9 @@ echo Rodando migrations...
 php artisan migrate --force
 if errorlevel 1 exit /b 1
 
+echo Criando link publico do storage (fotos CPED)...
+php artisan storage:link
+
 echo.
 echo Pronto. Em dois terminais, na pasta SGP, execute:
 echo   Terminal 1: php artisan serve
@@ -67,6 +70,6 @@ echo.
 echo Ou use: composer dev
 echo.
 echo Login: http://127.0.0.1:8000/login
-echo Opcional - dados de exemplo: php artisan db:seed
+echo Opcional - dados de exemplo (inclui fotos CPED): php artisan db:seed
 echo.
 endlocal

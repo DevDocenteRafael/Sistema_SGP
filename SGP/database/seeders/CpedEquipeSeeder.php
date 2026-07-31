@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\CpedEquipe;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class CpedEquipeSeeder extends Seeder
 {
@@ -259,6 +261,7 @@ class CpedEquipeSeeder extends Seeder
                 'eixo_vinculado' => null,
                 'iniciais' => 'EL',
                 'cor' => '#003F7D',
+                'foto_arquivo' => 'eduardo-ferreira-de-lima.jpg',
             ],
             [
                 'nome' => 'Lucas Leal',
@@ -269,19 +272,49 @@ class CpedEquipeSeeder extends Seeder
                 'eixo_vinculado' => null,
                 'iniciais' => 'LL',
                 'cor' => '#00796B',
+                'foto_arquivo' => 'lucas-leal.png',
             ],
         ];
 
         foreach ($registros as $registro) {
+            $fotoArquivo = $registro['foto_arquivo'] ?? null;
+            unset($registro['foto_arquivo']);
+
+            $dados = [
+                ...$registro,
+                'ativo' => true,
+                'observacao' => null,
+            ];
+
+            if ($fotoArquivo) {
+                $caminho = $this->instalarFotoSeed($fotoArquivo);
+                if ($caminho) {
+                    $dados['foto'] = $caminho;
+                }
+            }
+
             CpedEquipe::query()->updateOrCreate(
                 ['contato' => $registro['contato']],
-                [
-                    ...$registro,
-                    'foto' => null,
-                    'ativo' => true,
-                    'observacao' => null,
-                ]
+                $dados
             );
         }
+    }
+
+    /**
+     * Copia foto versionada em database/data/cped para o storage público.
+     * Assim qualquer máquina com git pull + seed passa a ter as imagens.
+     */
+    private function instalarFotoSeed(string $nomeArquivo): ?string
+    {
+        $origem = database_path('data/cped/'.$nomeArquivo);
+
+        if (! File::isFile($origem)) {
+            return null;
+        }
+
+        $destino = 'cped/'.$nomeArquivo;
+        Storage::disk('public')->put($destino, File::get($origem));
+
+        return $destino;
     }
 }
