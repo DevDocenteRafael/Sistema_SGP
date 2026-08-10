@@ -43,10 +43,7 @@
         </select>
       </section>
 
-      <section class="tabela-card">
-        <div class="tabela-header">
-          <span>{{ usuarios.length }} usuário{{ usuarios.length !== 1 ? 's' : '' }}</span>
-        </div>
+      <PageTableCard :total="usuarios.length">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
@@ -126,7 +123,7 @@
         <div class="tabela-footer">
           {{ usuarios.length }} usuário{{ usuarios.length !== 1 ? 's' : '' }} listado{{ usuarios.length !== 1 ? 's' : '' }}
         </div>
-      </section>
+      </PageTableCard>
 
       <!-- Modal detalhes -->
       <div

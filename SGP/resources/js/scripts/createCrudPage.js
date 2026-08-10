@@ -2,6 +2,8 @@ import { getPerfil, podeEditarDados, podeConsultarDados } from './auth';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
+import TabelaContador from '../components/crud/TabelaContador.vue';
+import PageTableCard from '../components/crud/PageTableCard.vue';
 
 /**
  * Factory de páginas CRUD (Vue Options API).
@@ -401,6 +403,8 @@ export function createCrudPage(config) {
       CrudPageHeader,
       CrudAlerts,
       CrudFormShell,
+      TabelaContador,
+      PageTableCard,
       ...components,
     },
 

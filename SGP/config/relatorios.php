@@ -9,21 +9,22 @@ return [
         'cursos' => [
             'key' => 'cursos',
             'label' => 'Relatório de Cursos',
-            'description' => 'Catálogo do portfólio pedagógico por eixo, status e unidade.',
+            'description' => 'Catálogo de cursos importado no portfólio.',
             'api' => '/api/cursos',
             'icon' => 'cursos',
             'filtros' => ['ano', 'unidade', 'eixo', 'status'],
             'colunas' => [
-                ['key' => 'titulo', 'label' => 'Curso'],
+                ['key' => 'titulo', 'label' => 'Título'],
                 ['key' => 'eixo', 'label' => 'Eixo'],
+                ['key' => 'carga_horaria', 'label' => 'CH'],
+                ['key' => 'codigo_sig', 'label' => 'Cód. SIG'],
+                ['key' => 'processo_sei', 'label' => 'Processo SEI'],
                 ['key' => 'tipo', 'label' => 'Tipo'],
                 ['key' => 'status', 'label' => 'Status'],
-                ['key' => 'carga_horaria', 'label' => 'CH'],
-                ['key' => 'codigo_sig', 'label' => 'SIG'],
                 ['key' => 'unidade', 'label' => 'Unidade'],
                 ['key' => 'ultima_revisao', 'label' => 'Revisão'],
             ],
-            'preview_keys' => ['titulo', 'eixo', 'tipo', 'status', 'unidade', 'ultima_revisao'],
+            'preview_keys' => ['titulo', 'eixo', 'carga_horaria', 'codigo_sig', 'processo_sei', 'tipo', 'status'],
         ],
         'plano-de-metas' => [
             'key' => 'plano-de-metas',
@@ -42,7 +43,7 @@ return [
                 ['key' => 'ano', 'label' => 'Ano'],
                 ['key' => 'numero_sei', 'label' => 'SEI'],
             ],
-            'preview_keys' => ['curso', 'segmento', 'status', 'ano', 'mes_entrega'],
+            'preview_keys' => ['curso', 'segmento', 'tipo', 'status', 'ano', 'mes_entrega', 'numero_sei'],
         ],
         'pcas' => [
             'key' => 'pcas',
@@ -60,8 +61,9 @@ return [
                 ['key' => 'carga_horaria', 'label' => 'CH'],
                 ['key' => 'valor', 'label' => 'Valor'],
                 ['key' => 'numero_sei', 'label' => 'SEI'],
+                ['key' => 'ano', 'label' => 'Ano'],
             ],
-            'preview_keys' => ['titulo', 'semestre', 'eixo', 'unidade', 'status', 'ano'],
+            'preview_keys' => ['titulo', 'semestre', 'eixo', 'unidade', 'carga_horaria', 'status', 'ano'],
         ],
         'eixos' => [
             'key' => 'eixos',
@@ -80,7 +82,7 @@ return [
                 ['key' => 'instrutores', 'label' => 'Instrutores'],
                 ['key' => 'status', 'label' => 'Status'],
             ],
-            'preview_keys' => ['curso', 'eixo', 'unidade', 'ano', 'turmas', 'status'],
+            'preview_keys' => ['curso', 'eixo', 'unidade', 'ano', 'turmas', 'alunos', 'status'],
         ],
         'visitas-tecnicas' => [
             'key' => 'visitas-tecnicas',
@@ -98,7 +100,7 @@ return [
                 ['key' => 'status', 'label' => 'Status'],
                 ['key' => 'responsavel', 'label' => 'Responsável'],
             ],
-            'preview_keys' => ['unidade', 'eixo', 'processo_sei', 'status', 'data_solicitacao'],
+            'preview_keys' => ['unidade', 'eixo', 'processo_sei', 'responsavel', 'status', 'data_solicitacao'],
         ],
         'horas-pedagogicas' => [
             'key' => 'horas-pedagogicas',
@@ -117,7 +119,7 @@ return [
                 ['key' => 'processo_sei', 'label' => 'SEI'],
                 ['key' => 'motivo', 'label' => 'Motivo'],
             ],
-            'preview_keys' => ['pessoa', 'eixo', 'ano', 'status', 'processo_sei'],
+            'preview_keys' => ['pessoa', 'matricula', 'eixo', 'ano', 'status', 'processo_sei'],
         ],
         'acoes-extensivas' => [
             'key' => 'acoes-extensivas',
@@ -135,7 +137,7 @@ return [
                 ['key' => 'numero_processo_sei', 'label' => 'SEI'],
                 ['key' => 'priorizacao', 'label' => 'Prioridade'],
             ],
-            'preview_keys' => ['assunto', 'tipo', 'eixo', 'status', 'atribuido'],
+            'preview_keys' => ['assunto', 'tipo', 'eixo', 'atribuido', 'status', 'numero_processo_sei'],
         ],
         'eventos' => [
             'key' => 'eventos',
@@ -153,7 +155,7 @@ return [
                 ['key' => 'quantidade_pessoas', 'label' => 'Pessoas'],
                 ['key' => 'status', 'label' => 'Status'],
             ],
-            'preview_keys' => ['nome', 'data', 'unidade', 'eixo', 'status'],
+            'preview_keys' => ['nome', 'data', 'unidade', 'eixo', 'quantidade_pessoas', 'status'],
         ],
     ],
 ];

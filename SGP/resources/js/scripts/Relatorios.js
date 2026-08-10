@@ -1,5 +1,6 @@
 import { UNIDADES } from './unidades';
 import { podeConsultarDados } from './auth';
+import TabelaContador from '../components/crud/TabelaContador.vue';
 
 const ICONS = {
   cursos: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
@@ -26,6 +27,7 @@ const EIXOS_PADRAO = [
 
 export default {
   name: 'Relatorios',
+  components: { TabelaContador },
 
   data() {
     return {
@@ -54,16 +56,6 @@ export default {
   computed: {
     podeConsultar() {
       return podeConsultarDados();
-    },
-
-    temFiltroAtivo() {
-      return Boolean(
-        this.filtros.busca
-        || this.filtros.ano
-        || this.filtros.unidade
-        || this.filtros.eixo
-        || this.filtros.status,
-      );
     },
 
     colunasPreview() {
@@ -182,11 +174,6 @@ export default {
       this.mensagem = '';
       this.erro = '';
       this.carregarCatalogo();
-    },
-
-    limparFiltros() {
-      this.filtros = { busca: '', ano: '', unidade: '', eixo: '', status: '' };
-      this.carregarPrevias();
     },
 
     aoBuscar() {

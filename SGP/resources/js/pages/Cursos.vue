@@ -57,10 +57,7 @@
         </select>
       </section>
 
-      <section class="tabela-card">
-        <div class="tabela-header">
-          <span>{{ totalCursos }} curso{{ totalCursos !== 1 ? 's' : '' }}</span>
-        </div>
+      <PageTableCard :total="totalCursos">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
@@ -145,7 +142,7 @@
         <div class="tabela-footer">
           Exibindo {{ totalCursos }} de {{ totalCursos }} curso{{ totalCursos !== 1 ? 's' : '' }}.
         </div>
-      </section>
+      </PageTableCard>
 
       <!-- Modal detalhes -->
       <div

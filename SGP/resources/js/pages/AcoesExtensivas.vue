@@ -65,10 +65,7 @@
         </div>
       </section>
 
-      <section class="tabela-card" aria-label="Tabela de ações extensivas">
-        <div class="tabela-header">
-          <span>{{ totalRegistros }} registro{{ totalRegistros !== 1 ? 's' : '' }}</span>
-        </div>
+      <PageTableCard :total="totalRegistros" aria-label="Tabela de ações extensivas">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
@@ -134,7 +131,7 @@
             </tbody>
           </table>
         </div>
-      </section>
+      </PageTableCard>
 
       <div v-if="registroDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-acao-titulo">

@@ -1,3 +1,5 @@
+import PageTableCard from '../components/crud/PageTableCard.vue';
+
 const ACAO_LABEL = {
   criar: 'Criou',
   editar: 'Editou',
@@ -7,6 +9,7 @@ const ACAO_LABEL = {
 
 export default {
   name: 'Auditoria',
+  components: { PageTableCard },
   data() {
     return {
       registros: [],

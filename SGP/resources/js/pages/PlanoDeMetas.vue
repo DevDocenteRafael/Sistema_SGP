@@ -61,13 +61,7 @@
         </select>
       </section>
 
-      <section class="tabela-card" aria-label="Tabela de Plano de Metas">
-        <div class="tabela-header">
-          <span>
-            {{ totalRegistros }} registro{{ totalRegistros !== 1 ? 's' : '' }}
-            — {{ filtros.ano || 'todos os anos' }}
-          </span>
-        </div>
+      <PageTableCard :total="totalRegistros" aria-label="Tabela de Plano de Metas">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
@@ -127,7 +121,7 @@
             </tbody>
           </table>
         </div>
-      </section>
+      </PageTableCard>
 
       <div v-if="detalheAberto" class="modal-overlay" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-labelledby="detalhes-registro-titulo">

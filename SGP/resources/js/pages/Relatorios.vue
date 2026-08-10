@@ -61,65 +61,66 @@
       </div>
 
       <div class="rel-filtros">
-        <div class="rel-filtro-busca">
-          <input
-            v-model="filtros.busca"
-            type="search"
-            placeholder="Buscar nos registros..."
-            aria-label="Buscar nos registros do relatório"
-            @input="aoBuscar"
-          />
+        <div class="rel-filtros-row">
+          <div class="rel-filtro-busca">
+            <input
+              v-model="filtros.busca"
+              type="search"
+              placeholder="Buscar nos registros..."
+              aria-label="Buscar nos registros do relatório"
+              @input="aoBuscar"
+            />
+          </div>
+          <select
+            v-if="temFiltro('ano')"
+            v-model="filtros.ano"
+            class="rel-filtro-select"
+            @change="carregarPrevias"
+          >
+            <option value="">Todos os anos</option>
+            <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
+          </select>
         </div>
 
-        <select
-          v-if="temFiltro('ano')"
-          v-model="filtros.ano"
-          @change="carregarPrevias"
+        <div
+          v-if="temFiltro('unidade') || temFiltro('eixo')"
+          class="rel-filtros-row"
         >
-          <option value="">Todos os anos</option>
-          <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
-        </select>
+          <select
+            v-if="temFiltro('unidade')"
+            v-model="filtros.unidade"
+            class="rel-filtro-select rel-filtro-select-wide"
+            @change="carregarPrevias"
+          >
+            <option value="">Todas as unidades</option>
+            <option v-for="unidade in unidadesDisponiveis" :key="unidade" :value="unidade">{{ unidade }}</option>
+          </select>
+          <select
+            v-if="temFiltro('eixo')"
+            v-model="filtros.eixo"
+            class="rel-filtro-select"
+            @change="carregarPrevias"
+          >
+            <option value="">Todos os eixos</option>
+            <option v-for="eixo in eixosDisponiveis" :key="eixo" :value="eixo">{{ eixo }}</option>
+          </select>
+        </div>
 
-        <select
-          v-if="temFiltro('unidade')"
-          v-model="filtros.unidade"
-          @change="carregarPrevias"
-        >
-          <option value="">Todas as unidades</option>
-          <option v-for="unidade in unidadesDisponiveis" :key="unidade" :value="unidade">{{ unidade }}</option>
-        </select>
-
-        <select
-          v-if="temFiltro('eixo')"
-          v-model="filtros.eixo"
-          @change="carregarPrevias"
-        >
-          <option value="">Todos os eixos</option>
-          <option v-for="eixo in eixosDisponiveis" :key="eixo" :value="eixo">{{ eixo }}</option>
-        </select>
-
-        <select
-          v-if="temFiltro('status')"
-          v-model="filtros.status"
-          @change="carregarPrevias"
-        >
-          <option value="">Todos os status</option>
-          <option v-for="status in statusDisponiveis" :key="status" :value="status">{{ status }}</option>
-        </select>
-
-        <button
-          v-if="temFiltroAtivo"
-          type="button"
-          class="btn-limpar"
-          @click="limparFiltros"
-        >
-          Limpar
-        </button>
+        <div v-if="temFiltro('status')" class="rel-filtros-row rel-filtros-row-start">
+          <select
+            v-model="filtros.status"
+            class="rel-filtro-select"
+            @change="carregarPrevias"
+          >
+            <option value="">Todos os status</option>
+            <option v-for="status in statusDisponiveis" :key="status" :value="status">{{ status }}</option>
+          </select>
+        </div>
       </div>
 
       <div class="rel-tabela-card">
         <div class="rel-tabela-header">
-          <span>{{ registros.length }} registro{{ registros.length !== 1 ? 's' : '' }} na prévia</span>
+          <TabelaContador :total="registros.length" />
         </div>
 
         <div v-if="carregandoPrevias" class="rel-loading">Carregando prévia...</div>

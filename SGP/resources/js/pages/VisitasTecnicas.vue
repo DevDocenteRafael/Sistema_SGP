@@ -75,10 +75,7 @@
         </div>
       </section>
 
-      <section class="tabela-card" aria-label="Tabela de visitas técnicas">
-        <div class="tabela-header">
-          <span>{{ totalVisitas }} visita{{ totalVisitas !== 1 ? 's' : '' }}</span>
-        </div>
+      <PageTableCard :total="totalVisitas" aria-label="Tabela de visitas técnicas">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
@@ -136,7 +133,7 @@
             </tbody>
           </table>
         </div>
-      </section>
+      </PageTableCard>
 
       <div v-if="visitaDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-visita-titulo">

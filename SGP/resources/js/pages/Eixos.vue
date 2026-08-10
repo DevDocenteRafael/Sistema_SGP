@@ -63,14 +63,7 @@
         </div>
       </section>
 
-      <section class="tabela-card">
-        <div class="tabela-header">
-          <span>
-            {{ totalFiltrado }} curso{{ totalFiltrado !== 1 ? 's' : '' }}
-            — {{ filtros.ano || 'todos os anos' }}
-          </span>
-          <span v-if="filtros.eixo" class="tabela-header-meta">{{ filtros.eixo }}</span>
-        </div>
+      <PageTableCard :total="totalFiltrado">
 
         <div v-if="carregando" class="tabela-vazia">Carregando...</div>
 
@@ -158,7 +151,7 @@
             </tbody>
           </table>
         </div>
-      </section>
+      </PageTableCard>
 
       <div
         v-if="detalheAberto && registroDetalhe"

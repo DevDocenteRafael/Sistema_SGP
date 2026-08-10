@@ -66,13 +66,7 @@
         </div>
       </section>
 
-      <section class="tabela-card" aria-label="Tabela de horas pedagógicas">
-        <div class="tabela-header">
-          <span>
-            {{ totalHoras }} registro{{ totalHoras !== 1 ? 's' : '' }}
-            <span class="tabela-header-meta">{{ totalAtivos }} ativo{{ totalAtivos !== 1 ? 's' : '' }}</span>
-          </span>
-        </div>
+      <PageTableCard :total="totalHoras" aria-label="Tabela de horas pedagógicas">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
@@ -136,7 +130,7 @@
             </tbody>
           </table>
         </div>
-      </section>
+      </PageTableCard>
 
       <div v-if="horaDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-hora-titulo">

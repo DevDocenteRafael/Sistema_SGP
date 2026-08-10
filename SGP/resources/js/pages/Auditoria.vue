@@ -35,10 +35,7 @@
       <input v-model="filtros.data_fim" type="date" title="Data fim" @change="carregar(1)" />
     </section>
 
-    <section class="tabela-card">
-      <div class="tabela-header">
-        <span>{{ meta.total }} registro{{ meta.total !== 1 ? 's' : '' }}</span>
-      </div>
+    <PageTableCard :total="meta.total">
 
       <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
@@ -88,7 +85,7 @@
         <span>Página {{ meta.current_page }} de {{ meta.last_page }}</span>
         <button type="button" :disabled="meta.current_page >= meta.last_page" @click="paginaProxima">Próxima</button>
       </div>
-    </section>
+    </PageTableCard>
 
     <div v-if="detalhe" class="modal-overlay" @click.self="fecharDetalhe">
       <div class="modal-card">

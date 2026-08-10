@@ -1,7 +1,9 @@
 import { UNIDADES } from './unidades';
+import PageTableCard from '../components/crud/PageTableCard.vue';
 
 export default {
   name: 'Usuarios',
+  components: { PageTableCard },
   data() {
     return {
       modo: 'lista',

@@ -1,8 +1,10 @@
 import { podeEditarDados } from './auth';
 import { UNIDADES } from './unidades';
+import PageTableCard from '../components/crud/PageTableCard.vue';
 
 export default {
   name: 'Cursos',
+  components: { PageTableCard },
   data() {
     return {
       modo: 'lista',

@@ -167,6 +167,16 @@
   font-weight: 600;
 }
 
+.tabela-contador {
+  color: inherit;
+  font: inherit;
+}
+
+.tabela-header-meta {
+  color: #003f7d;
+  font-weight: 600;
+}
+
 .tabela-loading,
 .tabela-vazia {
   padding: 3rem 1rem;
