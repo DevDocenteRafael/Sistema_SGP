@@ -61,6 +61,16 @@
       </div>
 
       <div class="rel-filtros">
+        <div class="rel-filtro-busca">
+          <input
+            v-model="filtros.busca"
+            type="search"
+            placeholder="Buscar nos registros..."
+            aria-label="Buscar nos registros do relatório"
+            @input="aoBuscar"
+          />
+        </div>
+
         <select
           v-if="temFiltro('ano')"
           v-model="filtros.ano"

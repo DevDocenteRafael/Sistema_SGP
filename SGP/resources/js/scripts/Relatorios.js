@@ -39,6 +39,7 @@ export default {
       registros: [],
       metaApi: {},
       filtros: {
+        busca: '',
         ano: '',
         unidade: '',
         eixo: '',
@@ -46,6 +47,7 @@ export default {
       },
       unidadesBase: UNIDADES,
       eixosBase: EIXOS_PADRAO,
+      buscaTimer: null,
     };
   },
 
@@ -55,7 +57,13 @@ export default {
     },
 
     temFiltroAtivo() {
-      return Boolean(this.filtros.ano || this.filtros.unidade || this.filtros.eixo || this.filtros.status);
+      return Boolean(
+        this.filtros.busca
+        || this.filtros.ano
+        || this.filtros.unidade
+        || this.filtros.eixo
+        || this.filtros.status,
+      );
     },
 
     colunasPreview() {
@@ -163,7 +171,7 @@ export default {
       this.selecionado = item;
       this.mensagem = '';
       this.erro = '';
-      this.filtros = { ano: '', unidade: '', eixo: '', status: '' };
+      this.filtros = { busca: '', ano: '', unidade: '', eixo: '', status: '' };
       this.carregarPrevias();
     },
 
@@ -177,14 +185,26 @@ export default {
     },
 
     limparFiltros() {
-      this.filtros = { ano: '', unidade: '', eixo: '', status: '' };
+      this.filtros = { busca: '', ano: '', unidade: '', eixo: '', status: '' };
       this.carregarPrevias();
+    },
+
+    aoBuscar() {
+      if (this.buscaTimer) {
+        clearTimeout(this.buscaTimer);
+      }
+      this.buscaTimer = setTimeout(() => {
+        this.carregarPrevias();
+      }, 300);
     },
 
     paramsFiltros() {
       const params = {};
       Object.entries(this.filtros).forEach(([chave, valor]) => {
-        if (valor && this.temFiltro(chave)) {
+        if (! valor) {
+          return;
+        }
+        if (chave === 'busca' || this.temFiltro(chave)) {
           params[chave] = valor;
         }
       });

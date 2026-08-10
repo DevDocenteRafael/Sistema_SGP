@@ -95,8 +95,9 @@ class RelatorioService
     private function normalizarFiltros(array $filtros, array $permitidos): array
     {
         $saida = [];
+        $chaves = array_values(array_unique([...$permitidos, 'busca']));
 
-        foreach ($permitidos as $chave) {
+        foreach ($chaves as $chave) {
             $valor = $filtros[$chave] ?? null;
             if ($valor === null || $valor === '') {
                 continue;
@@ -109,10 +110,36 @@ class RelatorioService
 
     /**
      * @param  array<string, string>  $filtros
+     * @param  list<string>  $campos
+     */
+    private function aplicarBusca(Builder $query, array $filtros, array $campos): void
+    {
+        if (empty($filtros['busca']) || $campos === []) {
+            return;
+        }
+
+        $busca = $filtros['busca'];
+        $query->where(function (Builder $q) use ($busca, $campos) {
+            foreach ($campos as $indice => $campo) {
+                if ($indice === 0) {
+                    $q->where($campo, 'like', "%{$busca}%");
+                    continue;
+                }
+                $q->orWhere($campo, 'like', "%{$busca}%");
+            }
+        });
+    }
+
+    /**
+     * @param  array<string, string>  $filtros
      */
     private function queryCursos(array $filtros): Builder
     {
         $query = Curso::query()->orderBy('titulo');
+
+        $this->aplicarBusca($query, $filtros, [
+            'titulo', 'codigo_sig', 'processo_sei', 'eixo', 'unidade',
+        ]);
 
         if (! empty($filtros['ano'])) {
             $query->where('ultima_revisao', 'like', "%{$filtros['ano']}%");
@@ -141,6 +168,11 @@ class RelatorioService
     {
         $query = PlanoDeMeta::query()->orderByDesc('ano')->orderBy('curso');
 
+        $this->aplicarBusca($query, $filtros, [
+            'segmento', 'curso', 'tipo', 'numero_sei', 'codigo_sig',
+            'mes_entrega', 'status', 'status_final', 'observacao',
+        ]);
+
         if (! empty($filtros['ano'])) {
             $query->where('ano', $filtros['ano']);
         }
@@ -157,6 +189,10 @@ class RelatorioService
     private function queryPcas(array $filtros): Builder
     {
         $query = Pca::query()->orderByDesc('ano')->orderBy('titulo');
+
+        $this->aplicarBusca($query, $filtros, [
+            'titulo', 'numero_sei', 'codigo_sig', 'eixo', 'unidade', 'semestre', 'status', 'observacao',
+        ]);
 
         if (! empty($filtros['ano'])) {
             $query->where('ano', $filtros['ano']);
@@ -181,6 +217,10 @@ class RelatorioService
     {
         $query = CursoPorEixo::query()->orderBy('eixo')->orderBy('curso');
 
+        $this->aplicarBusca($query, $filtros, [
+            'curso', 'eixo', 'unidade', 'codigo', 'instrutores', 'observacao',
+        ]);
+
         if (! empty($filtros['ano'])) {
             $query->where('ano', $filtros['ano']);
         }
@@ -204,6 +244,10 @@ class RelatorioService
     {
         $query = VisitaTecnica::query()->orderByDesc('data_solicitacao');
 
+        $this->aplicarBusca($query, $filtros, [
+            'unidade', 'eixo', 'processo_sei', 'responsavel', 'status', 'relatorio', 'observacao',
+        ]);
+
         if (! empty($filtros['unidade'])) {
             $query->where('unidade', $filtros['unidade']);
         }
@@ -223,6 +267,10 @@ class RelatorioService
     private function queryHoras(array $filtros): Builder
     {
         $query = HoraPedagogica::query()->orderByDesc('ano')->orderBy('pessoa');
+
+        $this->aplicarBusca($query, $filtros, [
+            'matricula', 'pessoa', 'segmento', 'eixo', 'processo_sei', 'motivo', 'status', 'observacao',
+        ]);
 
         if (! empty($filtros['ano'])) {
             $query->where('ano', $filtros['ano']);
@@ -244,6 +292,10 @@ class RelatorioService
     {
         $query = AcaoExtensiva::query()->orderByDesc('ultima_atualizacao')->orderBy('assunto');
 
+        $this->aplicarBusca($query, $filtros, [
+            'atribuido', 'eixo', 'numero_processo_sei', 'assunto', 'objetivo', 'tipo', 'status',
+        ]);
+
         if (! empty($filtros['eixo'])) {
             $query->where('eixo', $filtros['eixo']);
         }
@@ -260,6 +312,10 @@ class RelatorioService
     private function queryEventos(array $filtros): Builder
     {
         $query = Evento::query()->orderByDesc('data')->orderBy('nome');
+
+        $this->aplicarBusca($query, $filtros, [
+            'nome', 'unidade', 'eixo', 'equipe', 'acao_vinculada', 'status', 'observacao',
+        ]);
 
         if (! empty($filtros['ano'])) {
             $query->where('ano', $filtros['ano']);
