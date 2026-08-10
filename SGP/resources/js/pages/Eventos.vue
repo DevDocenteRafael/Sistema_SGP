@@ -145,58 +145,59 @@
       <div v-if="registroDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-evento-titulo">
           <div class="modal-detalhes-header">
-            <h2 id="detalhe-evento-titulo">Detalhes do Evento</h2>
+            <div>
+              <h2 id="detalhe-evento-titulo">Detalhes do Registro</h2>
+              <p class="modal-detalhes-subtitle">Informações resumidas do evento selecionado.</p>
+            </div>
             <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">×</button>
           </div>
 
-          <div class="detalhe-grid">
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Evento</span>
-              <span class="detalhe-valor">{{ registroDetalhe.nome || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Ano</span>
-              <span class="detalhe-valor">{{ registroDetalhe.ano || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Data</span>
-              <span class="detalhe-valor">{{ formatarData(registroDetalhe.data) }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Unidade</span>
-              <span class="detalhe-valor">{{ registroDetalhe.unidade || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Eixo</span>
-              <span class="detalhe-valor">{{ registroDetalhe.eixo || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Qtd. Pessoas</span>
-              <span class="detalhe-valor">{{ registroDetalhe.quantidade_pessoas ?? '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Equipe</span>
-              <span class="detalhe-valor">{{ registroDetalhe.equipe || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Status</span>
-              <span class="detalhe-valor">
-                <span class="badge-status" :class="badgeStatus(registroDetalhe.status)">
-                  {{ registroDetalhe.status || '—' }}
-                </span>
-              </span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Possui Ação Extensiva</span>
-              <span class="detalhe-valor">{{ registroDetalhe.possui_acao_extensiva || '—' }}</span>
-            </div>
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Ação Extensiva Vinculada</span>
-              <span class="detalhe-valor">{{ registroDetalhe.acao_vinculada || '—' }}</span>
-            </div>
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Observação</span>
-              <span class="detalhe-valor detalhe-valor-texto">{{ registroDetalhe.observacao || '—' }}</span>
+          <div class="modal-form-wrap">
+            <div class="detalhe-form-grid">
+              <div class="detalhe-form-campo campo-full">
+                <span>Evento</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.nome || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Ano</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.ano || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Data</span>
+                <div class="detalhe-valor-box">{{ formatarData(registroDetalhe.data) }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Unidade</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.unidade || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Eixo</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.eixo || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Qtd. Pessoas</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.quantidade_pessoas ?? '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Equipe</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.equipe || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Status</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.status || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Possui Ação Extensiva</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.possui_acao_extensiva || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Ação Extensiva Vinculada</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.acao_vinculada || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Observação</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ registroDetalhe.observacao || '—' }}</div>
+              </div>
             </div>
           </div>
 

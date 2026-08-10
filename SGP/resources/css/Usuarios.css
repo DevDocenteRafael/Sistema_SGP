@@ -308,25 +308,27 @@
 }
 
 .modal-detalhes {
-  width: 100%;
-  max-width: 480px;
-  border-radius: 0.75rem;
+  width: min(720px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  border-radius: 0.85rem;
   background: #fff;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.2);
 }
 
 .modal-detalhes-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 1.15rem 1.25rem 0.5rem;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .modal-detalhes-header h2 {
   margin: 0;
   color: #003f7d;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 
@@ -422,6 +424,8 @@
 
 .modal-detalhes-actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.75rem;
   padding: 0 1.25rem 1.25rem;
 }
@@ -431,8 +435,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  flex: 1;
-  height: 2.6rem;
+  height: 2.75rem;
+  padding: 0 1.25rem;
   border: none;
   border-radius: 0.5rem;
   background: #f57c00;
@@ -446,8 +450,17 @@
 }
 
 .modal-detalhes-actions .btn-secondary {
-  flex: 0 0 auto;
-  min-width: 6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .tabela-footer {

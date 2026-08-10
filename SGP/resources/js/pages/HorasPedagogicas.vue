@@ -141,58 +141,61 @@
       <div v-if="horaDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-hora-titulo">
           <div class="modal-detalhes-header">
-            <h2 id="detalhe-hora-titulo">Detalhes da Hora Pedagógica</h2>
+            <div>
+              <h2 id="detalhe-hora-titulo">Detalhes do Registro</h2>
+              <p class="modal-detalhes-subtitle">Informações resumidas da hora pedagógica selecionada.</p>
+            </div>
             <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">×</button>
           </div>
 
-          <div class="detalhe-grid">
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Pessoa</span>
-              <span class="detalhe-valor">{{ horaDetalhe.pessoa || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Matrícula</span>
-              <span class="detalhe-valor">{{ horaDetalhe.matricula || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Segmento</span>
-              <span class="detalhe-valor">{{ horaDetalhe.segmento || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Eixo</span>
-              <span class="detalhe-valor">{{ horaDetalhe.eixo || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Processo SEI</span>
-              <span class="detalhe-valor">{{ horaDetalhe.processo_sei || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Ano</span>
-              <span class="detalhe-valor">{{ horaDetalhe.ano || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Status</span>
-              <span class="detalhe-valor">
-                <span class="badge-status" :class="statusClass(horaDetalhe.status)">{{ horaDetalhe.status }}</span>
-              </span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Ativo</span>
-              <span class="detalhe-valor">{{ rotuloAtivo(horaDetalhe.ativo) }}</span>
-            </div>
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Motivo</span>
-              <span class="detalhe-valor detalhe-valor-texto">{{ horaDetalhe.motivo || '—' }}</span>
-            </div>
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Observação</span>
-              <span class="detalhe-valor detalhe-valor-texto">{{ horaDetalhe.observacao || '—' }}</span>
+          <div class="modal-form-wrap">
+            <div class="detalhe-form-grid">
+              <div class="detalhe-form-campo">
+                <span>Pessoa</span>
+                <div class="detalhe-valor-box">{{ horaDetalhe.pessoa || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Matrícula</span>
+                <div class="detalhe-valor-box">{{ horaDetalhe.matricula || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Segmento</span>
+                <div class="detalhe-valor-box">{{ horaDetalhe.segmento || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Eixo</span>
+                <div class="detalhe-valor-box">{{ horaDetalhe.eixo || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Processo SEI</span>
+                <div class="detalhe-valor-box">{{ horaDetalhe.processo_sei || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Ano</span>
+                <div class="detalhe-valor-box">{{ horaDetalhe.ano || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Status</span>
+                <div class="detalhe-valor-box">{{ horaDetalhe.status || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Ativo</span>
+                <div class="detalhe-valor-box">{{ rotuloAtivo(horaDetalhe.ativo) }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Motivo</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ horaDetalhe.motivo || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Observação</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ horaDetalhe.observacao || '—' }}</div>
+              </div>
             </div>
           </div>
 
           <div class="modal-detalhes-actions">
             <button v-if="podeEditarHoras" type="button" class="btn-editar-modal" @click="abrirEdicao(horaDetalhe)">
-              Editar Hora
+              Editar
             </button>
             <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
           </div>

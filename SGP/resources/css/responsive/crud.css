@@ -129,6 +129,10 @@
     grid-template-columns: 1fr !important;
   }
 
+  .detalhe-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
   .modal-detalhes-actions {
     flex-direction: column-reverse;
   }

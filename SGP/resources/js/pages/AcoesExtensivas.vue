@@ -139,54 +139,51 @@
       <div v-if="registroDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-acao-titulo">
           <div class="modal-detalhes-header">
-            <h2 id="detalhe-acao-titulo">Detalhes da Ação Extensiva</h2>
+            <div>
+              <h2 id="detalhe-acao-titulo">Detalhes do Registro</h2>
+              <p class="modal-detalhes-subtitle">Informações resumidas da ação extensiva selecionada.</p>
+            </div>
             <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">×</button>
           </div>
 
-          <div class="detalhe-grid">
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Processo SEI</span>
-              <span class="detalhe-valor">{{ registroDetalhe.numero_processo_sei || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Priorização</span>
-              <span class="detalhe-valor">
-                <span class="badge-status" :class="badgePriorizacao(registroDetalhe.priorizacao)">
-                  {{ registroDetalhe.priorizacao || '—' }}
-                </span>
-              </span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Atribuído</span>
-              <span class="detalhe-valor">{{ registroDetalhe.atribuido || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Eixo</span>
-              <span class="detalhe-valor">{{ registroDetalhe.eixo || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Tipo</span>
-              <span class="detalhe-valor">{{ registroDetalhe.tipo || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Status</span>
-              <span class="detalhe-valor">
-                <span class="badge-status" :class="badgeStatus(registroDetalhe.status)">
-                  {{ registroDetalhe.status || '—' }}
-                </span>
-              </span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Última atualização</span>
-              <span class="detalhe-valor">{{ formatarData(registroDetalhe.ultima_atualizacao) }}</span>
-            </div>
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Assunto</span>
-              <span class="detalhe-valor detalhe-valor-texto">{{ registroDetalhe.assunto || '—' }}</span>
-            </div>
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Objetivo</span>
-              <span class="detalhe-valor detalhe-valor-texto">{{ registroDetalhe.objetivo || '—' }}</span>
+          <div class="modal-form-wrap">
+            <div class="detalhe-form-grid">
+              <div class="detalhe-form-campo">
+                <span>Processo SEI</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.numero_processo_sei || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Priorização</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.priorizacao || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Atribuído</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.atribuido || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Eixo</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.eixo || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Tipo</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.tipo || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Status</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.status || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Última atualização</span>
+                <div class="detalhe-valor-box">{{ formatarData(registroDetalhe.ultima_atualizacao) }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Assunto</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ registroDetalhe.assunto || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Objetivo</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ registroDetalhe.objetivo || '—' }}</div>
+              </div>
             </div>
           </div>
 

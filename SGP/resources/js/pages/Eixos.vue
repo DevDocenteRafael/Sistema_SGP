@@ -166,61 +166,59 @@
         @click.self="fecharDetalhes"
       >
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-eixo-titulo">
-          <div class="modal-detalhes-bar"></div>
           <div class="modal-detalhes-header">
-            <h2 id="detalhe-eixo-titulo">Detalhes do curso por eixo</h2>
-            <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">
-              ×
-            </button>
+            <div>
+              <h2 id="detalhe-eixo-titulo">Detalhes do Registro</h2>
+              <p class="modal-detalhes-subtitle">Informações resumidas do curso por eixo selecionado.</p>
+            </div>
+            <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">×</button>
           </div>
 
-          <div class="detalhe-eixo-body">
-            <div class="detalhe-eixo-hero">
-              <p class="detalhe-curso-nome">{{ registroDetalhe.curso }}</p>
-              <div class="detalhe-badges">
-                <span class="eixo-tag" :class="classeEixo(registroDetalhe.eixo)">
-                  {{ registroDetalhe.eixo }}
-                </span>
-                <span class="badge" :class="badgeStatus(registroDetalhe.status)">
-                  {{ registroDetalhe.status }}
-                </span>
+          <div class="modal-form-wrap">
+            <div class="detalhe-form-grid">
+              <div class="detalhe-form-campo campo-full">
+                <span>Curso</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.curso || '—' }}</div>
               </div>
-            </div>
-
-            <div class="detalhe-grid">
-              <div class="detalhe-campo">
-                <span class="detalhe-label">Unidade</span>
-                <span class="detalhe-valor">{{ valorCampo(registroDetalhe.unidade) }}</span>
+              <div class="detalhe-form-campo">
+                <span>Eixo</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.eixo || '—' }}</div>
               </div>
-              <div class="detalhe-campo">
-                <span class="detalhe-label">Ano</span>
-                <span class="detalhe-valor">{{ valorCampo(registroDetalhe.ano) }}</span>
+              <div class="detalhe-form-campo">
+                <span>Status</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.status || '—' }}</div>
               </div>
-              <div class="detalhe-campo">
-                <span class="detalhe-label">Carga horária</span>
-                <span class="detalhe-valor">{{ formatarCh(registroDetalhe.ch) }}</span>
+              <div class="detalhe-form-campo">
+                <span>Unidade</span>
+                <div class="detalhe-valor-box">{{ valorCampo(registroDetalhe.unidade) }}</div>
               </div>
-              <div class="detalhe-campo">
-                <span class="detalhe-label">Turmas</span>
-                <span class="detalhe-valor">{{ valorCampo(registroDetalhe.turmas) }}</span>
+              <div class="detalhe-form-campo">
+                <span>Ano</span>
+                <div class="detalhe-valor-box">{{ valorCampo(registroDetalhe.ano) }}</div>
               </div>
-              <div class="detalhe-campo">
-                <span class="detalhe-label">Código</span>
-                <span class="detalhe-valor">{{ valorCampo(registroDetalhe.codigo) }}</span>
+              <div class="detalhe-form-campo">
+                <span>Carga horária</span>
+                <div class="detalhe-valor-box">{{ formatarCh(registroDetalhe.ch) }}</div>
               </div>
-              <div class="detalhe-campo">
-                <span class="detalhe-label">Alunos</span>
-                <span class="detalhe-valor">{{ valorCampo(registroDetalhe.alunos) }}</span>
+              <div class="detalhe-form-campo">
+                <span>Turmas</span>
+                <div class="detalhe-valor-box">{{ valorCampo(registroDetalhe.turmas) }}</div>
               </div>
-              <div class="detalhe-campo detalhe-campo-full">
-                <span class="detalhe-label">Instrutores</span>
-                <span class="detalhe-valor">{{ valorCampo(registroDetalhe.instrutores) }}</span>
+              <div class="detalhe-form-campo">
+                <span>Código</span>
+                <div class="detalhe-valor-box">{{ valorCampo(registroDetalhe.codigo) }}</div>
               </div>
-              <div class="detalhe-campo detalhe-campo-full">
-                <span class="detalhe-label">Observação</span>
-                <span class="detalhe-valor detalhe-valor-texto">
-                  {{ valorCampo(registroDetalhe.observacao) }}
-                </span>
+              <div class="detalhe-form-campo">
+                <span>Alunos</span>
+                <div class="detalhe-valor-box">{{ valorCampo(registroDetalhe.alunos) }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Instrutores</span>
+                <div class="detalhe-valor-box">{{ valorCampo(registroDetalhe.instrutores) }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Observação</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ valorCampo(registroDetalhe.observacao) }}</div>
               </div>
             </div>
           </div>

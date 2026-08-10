@@ -141,58 +141,61 @@
       <div v-if="visitaDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-visita-titulo">
           <div class="modal-detalhes-header">
-            <h2 id="detalhe-visita-titulo">Detalhes da Visita Técnica</h2>
+            <div>
+              <h2 id="detalhe-visita-titulo">Detalhes do Registro</h2>
+              <p class="modal-detalhes-subtitle">Informações resumidas da visita técnica selecionada.</p>
+            </div>
             <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">×</button>
           </div>
 
-          <div class="detalhe-grid">
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Processo SEI</span>
-              <span class="detalhe-valor">{{ visitaDetalhe.processo_sei || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Status</span>
-              <span class="detalhe-valor">
-                <span class="badge-status" :class="statusClass(visitaDetalhe.status)">{{ visitaDetalhe.status }}</span>
-              </span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Unidade</span>
-              <span class="detalhe-valor">{{ visitaDetalhe.unidade || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Eixo</span>
-              <span class="detalhe-valor">{{ visitaDetalhe.eixo || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Responsável</span>
-              <span class="detalhe-valor">{{ visitaDetalhe.responsavel || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Data de solicitação</span>
-              <span class="detalhe-valor">{{ formatarData(visitaDetalhe.data_solicitacao) }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Data visita prevista</span>
-              <span class="detalhe-valor">{{ formatarData(visitaDetalhe.data_visita_prevista) }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Prazo limite</span>
-              <span class="detalhe-valor">{{ formatarData(visitaDetalhe.prazo_limite) }}</span>
-            </div>
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Relatório</span>
-              <span class="detalhe-valor detalhe-valor-texto">{{ visitaDetalhe.relatorio || '—' }}</span>
-            </div>
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Observação</span>
-              <span class="detalhe-valor detalhe-valor-texto">{{ visitaDetalhe.observacao || '—' }}</span>
+          <div class="modal-form-wrap">
+            <div class="detalhe-form-grid">
+              <div class="detalhe-form-campo">
+                <span>Processo SEI</span>
+                <div class="detalhe-valor-box">{{ visitaDetalhe.processo_sei || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Status</span>
+                <div class="detalhe-valor-box">{{ visitaDetalhe.status || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Unidade</span>
+                <div class="detalhe-valor-box">{{ visitaDetalhe.unidade || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Eixo</span>
+                <div class="detalhe-valor-box">{{ visitaDetalhe.eixo || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Responsável</span>
+                <div class="detalhe-valor-box">{{ visitaDetalhe.responsavel || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Data de solicitação</span>
+                <div class="detalhe-valor-box">{{ formatarData(visitaDetalhe.data_solicitacao) }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Data visita prevista</span>
+                <div class="detalhe-valor-box">{{ formatarData(visitaDetalhe.data_visita_prevista) }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Prazo limite</span>
+                <div class="detalhe-valor-box">{{ formatarData(visitaDetalhe.prazo_limite) }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Relatório</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ visitaDetalhe.relatorio || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Observação</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ visitaDetalhe.observacao || '—' }}</div>
+              </div>
             </div>
           </div>
 
           <div class="modal-detalhes-actions">
             <button v-if="podeEditarVisita" type="button" class="btn-editar-modal" @click="abrirEdicao(visitaDetalhe)">
-              Editar Visita
+              Editar
             </button>
             <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
           </div>

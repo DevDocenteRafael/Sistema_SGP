@@ -142,90 +142,91 @@
       <div v-if="registroDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-pca-titulo">
           <div class="modal-detalhes-header">
-            <h2 id="detalhe-pca-titulo">Detalhes do PCA</h2>
+            <div>
+              <h2 id="detalhe-pca-titulo">Detalhes do Registro</h2>
+              <p class="modal-detalhes-subtitle">Informações resumidas do PCA selecionado.</p>
+            </div>
             <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">×</button>
           </div>
 
-          <div class="detalhe-grid">
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Ano</span>
-              <span class="detalhe-valor">{{ registroDetalhe.ano || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Semestre</span>
-              <span class="detalhe-valor">{{ registroDetalhe.semestre || '—' }}</span>
-            </div>
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Título / Curso</span>
-              <span class="detalhe-valor">{{ registroDetalhe.titulo || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">SEI</span>
-              <span class="detalhe-valor">{{ registroDetalhe.sei || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">SIG</span>
-              <span class="detalhe-valor">{{ registroDetalhe.sig || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Eixo</span>
-              <span class="detalhe-valor">{{ registroDetalhe.eixo || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Unidade</span>
-              <span class="detalhe-valor">{{ registroDetalhe.unidade || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">CH</span>
-              <span class="detalhe-valor">{{ registroDetalhe.ch || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Status</span>
-              <span class="detalhe-valor">
-                <span class="badge-status" :class="badgeStatus(registroDetalhe.status)">
-                  {{ registroDetalhe.status || '—' }}
-                </span>
-              </span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Precificação</span>
-              <span class="detalhe-valor">{{ registroDetalhe.precificacao || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Valor 1º Módulo</span>
-              <span class="detalhe-valor">{{ registroDetalhe.valor_primeiro_modulo || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Valor Principal</span>
-              <span class="detalhe-valor">{{ registroDetalhe.valor || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Parcelas Boleto</span>
-              <span class="detalhe-valor">{{ registroDetalhe.parcelas_boleto || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Valor Parcela Boleto</span>
-              <span class="detalhe-valor">{{ registroDetalhe.valor_parcela_boleto || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Parcelas Cartão</span>
-              <span class="detalhe-valor">{{ registroDetalhe.parcelas_cartao || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Valor Cartão</span>
-              <span class="detalhe-valor">{{ registroDetalhe.valor_cartao || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Parcela com desc. 20%</span>
-              <span class="detalhe-valor">{{ registroDetalhe.parcela_desc_20 || '—' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Parcela com desc. 15%</span>
-              <span class="detalhe-valor">{{ registroDetalhe.parcela_desc_15 || '—' }}</span>
-            </div>
-            <div class="detalhe-campo detalhe-campo-full">
-              <span class="detalhe-label">Observação</span>
-              <span class="detalhe-valor detalhe-valor-texto">{{ registroDetalhe.observacao || '—' }}</span>
+          <div class="modal-form-wrap">
+            <div class="detalhe-form-grid">
+              <div class="detalhe-form-campo">
+                <span>Ano</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.ano || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Semestre</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.semestre || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Título / Curso</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.titulo || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>SEI</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.sei || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>SIG</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.sig || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Eixo</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.eixo || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Unidade</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.unidade || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>CH</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.ch || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Status</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.status || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Precificação</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.precificacao || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Valor 1º Módulo</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.valor_primeiro_modulo || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Valor Principal</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.valor || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Parcelas Boleto</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.parcelas_boleto || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Valor Parcela Boleto</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.valor_parcela_boleto || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Parcelas Cartão</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.parcelas_cartao || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Valor Cartão</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.valor_cartao || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Parcela com desc. 20%</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.parcela_desc_20 || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Parcela com desc. 15%</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.parcela_desc_15 || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Observação</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ registroDetalhe.observacao || '—' }}</div>
+              </div>
             </div>
           </div>
 

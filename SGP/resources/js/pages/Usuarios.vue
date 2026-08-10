@@ -136,54 +136,55 @@
       >
         <div class="modal-detalhes" role="dialog" aria-labelledby="detalhes-titulo">
           <div class="modal-detalhes-header">
-            <h2 id="detalhes-titulo">Detalhes do Usuário</h2>
+            <div>
+              <h2 id="detalhes-titulo">Detalhes do Registro</h2>
+              <p class="modal-detalhes-subtitle">Informações resumidas do usuário selecionado.</p>
+            </div>
             <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">
               ×
             </button>
           </div>
 
-          <div class="detalhe-perfil">
-            <span class="avatar avatar-lg" :class="avatarClass(usuarioDetalhe.perfil)">
-              {{ iniciais(usuarioDetalhe.nome) }}
-            </span>
-            <div>
-              <p class="detalhe-nome">{{ usuarioDetalhe.nome }}</p>
-              <p class="detalhe-email">{{ usuarioDetalhe.email }}</p>
-              <div class="detalhe-badges">
-                <span class="badge" :class="badgePerfil(usuarioDetalhe.perfil)">
-                  {{ usuarioDetalhe.perfil }}
-                </span>
-                <span class="badge" :class="usuarioDetalhe.status ? 'badge-ativo' : 'badge-inativo'">
-                  <span class="status-dot"></span>
-                  {{ usuarioDetalhe.status ? 'Ativo' : 'Inativo' }}
-                </span>
+          <div class="modal-form-wrap">
+            <div class="detalhe-form-grid">
+              <div class="detalhe-form-campo campo-full">
+                <span>Nome</span>
+                <div class="detalhe-valor-box">{{ usuarioDetalhe.nome || '—' }}</div>
               </div>
-            </div>
-          </div>
-
-          <div class="detalhe-grid">
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Telefone</span>
-              <span class="detalhe-valor">{{ usuarioDetalhe.telefone || 'Não informado' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Unidade</span>
-              <span class="detalhe-valor">{{ usuarioDetalhe.unidade || 'Não informado' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">Área</span>
-              <span class="detalhe-valor">{{ usuarioDetalhe.area || 'Não informado' }}</span>
-            </div>
-            <div class="detalhe-campo">
-              <span class="detalhe-label">CPF</span>
-              <span class="detalhe-valor">{{ usuarioDetalhe.cpf || 'Não informado' }}</span>
+              <div class="detalhe-form-campo campo-full">
+                <span>E-mail</span>
+                <div class="detalhe-valor-box">{{ usuarioDetalhe.email || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Perfil</span>
+                <div class="detalhe-valor-box">{{ usuarioDetalhe.perfil || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Status</span>
+                <div class="detalhe-valor-box">{{ usuarioDetalhe.status ? 'Ativo' : 'Inativo' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Telefone</span>
+                <div class="detalhe-valor-box">{{ usuarioDetalhe.telefone || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>CPF</span>
+                <div class="detalhe-valor-box">{{ usuarioDetalhe.cpf || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Unidade</span>
+                <div class="detalhe-valor-box">{{ usuarioDetalhe.unidade || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Área</span>
+                <div class="detalhe-valor-box">{{ usuarioDetalhe.area || '—' }}</div>
+              </div>
             </div>
           </div>
 
           <div class="modal-detalhes-actions">
             <button type="button" class="btn-editar-modal" @click="editarDoDetalhe">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-              Editar Usuário
+              Editar
             </button>
             <button type="button" class="btn-secondary" @click="fecharDetalhes">
               Fechar

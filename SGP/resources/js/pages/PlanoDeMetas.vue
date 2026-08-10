@@ -140,40 +140,40 @@
           </div>
 
           <div v-if="registroDetalhe" class="modal-form-wrap">
-            <div class="form-grid">
-              <div class="campo">
+            <div class="detalhe-form-grid">
+              <div class="detalhe-form-campo">
                 <span>Segmento</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.segmento || '—' }}</div>
               </div>
-              <div class="campo">
+              <div class="detalhe-form-campo">
                 <span>Curso</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.curso || '—' }}</div>
               </div>
-              <div class="campo">
+              <div class="detalhe-form-campo">
                 <span>Tipo</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.tipo || '—' }}</div>
               </div>
-              <div class="campo">
+              <div class="detalhe-form-campo">
                 <span>Mês de Entrega</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.mesEntrega || '—' }}</div>
               </div>
-              <div class="campo">
+              <div class="detalhe-form-campo">
                 <span>Número SEI</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.sei || '—' }}</div>
               </div>
-              <div class="campo">
+              <div class="detalhe-form-campo">
                 <span>Código SIG</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.sig || '—' }}</div>
               </div>
-              <div class="campo">
+              <div class="detalhe-form-campo">
                 <span>Status Final</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.statusFinal || '—' }}</div>
               </div>
-              <div class="campo">
+              <div class="detalhe-form-campo">
                 <span>Status</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.status || '—' }}</div>
               </div>
-              <div class="campo campo-full">
+              <div class="detalhe-form-campo campo-full">
                 <span>Observação</span>
                 <div class="detalhe-valor-box detalhe-valor-texto">{{ registroDetalhe.observacao || '—' }}</div>
               </div>
