@@ -36,6 +36,7 @@ const MENU_SECOES = [
       { rota: 'cursos', label: 'Cursos', path: '/app/cursos', icon: 'cursos' },
       { rota: 'plano-de-metas', label: 'Plano de Metas', path: '/app/plano-de-metas', icon: 'metas' },
       { rota: 'pca', label: 'PCA', path: '/app/pca', icon: 'pca' },
+      { rota: 'controle-de-resolucoes', label: 'Controle de Resoluções', path: '/app/controle-de-resolucoes', icon: 'metas' },
       { rota: 'eixos', label: 'Eixos', path: '/app/eixos', icon: 'eixos' },
     ],
   },
