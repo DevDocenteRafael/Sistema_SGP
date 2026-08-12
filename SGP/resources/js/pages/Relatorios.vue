@@ -25,6 +25,22 @@
       <div v-if="carregandoCatalogo" class="rel-loading">Carregando catálogo...</div>
       <div v-else class="rel-cards">
         <button
+          type="button"
+          class="rel-card"
+          @click="$router.push({ name: 'controle-de-resolucoes' })"
+        >
+          <div class="rel-card-top">
+            <span class="rel-card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>
+            </span>
+            <span class="rel-card-count">Acesso</span>
+          </div>
+          <h2>Controle de Resoluções</h2>
+          <p>Acompanhe a vigência, os prazos e a situação das resoluções.</p>
+          <span class="rel-card-cta">Abrir módulo →</span>
+        </button>
+
+        <button
           v-for="item in catalogo"
           :key="item.key"
           type="button"

@@ -44,6 +44,24 @@
     <template v-if="filtros.grupo === 'gerais'">
       <section class="dashboard-metrics-grid">
         <article
+          class="dashboard-metric-card dashboard-quick-card is-accent"
+          role="button"
+          tabindex="0"
+          @click="$router.push({ name: 'controle-de-resolucoes' })"
+          @keydown.enter.prevent="$router.push({ name: 'controle-de-resolucoes' })"
+          @keydown.space.prevent="$router.push({ name: 'controle-de-resolucoes' })"
+        >
+          <div class="dashboard-metric-top">
+            <div class="dashboard-metric-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>
+            </div>
+            <span class="dashboard-metric-sub">Acesso rápido</span>
+          </div>
+          <p class="dashboard-metric-value">Resoluções</p>
+          <p class="dashboard-metric-title">Controle de Resoluções</p>
+        </article>
+
+        <article
           v-for="card in metricCards"
           :key="card.label"
           class="dashboard-metric-card"
