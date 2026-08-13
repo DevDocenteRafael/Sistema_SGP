@@ -9,6 +9,7 @@ use App\Models\Evento;
 use App\Models\HoraPedagogica;
 use App\Models\Pca;
 use App\Models\PlanoDeMeta;
+use App\Models\Resolucao;
 use App\Models\VisitaTecnica;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -59,6 +60,7 @@ class RelatorioService
     public function consultar(string $tipo, array $filtros = []): Collection
     {
         $query = match ($tipo) {
+            'resolucoes' => $this->queryResolucoes($filtros),
             'cursos' => $this->queryCursos($filtros),
             'plano-de-metas' => $this->queryPlanoDeMetas($filtros),
             'pcas' => $this->queryPcas($filtros),
@@ -76,6 +78,7 @@ class RelatorioService
     public function contagens(): array
     {
         return [
+            'resolucoes' => Resolucao::query()->count(),
             'cursos' => Curso::query()->count(),
             'plano-de-metas' => PlanoDeMeta::query()->count(),
             'pcas' => Pca::query()->count(),
@@ -128,6 +131,38 @@ class RelatorioService
                 $q->orWhere($campo, 'like', "%{$busca}%");
             }
         });
+    }
+
+    /**
+     * @param  array<string, string>  $filtros
+     */
+    private function queryResolucoes(array $filtros): Builder
+    {
+        $query = Resolucao::query()->orderByDesc('data_inicio_vigencia')->orderBy('numero');
+
+        $this->aplicarBusca($query, $filtros, [
+            'numero', 'curso_relacionado', 'categoria', 'resumo', 'relator', 'setor', 'observacoes',
+        ]);
+
+        if (! empty($filtros['ano'])) {
+            $query->whereYear('data_inicio_vigencia', $filtros['ano'])
+                ->orWhereYear('data_fim_vigencia', $filtros['ano']);
+        }
+        if (! empty($filtros['categoria'])) {
+            $query->where('categoria', $filtros['categoria']);
+        }
+        if (! empty($filtros['status'])) {
+            $query->where('status', $filtros['status']);
+        }
+        if (! empty($filtros['setor'])) {
+            $query->where('setor', $filtros['setor']);
+        }
+        if (! empty($filtros['relator'])) {
+            $query->where('relator', 'like', "%{$filtros['relator']}%")
+                ->orWhere('setor', 'like', "%{$filtros['relator']}%");
+        }
+
+        return $query;
     }
 
     /**

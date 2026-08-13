@@ -6,6 +6,26 @@
  */
 return [
     'catalogo' => [
+        'resolucoes' => [
+            'key' => 'resolucoes',
+            'label' => 'Relatório de Resoluções',
+            'description' => 'Acompanhe a vigência, os prazos e a situação das resoluções.',
+            'api' => '/api/resolucoes',
+            'icon' => 'resolucoes',
+            'filtros' => ['ano', 'categoria', 'status', 'setor', 'relator'],
+            'colunas' => [
+                ['key' => 'numero', 'label' => 'Identificador'],
+                ['key' => 'resumo', 'label' => 'Resumo'],
+                ['key' => 'curso_relacionado', 'label' => 'Curso/Técnico relacionado'],
+                ['key' => 'data_inicio_vigencia', 'label' => 'Data de início'],
+                ['key' => 'data_fim_vigencia', 'label' => 'Data de vencimento'],
+                ['key' => 'status', 'label' => 'Situação da vigência'],
+                ['key' => 'categoria', 'label' => 'Categoria'],
+                ['key' => 'setor', 'label' => 'Setor'],
+                ['key' => 'relator', 'label' => 'Relator'],
+            ],
+            'preview_keys' => ['numero', 'resumo', 'curso_relacionado', 'data_inicio_vigencia', 'data_fim_vigencia', 'status'],
+        ],
         'cursos' => [
             'key' => 'cursos',
             'label' => 'Relatório de Cursos',

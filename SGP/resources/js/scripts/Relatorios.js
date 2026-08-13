@@ -11,6 +11,7 @@ const ICONS = {
   horas: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
   acoes: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
   eventos: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>',
+  resolucoes: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>',
 };
 
 const EIXOS_PADRAO = [
@@ -46,6 +47,9 @@ export default {
         unidade: '',
         eixo: '',
         status: '',
+        categoria: '',
+        setor: '',
+        relator: '',
       },
       unidadesBase: UNIDADES,
       eixosBase: EIXOS_PADRAO,
@@ -112,6 +116,27 @@ export default {
       const set = new Set(this.registros.map((r) => r.status).filter(Boolean));
       return Array.from(set).sort();
     },
+
+    categoriasDisponiveis() {
+      const set = new Set([
+        ...(this.metaApi.categorias || []),
+        ...this.registros.map((r) => r.categoria).filter(Boolean),
+      ]);
+      return Array.from(set).sort();
+    },
+
+    setoresDisponiveis() {
+      const set = new Set([
+        ...(this.metaApi.setores || []),
+        ...this.registros.map((r) => r.setor).filter(Boolean),
+      ]);
+      return Array.from(set).sort();
+    },
+
+    relatoresDisponiveis() {
+      const set = new Set(this.registros.map((r) => r.relator).filter(Boolean));
+      return Array.from(set).sort();
+    },
   },
 
   created() {
@@ -163,7 +188,7 @@ export default {
       this.selecionado = item;
       this.mensagem = '';
       this.erro = '';
-      this.filtros = { busca: '', ano: '', unidade: '', eixo: '', status: '' };
+      this.filtros = { busca: '', ano: '', unidade: '', eixo: '', status: '', categoria: '', setor: '', relator: '' };
       this.carregarPrevias();
     },
 

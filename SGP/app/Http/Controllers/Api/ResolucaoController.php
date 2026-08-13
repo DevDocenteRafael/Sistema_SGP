@@ -67,6 +67,8 @@ class ResolucaoController extends Controller
                 'total' => $registros->count(),
                 'vigencia_anos' => ResolucaoVigenciaService::vigenciaAnos(),
                 'status' => $statusList,
+                'categorias' => config('resolucoes.categorias', []),
+                'setores' => config('resolucoes.setores', []),
                 'semaforo' => config('resolucoes.semaforo'),
             ],
         ]);

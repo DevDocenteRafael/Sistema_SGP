@@ -28,6 +28,7 @@ export default {
         horas: 0,
         acoes: 0,
         eventos: 0,
+        resolucoes: 0,
       },
       filtros: {
         grupo: 'gerais',
@@ -47,6 +48,10 @@ export default {
   computed: {
     temFiltro() {
       return Boolean(this.filtros.ano || this.filtros.unidade || this.filtros.eixo || this.filtros.status);
+    },
+
+    totalResolucoes() {
+      return this.contagens.resolucoes;
     },
 
     anosDisponiveis() {
@@ -353,12 +358,13 @@ export default {
       this.erro = '';
 
       try {
-        const [cursosRes, visitasRes, horasRes, acoesRes, eventosRes] = await Promise.all([
+        const [cursosRes, visitasRes, horasRes, acoesRes, eventosRes, resolucoesRes] = await Promise.all([
           window.axios.get('/api/cursos'),
           window.axios.get('/api/visitas-tecnicas'),
           window.axios.get('/api/horas-pedagogicas'),
           window.axios.get('/api/acoes-extensivas'),
           window.axios.get('/api/eventos'),
+          window.axios.get('/api/resolucoes'),
         ]);
 
         this.courses = cursosRes.data.data ?? [];
@@ -383,6 +389,7 @@ export default {
           horas: horasRes.data.meta?.total_geral ?? this.horas.length,
           acoes: acoesRes.data.meta?.total_geral ?? (acoesRes.data.data?.length || 0),
           eventos: eventosRes.data.meta?.total_geral ?? (eventosRes.data.data?.length || 0),
+          resolucoes: resolucoesRes.data.meta?.total ?? (resolucoesRes.data.data?.length || 0),
         };
       } catch (error) {
         this.erro = this.extrairErro(error, 'Não foi possível carregar os dados do dashboard.');
