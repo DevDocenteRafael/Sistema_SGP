@@ -23,6 +23,7 @@
 
   .dashboard-metrics-grid,
   .dashboard-kpi-grid,
+  .dashboard-ciclo-vida,
   .dashboard-content-grid,
   .dashboard-charts-grid,
   .dashboard-split-grid {
@@ -57,6 +58,10 @@
   .dashboard-kpi-grid.horas {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
+
+  .dashboard-kpi-grid.ciclo {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -74,6 +79,10 @@
   }
 
   .dashboard-kpi-grid.horas {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .dashboard-kpi-grid.ciclo {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
 }

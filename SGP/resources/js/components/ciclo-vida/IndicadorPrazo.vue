@@ -4,7 +4,7 @@
       <span class="indicador-prazo-ponto" aria-hidden="true"></span>
       <span class="indicador-prazo-label">{{ statusLabel }}</span>
     </div>
-    <span v-if="mostrarData" class="indicador-prazo-data">{{ dataPrazo }}</span>
+    <span v-if="mostrarData && dataPrazo" class="indicador-prazo-data">{{ dataPrazo }}</span>
   </div>
 </template>
 
@@ -38,8 +38,8 @@ export default {
       if (this.label) return this.label;
       const labels = {
         verde: 'No prazo',
-        amarelo: 'Próximo ao prazo',
-        vermelho: 'Atrasado',
+        amarelo: 'Atenção',
+        vermelho: 'Crítico',
       };
       return labels[this.status] || this.status;
     },

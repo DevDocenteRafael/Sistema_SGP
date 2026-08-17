@@ -9,13 +9,12 @@ return [
     ],
 
     /**
-     * Configuração de prazos para o semáforo (indicador visual)
-     * Será definido pela CPED após análise
-     * Por enquanto, valores padrão para fins de demonstração
+     * Limiares visuais do semáforo (demonstração).
+     * PENDENTE CPED: prazos oficiais de TR — não tratar estes números como regra institucional.
      */
     'prazos' => [
-        'dias_verde' => 30,      // Verde: mais de X dias até prazo
-        'dias_amarelo' => 15,    // Amarelo: entre X e Y dias até prazo
-        'dias_vermelho' => 0,    // Vermelho: menos de X dias até prazo
+        'dias_verde' => 30,
+        'dias_amarelo' => 15,
+        'dias_vermelho' => 0,
     ],
 ];

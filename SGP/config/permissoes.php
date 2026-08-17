@@ -51,6 +51,8 @@ return [
         'cursos' => ['Administrador', 'Editor', 'Consultor'],
         'plano-de-metas' => ['Administrador', 'Editor', 'Consultor'],
         'pca' => ['Administrador', 'Editor', 'Consultor'],
+        'controle-de-resolucoes' => ['Administrador', 'Editor', 'Consultor'],
+        'termos-de-referencia' => ['Administrador', 'Editor', 'Consultor'],
         'eixos' => ['Administrador', 'Editor', 'Consultor'],
         'visitas-tecnicas' => ['Administrador', 'Editor', 'Consultor'],
         'horas-pedagogicas' => ['Administrador', 'Editor', 'Consultor'],

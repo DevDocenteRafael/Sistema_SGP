@@ -69,6 +69,9 @@ class RelatorioController extends Controller
             'eixo',
             'status',
             'busca',
+            'categoria',
+            'setor',
+            'relator',
         ]));
 
         $pdf = Pdf::loadView('relatorios.tabela', [

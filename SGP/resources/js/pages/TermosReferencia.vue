@@ -9,6 +9,7 @@
             <p class="termos-subtitle">Acompanhamento do ciclo de vida e tramitação</p>
           </div>
           <button
+            v-if="podeEditar"
             type="button"
             class="btn-novo"
             @click="abrirNovo"
@@ -50,7 +51,7 @@
 
       <section class="tabela-card">
         <div class="tabela-header">
-          <span>{{ totalTermos }} termo de referência{{ totalTermos !== 1 ? 's' : '' }}</span>
+          <TabelaContador :total="totalTermos" />
         </div>
 
         <div v-if="carregando" class="tabela-loading">
@@ -62,8 +63,6 @@
           tipo="documento"
           titulo="Nenhum Termo de Referência cadastrado ainda."
           descricao="Os TRs aparecerão aqui após o cadastro e acompanhamento de prazos."
-          botaoLabel="Novo TR"
-          @acao="abrirNovo"
         />
 
         <div v-else class="tabela-wrap">
@@ -82,8 +81,17 @@
               <tr v-for="termo in termos" :key="termo.id">
                 <td>{{ termo.nome }}</td>
                 <td>{{ termo.eixo || '—' }}</td>
-                <td class="mono">{{ termo.processo_sei }}</td>
-                <td>{{ formatarData(termo.prazo_deadline) }}</td>
+                <td class="mono">
+                  <ProcessoSeiLink :valor="termo.processo_sei" />
+                </td>
+                <td>
+                  <IndicadorPrazo
+                    :status="semaforoDe(termo)"
+                    :label="labelPrazo(termo)"
+                    :dataPrazo="formatarData(termo.prazo_deadline)"
+                    :mostrarData="true"
+                  />
+                </td>
                 <td>
                   <BadgeStatus :tipo="statusToBadgeType(termo.status)" :label="termo.status" />
                 </td>
@@ -127,7 +135,12 @@
               <p class="detalhe-tr-eixo">{{ termoSelecionado.eixo }}</p>
               <div class="detalhe-badges">
                 <BadgeStatus :tipo="statusToBadgeType(termoSelecionado.status)" :label="termoSelecionado.status" />
-                <IndicadorPrazo :status="statusPrazoBadge(termoSelecionado.prazo_deadline)" :dataPrazo="formatarData(termoSelecionado.prazo_deadline)" :mostrarData="true" />
+                <IndicadorPrazo
+                  :status="semaforoDe(termoSelecionado)"
+                  :label="labelPrazo(termoSelecionado)"
+                  :dataPrazo="formatarData(termoSelecionado.prazo_deadline)"
+                  :mostrarData="true"
+                />
               </div>
             </div>
           </div>
@@ -137,7 +150,9 @@
             <div class="detalhe-grid">
               <div class="detalhe-campo">
                 <span class="detalhe-label">Processo SEI</span>
-                <span class="detalhe-valor detalhe-valor-mono">{{ termoSelecionado.processo_sei }}</span>
+                <span class="detalhe-valor detalhe-valor-mono">
+                  <ProcessoSeiLink :valor="termoSelecionado.processo_sei" />
+                </span>
               </div>
               <div class="detalhe-campo">
                 <span class="detalhe-label">Prazo / Deadline</span>

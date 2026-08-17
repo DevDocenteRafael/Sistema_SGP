@@ -38,6 +38,6 @@ class TermoReferencia extends Model
 
     public function historicos(): HasMany
     {
-        return $this->hasMany(TermoReferenciaHistorico::class);
+        return $this->hasMany(TermoReferenciaHistorico::class)->orderByDesc('id');
     }
 }

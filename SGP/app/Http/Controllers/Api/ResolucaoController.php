@@ -6,6 +6,8 @@ use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ResolucaoRequest;
 use App\Models\Resolucao;
+use App\Models\ResolucaoHistorico;
+use App\Services\ResolucaoAnexoService;
 use App\Services\ResolucaoVigenciaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,6 +15,10 @@ use Illuminate\Http\Request;
 class ResolucaoController extends Controller
 {
     use AutorizaConsulta;
+
+    public function __construct(
+        private readonly ResolucaoAnexoService $anexos,
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -46,37 +52,35 @@ class ResolucaoController extends Controller
             $query->where('setor', $request->setor);
         }
 
-        $registros = $query->get()->map(function (Resolucao $resolucao) {
-            $status = $resolucao->status ?: ResolucaoVigenciaService::statusAutomatico(
-                $resolucao->data_inicio_vigencia?->format('Y-m-d'),
-                $resolucao->data_fim_vigencia?->format('Y-m-d')
-            );
+        if ($request->filled('ano')) {
+            $ano = $request->ano;
+            $query->where(function ($q) use ($ano) {
+                $q->whereYear('data_inicio_vigencia', $ano)
+                    ->orWhereYear('data_fim_vigencia', $ano);
+            });
+        }
 
-            return array_merge($resolucao->toArray(), [
-                'status' => $status,
-                'data_fim_vigencia' => $resolucao->data_fim_vigencia?->format('Y-m-d')
-                    ?? ResolucaoVigenciaService::calcularDataFimVigencia($resolucao->data_inicio_vigencia)->format('Y-m-d'),
-            ]);
-        });
-
-        $statusList = config('resolucoes.status');
+        $todas = Resolucao::query()->get();
+        $registros = $query->get()->map(fn (Resolucao $resolucao) => $this->serializarResolucao($resolucao));
 
         return response()->json([
             'data' => $registros,
             'meta' => [
                 'total' => $registros->count(),
+                'total_geral' => $todas->count(),
                 'vigencia_anos' => ResolucaoVigenciaService::vigenciaAnos(),
-                'status' => $statusList,
+                'status' => config('resolucoes.status'),
                 'categorias' => config('resolucoes.categorias', []),
                 'setores' => config('resolucoes.setores', []),
                 'semaforo' => config('resolucoes.semaforo'),
+                'contagens' => ResolucaoVigenciaService::contarPorSemaforo($todas),
             ],
         ]);
     }
 
     public function store(ResolucaoRequest $request): JsonResponse
     {
-        $payload = $request->validated();
+        $payload = $request->safe()->except(['anexo']);
         $payload['data_fim_vigencia'] = ResolucaoVigenciaService::calcularDataFimVigencia(
             $payload['data_inicio_vigencia']
         )->format('Y-m-d');
@@ -84,15 +88,22 @@ class ResolucaoController extends Controller
             $payload['data_inicio_vigencia'],
             $payload['data_fim_vigencia']
         );
+        $payload = $this->aplicarAnexo($request, $payload);
 
         $resolucao = Resolucao::create($payload);
 
+        $this->registrarHistorico(
+            $resolucao,
+            'Resolução cadastrada',
+            null,
+            $resolucao->status,
+        );
+
         $resolucaoFresh = $resolucao->fresh();
-        $payload = $this->serializarResolucao($resolucaoFresh);
 
         return response()->json([
             'message' => 'Resolução cadastrada com sucesso.',
-            'resolucao' => $payload,
+            'resolucao' => $this->serializarResolucao($resolucaoFresh),
         ], 201);
     }
 
@@ -102,11 +113,12 @@ class ResolucaoController extends Controller
             return $negado;
         }
 
+        $resolucao->load(['historicos.usuario']);
+
         $payload = $this->serializarResolucao($resolucao);
-        $payload['status'] = $resolucao->status ?: ResolucaoVigenciaService::statusAutomatico(
-            $resolucao->data_inicio_vigencia?->format('Y-m-d'),
-            $resolucao->data_fim_vigencia?->format('Y-m-d')
-        );
+        $payload['historicos'] = $resolucao->historicos
+            ->map(fn (ResolucaoHistorico $historico) => $this->serializarHistorico($historico))
+            ->values();
 
         return response()->json([
             'resolucao' => $payload,
@@ -115,7 +127,13 @@ class ResolucaoController extends Controller
 
     public function update(ResolucaoRequest $request, Resolucao $resolucao): JsonResponse
     {
-        $payload = $request->validated();
+        $anterior = [
+            'status' => $resolucao->status,
+            'data_inicio_vigencia' => $resolucao->data_inicio_vigencia?->format('Y-m-d'),
+            'data_fim_vigencia' => $resolucao->data_fim_vigencia?->format('Y-m-d'),
+        ];
+
+        $payload = $request->safe()->except(['anexo']);
         $payload['data_fim_vigencia'] = ResolucaoVigenciaService::calcularDataFimVigencia(
             $payload['data_inicio_vigencia']
         )->format('Y-m-d');
@@ -123,9 +141,12 @@ class ResolucaoController extends Controller
             $payload['data_inicio_vigencia'],
             $payload['data_fim_vigencia']
         );
+        $payload = $this->aplicarAnexo($request, $payload, $resolucao);
 
         $resolucao->update($payload);
         $resolucaoFresh = $resolucao->fresh();
+
+        $this->registrarAlteracoesImportantes($resolucaoFresh, $anterior);
 
         return response()->json([
             'message' => 'Resolução atualizada com sucesso.',
@@ -142,6 +163,7 @@ class ResolucaoController extends Controller
         }
 
         $numero = $resolucao->numero;
+        $this->anexos->apagar($resolucao->anexo_path);
         $resolucao->delete();
 
         return response()->json([
@@ -149,10 +171,120 @@ class ResolucaoController extends Controller
         ]);
     }
 
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function aplicarAnexo(Request $request, array $payload, ?Resolucao $existente = null): array
+    {
+        if ($request->hasFile('anexo')) {
+            if ($existente?->anexo_path) {
+                $this->anexos->apagar($existente->anexo_path);
+            }
+            $payload['anexo_path'] = $this->anexos->salvar($request->file('anexo'));
+        }
+
+        unset($payload['anexo']);
+
+        return $payload;
+    }
+
+    /**
+     * @param  array{status: ?string, data_inicio_vigencia: ?string, data_fim_vigencia: ?string}  $anterior
+     */
+    private function registrarAlteracoesImportantes(Resolucao $resolucao, array $anterior): void
+    {
+        $statusNovo = $resolucao->status;
+        $inicioNovo = $resolucao->data_inicio_vigencia?->format('Y-m-d');
+        $fimNovo = $resolucao->data_fim_vigencia?->format('Y-m-d');
+
+        if ($anterior['status'] !== $statusNovo) {
+            $this->registrarHistorico(
+                $resolucao,
+                'Status alterado',
+                $anterior['status'],
+                $statusNovo,
+            );
+        }
+
+        if ($anterior['data_inicio_vigencia'] !== $inicioNovo || $anterior['data_fim_vigencia'] !== $fimNovo) {
+            $de = trim(($anterior['data_inicio_vigencia'] ?? '—').' → '.($anterior['data_fim_vigencia'] ?? '—'));
+            $para = trim(($inicioNovo ?? '—').' → '.($fimNovo ?? '—'));
+            $this->registrarHistorico(
+                $resolucao,
+                'Vigência alterada',
+                $de,
+                $para,
+            );
+        }
+
+        if (
+            $anterior['status'] === $statusNovo
+            && $anterior['data_inicio_vigencia'] === $inicioNovo
+            && $anterior['data_fim_vigencia'] === $fimNovo
+        ) {
+            $this->registrarHistorico(
+                $resolucao,
+                'Resolução atualizada',
+                $anterior['status'],
+                $statusNovo,
+            );
+        }
+    }
+
+    private function registrarHistorico(
+        Resolucao $resolucao,
+        string $evento,
+        ?string $statusAnterior,
+        ?string $statusNovo,
+        ?string $observacao = null,
+    ): void {
+        ResolucaoHistorico::create([
+            'resolucao_id' => $resolucao->id,
+            'evento' => $evento,
+            'status_anterior' => $statusAnterior,
+            'status_novo' => $statusNovo,
+            'usuario_id' => request()->user()?->id,
+            'observacao' => $observacao,
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function serializarHistorico(ResolucaoHistorico $historico): array
+    {
+        return [
+            'id' => $historico->id,
+            'acao' => $historico->evento,
+            'data' => $historico->created_at?->toISOString(),
+            'usuario' => $historico->usuario?->nome,
+            'tipo' => $this->tipoHistorico($historico->evento),
+            'detalhe' => $historico->status_anterior || $historico->status_novo,
+            'situacaoAnterior' => $historico->status_anterior,
+            'novaSituacao' => $historico->status_novo,
+            'observacao' => $historico->observacao,
+        ];
+    }
+
+    private function tipoHistorico(string $evento): string
+    {
+        return match (true) {
+            str_contains($evento, 'cadastrada') => 'sucesso',
+            str_contains($evento, 'Status') => 'aviso',
+            str_contains($evento, 'Vigência') => 'info',
+            default => 'padrao',
+        };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     private function serializarResolucao(Resolucao $resolucao): array
     {
         $dataFimVigencia = $resolucao->data_fim_vigencia
             ?: ResolucaoVigenciaService::calcularDataFimVigencia($resolucao->data_inicio_vigencia ?? now());
+        $statusVigencia = ResolucaoVigenciaService::statusVigencia($resolucao);
 
         return [
             'id' => $resolucao->id,
@@ -164,12 +296,12 @@ class ResolucaoController extends Controller
             'setor' => $resolucao->setor,
             'data_inicio_vigencia' => $resolucao->data_inicio_vigencia?->format('Y-m-d'),
             'data_fim_vigencia' => $dataFimVigencia->format('Y-m-d'),
-            'status' => $resolucao->status ?: ResolucaoVigenciaService::statusAutomatico(
-                $resolucao->data_inicio_vigencia?->format('Y-m-d'),
-                $dataFimVigencia->format('Y-m-d')
-            ),
+            'status' => $resolucao->status ?: $statusVigencia,
+            'status_vigencia' => $statusVigencia,
+            'semaforo' => ResolucaoVigenciaService::corSemaforo($statusVigencia),
             'observacoes' => $resolucao->observacoes,
             'anexo_path' => $resolucao->anexo_path,
+            'anexo_url' => $this->anexos->urlPublica($resolucao->anexo_path),
             'created_at' => $resolucao->created_at?->toISOString(),
             'updated_at' => $resolucao->updated_at?->toISOString(),
         ];

@@ -25,7 +25,7 @@
       <div v-if="carregandoCatalogo" class="rel-loading">Carregando catálogo...</div>
       <div v-else class="rel-cards">
         <button
-          v-for="item in catalogo.filter((entry) => entry.key === 'resolucoes')"
+          v-for="item in catalogo.filter((entry) => entry.key === 'resolucoes' || entry.key === 'termos-referencia')"
           :key="item.key"
           type="button"
           class="rel-card"
@@ -41,7 +41,7 @@
         </button>
 
         <button
-          v-for="item in catalogo.filter((entry) => entry.key !== 'resolucoes')"
+          v-for="item in catalogo.filter((entry) => entry.key !== 'resolucoes' && entry.key !== 'termos-referencia')"
           :key="item.key"
           type="button"
           class="rel-card"

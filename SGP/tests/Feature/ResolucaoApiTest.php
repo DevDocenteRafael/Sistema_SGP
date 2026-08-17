@@ -74,6 +74,22 @@ class ResolucaoApiTest extends TestCase
         $updateResponse->assertOk();
         $updateResponse->assertJsonPath('resolucao.data_fim_vigencia', '2026-01-10');
 
+        $this->assertDatabaseHas('resolucao_historicos', [
+            'resolucao_id' => $id,
+            'evento' => 'Resolução cadastrada',
+        ]);
+        $this->assertDatabaseHas('resolucao_historicos', [
+            'resolucao_id' => $id,
+            'evento' => 'Status alterado',
+            'status_anterior' => 'vigente',
+            'status_novo' => 'atencao',
+            'usuario_id' => $usuario->id,
+        ]);
+
+        $showAfterUpdate = $this->getJson('/api/resolucoes/' . $id);
+        $showAfterUpdate->assertOk();
+        $showAfterUpdate->assertJsonPath('resolucao.historicos.0.acao', 'Vigência alterada');
+
         $deleteResponse = $this->deleteJson('/api/resolucoes/' . $id);
         $deleteResponse->assertOk();
         $this->assertDatabaseMissing('resolucoes', ['id' => $id]);

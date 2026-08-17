@@ -10,6 +10,7 @@ use App\Models\HoraPedagogica;
 use App\Models\Pca;
 use App\Models\PlanoDeMeta;
 use App\Models\Resolucao;
+use App\Models\TermoReferencia;
 use App\Models\VisitaTecnica;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -61,6 +62,7 @@ class RelatorioService
     {
         $query = match ($tipo) {
             'resolucoes' => $this->queryResolucoes($filtros),
+            'termos-referencia' => $this->queryTermosReferencia($filtros),
             'cursos' => $this->queryCursos($filtros),
             'plano-de-metas' => $this->queryPlanoDeMetas($filtros),
             'pcas' => $this->queryPcas($filtros),
@@ -79,6 +81,7 @@ class RelatorioService
     {
         return [
             'resolucoes' => Resolucao::query()->count(),
+            'termos-referencia' => TermoReferencia::query()->count(),
             'cursos' => Curso::query()->count(),
             'plano-de-metas' => PlanoDeMeta::query()->count(),
             'pcas' => Pca::query()->count(),
@@ -160,6 +163,27 @@ class RelatorioService
         if (! empty($filtros['relator'])) {
             $query->where('relator', 'like', "%{$filtros['relator']}%")
                 ->orWhere('setor', 'like', "%{$filtros['relator']}%");
+        }
+
+        return $query;
+    }
+
+    /**
+     * @param  array<string, string>  $filtros
+     */
+    private function queryTermosReferencia(array $filtros): Builder
+    {
+        $query = TermoReferencia::query()->orderByDesc('prazo_deadline')->orderBy('nome');
+
+        $this->aplicarBusca($query, $filtros, [
+            'nome', 'eixo', 'processo_sei', 'status', 'observacao',
+        ]);
+
+        if (! empty($filtros['eixo'])) {
+            $query->where('eixo', $filtros['eixo']);
+        }
+        if (! empty($filtros['status'])) {
+            $query->where('status', $filtros['status']);
         }
 
         return $query;
@@ -372,7 +396,7 @@ class RelatorioService
     {
         $linha = $item->toArray();
 
-        foreach (['data_solicitacao', 'data_visita_prevista', 'prazo_limite', 'data', 'ultima_atualizacao', 'data_inicio', 'data_fim'] as $campo) {
+        foreach (['data_solicitacao', 'data_visita_prevista', 'prazo_limite', 'data', 'ultima_atualizacao', 'data_inicio', 'data_fim', 'data_inicio_vigencia', 'data_fim_vigencia', 'prazo_deadline'] as $campo) {
             if (isset($linha[$campo]) && $linha[$campo]) {
                 $valor = $linha[$campo];
                 if (is_string($valor) && strlen($valor) >= 10) {

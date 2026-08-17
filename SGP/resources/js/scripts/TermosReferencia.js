@@ -1,10 +1,13 @@
-import IndicadorPrazo from '../components/termos-referencia/IndicadorPrazo.vue';
-import LinhaDoTempo from '../components/termos-referencia/LinhaDoTempo.vue';
+import IndicadorPrazo from '../components/ciclo-vida/IndicadorPrazo.vue';
+import LinhaDoTempo from '../components/ciclo-vida/LinhaDoTempo.vue';
+import ProcessoSeiLink from '../components/ciclo-vida/ProcessoSeiLink.vue';
 import BadgeStatus from '../components/termos-referencia/BadgeStatus.vue';
+import { podeEditarDados } from './auth';
 import EstadoVazio from '../components/termos-referencia/EstadoVazio.vue';
 import Loading from '../components/termos-referencia/Loading.vue';
 import Feedback from '../components/termos-referencia/Feedback.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
+import TabelaContador from '../components/crud/TabelaContador.vue';
 
 const ENDPOINT_API = '/api/termos-referencia';
 
@@ -24,11 +27,13 @@ export default {
   components: {
     IndicadorPrazo,
     LinhaDoTempo,
+    ProcessoSeiLink,
     BadgeStatus,
     EstadoVazio,
     Loading,
     Feedback,
     CrudAlerts,
+    TabelaContador,
   },
   data() {
     return {
@@ -63,7 +68,7 @@ export default {
       return Object.values(this.filtros).some(v => v);
     },
     podeEditar() {
-      return true; // Será integrado com podeEditarDados() da autenticação
+      return podeEditarDados();
     },
   },
   methods: {
@@ -121,21 +126,19 @@ export default {
     /**
      * Abre modal de detalhes de um TR
      */
-    abrirDetalhes(termo) {
+    async abrirDetalhes(termo) {
       this.termoSelecionado = termo;
       this.detalheAberto = true;
+      this.historico = [];
 
-      // Carregar histórico do backend (Etapa 6)
-      // Por enquanto, dados de exemplo
-      this.historico = [
-        {
-          id: 1,
-          acao: 'Termo de Referência criado',
-          data: new Date().toISOString(),
-          usuario: 'Sistema',
-          tipo: 'info',
-        },
-      ];
+      try {
+        const { data } = await window.axios.get(`${ENDPOINT_API}/${termo.id}`);
+        const detalhe = data.termo || data.data || termo;
+        this.termoSelecionado = detalhe;
+        this.historico = Array.isArray(detalhe.historicos) ? detalhe.historicos : [];
+      } catch (error) {
+        this.mensagemErro = this.extrairErro(error, 'Não foi possível carregar o histórico do TR.');
+      }
     },
 
     /**
@@ -400,19 +403,17 @@ export default {
     /**
      * Calcula status do prazo para o indicador (verde/amarelo/vermelho)
      */
-    statusPrazoBadge(dataPrazo) {
-      if (!dataPrazo) return 'amarelo';
-
-      const agora = new Date();
-      const prazo = new Date(dataPrazo);
-      const diasRestantes = Math.floor((prazo - agora) / (1000 * 60 * 60 * 24));
-
-      if (diasRestantes < 0) {
-        return 'vermelho'; // Vencido
-      } else if (diasRestantes <= 15) {
-        return 'amarelo'; // Próximo ao prazo
-      }
-      return 'verde'; // Confortável
+    semaforoDe(termo) {
+      return termo?.semaforo || 'amarelo';
+    },
+    labelPrazo(termo) {
+      const mapa = {
+        no_prazo: 'No prazo',
+        atencao: 'Atenção',
+        critico: 'Crítico',
+        vencido: 'Vencido',
+      };
+      return mapa[termo?.status_prazo] || null;
     },
 
     /**

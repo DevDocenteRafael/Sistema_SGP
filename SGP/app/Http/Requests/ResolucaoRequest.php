@@ -12,6 +12,19 @@ class ResolucaoRequest extends FormRequest
         return $this->user()?->podeEditarDados() === true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $merge = [];
+        foreach (['status', 'categoria', 'setor', 'curso_relacionado', 'relator', 'observacoes', 'anexo_path'] as $campo) {
+            if ($this->exists($campo) && $this->input($campo) === '') {
+                $merge[$campo] = null;
+            }
+        }
+        if ($merge !== []) {
+            $this->merge($merge);
+        }
+    }
+
     public function rules(): array
     {
         $resolucao = $this->route('resolucao');
@@ -33,6 +46,7 @@ class ResolucaoRequest extends FormRequest
             'status' => ['nullable', 'string', 'max:50', Rule::in(config('resolucoes.status'))],
             'observacoes' => ['nullable', 'string'],
             'anexo_path' => ['nullable', 'string', 'max:255'],
+            'anexo' => ['nullable', 'file', 'max:5120', 'mimes:pdf,doc,docx,odt,jpg,jpeg,png'],
         ];
     }
 
@@ -47,6 +61,9 @@ class ResolucaoRequest extends FormRequest
             'categoria.in' => 'Categoria inválida.',
             'setor.in' => 'Setor inválido.',
             'status.in' => 'Status inválido.',
+            'anexo.file' => 'O anexo deve ser um arquivo válido.',
+            'anexo.max' => 'O anexo deve ter no máximo 5 MB.',
+            'anexo.mimes' => 'O anexo deve ser PDF, Word, ODT ou imagem.',
         ];
     }
 }

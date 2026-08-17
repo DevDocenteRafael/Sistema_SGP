@@ -81,6 +81,7 @@ class RelatorioApiTest extends TestCase
         $catalogo = $this->getJson('/api/relatorios');
         $catalogo->assertOk();
         $this->assertContains('resolucoes', collect($catalogo->json('data'))->pluck('key')->all());
+        $this->assertContains('termos-referencia', collect($catalogo->json('data'))->pluck('key')->all());
 
         $resolucao = collect($catalogo->json('data'))->firstWhere('key', 'resolucoes');
         $this->assertSame(1, $resolucao['total']);
@@ -123,6 +124,7 @@ class RelatorioApiTest extends TestCase
             'horas-pedagogicas',
             'acoes-extensivas',
             'eventos',
+            'termos-referencia',
         ];
 
         foreach ($tipos as $tipo) {

@@ -53,6 +53,16 @@
           <p class="dashboard-metric-title">Resoluções</p>
         </article>
 
+        <article class="dashboard-metric-card">
+          <div class="dashboard-metric-top">
+            <div class="dashboard-metric-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+            </div>
+          </div>
+          <p class="dashboard-metric-value">{{ totalTermos }}</p>
+          <p class="dashboard-metric-title">Termos de Referência</p>
+        </article>
+
         <article
           v-for="card in metricCards"
           :key="card.label"
@@ -66,6 +76,32 @@
           <p class="dashboard-metric-value">{{ card.value }}</p>
           <p class="dashboard-metric-title">{{ card.label }}</p>
         </article>
+      </section>
+
+      <section class="dashboard-ciclo-vida" aria-label="Prazos de Resoluções e Termos de Referência">
+        <div class="dashboard-ciclo-bloco">
+          <h3>Resoluções por prazo</h3>
+          <p class="dashboard-chart-subtitle">Semáforo de vigência (5 anos; atenção 6 meses, crítico 1 mês)</p>
+          <section class="dashboard-kpi-grid ciclo">
+            <article v-for="card in cardsResolucoesPrazo" :key="card.title" class="dashboard-kpi-card">
+              <p class="dashboard-kpi-value" :style="{ color: card.color }">{{ card.value }}</p>
+              <p class="dashboard-kpi-title">{{ card.title }}</p>
+              <p class="dashboard-kpi-subtitle">{{ card.subtitle }}</p>
+            </article>
+          </section>
+        </div>
+
+        <div class="dashboard-ciclo-bloco">
+          <h3>Termos de Referência por prazo</h3>
+          <p class="dashboard-chart-subtitle">Acompanhamento de deadline — no prazo, atenção, crítico e vencidos</p>
+          <section class="dashboard-kpi-grid ciclo">
+            <article v-for="card in cardsTermosPrazo" :key="card.title" class="dashboard-kpi-card">
+              <p class="dashboard-kpi-value" :style="{ color: card.color }">{{ card.value }}</p>
+              <p class="dashboard-kpi-title">{{ card.title }}</p>
+              <p class="dashboard-kpi-subtitle">{{ card.subtitle }}</p>
+            </article>
+          </section>
+        </div>
       </section>
 
       <div class="dashboard-content-grid">

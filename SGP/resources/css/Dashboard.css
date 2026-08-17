@@ -361,6 +361,23 @@
   font-weight: 600;
 }
 
+.dashboard-ciclo-vida {
+  margin: 0 2rem 1.25rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.dashboard-ciclo-bloco h3 {
+  margin: 0;
+  color: #003f7d;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.dashboard-ciclo-vida .dashboard-kpi-grid {
+  margin: 0.75rem 0 0;
+}
+
 .dashboard-group-intro {
   margin: 1.25rem 2rem 0;
 }

@@ -93,7 +93,7 @@ export default {
 }
 
 .estado-vazio-texto {
-  margin: 0 0 1.25rem;
+  margin: 0;
   color: #9ca3af;
   font-size: 0.875rem;
   max-width: 26rem;
@@ -101,6 +101,7 @@ export default {
 }
 
 .estado-vazio-botao {
+  margin-top: 1.25rem;
   padding: 0.65rem 1.25rem;
   border: none;
   border-radius: 0.5rem;

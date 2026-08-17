@@ -29,6 +29,19 @@ export default {
         acoes: 0,
         eventos: 0,
         resolucoes: 0,
+        termos: 0,
+      },
+      resolucoesContagens: {
+        no_prazo: 0,
+        atencao: 0,
+        critico: 0,
+        vencidos: 0,
+      },
+      termosContagens: {
+        no_prazo: 0,
+        atencao: 0,
+        critico: 0,
+        vencidos: 0,
       },
       filtros: {
         grupo: 'gerais',
@@ -52,6 +65,18 @@ export default {
 
     totalResolucoes() {
       return this.contagens.resolucoes;
+    },
+
+    totalTermos() {
+      return this.contagens.termos;
+    },
+
+    cardsResolucoesPrazo() {
+      return this.montarCardsPrazo(this.resolucoesContagens, this.contagens.resolucoes);
+    },
+
+    cardsTermosPrazo() {
+      return this.montarCardsPrazo(this.termosContagens, this.contagens.termos);
     },
 
     anosDisponiveis() {
@@ -358,13 +383,14 @@ export default {
       this.erro = '';
 
       try {
-        const [cursosRes, visitasRes, horasRes, acoesRes, eventosRes, resolucoesRes] = await Promise.all([
+        const [cursosRes, visitasRes, horasRes, acoesRes, eventosRes, resolucoesRes, termosRes] = await Promise.all([
           window.axios.get('/api/cursos'),
           window.axios.get('/api/visitas-tecnicas'),
           window.axios.get('/api/horas-pedagogicas'),
           window.axios.get('/api/acoes-extensivas'),
           window.axios.get('/api/eventos'),
           window.axios.get('/api/resolucoes'),
+          window.axios.get('/api/termos-referencia'),
         ]);
 
         this.courses = cursosRes.data.data ?? [];
@@ -389,7 +415,22 @@ export default {
           horas: horasRes.data.meta?.total_geral ?? this.horas.length,
           acoes: acoesRes.data.meta?.total_geral ?? (acoesRes.data.data?.length || 0),
           eventos: eventosRes.data.meta?.total_geral ?? (eventosRes.data.data?.length || 0),
-          resolucoes: resolucoesRes.data.meta?.total ?? (resolucoesRes.data.data?.length || 0),
+          resolucoes: resolucoesRes.data.meta?.total_geral ?? resolucoesRes.data.meta?.total ?? (resolucoesRes.data.data?.length || 0),
+          termos: termosRes.data.meta?.total_geral ?? termosRes.data.meta?.total ?? (termosRes.data.data?.length || 0),
+        };
+        this.resolucoesContagens = {
+          no_prazo: 0,
+          atencao: 0,
+          critico: 0,
+          vencidos: 0,
+          ...(resolucoesRes.data.meta?.contagens || {}),
+        };
+        this.termosContagens = {
+          no_prazo: 0,
+          atencao: 0,
+          critico: 0,
+          vencidos: 0,
+          ...(termosRes.data.meta?.contagens || {}),
         };
       } catch (error) {
         this.erro = this.extrairErro(error, 'Não foi possível carregar os dados do dashboard.');
@@ -451,6 +492,24 @@ export default {
 
     normalizarTipo(tipo) {
       return String(tipo || '').trim();
+    },
+
+    montarCardsPrazo(contagens, total) {
+      const itens = [
+        { title: 'No prazo', key: 'no_prazo', color: '#15803d' },
+        { title: 'Atenção', key: 'atencao', color: '#a16207' },
+        { title: 'Crítico', key: 'critico', color: '#c2410c' },
+        { title: 'Vencidos', key: 'vencidos', color: '#b91c1c' },
+      ];
+
+      return itens.map((item) => {
+        const value = Number(contagens?.[item.key] || 0);
+        return {
+          ...item,
+          value,
+          subtitle: `${this.percentual(value, total)}% do total`,
+        };
+      });
     },
 
     percentual(parte, total) {

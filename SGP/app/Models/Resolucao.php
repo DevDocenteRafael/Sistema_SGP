@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Resolucao extends Model
 {
@@ -33,5 +34,10 @@ class Resolucao extends Model
             'data_inicio_vigencia' => 'date:Y-m-d',
             'data_fim_vigencia' => 'date:Y-m-d',
         ];
+    }
+
+    public function historicos(): HasMany
+    {
+        return $this->hasMany(ResolucaoHistorico::class)->orderByDesc('id');
     }
 }
