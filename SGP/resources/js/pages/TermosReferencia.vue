@@ -58,12 +58,14 @@
           <Loading tamanho="padrao" texto="Carregando Termos de Referência..." />
         </div>
 
-        <EstadoVazio
-          v-else-if="totalTermos === 0"
-          tipo="documento"
-          titulo="Nenhum Termo de Referência cadastrado ainda."
-          descricao="Os TRs aparecerão aqui após o cadastro e acompanhamento de prazos."
-        />
+        <div v-else-if="totalTermos === 0 && !temFiltro" class="tabela-vazia estado-vazio">
+          <p class="estado-vazio-titulo">Nenhum registro cadastrado ainda.</p>
+          <p class="estado-vazio-texto">Os registros aparecerão aqui após o cadastro ou a importação.</p>
+        </div>
+
+        <div v-else-if="totalTermos === 0" class="tabela-vazia">
+          Nenhum registro encontrado para os filtros selecionados.
+        </div>
 
         <div v-else class="tabela-wrap">
           <table class="crud-table">

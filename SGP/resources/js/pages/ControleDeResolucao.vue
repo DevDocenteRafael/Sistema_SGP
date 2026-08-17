@@ -85,8 +85,13 @@
       <PageTableCard :total="registrosFiltrados.length" aria-label="Tabela de resoluções">
         <div v-if="carregando" class="tabela-loading">Carregando resoluções...</div>
 
+        <div v-else-if="registrosFiltrados.length === 0 && !temFiltroAtivo" class="tabela-vazia estado-vazio">
+          <p class="estado-vazio-titulo">Nenhum registro cadastrado ainda.</p>
+          <p class="estado-vazio-texto">Os registros aparecerão aqui após o cadastro ou a importação.</p>
+        </div>
+
         <div v-else-if="registrosFiltrados.length === 0" class="tabela-vazia">
-          Nenhuma resolução encontrada para os filtros selecionados.
+          Nenhum registro encontrado para os filtros selecionados.
         </div>
 
         <div v-else class="tabela-wrap">

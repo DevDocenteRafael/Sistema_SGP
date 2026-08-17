@@ -3,7 +3,6 @@ import LinhaDoTempo from '../components/ciclo-vida/LinhaDoTempo.vue';
 import ProcessoSeiLink from '../components/ciclo-vida/ProcessoSeiLink.vue';
 import BadgeStatus from '../components/termos-referencia/BadgeStatus.vue';
 import { podeEditarDados } from './auth';
-import EstadoVazio from '../components/termos-referencia/EstadoVazio.vue';
 import Loading from '../components/termos-referencia/Loading.vue';
 import Feedback from '../components/termos-referencia/Feedback.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
@@ -29,7 +28,6 @@ export default {
     LinhaDoTempo,
     ProcessoSeiLink,
     BadgeStatus,
-    EstadoVazio,
     Loading,
     Feedback,
     CrudAlerts,
@@ -100,10 +98,6 @@ export default {
           if (Array.isArray(dados.meta.status)) {
             this.statusDisponiveis = dados.meta.status;
           }
-        }
-
-        if (this.termos.length === 0 && this.temFiltro) {
-          this.mensagemErro = 'Nenhum resultado encontrado para os filtros selecionados.';
         }
       } catch (error) {
         this.mensagemErro = this.extrairErro(error, 'Não foi possível carregar os Termos de Referência.');
