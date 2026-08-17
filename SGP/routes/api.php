@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\HoraPedagogicaController;
 use App\Http\Controllers\Api\ImportacaoController;
 use App\Http\Controllers\Api\JornadaPedagogicaController;
 use App\Http\Controllers\Api\PortfolioCicloController;
+use App\Http\Controllers\Api\SistemaApoioController;
 use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\OrganogramaController;
 use App\Http\Controllers\Api\PcaController;
@@ -60,6 +61,7 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::get('jornadas-pedagogicas/{jornadaPedagogica}/pdf', [JornadaPedagogicaController::class, 'pdf']);
     Route::apiResource('jornadas-pedagogicas', JornadaPedagogicaController::class)
         ->parameters(['jornadas-pedagogicas' => 'jornadaPedagogica']);
+    Route::get('sistemas-apoio', [SistemaApoioController::class, 'index']);
     Route::apiResource('cped-equipes', CpedEquipeController::class)
         ->parameters(['cped-equipes' => 'cpedEquipe']);
     Route::get('ferramentas', [FerramentaController::class, 'index']);

@@ -60,6 +60,7 @@ return [
         'eventos' => ['Administrador', 'Editor', 'Consultor'],
         'jornada-pedagogica' => ['Administrador', 'Editor', 'Consultor'],
         'ferramentas' => ['Administrador', 'Editor', 'Consultor'],
+        'sistemas-apoio' => ['Administrador', 'Editor', 'Consultor'],
         'cped' => ['Administrador', 'Editor', 'Consultor'],
         'usuarios' => ['Administrador'],
     ],
