@@ -56,3 +56,6 @@ _xlsx_*
 *.xls
 *.sql.gz
 dump.sql
+
+# Documentos locais da raiz (planos, PDFs, HTML gerado)
+docs/
