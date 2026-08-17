@@ -15,12 +15,14 @@ export default {
       validator: (v) => [
         'planejamento',
         'andamento',
+        'tramitacao',
         'concluido',
         'arquivado',
         'sucesso',
         'aviso',
         'erro',
         'info',
+        'padrao',
       ].includes(v),
     },
     label: {
@@ -76,6 +78,12 @@ export default {
   color: #b45309;
 }
 
+.badge-tramitacao {
+  border-color: #c4b5fd;
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
 .badge-concluido {
   border-color: #bbf7d0;
   background: #ecfdf5;
@@ -86,6 +94,12 @@ export default {
   border-color: #e5e7eb;
   background: #f3f4f6;
   color: #6b7280;
+}
+
+.badge-padrao {
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  color: #4b5563;
 }
 
 /* Status genéricos */

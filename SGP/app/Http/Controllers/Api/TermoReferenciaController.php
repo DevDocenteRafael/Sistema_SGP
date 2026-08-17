@@ -71,7 +71,7 @@ class TermoReferenciaController extends Controller
                 'total' => $termos->count(),
                 'total_geral' => $todos->count(),
                 'eixos' => $eixos,
-                'status' => config('termos_referencia.status', ['Planejamento', 'Em Andamento', 'Concluído', 'Arquivado']),
+                'status' => config('termos_referencia.status', ['Planejamento', 'Em Andamento', 'Em tramitação (fora da CPED)', 'Concluído', 'Arquivado']),
                 'contagens' => TermoReferenciaPrazoService::contarPorPrazo($todos),
             ],
         ]);
@@ -177,9 +177,14 @@ class TermoReferenciaController extends Controller
         $registrou = false;
 
         if ($anterior['status'] !== $statusNovo) {
+            $tramitacaoFora = config('termos_referencia.status_tramitacao_fora_cped', 'Em tramitação (fora da CPED)');
+            $acao = $statusNovo === $tramitacaoFora
+                ? 'TR em tramitação fora da CPED'
+                : 'Status alterado';
+
             $this->registrarHistorico(
                 $termo,
-                'Status alterado',
+                $acao,
                 'aviso',
                 $anterior['status'],
                 $statusNovo,

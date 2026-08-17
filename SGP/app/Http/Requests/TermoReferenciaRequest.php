@@ -19,7 +19,7 @@ class TermoReferenciaRequest extends FormRequest
             'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos', []))],
             'processo_sei' => ['required', 'string', 'max:50'],
             'prazo_deadline' => ['required', 'date'],
-            'status' => ['required', 'string', 'max:50', Rule::in(config('termos_referencia.status', ['Planejamento', 'Em Andamento', 'Concluído', 'Arquivado']))],
+            'status' => ['required', 'string', 'max:50', Rule::in(config('termos_referencia.status', ['Planejamento', 'Em Andamento', 'Em tramitação (fora da CPED)', 'Concluído', 'Arquivado']))],
             'observacao' => ['nullable', 'string'],
             'data_inicio' => ['nullable', 'date'],
             'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],

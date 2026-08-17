@@ -1,27 +1,14 @@
 <template>
-  <div class="termos-referencia-page" :class="{ 'termos-referencia-page-form': modo !== 'lista' }">
-    <!-- LISTA -->
+  <div class="crud-page termos-referencia-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
-      <header class="termos-top">
-        <div class="termos-top-row">
-          <div>
-            <h1>Termos de Referência</h1>
-            <p class="termos-subtitle">Acompanhamento do ciclo de vida e tramitação</p>
-          </div>
-          <button
-            v-if="podeEditar"
-            type="button"
-            class="btn-novo"
-            @click="abrirNovo"
-          >
-            <span class="btn-novo-icon">+</span>
-            Novo TR
-          </button>
-        </div>
-        <div class="termos-info">
-          Consulte e acompanhe os Termos de Referência por eixo, status, prazo e processo SEI.
-        </div>
-      </header>
+      <CrudPageHeader
+        title="Termos de Referência"
+        subtitle="Acompanhamento do ciclo de vida e tramitação"
+        info="Consulte e acompanhe os Termos de Referência por eixo, status, prazo e processo SEI — inclusive após a saída da CPED."
+        :show-novo="podeEditar"
+        novo-label="Novo TR"
+        @novo="abrirNovo"
+      />
 
       <CrudAlerts :sucesso="mensagemSucesso" :erro="mensagemErro" />
 
@@ -49,11 +36,7 @@
         </select>
       </section>
 
-      <section class="tabela-card">
-        <div class="tabela-header">
-          <TabelaContador :total="totalTermos" />
-        </div>
-
+      <PageTableCard :total="totalTermos" aria-label="Tabela de Termos de Referência">
         <div v-if="carregando" class="tabela-loading">
           <Loading tamanho="padrao" texto="Carregando Termos de Referência..." />
         </div>
@@ -112,9 +95,8 @@
             </tbody>
           </table>
         </div>
-      </section>
+      </PageTableCard>
 
-      <!-- Modal detalhes -->
       <div
         v-if="detalheAberto"
         class="modal-overlay"
@@ -187,7 +169,6 @@
               class="btn-editar-modal"
               @click="abrirEdicao(termoSelecionado)"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
               Editar TR
             </button>
             <button
@@ -196,7 +177,6 @@
               class="btn-delete"
               @click="iniciarExclusao(termoSelecionado)"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
               Excluir TR
             </button>
             <button type="button" class="btn-secondary" @click="fecharDetalhes">
@@ -207,50 +187,29 @@
       </div>
     </template>
 
-    <!-- FORMULÁRIO NOVO / EDITAR -->
     <template v-else>
-      <div class="form-page">
-        <div class="form-top-bar"></div>
-        <header class="form-header">
-          <button type="button" class="btn-voltar" @click="fecharFormulario">←</button>
-          <div>
-            <h1>{{ modo === 'novo' ? 'Cadastrar Novo Termo de Referência' : 'Editar Termo de Referência' }}</h1>
-            <p>
-              {{
-                modo === 'novo'
-                  ? 'Preencha as informações para adicionar um novo TR'
-                  : 'Atualize os dados do TR selecionado'
-              }}
-            </p>
-          </div>
-          <BadgeStatus v-if="editandoId" :tipo="statusToBadgeType(form.status)" :label="form.status" tamanho="grande" />
-        </header>
-
+      <CrudFormShell
+        :title="modo === 'novo' ? 'Cadastrar Novo Termo de Referência' : 'Editar Termo de Referência'"
+        :subtitle="modo === 'novo' ? 'Preencha as informações para adicionar um novo TR' : 'Atualize os dados, o acompanhamento e o histórico do TR — inclusive após a saída da CPED.'"
+        @voltar="fecharFormulario"
+      >
         <div class="form-tabs">
           <button
-            type="button"
-            class="form-tab active"
-          >
-            Dados Básicos
-          </button>
-          <button
+            v-for="aba in abasForm"
+            :key="aba.id"
             type="button"
             class="form-tab"
+            :class="{ active: abaForm === aba.id }"
+            @click="abaForm = aba.id"
           >
-            Acompanhamento
-          </button>
-          <button
-            type="button"
-            class="form-tab"
-          >
-            Histórico
+            {{ aba.label }}
           </button>
         </div>
 
-        <Feedback v-if="mensagemErro" tipo="erro" :mensagem="mensagemErro" :fechavel="true" @fechar="fecharFeedback" />
-
         <form class="form-body" @submit.prevent="salvarTermo" novalidate>
-          <section class="form-section">
+          <Feedback v-if="mensagemErro" tipo="erro" :mensagem="mensagemErro" :fechavel="true" @fechar="fecharFeedback" />
+
+          <section v-show="abaForm === 'basico'" class="form-section">
             <div class="form-card">
               <h2>Informações principais</h2>
               <div class="form-grid">
@@ -271,13 +230,6 @@
                     <option v-for="eixo in eixosDisponiveis" :key="eixo" :value="eixo">{{ eixo }}</option>
                   </select>
                 </div>
-                <div class="form-group">
-                  <label for="status-tr">Status <span>*</span></label>
-                  <select id="status-tr" v-model="form.status">
-                    <option value="">Selecione o status...</option>
-                    <option v-for="status in statusDisponiveis" :key="status" :value="status">{{ status }}</option>
-                  </select>
-                </div>
                 <div class="form-group full">
                   <label for="processo-sei">Processo SEI <span>*</span></label>
                   <input
@@ -288,66 +240,68 @@
                     maxlength="50"
                   />
                 </div>
-                <div class="form-group">
-                  <label for="prazo-deadline">Prazo / Deadline <span>*</span></label>
-                  <input
-                    id="prazo-deadline"
-                    v-model="form.prazo_deadline"
-                    type="date"
-                  />
-                </div>
               </div>
             </div>
+          </section>
 
+          <section v-show="abaForm === 'acompanhamento'" class="form-section">
             <div class="form-card">
-              <h2>Datas de etapa</h2>
+              <h2>Tramitação e prazos</h2>
               <div class="form-grid">
                 <div class="form-group">
+                  <label for="status-tr">Status <span>*</span></label>
+                  <select id="status-tr" v-model="form.status">
+                    <option value="">Selecione o status...</option>
+                    <option v-for="status in statusDisponiveis" :key="status" :value="status">{{ status }}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="prazo-deadline">Prazo / Deadline <span>*</span></label>
+                  <input id="prazo-deadline" v-model="form.prazo_deadline" type="date" />
+                </div>
+                <div class="form-group">
                   <label for="data-inicio">Data de início</label>
-                  <input
-                    id="data-inicio"
-                    v-model="form.data_inicio"
-                    type="date"
-                  />
+                  <input id="data-inicio" v-model="form.data_inicio" type="date" />
                 </div>
                 <div class="form-group">
                   <label for="data-fim">Data de término prevista</label>
-                  <input
-                    id="data-fim"
-                    v-model="form.data_fim"
-                    type="date"
-                  />
+                  <input id="data-fim" v-model="form.data_fim" type="date" />
+                </div>
+                <div class="form-group full">
+                  <label for="observacao-tr">Observações</label>
+                  <textarea
+                    id="observacao-tr"
+                    v-model="form.observacao"
+                    rows="4"
+                    placeholder="Adicione observações, justificativas ou informações adicionais sobre o TR..."
+                  ></textarea>
                 </div>
               </div>
             </div>
+          </section>
 
+          <section v-show="abaForm === 'historico'" class="form-section">
             <div class="form-card">
-              <h2>Observações</h2>
-              <div class="form-group">
-                <textarea
-                  id="observacao-tr"
-                  v-model="form.observacao"
-                  rows="4"
-                  placeholder="Adicione observações, justificativas ou informações adicionais sobre o TR..."
-                ></textarea>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="button" class="btn-secondary" @click="fecharFormulario" :disabled="carregandoFormulario">
-                Cancelar
-              </button>
-              <button type="submit" class="btn-primary" :disabled="carregandoFormulario">
-                {{ carregandoFormulario ? 'Salvando...' : 'Salvar Termo de Referência' }}
-              </button>
+              <h2>Histórico de tramitação</h2>
+              <p v-if="modo === 'novo'" class="form-card-hint">
+                O histórico aparece depois que o TR for salvo.
+              </p>
+              <LinhaDoTempo :eventos="historico" />
             </div>
           </section>
+
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" @click="fecharFormulario" :disabled="carregandoFormulario">
+              Cancelar
+            </button>
+            <button v-if="podeEditar" type="submit" class="btn-salvar" :disabled="carregandoFormulario">
+              {{ carregandoFormulario ? 'Salvando...' : 'Salvar Termo de Referência' }}
+            </button>
+          </div>
         </form>
-      </div>
+      </CrudFormShell>
     </template>
 
-    <!-- Modal de confirmação de exclusão -->
-    
     <div v-if="confirmandoExclusao" class="modal-overlay" @click.self="cancelarExclusao">
       <div class="modal-confirmacao" role="dialog" aria-labelledby="confirmar-titulo">
         <h2 id="confirmar-titulo">Confirmar exclusão</h2>
@@ -365,8 +319,6 @@
     </div>
   </div>
 </template>
-  
-
 
 <script src="../scripts/TermosReferencia.js"></script>
 <style scoped src="../../css/TermosReferencia.css"></style>

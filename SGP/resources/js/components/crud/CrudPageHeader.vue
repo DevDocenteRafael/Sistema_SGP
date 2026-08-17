@@ -6,10 +6,13 @@
         <p v-if="subtitle" class="crud-subtitle">{{ subtitle }}</p>
       </div>
 
-      <button v-if="showNovo" type="button" class="btn-novo" @click="$emit('novo')">
-        <span class="btn-novo-icon">+</span>
-        {{ novoLabel }}
-      </button>
+      <div class="crud-top-actions">
+        <slot name="actions" />
+        <button v-if="showNovo" type="button" class="btn-novo" @click="$emit('novo')">
+          <span class="btn-novo-icon">+</span>
+          {{ novoLabel }}
+        </button>
+      </div>
     </div>
 
     <div v-if="info" class="crud-info">{{ info }}</div>

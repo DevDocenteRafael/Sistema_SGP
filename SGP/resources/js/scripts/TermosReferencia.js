@@ -6,9 +6,12 @@ import { podeEditarDados } from './auth';
 import Loading from '../components/termos-referencia/Loading.vue';
 import Feedback from '../components/termos-referencia/Feedback.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
-import TabelaContador from '../components/crud/TabelaContador.vue';
+import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
+import CrudFormShell from '../components/crud/CrudFormShell.vue';
+import PageTableCard from '../components/crud/PageTableCard.vue';
 
 const ENDPOINT_API = '/api/termos-referencia';
+const STATUS_TRAMITACAO = 'Em tramitação (fora da CPED)';
 
 const FORM_VAZIO = {
   nome: '',
@@ -31,11 +34,14 @@ export default {
     Loading,
     Feedback,
     CrudAlerts,
-    TabelaContador,
+    CrudPageHeader,
+    CrudFormShell,
+    PageTableCard,
   },
   data() {
     return {
-      modo: 'lista', // 'lista', 'novo', 'edicao'
+      modo: 'lista',
+      abaForm: 'basico',
       detalheAberto: false,
       carregando: false,
       carregandoFormulario: false,
@@ -53,7 +59,7 @@ export default {
       mensagemSucesso: '',
       mensagemErro: '',
       eixosDisponiveis: [],
-      statusDisponiveis: ['Planejamento', 'Em Andamento', 'Concluído', 'Arquivado'],
+      statusDisponiveis: ['Planejamento', 'Em Andamento', STATUS_TRAMITACAO, 'Concluído', 'Arquivado'],
       confirmandoExclusao: false,
       confirmandoId: null,
     };
@@ -63,10 +69,17 @@ export default {
       return this.termos.length;
     },
     temFiltro() {
-      return Object.values(this.filtros).some(v => v);
+      return Object.values(this.filtros).some((v) => v);
     },
     podeEditar() {
       return podeEditarDados();
+    },
+    abasForm() {
+      return [
+        { id: 'basico', label: 'Dados Básicos' },
+        { id: 'acompanhamento', label: 'Acompanhamento' },
+        { id: 'historico', label: 'Histórico' },
+      ];
     },
   },
   methods: {
@@ -154,7 +167,9 @@ export default {
 
       this.modo = 'novo';
       this.editandoId = null;
+      this.abaForm = 'basico';
       this.form = { ...FORM_VAZIO };
+      this.historico = [];
       this.mensagemErro = '';
       this.mensagemSucesso = '';
       this.fecharDetalhes();
@@ -171,6 +186,7 @@ export default {
 
       this.modo = 'edicao';
       this.editandoId = termo.id;
+      this.abaForm = 'basico';
       this.form = {
         nome: termo.nome || '',
         eixo: termo.eixo || '',
@@ -184,6 +200,7 @@ export default {
       this.mensagemErro = '';
       this.mensagemSucesso = '';
       this.fecharDetalhes();
+      this.carregarHistorico(termo.id);
     },
 
     /**
@@ -349,10 +366,28 @@ export default {
     /**
      * Fecha formulário e volta para lista
      */
+    async carregarHistorico(id) {
+      this.historico = [];
+
+      if (!id) {
+        return;
+      }
+
+      try {
+        const { data } = await window.axios.get(`${ENDPOINT_API}/${id}`);
+        const detalhe = data.termo || data.data || {};
+        this.historico = Array.isArray(detalhe.historicos) ? detalhe.historicos : [];
+      } catch {
+        this.historico = [];
+      }
+    },
+
     fecharFormulario() {
       this.modo = 'lista';
       this.form = { ...FORM_VAZIO };
       this.editandoId = null;
+      this.abaForm = 'basico';
+      this.historico = [];
       this.mensagemErro = '';
     },
 
@@ -386,10 +421,11 @@ export default {
      */
     statusToBadgeType(status) {
       const mapa = {
-        'Planejamento': 'planejamento',
+        Planejamento: 'planejamento',
         'Em Andamento': 'andamento',
-        'Concluído': 'concluido',
-        'Arquivado': 'arquivado',
+        [STATUS_TRAMITACAO]: 'tramitacao',
+        Concluído: 'concluido',
+        Arquivado: 'arquivado',
       };
       return mapa[status] || 'padrao';
     },
