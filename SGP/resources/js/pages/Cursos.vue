@@ -2,26 +2,26 @@
   <div class="cursos-page" :class="{ 'cursos-page-form': modo !== 'lista' }">
     <!-- LISTA -->
     <template v-if="modo === 'lista'">
-      <header class="cursos-top">
-        <div class="cursos-top-row">
-          <div>
-            <h1>Cursos</h1>
-            <p class="cursos-subtitle">Catálogo de cursos do portfólio — SENAC DF</p>
-          </div>
+      <CrudPageHeader
+        title="Cursos"
+        subtitle="Catálogo de cursos do portfólio — SENAC DF"
+        info="Consulte e filtre os cursos cadastrados no portfólio pedagógico por ciclo, eixo, status e unidade."
+        :show-novo="podeEditar"
+        novo-label="Novo Curso"
+        @novo="abrirNovo"
+      >
+        <template #actions>
           <button
             v-if="podeEditar"
             type="button"
-            class="btn-novo"
-            @click="abrirNovo"
+            class="btn-acao-secundaria"
+            :disabled="gerandoPortfolio"
+            @click="abrirGerarPortfolio"
           >
-            <span class="btn-novo-icon">+</span>
-            Novo Curso
+            Gerar próximo portfólio
           </button>
-        </div>
-        <div class="cursos-info">
-          Consulte e filtre os cursos cadastrados no portfólio pedagógico por eixo, status e unidade.
-        </div>
-      </header>
+        </template>
+      </CrudPageHeader>
 
       <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
       <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
@@ -35,6 +35,12 @@
             @input="carregarCursos"
           />
         </div>
+        <select v-model="filtros.ciclo_id" @change="carregarCursos">
+          <option value="todos">Todos os ciclos</option>
+          <option v-for="ciclo in ciclos" :key="ciclo.id" :value="String(ciclo.id)">
+            {{ ciclo.nome }}{{ ciclo.atual ? ' (atual)' : '' }}
+          </option>
+        </select>
         <select v-model="filtros.ano" @change="carregarCursos">
           <option value="">Todos os anos</option>
           <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
@@ -371,6 +377,14 @@
                   />
                 </div>
                 <div class="form-group">
+                  <label for="ciclo">Ciclo de portfólio</label>
+                  <select id="ciclo" v-model="form.ciclo_id">
+                    <option v-for="ciclo in ciclos" :key="`form-ciclo-${ciclo.id}`" :value="String(ciclo.id)">
+                      {{ ciclo.nome }}{{ ciclo.atual ? ' (atual)' : '' }}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group">
                   <label for="carga_horaria">Carga horária (CH) <span>*</span></label>
                   <input
                     id="carga_horaria"
@@ -606,6 +620,73 @@
         </form>
       </div>
     </template>
+
+    <div v-if="duplicidadeAberta" class="modal-overlay" @click.self="cancelarDuplicidade">
+      <div class="modal-detalhes" role="dialog" aria-labelledby="duplicidade-titulo">
+        <div class="modal-detalhes-header">
+          <h2 id="duplicidade-titulo">Curso semelhante encontrado</h2>
+          <button type="button" class="btn-fechar-x" title="Fechar" @click="cancelarDuplicidade">×</button>
+        </div>
+        <p>Já existe curso com título, SIG ou SEI semelhante neste ciclo. Se precisar cadastrar mesmo assim, informe a justificativa.</p>
+        <ul class="duplicidade-lista">
+          <li v-for="item in duplicidadeSimilares" :key="item.id">
+            <strong>{{ item.titulo }}</strong>
+            <span>SIG: {{ item.codigo_sig || '—' }} · SEI: {{ item.processo_sei || '—' }}</span>
+          </li>
+        </ul>
+        <div class="form-group">
+          <label for="justificativa-duplicidade">Justificativa <span>*</span></label>
+          <textarea
+            id="justificativa-duplicidade"
+            v-model="justificativaDuplicidade"
+            rows="3"
+            placeholder="Explique por que este cadastro precisa coexistir com o curso já existente."
+          />
+        </div>
+        <div v-if="erroDuplicidade" class="alert alert-error">{{ erroDuplicidade }}</div>
+        <div class="modal-detalhes-actions">
+          <button type="button" class="btn-secondary" @click="cancelarDuplicidade">Cancelar</button>
+          <button type="button" class="btn-salvar" :disabled="salvando" @click="confirmarDuplicidade">
+            {{ salvando ? 'Salvando...' : 'Confirmar cadastro' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="gerarPortfolioAberto" class="modal-overlay" @click.self="fecharGerarPortfolio">
+      <div class="modal-detalhes" role="dialog" aria-labelledby="gerar-portfolio-titulo">
+        <div class="modal-detalhes-header">
+          <h2 id="gerar-portfolio-titulo">Gerar próximo portfólio</h2>
+          <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharGerarPortfolio">×</button>
+        </div>
+        <p>Copia os cursos do ciclo de origem para um ciclo novo. Depois você pode incluir, editar ou retirar cursos no ciclo gerado.</p>
+        <div class="form-group">
+          <label for="ciclo-origem">Ciclo de origem</label>
+          <select id="ciclo-origem" v-model="gerarPortfolio.origem_id">
+            <option v-for="ciclo in ciclos" :key="`origem-${ciclo.id}`" :value="String(ciclo.id)">
+              {{ ciclo.nome }}{{ ciclo.atual ? ' (atual)' : '' }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ciclo-novo-nome">Nome do novo ciclo <span>*</span></label>
+          <input
+            id="ciclo-novo-nome"
+            v-model="gerarPortfolio.nome"
+            type="text"
+            maxlength="80"
+            placeholder="Ex.: 2028"
+          />
+        </div>
+        <div v-if="erroGerarPortfolio" class="alert alert-error">{{ erroGerarPortfolio }}</div>
+        <div class="modal-detalhes-actions">
+          <button type="button" class="btn-secondary" @click="fecharGerarPortfolio">Cancelar</button>
+          <button type="button" class="btn-salvar" :disabled="gerandoPortfolio" @click="gerarProximoPortfolio">
+            {{ gerandoPortfolio ? 'Gerando...' : 'Gerar portfólio' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

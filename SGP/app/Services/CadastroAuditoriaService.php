@@ -73,6 +73,7 @@ class CadastroAuditoriaService
             \App\Models\HoraPedagogica::class => 'horas-pedagogicas',
             \App\Models\AcaoExtensiva::class => 'acoes-extensivas',
             \App\Models\Evento::class => 'eventos',
+            \App\Models\PortfolioCiclo::class => 'portfolio-ciclos',
             \App\Models\TermoReferencia::class => 'termos-referencia',
             \App\Models\Resolucao::class => 'resolucoes',
             \App\Models\CpedEquipe::class => 'cped-equipes',

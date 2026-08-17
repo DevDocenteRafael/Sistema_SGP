@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Curso extends Model
 {
     use AuditaCadastro;
 
     protected $fillable = [
+        'ciclo_id',
         'titulo',
         'eixo',
         'modalidade',
@@ -36,6 +38,7 @@ class Curso extends Model
         'comercial',
         'pcn',
         'pcr',
+        'justificativa_duplicidade',
         'criado_por',
         'atualizado_por',
     ];
@@ -47,5 +50,29 @@ class Curso extends Model
             'data_inicio' => 'date',
             'data_fim' => 'date',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Curso $curso) {
+            if (empty($curso->ciclo_id)) {
+                $curso->ciclo_id = PortfolioCiclo::atual()?->id;
+            }
+        });
+    }
+
+    public function ciclo(): BelongsTo
+    {
+        return $this->belongsTo(PortfolioCiclo::class, 'ciclo_id');
+    }
+
+    public function replicarParaCiclo(PortfolioCiclo $ciclo): self
+    {
+        $copia = $this->replicate(['criado_por', 'atualizado_por', 'justificativa_duplicidade']);
+        $copia->ciclo_id = $ciclo->id;
+        $copia->justificativa_duplicidade = null;
+        $copia->save();
+
+        return $copia;
     }
 }

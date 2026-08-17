@@ -1,14 +1,17 @@
 import { podeEditarDados } from './auth';
 import { UNIDADES } from './unidades';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 
 export default {
   name: 'Cursos',
-  components: { PageTableCard },
+  components: { PageTableCard, CrudPageHeader },
   data() {
     return {
       modo: 'lista',
       cursos: [],
+      ciclos: [],
+      cicloInicializado: false,
       meta: {
         eixos: [],
         status: [],
@@ -18,6 +21,7 @@ export default {
       },
       carregando: false,
       salvando: false,
+      gerandoPortfolio: false,
       editandoId: null,
       abaForm: 'basico',
       mensagemSucesso: '',
@@ -25,6 +29,7 @@ export default {
       erroFormulario: '',
       filtros: {
         busca: '',
+        ciclo_id: '',
         ano: '',
         eixo: '',
         status: '',
@@ -39,6 +44,16 @@ export default {
       cursoDetalhe: null,
       carregandoDetalhe: false,
       erroDetalhe: '',
+      duplicidadeAberta: false,
+      duplicidadeSimilares: [],
+      justificativaDuplicidade: '',
+      erroDuplicidade: '',
+      gerarPortfolioAberto: false,
+      erroGerarPortfolio: '',
+      gerarPortfolio: {
+        origem_id: '',
+        nome: '',
+      },
     };
   },
   computed: {
@@ -65,6 +80,7 @@ export default {
   methods: {
     formVazio() {
       return {
+        ciclo_id: '',
         titulo: '',
         eixo: '',
         modalidade: '',
@@ -91,6 +107,7 @@ export default {
         pcn: '',
         pcr: '',
         observacoes: '',
+        justificativa_duplicidade: '',
       };
     },
 
@@ -113,6 +130,12 @@ export default {
           const { data } = await window.axios.get('/api/cursos', { params });
           this.cursos = data.data ?? [];
           this.meta = { ...this.meta, ...(data.meta ?? {}) };
+          this.ciclos = Array.isArray(data.meta?.ciclos) ? data.meta.ciclos : this.ciclos;
+
+          if (!this.cicloInicializado && data.meta?.ciclo_atual_id) {
+            this.cicloInicializado = true;
+            this.filtros.ciclo_id = String(data.meta.ciclo_atual_id);
+          }
         } catch (error) {
           this.mensagemErro = this.extrairErro(error, 'Não foi possível carregar os cursos.');
         } finally {
@@ -126,6 +149,7 @@ export default {
       this.editandoId = null;
       this.abaForm = 'basico';
       this.form = this.formVazio();
+      this.form.ciclo_id = this.cicloFormPadrao();
       this.erroFormulario = '';
       this.fecharDetalhes();
     },
@@ -141,6 +165,7 @@ export default {
       this.editandoId = curso.id;
       this.abaForm = 'basico';
       this.form = {
+        ciclo_id: curso.ciclo_id ? String(curso.ciclo_id) : this.cicloFormPadrao(),
         titulo: curso.titulo ?? '',
         eixo: curso.eixo ?? '',
         modalidade: curso.modalidade ?? '',
@@ -255,6 +280,7 @@ export default {
       this.mensagemSucesso = '';
 
       const payload = {
+        ciclo_id: this.form.ciclo_id || null,
         titulo: this.form.titulo,
         eixo: this.form.eixo,
         modalidade: this.form.modalidade || null,
@@ -281,6 +307,7 @@ export default {
         pcn: this.form.pcn || null,
         pcr: this.form.pcr || null,
         observacoes: this.form.observacoes || null,
+        justificativa_duplicidade: this.form.justificativa_duplicidade || null,
       };
 
       try {
@@ -292,12 +319,101 @@ export default {
           this.mensagemSucesso = data.message;
         }
 
+        this.duplicidadeAberta = false;
         this.voltarLista();
         await this.carregarCursos();
       } catch (error) {
-        this.erroFormulario = this.extrairErro(error, 'Não foi possível salvar o curso.');
+        if (error.response?.status === 409 && error.response?.data?.duplicidade) {
+          this.duplicidadeSimilares = error.response.data.similares ?? [];
+          this.duplicidadeAberta = true;
+          this.erroDuplicidade = '';
+          this.erroFormulario = error.response.data.message
+            || 'Já existe curso semelhante. Informe uma justificativa para continuar.';
+          return;
+        }
+
+        const mensagem = this.extrairErro(error, 'Não foi possível salvar o curso.');
+
+        if (this.duplicidadeAberta) {
+          this.erroDuplicidade = mensagem;
+        } else {
+          this.erroFormulario = mensagem;
+        }
       } finally {
         this.salvando = false;
+      }
+    },
+
+    cicloFormPadrao() {
+      if (this.filtros.ciclo_id && this.filtros.ciclo_id !== 'todos') {
+        return String(this.filtros.ciclo_id);
+      }
+
+      return this.meta.ciclo_atual_id ? String(this.meta.ciclo_atual_id) : '';
+    },
+
+    cancelarDuplicidade() {
+      this.duplicidadeAberta = false;
+      this.justificativaDuplicidade = '';
+      this.erroDuplicidade = '';
+    },
+
+    async confirmarDuplicidade() {
+      const texto = this.justificativaDuplicidade.trim();
+
+      if (texto.length < 10) {
+        this.erroDuplicidade = 'A justificativa deve ter pelo menos 10 caracteres.';
+        return;
+      }
+
+      this.form.justificativa_duplicidade = texto;
+      await this.salvarCurso();
+    },
+
+    abrirGerarPortfolio() {
+      const atual = this.ciclos.find((ciclo) => ciclo.atual) || this.ciclos[0];
+      this.gerarPortfolio = {
+        origem_id: atual ? String(atual.id) : '',
+        nome: '',
+      };
+      this.erroGerarPortfolio = '';
+      this.gerarPortfolioAberto = true;
+    },
+
+    fecharGerarPortfolio() {
+      this.gerarPortfolioAberto = false;
+      this.erroGerarPortfolio = '';
+    },
+
+    async gerarProximoPortfolio() {
+      if (!this.gerarPortfolio.nome.trim()) {
+        this.erroGerarPortfolio = 'Informe o nome do novo ciclo.';
+        return;
+      }
+
+      this.gerandoPortfolio = true;
+      this.erroGerarPortfolio = '';
+
+      try {
+        const { data } = await window.axios.post('/api/portfolio-ciclos/gerar-proximo', {
+          origem_id: this.gerarPortfolio.origem_id || null,
+          nome: this.gerarPortfolio.nome.trim(),
+          marcar_atual: true,
+        });
+
+        this.mensagemSucesso = data.message || 'Próximo portfólio gerado com sucesso.';
+        this.fecharGerarPortfolio();
+
+        if (data.ciclo?.id) {
+          this.cicloInicializado = true;
+          this.filtros.ciclo_id = String(data.ciclo.id);
+        }
+
+        await this.carregarCursos();
+      } catch (error) {
+        this.erroGerarPortfolio = this.extrairErro(error, 'Não foi possível gerar o próximo portfólio.');
+      } finally {
+        this.gerandoPortfolio = false;
       }
     },
 

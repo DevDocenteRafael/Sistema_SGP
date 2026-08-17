@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\FerramentaController;
 use App\Http\Controllers\Api\FluxogramaController;
 use App\Http\Controllers\Api\HoraPedagogicaController;
 use App\Http\Controllers\Api\ImportacaoController;
+use App\Http\Controllers\Api\PortfolioCicloController;
 use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\OrganogramaController;
 use App\Http\Controllers\Api\PcaController;
@@ -38,6 +39,8 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     // Auditoria (tabela cadastros) — somente leitura para Administrador.
     Route::get('cadastros', [CadastroController::class, 'index']);
     Route::get('cadastros/{cadastro}', [CadastroController::class, 'show']);
+    Route::get('portfolio-ciclos', [PortfolioCicloController::class, 'index']);
+    Route::post('portfolio-ciclos/gerar-proximo', [PortfolioCicloController::class, 'gerarProximo']);
     Route::apiResource('cursos', CursoController::class);
     Route::apiResource('plano-de-metas', PlanoDeMetaController::class);
     Route::apiResource('resolucoes', ResolucaoController::class)

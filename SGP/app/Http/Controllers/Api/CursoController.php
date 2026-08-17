@@ -6,6 +6,8 @@ use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CursoRequest;
 use App\Models\Curso;
+use App\Models\PortfolioCiclo;
+use App\Services\CursoDuplicidadeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -13,13 +15,17 @@ class CursoController extends Controller
 {
     use AutorizaConsulta;
 
+    public function __construct(
+        private readonly CursoDuplicidadeService $duplicidade,
+    ) {}
+
     public function index(Request $request): JsonResponse
     {
         if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar cursos.')) {
             return $negado;
         }
 
-        $query = Curso::query()->orderBy('id');
+        $query = Curso::query()->with('ciclo')->orderBy('id');
 
         if ($request->filled('busca')) {
             $busca = $request->busca;
@@ -56,6 +62,17 @@ class CursoController extends Controller
             });
         }
 
+        if ($request->input('ciclo_id') === 'todos') {
+            // sem filtro de ciclo
+        } elseif ($request->filled('ciclo_id')) {
+            $query->where('ciclo_id', $request->ciclo_id);
+        } else {
+            $cicloAtualId = PortfolioCiclo::atual()?->id;
+            if ($cicloAtualId) {
+                $query->where('ciclo_id', $cicloAtualId);
+            }
+        }
+
         $cursos = $query->get();
 
         $eixosConfig = config('eixos', []);
@@ -68,6 +85,12 @@ class CursoController extends Controller
             ->all();
         $eixos = array_values(array_unique(array_merge($eixosConfig, $eixosDb)));
 
+        $ciclos = PortfolioCiclo::query()
+            ->withCount('cursos')
+            ->orderByDesc('atual')
+            ->orderByDesc('id')
+            ->get();
+
         return response()->json([
             'data' => $cursos,
             'meta' => [
@@ -77,17 +100,26 @@ class CursoController extends Controller
                 'tipos' => config('cursos.tipos'),
                 'modalidades' => config('cursos.modalidades'),
                 'sim_nao' => config('cursos.sim_nao'),
+                'ciclos' => $ciclos,
+                'ciclo_atual_id' => PortfolioCiclo::atual()?->id,
             ],
         ]);
     }
 
     public function store(CursoRequest $request): JsonResponse
     {
-        $curso = Curso::create($request->validated());
+        $payload = $request->validated();
+        $cicloId = $payload['ciclo_id'] ?? PortfolioCiclo::atual()?->id;
+
+        if ($bloqueio = $this->bloquearDuplicidade($payload, null, $cicloId)) {
+            return $bloqueio;
+        }
+
+        $curso = Curso::create($payload);
 
         return response()->json([
             'message' => 'Curso cadastrado com sucesso.',
-            'curso' => $curso,
+            'curso' => $curso->load('ciclo'),
         ], 201);
     }
 
@@ -98,17 +130,24 @@ class CursoController extends Controller
         }
 
         return response()->json([
-            'curso' => $curso,
+            'curso' => $curso->load('ciclo'),
         ]);
     }
 
     public function update(CursoRequest $request, Curso $curso): JsonResponse
     {
-        $curso->update($request->validated());
+        $payload = $request->validated();
+        $cicloId = $payload['ciclo_id'] ?? $curso->ciclo_id;
+
+        if ($bloqueio = $this->bloquearDuplicidade($payload, $curso->id, $cicloId)) {
+            return $bloqueio;
+        }
+
+        $curso->update($payload);
 
         return response()->json([
             'message' => 'Curso atualizado com sucesso.',
-            'curso' => $curso,
+            'curso' => $curso->fresh()->load('ciclo'),
         ]);
     }
 
@@ -126,5 +165,38 @@ class CursoController extends Controller
         return response()->json([
             'message' => "Curso \"{$titulo}\" excluído com sucesso.",
         ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function bloquearDuplicidade(array $payload, ?int $excetoId, mixed $cicloId): ?JsonResponse
+    {
+        $similares = $this->duplicidade->buscarSimilares(
+            $payload,
+            $excetoId,
+            $cicloId ? (int) $cicloId : null,
+        );
+
+        if ($similares->isEmpty()) {
+            return null;
+        }
+
+        if ($this->duplicidade->justificativaValida($payload['justificativa_duplicidade'] ?? null)) {
+            return null;
+        }
+
+        return response()->json([
+            'message' => 'Já existe curso semelhante neste ciclo. Confirme a criação e informe a justificativa.',
+            'duplicidade' => true,
+            'exige_justificativa' => true,
+            'similares' => $similares->map(fn (Curso $curso) => [
+                'id' => $curso->id,
+                'titulo' => $curso->titulo,
+                'codigo_sig' => $curso->codigo_sig,
+                'processo_sei' => $curso->processo_sei,
+                'status' => $curso->status,
+            ])->values(),
+        ], 409);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Curso;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,10 +25,8 @@ class CursoRequest extends FormRequest
 
     public function rules(): array
     {
-        $curso = $this->route('curso');
-        $cursoId = $curso instanceof Curso ? $curso->id : $curso;
-
         return [
+            'ciclo_id' => ['nullable', 'integer', Rule::exists('portfolio_ciclos', 'id')],
             'titulo' => ['required', 'string', 'max:255'],
             'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
             'modalidade' => ['nullable', 'string', 'max:100', Rule::in(config('cursos.modalidades'))],
@@ -40,12 +37,7 @@ class CursoRequest extends FormRequest
             'instrutor' => ['nullable', 'string', 'max:255'],
             'descricao' => ['nullable', 'string'],
             'codigo_dn' => ['nullable', 'string', 'max:50'],
-            'codigo_sig' => [
-                'nullable',
-                'string',
-                'max:50',
-                Rule::unique('cursos', 'codigo_sig')->ignore($cursoId),
-            ],
+            'codigo_sig' => ['nullable', 'string', 'max:100'],
             'identificacao' => ['nullable', 'string', 'max:50'],
             'tipo' => ['nullable', 'string', 'max:100', Rule::in(config('cursos.tipos'))],
             'status' => ['required', 'string', 'max:50', Rule::in(config('cursos.status'))],
@@ -62,6 +54,7 @@ class CursoRequest extends FormRequest
             'comercial' => ['nullable', 'string', 'max:10', Rule::in(config('cursos.sim_nao'))],
             'pcn' => ['nullable', 'string', 'max:255'],
             'pcr' => ['nullable', 'string', 'max:255'],
+            'justificativa_duplicidade' => ['nullable', 'string', 'max:2000'],
         ];
     }
 
@@ -73,7 +66,7 @@ class CursoRequest extends FormRequest
             'eixo.in' => 'Selecione um segmento válido.',
             'status.required' => 'O status é obrigatório.',
             'status.in' => 'Status inválido.',
-            'codigo_sig.unique' => 'Este código SIG já está cadastrado.',
+            'ciclo_id.exists' => 'Ciclo de portfólio inválido.',
             'unidade.in' => 'Selecione uma unidade válida.',
             'unidades_oferta.*.in' => 'Selecione unidades válidas.',
             'modalidade.in' => 'Selecione uma modalidade válida.',

@@ -94,7 +94,11 @@ class ImportacaoService
         $usuarioId = Auth::id();
         $backup = null;
 
-        DB::transaction(function () use ($modelClass, $campos, $resultado, $agora, $modulo, $camposUnicos, $defaults, $usuarioId, $def, &$backup) {
+        $cicloAtualId = $modulo === 'cursos'
+            ? \App\Models\PortfolioCiclo::atual()?->id
+            : null;
+
+        DB::transaction(function () use ($modelClass, $campos, $resultado, $agora, $modulo, $camposUnicos, $defaults, $usuarioId, $def, $cicloAtualId, &$backup) {
             $backup = $this->backupService->backupAntesDeSubstituir($modulo, $modelClass);
 
             $modelClass::query()->delete();
@@ -133,6 +137,9 @@ class ImportacaoService
 
                 if ($modulo === 'cursos') {
                     $row = $this->normalizarCamposCurso($row);
+                    if ($cicloAtualId && empty($row['ciclo_id'])) {
+                        $row['ciclo_id'] = $cicloAtualId;
+                    }
                 }
 
                 // Se o valor UNIQUE já apareceu, zera o campo (mantém a linha)
