@@ -20,7 +20,6 @@ Desktop.ini
 .env
 .env.*
 !.env.example
-!.env.docker
 
 # Dependências e builds (se alguém instalar na raiz)
 node_modules/

@@ -2,7 +2,7 @@
 
 Sistema interno do SENAC DF para gerenciar o portfólio de cursos da CPED: cadastro, consulta e apoio à decisão sobre a oferta de cursos por unidade.
 
-**Arquitetura:** aplicação web monolítica — backend Laravel (API REST) + frontend SPA Vue.js + banco MySQL.
+**Arquitetura:** backend Laravel (API REST, `SGP_Back`) + frontend SPA Vue.js (`SGP_Front`, servido pelo Vite) + banco MySQL, cada parte em sua própria origem/porta.
 
 ## Equipe
 
@@ -75,6 +75,12 @@ Em uso interno pela CPED / SENAC DF (testes internos). Pronto para homologação
 
 ---
 
+## Estrutura do projeto
+
+- `SGP_Back/` — API Laravel 12 (PHP)
+- `SGP_Front/` — SPA Vue 3 + Vite
+- `local-start.cmd` — único comando de setup e subida local
+
 ## Como rodar
 
 1. Clone o repositório:
@@ -84,7 +90,7 @@ git clone https://github.com/LucasLeal0619/Sistema_SGP.git
 
 2. Entre na pasta do sistema:
 ```cmd
-cd Sistema_SGP\SGP
+cd Sistema_SGP
 ```
 
 3. Crie o banco **SGP** no MySQL (XAMPP / Workbench):
@@ -92,30 +98,16 @@ cd Sistema_SGP\SGP
 CREATE DATABASE SGP;
 ```
 
-4. Se for necessário, configure o arquivo `.env` (usuário e senha do MySQL).  
-   Se ainda não existir:
-```cmd
-copy .env.example .env
-```
-
-5. Rode o setup:
+4. Rode o setup (instala back e front, migra e seeda o banco):
 ```cmd
 local-start.cmd
 ```
 
-6. Suba o back e o front em **terminais diferentes** (ainda dentro de `SGP`):
+Se for a primeira vez, o script cria `SGP_Back\.env` a partir do `.env.example` e pede para você revisar `DB_USERNAME` / `DB_PASSWORD` antes de rodar de novo.
 
-Terminal 1:
-```cmd
-php artisan serve
-```
+5. Ao final, o script pergunta se quer subir o back (`php artisan serve`) e o front (`npm run dev`) — cada um em uma janela. Diga **s**.
 
-Terminal 2:
-```cmd
-npm run dev
-```
-
-7. Abra no navegador: http://127.0.0.1:8000/login
+6. Abra no navegador: http://127.0.0.1:5173/login
 
 ### Logins de teste
 
