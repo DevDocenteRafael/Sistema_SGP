@@ -13,7 +13,19 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'SGP'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | Semantic Versioning (MAJOR.MINOR.PATCH). Suba MINOR ao adicionar
+    | funcionalidade compatível; PATCH para correção; MAJOR se quebrar o uso atual.
+    |
+    */
+
+    'version' => '2.0.0',
 
     /*
     |--------------------------------------------------------------------------

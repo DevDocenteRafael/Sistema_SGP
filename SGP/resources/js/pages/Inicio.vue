@@ -57,7 +57,7 @@
     </section>
 
     <footer class="inicio-footer">
-      © 2026 SENAC DF · SGP v1.0-beta · Uso interno
+      {{ rodapeVersao }}
     </footer>
   </div>
 </template>

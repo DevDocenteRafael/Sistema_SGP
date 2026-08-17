@@ -1,11 +1,13 @@
 import logoSenac from '../../images/Logo-Senac-branco.png';
 import { marcarSessao } from './auth';
+import { SGP_RODAPE } from './versao';
 
 export default {
   name: 'Login',
   data() {
     return {
       logoSenac,
+      rodapeVersao: SGP_RODAPE,
       email: '',
       senha: '',
       showPassword: false,
