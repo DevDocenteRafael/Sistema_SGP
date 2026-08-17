@@ -7,6 +7,7 @@ const appChildren = [
   { path: 'relatorios', name: 'relatorios', component: () => import('../pages/Relatorios.vue'), meta: { menu: 'relatorios' } },
   { path: 'importacoes', name: 'importacoes', component: () => import('../pages/Importacoes.vue'), meta: { menu: 'importacoes' } },
   { path: 'cursos', name: 'cursos', component: () => import('../pages/Cursos.vue'), meta: { menu: 'cursos' } },
+  { path: 'ciclos-portfolio', name: 'ciclos-portfolio', component: () => import('../pages/CiclosPortfolio.vue'), meta: { menu: 'ciclos-portfolio' } },
   { path: 'plano-de-metas', name: 'plano-de-metas', component: () => import('../pages/PlanoDeMetas.vue'), meta: { menu: 'plano-de-metas' } },
   { path: 'pca', name: 'pca', component: () => import('../pages/Pca.vue'), meta: { menu: 'pca' } },
   { path: 'controle-de-resolucoes', name: 'controle-de-resolucoes', component: () => import('../pages/ControleDeResolucao.vue'), meta: { menu: 'controle-de-resolucoes' } },

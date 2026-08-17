@@ -89,7 +89,14 @@ class CursoController extends Controller
             ->withCount('cursos')
             ->orderByDesc('atual')
             ->orderByDesc('id')
-            ->get();
+            ->get()
+            ->map(fn (PortfolioCiclo $ciclo) => [
+                'id' => $ciclo->id,
+                'nome' => $ciclo->nome,
+                'atual' => (bool) $ciclo->atual,
+                'anos' => $ciclo->anos(),
+                'cursos_count' => (int) $ciclo->cursos_count,
+            ]);
 
         return response()->json([
             'data' => $cursos,

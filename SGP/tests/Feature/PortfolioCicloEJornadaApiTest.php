@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Curso;
+use App\Models\PlanoDeMeta;
 use App\Models\PortfolioCiclo;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -109,6 +110,84 @@ class PortfolioCicloEJornadaApiTest extends TestCase
         $filtrado->assertOk();
         $filtrado->assertJsonPath('meta.total', 1);
         $filtrado->assertJsonPath('data.0.titulo', 'Curso origem');
+    }
+
+    public function test_ciclo_novo_nao_herda_cursos_nem_metas_de_outro_ano(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $origem = PortfolioCiclo::atual();
+        $this->assertNotNull($origem);
+
+        Curso::create([
+            'titulo' => 'Curso do ciclo atual',
+            'eixo' => 'Saúde',
+            'status' => 'ATIVO',
+            'codigo_sig' => 'SIG-CICLO-ATUAL',
+            'ciclo_id' => $origem->id,
+        ]);
+
+        PlanoDeMeta::create([
+            'segmento' => 'Pedagógico',
+            'curso' => 'Meta 2026',
+            'tipo' => 'QUALIFICAÇÃO',
+            'numero_sei' => 'SEI-CICLO-01',
+            'codigo_sig' => 'SIG-META-01',
+            'mes_entrega' => 'Janeiro',
+            'status' => 'PLANEJADO',
+            'status_final' => 'PENDENTE',
+            'ano' => 2026,
+        ]);
+
+        $response = $this->postJson('/api/portfolio-ciclos', [
+            'nome' => '2027',
+            'atual' => false,
+        ]);
+
+        $response->assertCreated();
+        $this->assertSame(0, (int) $response->json('ciclo.cursos_count'));
+        $this->assertSame(0, (int) $response->json('ciclo.composicao.plano_de_metas'));
+
+        $novoId = $response->json('ciclo.id');
+
+        $this->getJson('/api/cursos?ciclo_id='.$novoId)
+            ->assertOk()
+            ->assertJsonPath('meta.total', 0);
+
+        $this->getJson('/api/plano-de-metas?ciclo_id='.$novoId)
+            ->assertOk()
+            ->assertJsonPath('meta.total', 0);
+
+        $this->getJson('/api/plano-de-metas?ciclo_id='.$origem->id)
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1);
+
+        $this->getJson('/api/portfolio-ciclos')
+            ->assertOk();
+
+        $ciclos = collect($this->getJson('/api/portfolio-ciclos')->json('data'));
+        $this->assertSame(1, (int) $ciclos->firstWhere('id', $origem->id)['composicao']['plano_de_metas']);
+        $this->assertSame(0, (int) $ciclos->firstWhere('id', (int) $novoId)['composicao']['plano_de_metas']);
+    }
+
+    public function test_lista_ciclos_inclui_anos_e_composicao_do_portfolio(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $response = $this->getJson('/api/portfolio-ciclos');
+        $response->assertOk();
+        $response->assertJsonPath('data.0.nome', '2025-2026');
+        $this->assertSame(['2025', '2026'], $response->json('data.0.anos'));
+        $response->assertJsonStructure([
+            'data' => [[
+                'composicao' => [
+                    'cursos',
+                    'plano_de_metas',
+                    'pca',
+                    'eixos',
+                ],
+            ]],
+        ]);
     }
 
     public function test_consultor_nao_gera_proximo_portfolio(): void

@@ -13,11 +13,19 @@ class PortfolioCicloGerarRequest extends FormRequest
         return $this->user()?->podeEditarDados() === true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->input('observacao') === '') {
+            $this->merge(['observacao' => null]);
+        }
+    }
+
     public function rules(): array
     {
         return [
             'origem_id' => ['nullable', 'integer', Rule::exists('portfolio_ciclos', 'id')],
             'nome' => ['required', 'string', 'max:80', Rule::unique('portfolio_ciclos', 'nome')],
+            'observacao' => ['nullable', 'string', 'max:2000'],
             'marcar_atual' => ['nullable', 'boolean'],
         ];
     }

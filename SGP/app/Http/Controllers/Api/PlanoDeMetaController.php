@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlanoDeMetaRequest;
 use App\Models\PlanoDeMeta;
+use App\Models\PortfolioCiclo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -40,6 +41,8 @@ class PlanoDeMetaController extends Controller
         if ($request->filled('ano')) {
             $query->where('ano', $request->ano);
         }
+
+        PortfolioCiclo::aplicarFiltroNaConsulta($query, $request->input('ciclo_id'));
 
         if ($request->filled('segmento')) {
             $query->where('segmento', $request->segmento);

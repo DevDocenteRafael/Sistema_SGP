@@ -49,6 +49,7 @@ return [
         'importacoes' => ['Administrador', 'Editor'],
         'auditoria' => ['Administrador'],
         'cursos' => ['Administrador', 'Editor', 'Consultor'],
+        'ciclos-portfolio' => ['Administrador', 'Editor', 'Consultor'],
         'plano-de-metas' => ['Administrador', 'Editor', 'Consultor'],
         'pca' => ['Administrador', 'Editor', 'Consultor'],
         'controle-de-resolucoes' => ['Administrador', 'Editor', 'Consultor'],

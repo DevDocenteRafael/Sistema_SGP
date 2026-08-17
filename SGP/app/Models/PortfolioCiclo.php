@@ -34,6 +34,21 @@ class PortfolioCiclo extends Model
         return $this->hasMany(Curso::class, 'ciclo_id');
     }
 
+    public function planoDeMetas(): HasMany
+    {
+        return $this->hasMany(PlanoDeMeta::class, 'ciclo_id');
+    }
+
+    public function pcas(): HasMany
+    {
+        return $this->hasMany(Pca::class, 'ciclo_id');
+    }
+
+    public function cursosPorEixo(): HasMany
+    {
+        return $this->hasMany(CursoPorEixo::class, 'ciclo_id');
+    }
+
     public function origem(): BelongsTo
     {
         return $this->belongsTo(self::class, 'origem_id');
@@ -51,6 +66,45 @@ class PortfolioCiclo extends Model
 
         if (! $this->atual) {
             $this->update(['atual' => true]);
+        }
+    }
+
+    /**
+     * Anos inferidos do nome (ex.: 2025-2026 → 2025 e 2026).
+     *
+     * @return list<string>
+     */
+    public function anos(): array
+    {
+        if (! preg_match_all('/(20\d{2})/', (string) $this->nome, $matches)) {
+            return [];
+        }
+
+        $anos = array_values(array_unique($matches[1]));
+        sort($anos);
+
+        return $anos;
+    }
+
+    /**
+     * Filtra Metas/PCA/Eixos pelo ciclo aberto.
+     * Sem ciclo_id, usa o ciclo atual. `todos` lista todos os ciclos.
+     */
+    public static function aplicarFiltroNaConsulta($query, mixed $cicloId): void
+    {
+        if ($cicloId === 'todos') {
+            return;
+        }
+
+        if ($cicloId !== null && $cicloId !== '') {
+            $query->where('ciclo_id', $cicloId);
+
+            return;
+        }
+
+        $atualId = static::atual()?->id;
+        if ($atualId) {
+            $query->where('ciclo_id', $atualId);
         }
     }
 }

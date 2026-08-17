@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CursoPorEixoRequest;
 use App\Models\CursoPorEixo;
+use App\Models\PortfolioCiclo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -37,6 +38,8 @@ class CursoPorEixoController extends Controller
         if ($request->filled('ano')) {
             $query->where('ano', $request->ano);
         }
+
+        PortfolioCiclo::aplicarFiltroNaConsulta($query, $request->input('ciclo_id'));
 
         if ($request->filled('eixo')) {
             $query->where('eixo', $request->eixo);

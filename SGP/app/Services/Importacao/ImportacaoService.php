@@ -94,7 +94,7 @@ class ImportacaoService
         $usuarioId = Auth::id();
         $backup = null;
 
-        $cicloAtualId = $modulo === 'cursos'
+        $cicloAtualId = in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)
             ? \App\Models\PortfolioCiclo::atual()?->id
             : null;
 
@@ -135,8 +135,10 @@ class ImportacaoService
                     $row[$campo] = $valor;
                 }
 
-                if ($modulo === 'cursos') {
-                    $row = $this->normalizarCamposCurso($row);
+                if (in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)) {
+                    if ($modulo === 'cursos') {
+                        $row = $this->normalizarCamposCurso($row);
+                    }
                     if ($cicloAtualId && empty($row['ciclo_id'])) {
                         $row['ciclo_id'] = $cicloAtualId;
                     }

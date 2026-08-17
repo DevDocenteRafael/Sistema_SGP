@@ -27,6 +27,7 @@ class CursoPorEixoRequest extends FormRequest
             'status' => ['required', 'string', 'max:50', Rule::in(config('curso_por_eixos.status'))],
             'observacao' => ['nullable', 'string'],
             'is_novo' => ['nullable', 'boolean'],
+            'ciclo_id' => ['nullable', 'integer', Rule::exists('portfolio_ciclos', 'id')],
         ];
     }
 

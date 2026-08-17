@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PcaRequest;
 use App\Models\Pca;
+use App\Models\PortfolioCiclo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -39,6 +40,8 @@ class PcaController extends Controller
         if ($request->filled('ano')) {
             $query->where('ano', $request->ano);
         }
+
+        PortfolioCiclo::aplicarFiltroNaConsulta($query, $request->input('ciclo_id'));
 
         if ($request->filled('semestre')) {
             $query->where('semestre', $request->semestre);
