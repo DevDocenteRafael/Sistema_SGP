@@ -25,7 +25,23 @@
       <div v-if="carregandoCatalogo" class="rel-loading">Carregando catálogo...</div>
       <div v-else class="rel-cards">
         <button
-          v-for="item in catalogo"
+          v-for="item in catalogo.filter((entry) => entry.key === 'resolucoes')"
+          :key="item.key"
+          type="button"
+          class="rel-card"
+          @click="selecionar(item)"
+        >
+          <div class="rel-card-top">
+            <span class="rel-card-icon" v-html="icone(item.icon)"></span>
+            <span class="rel-card-count">{{ item.total }}</span>
+          </div>
+          <h2>{{ item.label }}</h2>
+          <p>{{ item.description }}</p>
+          <span class="rel-card-cta">Abrir relatório →</span>
+        </button>
+
+        <button
+          v-for="item in catalogo.filter((entry) => entry.key !== 'resolucoes')"
           :key="item.key"
           type="button"
           class="rel-card"
@@ -106,14 +122,45 @@
           </select>
         </div>
 
-        <div v-if="temFiltro('status')" class="rel-filtros-row rel-filtros-row-start">
+        <div v-if="temFiltro('status') || temFiltro('categoria') || temFiltro('setor') || temFiltro('relator')" class="rel-filtros-row rel-filtros-row-start">
           <select
+            v-if="temFiltro('status')"
             v-model="filtros.status"
             class="rel-filtro-select"
             @change="carregarPrevias"
           >
             <option value="">Todos os status</option>
             <option v-for="status in statusDisponiveis" :key="status" :value="status">{{ status }}</option>
+          </select>
+
+          <select
+            v-if="temFiltro('categoria')"
+            v-model="filtros.categoria"
+            class="rel-filtro-select"
+            @change="carregarPrevias"
+          >
+            <option value="">Todas as categorias</option>
+            <option v-for="categoria in categoriasDisponiveis" :key="categoria" :value="categoria">{{ categoria }}</option>
+          </select>
+
+          <select
+            v-if="temFiltro('setor')"
+            v-model="filtros.setor"
+            class="rel-filtro-select"
+            @change="carregarPrevias"
+          >
+            <option value="">Todos os setores</option>
+            <option v-for="setor in setoresDisponiveis" :key="setor" :value="setor">{{ setor }}</option>
+          </select>
+
+          <select
+            v-if="temFiltro('relator')"
+            v-model="filtros.relator"
+            class="rel-filtro-select"
+            @change="carregarPrevias"
+          >
+            <option value="">Todos os relatores</option>
+            <option v-for="relator in relatoresDisponiveis" :key="relator" :value="relator">{{ relator }}</option>
           </select>
         </div>
       </div>

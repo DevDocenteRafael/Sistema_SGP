@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Curso;
+use App\Models\Resolucao;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -59,6 +60,34 @@ class RelatorioApiTest extends TestCase
 
         $cursos = collect($response->json('data'))->firstWhere('key', 'cursos');
         $this->assertSame(1, $cursos['total']);
+    }
+
+    public function test_pode_listar_relatorio_de_resolucoes_no_catalogo_e_exportar_pdf(): void
+    {
+        $this->autenticar();
+
+        Resolucao::create([
+            'numero' => 'RES-2026/001',
+            'curso_relacionado' => 'Técnico em Administração',
+            'categoria' => 'Normativa',
+            'resumo' => 'Aprovação de normas internas',
+            'relator' => 'Maria Souza',
+            'setor' => 'CPED',
+            'data_inicio_vigencia' => '2026-01-01',
+            'data_fim_vigencia' => '2031-01-01',
+            'status' => 'vigente',
+        ]);
+
+        $catalogo = $this->getJson('/api/relatorios');
+        $catalogo->assertOk();
+        $this->assertContains('resolucoes', collect($catalogo->json('data'))->pluck('key')->all());
+
+        $resolucao = collect($catalogo->json('data'))->firstWhere('key', 'resolucoes');
+        $this->assertSame(1, $resolucao['total']);
+
+        $pdf = $this->get('/api/relatorios/resolucoes/pdf');
+        $pdf->assertOk();
+        $this->assertStringContainsString('application/pdf', (string) $pdf->headers->get('content-type'));
     }
 
     public function test_pode_exportar_pdf_de_cursos(): void

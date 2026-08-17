@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\OrganogramaController;
 use App\Http\Controllers\Api\PcaController;
 use App\Http\Controllers\Api\PlanoDeMetaController;
 use App\Http\Controllers\Api\RelatorioController;
+use App\Http\Controllers\Api\ResolucaoController;
+use App\Http\Controllers\Api\TermoReferenciaController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\VisitaTecnicaController;
 use App\Models\Usuario;
@@ -38,6 +40,10 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::get('cadastros/{cadastro}', [CadastroController::class, 'show']);
     Route::apiResource('cursos', CursoController::class);
     Route::apiResource('plano-de-metas', PlanoDeMetaController::class);
+    Route::apiResource('resolucoes', ResolucaoController::class)
+        ->parameters(['resolucoes' => 'resolucao']);
+    Route::apiResource('termos-referencia', TermoReferenciaController::class)
+        ->parameters(['termos-referencia' => 'termoReferencia']);
     Route::apiResource('pcas', PcaController::class);
     Route::apiResource('curso-por-eixos', CursoPorEixoController::class);
     Route::apiResource('horas-pedagogicas', HoraPedagogicaController::class)
