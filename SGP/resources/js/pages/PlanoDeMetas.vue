@@ -10,6 +10,8 @@
         @novo="abrirNovo"
       />
 
+      <CicloContextoBanner modulo="metas" :ciclo="cicloContexto" />
+
       <CrudAlerts
         :sucesso="mensagemSucesso"
         :erro="mensagemErro"

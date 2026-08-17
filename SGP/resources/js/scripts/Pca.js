@@ -20,6 +20,8 @@ export default createCrudPage({
   endpoint: '/api/pcas',
   showKey: 'pca',
   carregandoInicial: false,
+  usarCicloContexto: true,
+  cicloModulo: 'pca',
   filtrosIniciais: {
     busca: '',
     ano: '',

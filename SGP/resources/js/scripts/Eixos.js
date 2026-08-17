@@ -10,6 +10,8 @@ export default createCrudPage({
   useDetalheAberto: true,
   checkConsultar: false,
   carregandoInicial: false,
+  usarCicloContexto: true,
+  cicloModulo: 'eixos',
   filtrosIniciais: {
     busca: '',
     ano: '',

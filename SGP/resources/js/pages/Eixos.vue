@@ -9,6 +9,8 @@
         @novo="abrirNovo"
       />
 
+      <CicloContextoBanner modulo="eixos" :ciclo="cicloContexto" />
+
       <CrudAlerts
         :sucesso="mensagemSucesso"
         :erro="mensagemErro"

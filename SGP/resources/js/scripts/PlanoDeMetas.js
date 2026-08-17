@@ -20,6 +20,8 @@ export default createCrudPage({
   checkConsultar: false,
   carregandoInicial: false,
   debounceOnLoad: true,
+  usarCicloContexto: true,
+  cicloModulo: 'metas',
   filtrosIniciais: FILTROS_VAZIOS,
   formVazio: () => ({
     segmento: '',

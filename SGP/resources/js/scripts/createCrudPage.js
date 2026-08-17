@@ -1,4 +1,6 @@
+import CicloContextoBanner from '../components/crud/CicloContextoBanner.vue';
 import { getPerfil, podeEditarDados, podeConsultarDados } from './auth';
+import { anoPrincipalDoCiclo, garantirCicloContexto, lerCicloContexto } from './cicloContexto';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
@@ -22,6 +24,8 @@ export function createCrudPage(config) {
     checkConsultar = true,
     carregandoInicial = true,
     debounceOnLoad = false,
+    usarCicloContexto = false,
+    cicloModulo = null,
     filtrosIniciais = {},
     formVazio,
     montarForm = null,
@@ -142,6 +146,13 @@ export function createCrudPage(config) {
           }
         });
 
+        if (usarCicloContexto) {
+          const ciclo = this.cicloContexto || lerCicloContexto(cicloModulo);
+          if (ciclo?.id) {
+            params.ciclo_id = ciclo.id;
+          }
+        }
+
         const { data } = await window.axios.get(endpoint, { params });
         const lista = Array.isArray(data.data) ? data.data : [];
         this[listKey] = lista.map((item) => this.normalizarRegistro(item));
@@ -154,6 +165,10 @@ export function createCrudPage(config) {
           if (typeof aplicarMeta === 'function') {
             aplicarMeta.call(this, data.meta, this);
           }
+        }
+
+        if (usarCicloContexto) {
+          this.fundirAnosDoCiclo(this.cicloContexto?.anos || []);
         }
       } catch (error) {
         setErro(this, this.extrairErro(error, msg.falhaCarregar));
@@ -180,6 +195,9 @@ export function createCrudPage(config) {
       this.modo = 'novo';
       this.editandoId = null;
       this.form = this.formVazio();
+      if (usarCicloContexto) {
+        this.aplicarAnoDoCicloNoForm();
+      }
       limparErroForm(this);
       this.mensagemSucesso = '';
       limparErro(this);
@@ -251,6 +269,13 @@ export function createCrudPage(config) {
       limparErro(this);
 
       const payload = montarPayload.call(this, this.form, this);
+
+      if (usarCicloContexto) {
+        const ciclo = this.cicloContexto || lerCicloContexto(cicloModulo);
+        if (ciclo?.id && (payload.ciclo_id == null || payload.ciclo_id === '')) {
+          payload.ciclo_id = ciclo.id;
+        }
+      }
 
       try {
         if ((this.modo === 'editar' || this.editandoId) && this.editandoId) {
@@ -333,6 +358,56 @@ export function createCrudPage(config) {
       this[detailKey] = null;
     },
 
+    async iniciarComCiclo() {
+      if (usarCicloContexto) {
+        await this.aplicarCicloContexto();
+      }
+
+      if (Object.prototype.hasOwnProperty.call(this.filtros, 'ano') && this.$route?.query?.ano) {
+        this.filtros.ano = String(this.$route.query.ano);
+      }
+
+      await this.carregarRegistros();
+    },
+
+    async aplicarCicloContexto() {
+      const queryId = this.$route?.query?.ciclo_id || null;
+      const ciclo = await garantirCicloContexto(cicloModulo, queryId);
+
+      this.cicloContexto = ciclo?.id ? ciclo : null;
+      this.fundirAnosDoCiclo(this.cicloContexto?.anos || []);
+    },
+
+    fundirAnosDoCiclo(anos) {
+      const extra = (Array.isArray(anos) ? anos : []).map(String).filter(Boolean);
+
+      if (!extra.length) {
+        return;
+      }
+
+      const mesclar = (lista) => [...new Set([...extra, ...(lista || []).map(String)])];
+
+      if (Array.isArray(this.anosDisponiveis)) {
+        this.anosDisponiveis = mesclar(this.anosDisponiveis);
+      }
+
+      if (Array.isArray(this.anos)) {
+        this.anos = mesclar(this.anos);
+      }
+
+      if (Array.isArray(this.meta?.anos)) {
+        this.meta = { ...this.meta, anos: mesclar(this.meta.anos) };
+      }
+    },
+
+    aplicarAnoDoCicloNoForm() {
+      const ano = anoPrincipalDoCiclo(this.cicloContexto || lerCicloContexto(cicloModulo));
+
+      if (ano && this.form && Object.prototype.hasOwnProperty.call(this.form, 'ano')) {
+        this.form.ano = ano;
+      }
+    },
+
     extrairErro(error, fallback) {
       if (error.response?.data?.message) {
         return error.response.data.message;
@@ -405,6 +480,7 @@ export function createCrudPage(config) {
       CrudFormShell,
       TabelaContador,
       PageTableCard,
+      CicloContextoBanner,
       ...components,
     },
 
@@ -424,6 +500,10 @@ export function createCrudPage(config) {
         ...extraData.call(this),
       };
 
+      if (usarCicloContexto) {
+        base.cicloContexto = lerCicloContexto(cicloModulo);
+      }
+
       if (formErrorKey !== errorKey) {
         base[formErrorKey] = '';
       }
@@ -437,8 +517,20 @@ export function createCrudPage(config) {
 
     computed,
 
+    watch: usarCicloContexto
+      ? {
+        '$route.query.ciclo_id'(id) {
+          if (!id) {
+            return;
+          }
+
+          this.iniciarComCiclo();
+        },
+      }
+      : {},
+
     mounted() {
-      this.carregarRegistros();
+      this.iniciarComCiclo();
     },
 
     methods,
