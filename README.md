@@ -83,7 +83,9 @@ Em uso interno pela CPED / SENAC DF (testes internos). Pronto para homologação
 
 ## Como rodar
 
-Precisa ter no PATH: **PHP 8.2+**, **Composer**, **Node 20.19+ ou 22.12+**, e o **MySQL do XAMPP** ligado. Se o `php` não for reconhecido, coloque `C:\xampp\php` no PATH.
+Precisa ter no PATH: **PHP 8.2+**, **Composer**, **Node 20.19+ ou 22.12+**. Se o `php` não for reconhecido, coloque `C:\xampp\php` no PATH.
+
+Antes de clonar: **não use pasta do OneDrive** (`OneDrive - SENAC DF\Área de Trabalho`). O Laravel precisa gravar cache e o OneDrive costuma esconder ou travar essas pastas. Use `C:\projetos\Sistema_SGP` ou a Área de Trabalho **local** do Windows.
 
 1. Clone e entre na pasta:
 ```cmd
@@ -91,7 +93,7 @@ git clone https://github.com/DevDocenteRafael/Sistema_SGP.git
 cd Sistema_SGP
 ```
 
-2. Crie o banco **SGP** no MySQL (XAMPP / Workbench):
+2. No **XAMPP Control Panel**, clique em **Start** no **MySQL** e espere ficar verde. Depois crie o banco **SGP** (phpMyAdmin ou Workbench):
 ```sql
 CREATE DATABASE SGP;
 ```
@@ -101,18 +103,7 @@ CREATE DATABASE SGP;
 local-start.cmd
 ```
 
-No terminal você vai ver 8 passos, nesta ordem:
-
-1. Copia `SGP_Back\.env` se ainda não existir  
-2. `composer install` — pacotes PHP (`vendor/`)  
-3. `php artisan key:generate` — gera a `APP_KEY`  
-4. `php artisan migrate` — cria as tabelas  
-5. `php artisan storage:link`  
-6. `php artisan db:seed` — usuários e dados de teste  
-7. Copia `SGP_Front\.env` se ainda não existir  
-8. `npm install` — pacotes do front (`node_modules/`)
-
-Se o passo já foi feito antes, o script escreve “já existia” e segue. Não precisa rodar duas vezes.
+No terminal você vai ver os passos: pastas do Laravel, `.env`, Composer, `APP_KEY`, migrate, seed, npm.
 
 No final aparece:
 
@@ -120,7 +111,7 @@ No final aparece:
 
 Digite **s** e Enter. Duas janelas abrem sozinhas. Não feche elas.
 
-Se o MySQL não for `root` sem senha, o passo 4 (migrate) falha. Aí abra `SGP_Back\.env`, ajuste `DB_USERNAME` / `DB_PASSWORD` e rode `local-start.cmd` de novo.
+Se o MySQL não estiver ligado, o script para e pede para dar Start no XAMPP. Se a senha do MySQL não for vazia, abra `SGP_Back\.env` e ajuste `DB_USERNAME` / `DB_PASSWORD`, depois rode `local-start.cmd` de novo.
 
 4. Abra no navegador: **http://127.0.0.1:5173/login**  
 A tela do SGP é o front (`:5173`). O back (`:8000`) é só a API.

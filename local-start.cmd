@@ -5,12 +5,14 @@ cd /d "%~dp0"
 echo.
 echo === SGP - desenvolvimento local - MySQL ===
 echo.
-echo Antes de continuar: MySQL/XAMPP ligado e banco SGP criado.
+echo Antes: XAMPP aberto, botao Start no MySQL, banco SGP criado.
+echo Nao clone o projeto dentro do OneDrive. Prefira C:\projetos ou a Area de Trabalho local.
 echo.
 
 where php >nul 2>&1
 if errorlevel 1 (
   echo [ERRO] PHP nao encontrado no PATH. Instale PHP 8.2+ e tente de novo.
+  echo        Se usa XAMPP, adicione C:\xampp\php ao PATH.
   exit /b 1
 )
 
@@ -29,6 +31,16 @@ if errorlevel 1 (
 echo --- BACK: SGP_Back ---
 cd /d "%~dp0SGP_Back"
 
+echo [0/8] Pastas do Laravel
+call :garantirPasta "bootstrap\cache"
+call :garantirPasta "storage\app\public"
+call :garantirPasta "storage\framework\cache\data"
+call :garantirPasta "storage\framework\sessions"
+call :garantirPasta "storage\framework\testing"
+call :garantirPasta "storage\framework\views"
+call :garantirPasta "storage\logs"
+echo        Pastas ok
+
 echo [1/8] Arquivo .env do back
 if not exist ".env" (
   copy ".env.example" ".env" >nul
@@ -43,7 +55,9 @@ if not exist "vendor\autoload.php" (
   if errorlevel 1 exit /b 1
   echo        Concluido. Pasta vendor criada.
 ) else (
-  echo        Ja existia vendor, pulei o composer install
+  echo        Ja existia vendor. Atualizando autoload...
+  call composer dump-autoload
+  if errorlevel 1 exit /b 1
 )
 
 echo [3/8] APP_KEY - php artisan key:generate
@@ -57,12 +71,20 @@ if errorlevel 1 (
 )
 
 echo [4/8] Banco - php artisan migrate
+php -r "exit(@fsockopen('127.0.0.1',3306,$e,$s,2)?0:1);"
+if errorlevel 1 (
+  echo.
+  echo [ERRO] MySQL nao esta rodando na porta 3306.
+  echo        Abra o XAMPP Control Panel e clique em Start no MySQL.
+  echo        Espere ficar verde e rode local-start.cmd de novo.
+  exit /b 1
+)
 php artisan migrate --force
 if errorlevel 1 (
   echo.
   echo [ERRO] Migrate falhou. Confira:
-  echo   - MySQL do XAMPP ligado
-  echo   - Banco SGP criado
+  echo   - MySQL do XAMPP ligado - botao Start, luz verde
+  echo   - Banco SGP criado: CREATE DATABASE SGP;
   echo   - DB_USERNAME e DB_PASSWORD no arquivo SGP_Back\.env
   echo     Padrao XAMPP: usuario root e senha vazia.
   exit /b 1
@@ -127,3 +149,8 @@ echo A porta 8000 e so a API.
 :fim
 echo.
 endlocal
+exit /b 0
+
+:garantirPasta
+if not exist "%~1\" mkdir "%~1"
+exit /b 0
