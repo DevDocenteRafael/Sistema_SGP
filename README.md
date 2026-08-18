@@ -77,37 +77,36 @@ Em uso interno pela CPED / SENAC DF (testes internos). Pronto para homologação
 
 ## Estrutura do projeto
 
-- `SGP_Back/` — API Laravel 12 (PHP)
-- `SGP_Front/` — SPA Vue 3 + Vite
-- `local-start.cmd` — único comando de setup e subida local
+- `SGP_Back/` — API Laravel 12 (PHP), porta **8000**
+- `SGP_Front/` — SPA Vue 3 + Vite, porta **5173**
+- `local-start.cmd` — instala, migra, seeda e sobe os dois
 
 ## Como rodar
 
-1. Clone o repositório:
-```cmd
-git clone https://github.com/LucasLeal0619/Sistema_SGP.git
-```
+Precisa ter no PATH: **PHP 8.2+**, **Composer**, **Node 20.19+ ou 22.12+**, e o **MySQL do XAMPP** ligado. Se o `php` não for reconhecido, coloque `C:\xampp\php` no PATH.
 
-2. Entre na pasta do sistema:
+1. Clone e entre na pasta:
 ```cmd
+git clone https://github.com/DevDocenteRafael/Sistema_SGP.git
 cd Sistema_SGP
 ```
 
-3. Crie o banco **SGP** no MySQL (XAMPP / Workbench):
+2. Crie o banco **SGP** no MySQL (XAMPP / Workbench):
 ```sql
 CREATE DATABASE SGP;
 ```
 
-4. Rode o setup (instala back e front, migra e seeda o banco):
+3. Rode:
 ```cmd
 local-start.cmd
 ```
 
-Se for a primeira vez, o script cria `SGP_Back\.env` a partir do `.env.example` e pede para você revisar `DB_USERNAME` / `DB_PASSWORD` antes de rodar de novo.
+Na primeira vez o script copia o `.env` e pode pedir para conferir `DB_USERNAME` / `DB_PASSWORD` — rode de novo depois disso. No fim ele pergunta se quer subir back e front; diga **s**. Ele abre as duas janelas sozinho.
 
-5. Ao final, o script pergunta se quer subir o back (`php artisan serve`) e o front (`npm run dev`) — cada um em uma janela. Diga **s**.
+4. Abra no navegador: **http://127.0.0.1:5173/login**  
+A tela do SGP é o front (`:5173`). O back (`:8000`) é só a API.
 
-6. Abra no navegador: http://127.0.0.1:5173/login
+No dia a dia é o mesmo comando (`local-start.cmd`). Se preferir no braço: `cd SGP_Back` → `php artisan serve` e, em outro terminal, `cd SGP_Front` → `npm run dev`.
 
 ### Logins de teste
 
