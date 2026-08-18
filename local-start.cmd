@@ -1,12 +1,12 @@
 @echo off
-setlocal
+setlocal EnableExtensions
 cd /d "%~dp0"
 
 echo.
 echo === SGP - desenvolvimento local - MySQL ===
 echo.
-echo Antes: XAMPP aberto, botao Start no MySQL, banco SGP criado.
-echo Nao clone o projeto dentro do OneDrive. Prefira C:\projetos ou a Area de Trabalho local.
+echo Antes: XAMPP aberto, Start no MySQL, banco SGP criado.
+echo Nao clone o projeto dentro do OneDrive.
 echo.
 
 where php >nul 2>&1
@@ -33,6 +33,7 @@ cd /d "%~dp0SGP_Back"
 
 echo [0/8] Pastas do Laravel
 call :garantirPasta "bootstrap\cache"
+if errorlevel 1 exit /b 1
 call :garantirPasta "storage\app\public"
 call :garantirPasta "storage\framework\cache\data"
 call :garantirPasta "storage\framework\sessions"
@@ -42,12 +43,33 @@ call :garantirPasta "storage\logs"
 echo        Pastas ok
 
 echo [1/8] Arquivo .env do back
+set "ENV_NOVO=0"
 if not exist ".env" (
   copy ".env.example" ".env" >nul
+  set "ENV_NOVO=1"
   echo        Criado a partir do .env.example
+  echo.
+  echo        Abriu o Bloco de Notas no SGP_Back\.env
+  echo        Ajuste nesta maquina e SALVE:
+  echo          DB_PORT       - porta do MySQL no XAMPP desta maquina
+  echo          DB_USERNAME   - em geral root
+  echo          DB_PASSWORD   - senha do MySQL, ou vazio
+  echo          DB_DATABASE   - SGP
+  echo        Feche o Bloco de Notas para o script continuar.
+  echo.
+  start /wait notepad.exe ".env"
 ) else (
-  echo        Ja existia, nao copiei de novo
+  echo        Ja existia. Conferindo o que vai ser usado:
 )
+
+echo        --- banco deste .env ---
+findstr /B "DB_HOST= DB_PORT= DB_DATABASE= DB_USERNAME= DB_PASSWORD=" ".env"
+echo        -------------------------
+if "%ENV_NOVO%"=="0" (
+  echo        Se a porta ou senha desta maquina forem outras, edite SGP_Back\.env agora.
+  set /p EDITAR="        Abrir o .env para ajustar? [s/N]: "
+)
+if /i "%EDITAR%"=="s" start /wait notepad.exe ".env"
 
 echo [2/8] Pacotes PHP - composer install
 if not exist "vendor\autoload.php" (
@@ -71,22 +93,20 @@ if errorlevel 1 (
 )
 
 echo [4/8] Banco - php artisan migrate
-php -r "exit(@fsockopen('127.0.0.1',3306,$e,$s,2)?0:1);"
-if errorlevel 1 (
-  echo.
-  echo [ERRO] MySQL nao esta rodando na porta 3306.
-  echo        Abra o XAMPP Control Panel e clique em Start no MySQL.
-  echo        Espere ficar verde e rode local-start.cmd de novo.
-  exit /b 1
-)
+echo        Usa HOST/PORTA/USUARIO/SENHA do SGP_Back\.env desta maquina.
 php artisan migrate --force
 if errorlevel 1 (
   echo.
-  echo [ERRO] Migrate falhou. Confira:
-  echo   - MySQL do XAMPP ligado - botao Start, luz verde
-  echo   - Banco SGP criado: CREATE DATABASE SGP;
-  echo   - DB_USERNAME e DB_PASSWORD no arquivo SGP_Back\.env
-  echo     Padrao XAMPP: usuario root e senha vazia.
+  echo [ERRO] Migrate falhou. O Laravel leu o SGP_Back\.env.
+  echo   1. XAMPP: Start no MySQL, luz verde
+  echo   2. Banco criado: CREATE DATABASE SGP;
+  echo   3. No .env desta maquina, confira:
+  echo        DB_HOST=127.0.0.1
+  echo        DB_PORT=     porta que o XAMPP mostra nesta maquina
+  echo        DB_DATABASE=SGP
+  echo        DB_USERNAME=root
+  echo        DB_PASSWORD= senha desta maquina, ou vazio
+  echo   Depois rode local-start.cmd de novo.
   exit /b 1
 )
 echo        Tabelas ok
@@ -152,5 +172,19 @@ endlocal
 exit /b 0
 
 :garantirPasta
-if not exist "%~1\" mkdir "%~1"
+if exist "%~1\" (
+  attrib -R "%~1" /S /D >nul 2>&1
+  exit /b 0
+)
+if exist "%~1" (
+  echo        Apagando arquivo que estava no lugar da pasta %~1
+  del /f /q "%~1" >nul 2>&1
+)
+mkdir "%~1" >nul 2>&1
+if not exist "%~1\" (
+  echo [ERRO] Nao consegui criar a pasta %~1
+  echo        Tire o projeto do OneDrive e rode de novo.
+  exit /b 1
+)
+attrib -R "%~1" /S /D >nul 2>&1
 exit /b 0

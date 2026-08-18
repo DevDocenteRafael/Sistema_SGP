@@ -83,40 +83,37 @@ Em uso interno pela CPED / SENAC DF (testes internos). Pronto para homologação
 
 ## Como rodar
 
-Precisa ter no PATH: **PHP 8.2+**, **Composer**, **Node 20.19+ ou 22.12+**. Se o `php` não for reconhecido, coloque `C:\xampp\php` no PATH.
+PHP 8.2+, Composer, Node 20.19+ ou 22.12+ no PATH. MySQL do XAMPP ligado. Não clone dentro do OneDrive.
 
-Antes de clonar: **não use pasta do OneDrive** (`OneDrive - SENAC DF\Área de Trabalho`). O Laravel precisa gravar cache e o OneDrive costuma esconder ou travar essas pastas. Use `C:\projetos\Sistema_SGP` ou a Área de Trabalho **local** do Windows.
-
-1. Clone e entre na pasta:
+1. Clone:
 ```cmd
 git clone https://github.com/DevDocenteRafael/Sistema_SGP.git
 cd Sistema_SGP
 ```
 
-2. No **XAMPP Control Panel**, clique em **Start** no **MySQL** e espere ficar verde. Depois crie o banco **SGP** (phpMyAdmin ou Workbench):
+2. Crie o banco no MySQL:
 ```sql
 CREATE DATABASE SGP;
 ```
 
-3. Rode **uma vez**:
+3. Configure o `.env` desta máquina:
+```cmd
+copy SGP_Back\.env.example SGP_Back\.env
+copy SGP_Front\.env.example SGP_Front\.env
+```
+Abra `SGP_Back\.env` e ajuste:
+- `DB_PORT` — porta do MySQL neste XAMPP (3306, 3307, 3308…)
+- `DB_USERNAME` — em geral `root`
+- `DB_PASSWORD` — senha deste MySQL, ou vazio
+- `DB_DATABASE` — `SGP`
+
+4. Rode:
 ```cmd
 local-start.cmd
 ```
+Quando perguntar se sobe back e front, digite **s**. Não feche as duas janelas.
 
-No terminal você vai ver os passos: pastas do Laravel, `.env`, Composer, `APP_KEY`, migrate, seed, npm.
-
-No final aparece:
-
-`Subir back e front agora? [S/n]:`
-
-Digite **s** e Enter. Duas janelas abrem sozinhas. Não feche elas.
-
-Se o MySQL não estiver ligado, o script para e pede para dar Start no XAMPP. Se a senha do MySQL não for vazia, abra `SGP_Back\.env` e ajuste `DB_USERNAME` / `DB_PASSWORD`, depois rode `local-start.cmd` de novo.
-
-4. Abra no navegador: **http://127.0.0.1:5173/login**  
-A tela do SGP é o front (`:5173`). O back (`:8000`) é só a API.
-
-No dia a dia é o mesmo comando (`local-start.cmd`). Se preferir no braço: `cd SGP_Back` → `php artisan serve` e, em outro terminal, `cd SGP_Front` → `npm run dev`.
+5. Abra **http://127.0.0.1:5173/login**
 
 ### Logins de teste
 
