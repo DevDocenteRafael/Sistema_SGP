@@ -96,12 +96,31 @@ cd Sistema_SGP
 CREATE DATABASE SGP;
 ```
 
-3. Rode:
+3. Rode **uma vez**:
 ```cmd
 local-start.cmd
 ```
 
-Na primeira vez o script copia o `.env` e pode pedir para conferir `DB_USERNAME` / `DB_PASSWORD` — rode de novo depois disso. No fim ele pergunta se quer subir back e front; diga **s**. Ele abre as duas janelas sozinho.
+No terminal você vai ver 8 passos, nesta ordem:
+
+1. Copia `SGP_Back\.env` se ainda não existir  
+2. `composer install` — pacotes PHP (`vendor/`)  
+3. `php artisan key:generate` — gera a `APP_KEY`  
+4. `php artisan migrate` — cria as tabelas  
+5. `php artisan storage:link`  
+6. `php artisan db:seed` — usuários e dados de teste  
+7. Copia `SGP_Front\.env` se ainda não existir  
+8. `npm install` — pacotes do front (`node_modules/`)
+
+Se o passo já foi feito antes, o script escreve “já existia” e segue. Não precisa rodar duas vezes.
+
+No final aparece:
+
+`Subir back e front agora? [S/n]:`
+
+Digite **s** e Enter. Duas janelas abrem sozinhas. Não feche elas.
+
+Se o MySQL não for `root` sem senha, o passo 4 (migrate) falha. Aí abra `SGP_Back\.env`, ajuste `DB_USERNAME` / `DB_PASSWORD` e rode `local-start.cmd` de novo.
 
 4. Abra no navegador: **http://127.0.0.1:5173/login**  
 A tela do SGP é o front (`:5173`). O back (`:8000`) é só a API.

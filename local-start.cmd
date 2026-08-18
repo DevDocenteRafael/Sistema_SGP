@@ -5,10 +5,7 @@ cd /d "%~dp0"
 echo.
 echo === SGP - desenvolvimento local - MySQL ===
 echo.
-echo Antes de continuar:
-echo   1. MySQL/XAMPP ligado
-echo   2. Banco SGP criado
-echo   3. SGP_Back\.env ok - usuario/senha do MySQL
+echo Antes de continuar: MySQL/XAMPP ligado e banco SGP criado.
 echo.
 
 where php >nul 2>&1
@@ -29,68 +26,81 @@ if errorlevel 1 (
   exit /b 1
 )
 
-echo === Backend - SGP_Back ===
+echo --- BACK: SGP_Back ---
 cd /d "%~dp0SGP_Back"
 
+echo [1/8] Arquivo .env do back
 if not exist ".env" (
-  echo Copiando .env.example para .env ...
   copy ".env.example" ".env" >nul
-  echo.
-  echo [AVISO] Revise o SGP_Back\.env agora: DB_USERNAME / DB_PASSWORD
-  echo         se o MySQL nao for root sem senha.
-  echo         Depois rode este script de novo.
-  echo.
-  pause
-  exit /b 0
+  echo        Criado a partir do .env.example
+) else (
+  echo        Ja existia, nao copiei de novo
 )
 
+echo [2/8] Pacotes PHP - composer install
 if not exist "vendor\autoload.php" (
-  echo Instalando dependencias PHP...
   call composer install
   if errorlevel 1 exit /b 1
+  echo        Concluido. Pasta vendor criada.
+) else (
+  echo        Ja existia vendor, pulei o composer install
 )
 
+echo [3/8] APP_KEY - php artisan key:generate
 findstr /C:"APP_KEY=base64:" ".env" >nul 2>&1
 if errorlevel 1 (
-  echo Gerando APP_KEY...
   php artisan key:generate
+  if errorlevel 1 exit /b 1
+  echo        Key gerada no .env
+) else (
+  echo        Ja tinha APP_KEY, nao gerei de novo
 )
 
-echo Rodando migrations...
+echo [4/8] Banco - php artisan migrate
 php artisan migrate --force
 if errorlevel 1 (
   echo.
   echo [ERRO] Migrate falhou. Confira:
   echo   - MySQL do XAMPP ligado
   echo   - Banco SGP criado
-  echo   - DB_USERNAME / DB_PASSWORD no SGP_Back\.env
+  echo   - DB_USERNAME e DB_PASSWORD no arquivo SGP_Back\.env
+  echo     Padrao XAMPP: usuario root e senha vazia.
   exit /b 1
 )
+echo        Tabelas ok
 
-echo Criando link publico do storage - fotos CPED...
+echo [5/8] Storage - php artisan storage:link
 php artisan storage:link
+echo        Link publico ok
 
-echo Rodando seeders - usuarios demo, exemplos, fotos CPED...
+echo [6/8] Dados de teste - php artisan db:seed
 php artisan db:seed --force
 if errorlevel 1 (
   echo.
   echo [ERRO] Seed falhou.
   exit /b 1
 )
+echo        Usuarios demo e exemplos ok
 
 echo.
-echo === Frontend - SGP_Front ===
+echo --- FRONT: SGP_Front ---
 cd /d "%~dp0SGP_Front"
 
+echo [7/8] Arquivo .env do front
 if not exist ".env" (
-  echo Copiando .env.example para .env ...
   copy ".env.example" ".env" >nul
+  echo        Criado a partir do .env.example
+) else (
+  echo        Ja existia, nao copiei de novo
 )
 
+echo [8/8] Pacotes do front - npm install
 if not exist "node_modules\" (
-  echo Instalando dependencias Node...
   call npm install
   if errorlevel 1 exit /b 1
+  echo        Concluido. Pasta node_modules criada.
+) else (
+  echo        Ja existia node_modules, pulei o npm install
 )
 
 cd /d "%~dp0"
@@ -105,14 +115,14 @@ set /p SUBIR="Subir back e front agora? [S/n]: "
 if /i "%SUBIR%"=="n" goto fim
 if /i "%SUBIR%"=="nao" goto fim
 
-echo Abrindo terminais: php artisan serve e npm run dev ...
+echo Abrindo duas janelas: php artisan serve e npm run dev ...
 start "SGP - Backend" /D "%~dp0SGP_Back" cmd /k php artisan serve
 start "SGP - Frontend" /D "%~dp0SGP_Front" cmd /k npm run dev
 
 echo.
-echo Back e front iniciados em janelas separadas.
-echo Aguarde o Vite subir e acesse http://127.0.0.1:5173/login
-echo http://127.0.0.1:8000 so redireciona para o front. A tela do SGP e a :5173
+echo Nao feche essas duas janelas.
+echo Aguarde o Vite subir e abra http://127.0.0.1:5173/login
+echo A porta 8000 e so a API.
 
 :fim
 echo.
