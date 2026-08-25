@@ -35,9 +35,10 @@ export default {
           this.errorMessage = 'Muitas tentativas de login. Aguarde cerca de 1 minuto e tente novamente.';
         } else if (error.response?.status === 422) {
           const errors = error.response.data.errors;
-          this.errorMessage = errors?.email?.[0] || errors?.senha?.[0] || 'Dados inválidos.';
+          this.errorMessage = errors?.email?.[0] || errors?.senha?.[0] || error.response.data.message || 'Dados inválidos.';
         } else {
-          this.errorMessage = 'Não foi possível entrar. Tente novamente.';
+          this.errorMessage = error.response?.data?.message
+            || `Não foi possível entrar (HTTP ${error.response?.status || 'sem resposta'}). Confira se o back está na pasta SGP_Back e rode php artisan optimize:clear.`;
         }
       } finally {
         this.loading = false;

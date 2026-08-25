@@ -56,6 +56,27 @@ class AuthSecurityTest extends TestCase
         $response->assertJsonStructure(['token', 'usuario' => ['id', 'nome', 'email', 'perfil']]);
     }
 
+    public function test_login_dos_usuarios_seed_demo_retorna_200(): void
+    {
+        $this->seed(\Database\Seeders\UsuarioSeeder::class);
+
+        foreach ([
+            ['email' => 'administrador@df.senac.br', 'senha' => 'senac2025', 'perfil' => Usuario::PERFIL_ADMINISTRADOR],
+            ['email' => 'editor@df.senac.br', 'senha' => 'editor2025', 'perfil' => Usuario::PERFIL_EDITOR],
+            ['email' => 'consultor@df.senac.br', 'senha' => 'consultor2025', 'perfil' => Usuario::PERFIL_CONSULTOR],
+        ] as $credencial) {
+            $response = $this->postJson('/api/login', [
+                'email' => $credencial['email'],
+                'senha' => $credencial['senha'],
+            ]);
+
+            $response->assertOk();
+            $response->assertJsonPath('usuario.email', $credencial['email']);
+            $response->assertJsonPath('usuario.perfil', $credencial['perfil']);
+            $this->assertNotSame(403, $response->status());
+        }
+    }
+
     public function test_login_inativo_e_bloqueado(): void
     {
         $this->criarUsuario(['status' => false, 'email' => 'inativo@teste.com']);
