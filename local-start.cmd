@@ -28,10 +28,14 @@ if errorlevel 1 (
   exit /b 1
 )
 
+echo --- Liberando portas 8000 e 5173 ---
+call :matarPorta 8000
+call :matarPorta 5173
+
 echo --- BACK: SGP_Back ---
 cd /d "%~dp0SGP_Back"
 
-echo [0/8] Pastas do Laravel
+echo [0/9] Pastas do Laravel
 call :garantirPasta "bootstrap\cache"
 if errorlevel 1 exit /b 1
 call :garantirPasta "storage\app\public"
@@ -42,7 +46,7 @@ call :garantirPasta "storage\framework\views"
 call :garantirPasta "storage\logs"
 echo        Pastas ok
 
-echo [1/8] Arquivo .env do back
+echo [1/9] Arquivo .env do back
 set "ENV_NOVO=0"
 if not exist ".env" (
   copy ".env.example" ".env" >nul
@@ -71,7 +75,7 @@ if "%ENV_NOVO%"=="0" (
 )
 if /i "%EDITAR%"=="s" start /wait notepad.exe ".env"
 
-echo [2/8] Pacotes PHP - composer install
+echo [2/9] Pacotes PHP - composer install
 if not exist "vendor\autoload.php" (
   call composer install
   if errorlevel 1 exit /b 1
@@ -82,7 +86,7 @@ if not exist "vendor\autoload.php" (
   if errorlevel 1 exit /b 1
 )
 
-echo [3/8] APP_KEY - php artisan key:generate
+echo [3/9] APP_KEY - php artisan key:generate
 findstr /C:"APP_KEY=base64:" ".env" >nul 2>&1
 if errorlevel 1 (
   php artisan key:generate
@@ -92,7 +96,15 @@ if errorlevel 1 (
   echo        Ja tinha APP_KEY, nao gerei de novo
 )
 
-echo [4/8] Banco - php artisan migrate
+echo [4/9] Limpar cache do Laravel - php artisan optimize:clear
+php artisan optimize:clear
+if errorlevel 1 (
+  echo [ERRO] Nao consegui limpar o cache. Confira o .env e tente de novo.
+  exit /b 1
+)
+echo        Cache limpo - evita back antigo em memoria
+
+echo [5/9] Banco - php artisan migrate
 echo        Usa HOST/PORTA/USUARIO/SENHA do SGP_Back\.env desta maquina.
 php artisan migrate --force
 if errorlevel 1 (
@@ -111,11 +123,11 @@ if errorlevel 1 (
 )
 echo        Tabelas ok
 
-echo [5/8] Storage - php artisan storage:link
+echo [6/9] Storage - php artisan storage:link
 php artisan storage:link
 echo        Link publico ok
 
-echo [6/8] Dados de teste - php artisan db:seed
+echo [7/9] Dados de teste - php artisan db:seed
 php artisan db:seed --force
 if errorlevel 1 (
   echo.
@@ -123,12 +135,13 @@ if errorlevel 1 (
   exit /b 1
 )
 echo        Usuarios demo e exemplos ok
+echo        Login: administrador@df.senac.br / senac2025
 
 echo.
 echo --- FRONT: SGP_Front ---
 cd /d "%~dp0SGP_Front"
 
-echo [7/8] Arquivo .env do front
+echo [8/9] Arquivo .env do front
 if not exist ".env" (
   copy ".env.example" ".env" >nul
   echo        Criado a partir do .env.example
@@ -136,7 +149,7 @@ if not exist ".env" (
   echo        Ja existia, nao copiei de novo
 )
 
-echo [8/8] Pacotes do front - npm install
+echo [9/9] Pacotes do front - npm install
 if not exist "node_modules\" (
   call npm install
   if errorlevel 1 exit /b 1
@@ -151,20 +164,22 @@ echo.
 echo === Setup concluido ===
 echo Login: http://127.0.0.1:5173/login
 echo Admin: administrador@df.senac.br / senac2025
+echo Pasta do back usada: %~dp0SGP_Back
 echo.
 
 set /p SUBIR="Subir back e front agora? [S/n]: "
 if /i "%SUBIR%"=="n" goto fim
 if /i "%SUBIR%"=="nao" goto fim
 
-echo Abrindo duas janelas: php artisan serve e npm run dev ...
-start "SGP - Backend" /D "%~dp0SGP_Back" cmd /k php artisan serve
+echo Abrindo duas janelas a partir destas pastas...
+start "SGP - Backend" /D "%~dp0SGP_Back" cmd /k "php artisan optimize:clear && php artisan serve --host=127.0.0.1 --port=8000"
 start "SGP - Frontend" /D "%~dp0SGP_Front" cmd /k npm run dev
 
 echo.
 echo Nao feche essas duas janelas.
 echo Aguarde o Vite subir e abra http://127.0.0.1:5173/login
-echo A porta 8000 e so a API.
+echo A porta 8000 e so a API deste SGP_Back.
+echo Se o login falhar com mensagem estranha, feche tudo e rode local-start.cmd de novo.
 
 :fim
 echo.
@@ -187,4 +202,12 @@ if not exist "%~1\" (
   exit /b 1
 )
 attrib -R "%~1" /S /D >nul 2>&1
+exit /b 0
+
+:matarPorta
+set "PORTA=%~1"
+for /f "tokens=5" %%P in ('netstat -ano ^| findstr /R /C:":%PORTA% .*LISTENING"') do (
+  echo        Encerrando processo na porta %PORTA% - PID %%P
+  taskkill /F /PID %%P >nul 2>&1
+)
 exit /b 0

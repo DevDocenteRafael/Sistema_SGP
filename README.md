@@ -111,9 +111,10 @@ Abra `SGP_Back\.env` e ajuste:
 ```cmd
 local-start.cmd
 ```
-Quando perguntar se sobe back e front, digite **s**. Não feche as duas janelas.
+O script limpa cache do Laravel, garante o seed e sobe **só** o `SGP_Back` na porta 8000 e o `SGP_Front` na 5173. Se já houver outro `php artisan serve` antigo aberto, ele encerra a porta antes. Quando perguntar se sobe back e front, digite **s**. Não feche as duas janelas.
 
-5. Abra **http://127.0.0.1:5173/login**
+5. Abra **http://127.0.0.1:5173/login**  
+Se o login falhar, a tela agora mostra a mensagem real da API. Feche as janelas, rode `local-start.cmd` de novo e entre com as credenciais abaixo.
 
 ### Logins de teste
 
