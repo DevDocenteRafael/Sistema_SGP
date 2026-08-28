@@ -63,26 +63,27 @@ class CpedEquipeController extends Controller
         }
 
         $registros = $query->get();
-        $todos = CpedEquipe::query()->get();
 
-        $eixosComResponsavel = $todos
+        $ativos = CpedEquipe::query()->where('ativo', true)->count();
+        $totalGeral = CpedEquipe::query()->count();
+        $eixosComResponsavel = CpedEquipe::query()
             ->where('tipo', 'responsavel')
+            ->whereNotNull('eixo_vinculado')
+            ->where('eixo_vinculado', '!=', '')
+            ->distinct()
             ->pluck('eixo_vinculado')
-            ->filter()
-            ->unique()
-            ->values()
             ->all();
 
         return response()->json([
             'data' => $registros,
             'meta' => [
                 'total' => $registros->count(),
-                'total_geral' => $todos->count(),
+                'total_geral' => $totalGeral,
                 'contadores' => [
-                    'colaboradores' => $todos->where('ativo', true)->count() ?: $todos->count(),
+                    'colaboradores' => $ativos ?: $totalGeral,
                     'eixos' => count($eixosComResponsavel) ?: count(config('cped_equipes.eixos', [])),
-                    'instrutores' => $todos->where('tipo', 'instrutor')->count(),
-                    'administrativos' => $todos->where('tipo', 'administrativo')->count(),
+                    'instrutores' => CpedEquipe::query()->where('tipo', 'instrutor')->count(),
+                    'administrativos' => CpedEquipe::query()->where('tipo', 'administrativo')->count(),
                 ],
                 'tipos' => config('cped_equipes.tipos'),
                 'tipos_filtro' => config('cped_equipes.tipos_filtro'),

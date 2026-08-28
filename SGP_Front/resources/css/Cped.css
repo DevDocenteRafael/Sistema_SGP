@@ -262,6 +262,65 @@
   font-size: 0.65rem;
 }
 
+.org-level-apoio {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.org-nivel-label {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.org-administrativos-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  max-width: 56rem;
+}
+
+.org-pill-administrativo {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #111827;
+  box-shadow: 0 2px 8px rgba(0, 121, 107, 0.1);
+  cursor: pointer;
+}
+
+.org-pill-administrativo strong {
+  font-size: 0.8rem;
+}
+
+.org-pill-administrativo small {
+  color: #6b7280;
+  font-size: 0.65rem;
+  display: block;
+}
+
+.org-pill-administrativo em {
+  font-style: normal;
+  font-size: 0.6rem;
+  color: #00796b;
+  font-weight: 600;
+}
+
+.eixo-membro-setor {
+  display: block;
+  font-style: normal;
+  font-size: 0.7rem;
+  color: #00796b;
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+
 .org-level-eixos {
   width: 100%;
 }
@@ -330,6 +389,37 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+.org-eixo-equipe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-height: 1.25rem;
+}
+
+.org-eixo-mini {
+  width: 1.15rem;
+  height: 1.15rem;
+  font-size: 0.45rem;
+  margin-left: -0.2rem;
+}
+
+.org-eixo-mini:first-child {
+  margin-left: 0;
+}
+
+.org-eixo-mais {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: inherit;
+  opacity: 0.85;
+  margin-left: 0.1rem;
+}
+
+.org-eixo-placeholder {
+  opacity: 0.65;
 }
 
 .org-eixo-link {

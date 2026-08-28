@@ -81,10 +81,22 @@ class CpedEquipeApiTest extends TestCase
 
         $foto = UploadedFile::fake()->createWithContent('membro.jpg', $jpegMinimo);
 
+        $createComFotoResponse = $this->post('/api/cped-equipes', [
+            ...$payload,
+            'nome' => 'Membro Novo Com Foto',
+            'contato' => 'membro.novo.foto@senac.df.br',
+            'foto' => $foto,
+        ], [
+            'Accept' => 'application/json',
+        ]);
+        $createComFotoResponse->assertCreated();
+        $createComFotoResponse->assertJsonPath('cped_equipe.nome', 'Membro Novo Com Foto');
+        $this->assertStringContainsString('/storage/cped/', $createComFotoResponse->json('cped_equipe.foto'));
+
         $uploadResponse = $this->post("/api/cped-equipes/{$id}", [
             ...$payload,
             'nome' => 'Membro Com Foto',
-            'foto' => $foto,
+            'foto' => UploadedFile::fake()->createWithContent('membro-update.jpg', $jpegMinimo),
             '_method' => 'PUT',
         ], [
             'Accept' => 'application/json',

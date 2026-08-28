@@ -63,7 +63,7 @@
             </div>
 
             <div class="org-card">
-              <div v-if="!ordenador && !assistentes.length && !responsaveis.length" class="cped-empty">
+              <div v-if="!ordenador && !assistentes.length && !colunasOrganograma.length && !administrativos.length" class="cped-empty">
                 Nenhum membro cadastrado. Use &quot;Novo Membro&quot; para montar o organograma.
               </div>
 
@@ -98,30 +98,78 @@
                   <div class="org-vline"></div>
                 </div>
 
-                <div v-if="responsaveis.length" class="org-level org-level-eixos">
+                <div v-if="colunasOrganograma.length" class="org-level org-level-eixos">
                   <div class="org-eixos-wrap">
                     <div class="org-hline"></div>
                     <div class="org-eixos">
-                      <div v-for="pessoa in responsaveis" :key="pessoa.id" class="org-eixo-col">
+                      <div v-for="coluna in colunasOrganograma" :key="coluna.eixo" class="org-eixo-col">
                         <div class="org-vline org-vline-short"></div>
                         <button
                           type="button"
                           class="org-eixo-card"
-                          :class="{ active: eixoSelecionado === (pessoa.eixo_vinculado || pessoa.setor) }"
-                          :style="estiloEixoCard(pessoa.eixo_vinculado || pessoa.setor)"
-                          @click="abrirEixo(pessoa.eixo_vinculado || pessoa.setor)"
+                          :class="{ active: eixoSelecionado === coluna.eixo }"
+                          :style="estiloEixoCard(coluna.eixo)"
+                          @click="abrirEixo(coluna.eixo)"
                         >
-                          <span class="avatar avatar-sm ring" :style="avatarStyle(pessoa)">
-                            <img v-if="pessoa.foto" :src="pessoa.foto" :alt="pessoa.nome" />
-                            <span v-else>{{ pessoa.iniciais || '?' }}</span>
+                          <span
+                            v-if="coluna.responsavel"
+                            class="avatar avatar-sm ring"
+                            :style="avatarStyle(coluna.responsavel)"
+                          >
+                            <img v-if="coluna.responsavel.foto" :src="coluna.responsavel.foto" :alt="coluna.responsavel.nome" />
+                            <span v-else>{{ coluna.responsavel.iniciais || '?' }}</span>
                           </span>
-                          <strong class="org-eixo-nome">{{ pessoa.eixo_vinculado || pessoa.setor }}</strong>
-                          <span class="org-eixo-pessoa">{{ nomeCurto(pessoa.nome) }}</span>
+                          <span v-else class="avatar avatar-sm ring org-eixo-placeholder" :style="avatarStyle({ eixo_vinculado: coluna.eixo })">
+                            ?
+                          </span>
+                          <strong class="org-eixo-nome">{{ coluna.eixo }}</strong>
+                          <span class="org-eixo-pessoa">
+                            {{ coluna.responsavel ? nomeCurto(coluna.responsavel.nome) : 'A definir' }}
+                          </span>
+                          <span v-if="coluna.totalEquipe" class="org-eixo-equipe" aria-label="Membros da equipe">
+                            <span
+                              v-for="membro in coluna.equipe.slice(0, 3)"
+                              :key="membro.id"
+                              class="avatar avatar-xs ring org-eixo-mini"
+                              :style="avatarStyle(membro)"
+                              :title="membro.nome"
+                            >
+                              <img v-if="membro.foto" :src="membro.foto" :alt="membro.nome" />
+                              <span v-else>{{ membro.iniciais || '?' }}</span>
+                            </span>
+                            <span v-if="coluna.totalEquipe > 3" class="org-eixo-mais">+{{ coluna.totalEquipe - 3 }}</span>
+                          </span>
                           <span class="org-eixo-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                            ver equipe
+                            ver equipe<span v-if="coluna.totalEquipe"> ({{ coluna.totalEquipe }})</span>
                           </span>
                         </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="administrativos.length" class="org-level org-level-apoio">
+                  <div class="org-vline"></div>
+                  <p class="org-nivel-label">Apoio administrativo</p>
+                  <div class="org-administrativos-row">
+                    <div
+                      v-for="pessoa in administrativos"
+                      :key="pessoa.id"
+                      class="org-pill org-pill-administrativo"
+                      role="button"
+                      tabindex="0"
+                      @click="abrirDetalhe(pessoa)"
+                      @keydown.enter="abrirDetalhe(pessoa)"
+                    >
+                      <span class="avatar avatar-sm ring" :style="avatarStyle(pessoa)">
+                        <img v-if="pessoa.foto" :src="pessoa.foto" :alt="pessoa.nome" />
+                        <span v-else>{{ pessoa.iniciais || '?' }}</span>
+                      </span>
+                      <div>
+                        <strong>{{ pessoa.nome }}</strong>
+                        <small>{{ pessoa.cargo }}</small>
+                        <em>{{ pessoa.setor }}</em>
                       </div>
                     </div>
                   </div>
@@ -129,7 +177,9 @@
               </div>
             </div>
 
-            <p class="org-hint">Clique em um eixo para ver os membros vinculados</p>
+            <p class="org-hint">
+              Instrutores aparecem nos cards dos eixos. Assistentes e administrativos aparecem no organograma e ao clicar em &quot;ver equipe&quot;.
+            </p>
           </section>
 
           <section class="cped-section">
@@ -364,10 +414,10 @@
             </div>
           </div>
 
-          <div v-if="equipeEixoModal.administrativos.length" class="eixo-grupo">
-            <h3>Administrativos ({{ equipeEixoModal.administrativos.length }})</h3>
+          <div v-if="equipeEixoModal.assistentes.length" class="eixo-grupo">
+            <h3>Assistentes Administrativos ({{ equipeEixoModal.assistentes.length }})</h3>
             <div class="eixo-membros-grid">
-              <article v-for="pessoa in equipeEixoModal.administrativos" :key="pessoa.id" class="eixo-membro-mini">
+              <article v-for="pessoa in equipeEixoModal.assistentes" :key="pessoa.id" class="eixo-membro-mini">
                 <span class="avatar avatar-sm ring" :style="avatarStyle(pessoa)">
                   <img v-if="pessoa.foto" :src="pessoa.foto" :alt="pessoa.nome" />
                   <span v-else>{{ pessoa.iniciais || '?' }}</span>
@@ -380,8 +430,25 @@
             </div>
           </div>
 
+          <div v-if="equipeEixoModal.administrativos.length" class="eixo-grupo">
+            <h3>Apoio Administrativo ({{ equipeEixoModal.administrativos.length }})</h3>
+            <div class="eixo-membros-grid">
+              <article v-for="pessoa in equipeEixoModal.administrativos" :key="pessoa.id" class="eixo-membro-mini">
+                <span class="avatar avatar-sm ring" :style="avatarStyle(pessoa)">
+                  <img v-if="pessoa.foto" :src="pessoa.foto" :alt="pessoa.nome" />
+                  <span v-else>{{ pessoa.iniciais || '?' }}</span>
+                </span>
+                <div>
+                  <strong>{{ pessoa.nome }}</strong>
+                  <small>{{ pessoa.cargo }}</small>
+                  <em class="eixo-membro-setor">{{ pessoa.setor }}</em>
+                </div>
+              </article>
+            </div>
+          </div>
+
           <p
-            v-if="!equipeEixoModal.responsavel && !equipeEixoModal.instrutores.length && !equipeEixoModal.administrativos.length"
+            v-if="!equipeEixoModal.responsavel && !equipeEixoModal.instrutores.length && !equipeEixoModal.assistentes.length && !equipeEixoModal.administrativos.length"
             class="cped-empty"
           >
             Nenhum membro vinculado a este eixo.
@@ -430,26 +497,32 @@
 
             <label>
               Tipo *
-              <select v-model="form.tipo" required @change="onTipoChange">
-                <option v-for="opcao in opcoesFormularioTipo" :key="opcao.value" :value="opcao.value">
-                  {{ opcao.label }}
-                </option>
-              </select>
+              <SearchableSelect
+                v-model="form.tipo"
+                :options="opcoesFormularioTipo"
+                :required="true"
+                @change="onTipoChange"
+              />
             </label>
 
             <label>
               Setor / Eixo *
-              <select v-model="form.setor" required @change="onSetorChange">
-                <option v-for="setor in setoresDoFormulario" :key="setor" :value="setor">{{ setor }}</option>
-              </select>
+              <SearchableSelect
+                v-model="form.setor"
+                :options="setoresDoFormulario"
+                :required="true"
+                @change="onSetorChange"
+              />
             </label>
 
             <label v-if="precisaEixo">
               Eixo vinculado *
-              <select v-model="form.eixo_vinculado" required>
-                <option value="">Selecione</option>
-                <option v-for="eixo in eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
-              </select>
+              <SearchableSelect
+                v-model="form.eixo_vinculado"
+                :options="eixos"
+                empty-option="Selecione"
+                :required="true"
+              />
             </label>
 
             <label>

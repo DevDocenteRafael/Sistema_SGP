@@ -38,7 +38,7 @@ class CpedEquipeFotoService
         }
 
         // URL relativa: funciona no artisan serve e via proxy do Vite.
-        return '/storage/'.ltrim($caminho, '/');
+        return '/storage/'.ltrim(str_replace('\\', '/', $caminho), '/');
     }
 
     private function ehUrlExternaOuData(string $valor): bool

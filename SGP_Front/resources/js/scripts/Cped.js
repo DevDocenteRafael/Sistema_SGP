@@ -123,16 +123,43 @@ export default {
       return this.form.tipo === 'responsavel' || this.form.tipo === 'instrutor';
     },
 
+    registrosOrganograma() {
+      return this.registros.filter((item) => item.ativo !== false);
+    },
+
     ordenador() {
-      return this.registros.find((item) => item.tipo === 'ordenador') || null;
+      return this.registrosOrganograma.find((item) => item.tipo === 'ordenador') || null;
     },
 
     assistentes() {
-      return this.registros.filter((item) => item.tipo === 'assistente');
+      return this.registrosOrganograma.filter((item) => item.tipo === 'assistente');
+    },
+
+    administrativos() {
+      return this.registrosOrganograma.filter((item) => item.tipo === 'administrativo');
     },
 
     responsaveis() {
-      return this.registros.filter((item) => item.tipo === 'responsavel');
+      return this.registrosOrganograma.filter((item) => item.tipo === 'responsavel');
+    },
+
+    colunasOrganograma() {
+      return this.eixos
+        .map((eixo) => {
+          const responsavel = this.registrosOrganograma.find(
+            (item) => item.tipo === 'responsavel'
+              && (item.eixo_vinculado === eixo || item.setor === eixo),
+          ) || null;
+          const equipe = this.membrosDoEixo(eixo);
+
+          return {
+            eixo,
+            responsavel,
+            equipe,
+            totalEquipe: equipe.length,
+          };
+        })
+        .filter((coluna) => coluna.responsavel || coluna.totalEquipe > 0);
     },
 
     gruposPorFuncao() {
@@ -180,15 +207,24 @@ export default {
 
     equipeEixoModal() {
       if (!this.eixoSelecionado) {
-        return { responsavel: null, instrutores: [], administrativos: [] };
+        return {
+          responsavel: null,
+          instrutores: [],
+          assistentes: [],
+          administrativos: [],
+        };
       }
 
       const eixo = this.eixoSelecionado;
 
       return {
-        responsavel: this.registros.find((item) => item.tipo === 'responsavel' && item.eixo_vinculado === eixo) || null,
-        instrutores: this.registros.filter((item) => item.tipo === 'instrutor' && item.eixo_vinculado === eixo),
-        administrativos: this.registros.filter((item) => item.tipo === 'administrativo' && item.eixo_vinculado === eixo),
+        responsavel: this.registrosOrganograma.find(
+          (item) => item.tipo === 'responsavel'
+            && (item.eixo_vinculado === eixo || item.setor === eixo),
+        ) || null,
+        instrutores: this.membrosDoEixo(eixo),
+        assistentes: this.assistentes,
+        administrativos: this.administrativos,
       };
     },
   },
@@ -302,6 +338,12 @@ export default {
         this.form.eixo_vinculado = this.form.setor;
         this.form.cor = this.temaEixo(this.form.eixo_vinculado).text;
       }
+    },
+
+    membrosDoEixo(eixo) {
+      return this.registrosOrganograma.filter(
+        (item) => item.tipo === 'instrutor' && item.eixo_vinculado === eixo,
+      );
     },
 
     abrirEixo(eixo) {
