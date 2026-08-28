@@ -1,0 +1,135 @@
+.sgp-select {
+  position: relative;
+  min-width: 9.5rem;
+}
+
+.sgp-select__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #374151;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sgp-select.is-open .sgp-select__trigger,
+.sgp-select__trigger:focus {
+  outline: none;
+  border-color: #003f7d;
+  box-shadow: 0 0 0 3px rgba(0, 63, 125, 0.12);
+}
+
+.sgp-select.is-disabled .sgp-select__trigger {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f9fafb;
+}
+
+.sgp-select__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sgp-select__value.is-placeholder {
+  color: #9ca3af;
+}
+
+.sgp-select__chevron {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.sgp-select__dropdown {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  min-width: 12rem;
+  max-height: 16rem;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.6rem;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.sgp-select__search {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.sgp-select__list {
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  overflow: auto;
+  max-height: 12rem;
+}
+
+.sgp-select__option {
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.sgp-select__option:hover,
+.sgp-select__option.is-active {
+  background: #e8eff7;
+  color: #003f7d;
+}
+
+.sgp-select__empty {
+  padding: 0.75rem;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.relatorios-page .rel-select-relatorio,
+.relatorios-page .rel-filtro-select,
+.importacoes-page .imp-select-modulo,
+.importacoes-page .imp-filtro-select {
+  width: auto;
+  min-width: 10.5rem;
+}
+
+.relatorios-page .rel-select-relatorio {
+  min-width: min(100%, 22rem);
+  width: min(100%, 28rem);
+  flex: 1 1 18rem;
+}
+
+.importacoes-page .imp-select-modulo {
+  min-width: min(100%, 18rem);
+  width: min(100%, 24rem);
+  flex: 1 1 16rem;
+}
+
+.filtros-grid .sgp-select,
+.form-grid .sgp-select,
+.form-group .sgp-select {
+  width: 100%;
+}
+
+.filtros-bar .sgp-select__trigger,
+.filtro-campo .sgp-select__trigger {
+  background: #f9fafb;
+}
