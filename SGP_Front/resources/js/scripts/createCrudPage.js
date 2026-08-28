@@ -6,6 +6,7 @@ import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import TabelaContador from '../components/crud/TabelaContador.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import { mixinHistoricoFormulario } from './formularioHistorico';
 
 /**
  * Factory de páginas CRUD (Vue Options API).
@@ -183,15 +184,11 @@ export function createCrudPage(config) {
       this.mensagemSucesso = '';
       limparErroForm(this);
       this.fecharDetalhes();
-      this.modo = 'lista';
+      this.aplicarEstadoListaLocal();
+      this.limparHistoricoFormulario();
     },
 
-    abrirNovo() {
-      if (!this.podeEditar) {
-        this.bloquearSemPermissao();
-        return;
-      }
-
+    aplicarEstadoNovoLocal() {
       this.modo = 'novo';
       this.editandoId = null;
       this.form = this.formVazio();
@@ -204,12 +201,7 @@ export function createCrudPage(config) {
       this.fecharDetalhes();
     },
 
-    abrirEdicao(registro) {
-      if (!this.podeEditar) {
-        this.bloquearSemPermissao();
-        return;
-      }
-
+    aplicarEstadoEdicaoLocal(registro) {
       const item = this.normalizarRegistro(registro);
 
       this.modo = 'editar';
@@ -223,12 +215,70 @@ export function createCrudPage(config) {
       this.fecharDetalhes();
     },
 
-    voltarLista() {
+    aplicarEstadoListaLocal() {
       this.modo = 'lista';
       this.editandoId = null;
       limparErroForm(this);
       this.form = this.formVazio();
       this.salvando = false;
+    },
+
+    async aplicarEstadoEdicaoPorId(id) {
+      const lista = this[listKey] || [];
+      let item = lista.find((registro) => String(registro.id) === String(id));
+
+      if (!item) {
+        try {
+          const { data } = await window.axios.get(`${endpoint}/${id}`);
+          const bruto = showKey && data[showKey] != null
+            ? data[showKey]
+            : (data.data ?? null);
+          if (bruto) {
+            item = this.normalizarRegistro(bruto);
+          }
+        } catch {
+          item = null;
+        }
+      }
+
+      if (!item) {
+        this.aplicarEstadoListaLocal();
+        this.limparHistoricoFormulario();
+        return;
+      }
+
+      if (!this.podeEditar) {
+        this.bloquearSemPermissao();
+        return;
+      }
+
+      this.aplicarEstadoEdicaoLocal(item);
+    },
+
+    abrirNovo() {
+      if (!this.podeEditar) {
+        this.bloquearSemPermissao();
+        return;
+      }
+
+      this.aplicarEstadoNovoLocal();
+      this.empilharHistoricoFormulario('novo');
+    },
+
+    abrirEdicao(registro) {
+      if (!this.podeEditar) {
+        this.bloquearSemPermissao();
+        return;
+      }
+
+      this.aplicarEstadoEdicaoLocal(registro);
+      const id = this.editandoId ?? registro?.id ?? null;
+      this.empilharHistoricoFormulario('editar', id);
+    },
+
+    voltarLista() {
+      this.aplicarEstadoListaLocal();
+      this.limparHistoricoFormulario();
     },
 
     fecharFormulario() {
@@ -251,7 +301,7 @@ export function createCrudPage(config) {
       if (!this.podeEditar) {
         setErroForm(this, msg.semPermissaoEditar);
         if (formErrorKey !== errorKey) {
-          this.modo = 'lista';
+          this.voltarLista();
         }
         return;
       }
@@ -471,8 +521,22 @@ export function createCrudPage(config) {
     };
   });
 
+  const watchers = {};
+
+  if (usarCicloContexto) {
+    watchers['$route.query.ciclo_id'] = function onCicloQuery(id) {
+      if (!id) {
+        return;
+      }
+
+      this.iniciarComCiclo();
+    };
+  }
+
   return {
     name,
+
+    mixins: [mixinHistoricoFormulario],
 
     components: {
       CrudPageHeader,
@@ -517,17 +581,7 @@ export function createCrudPage(config) {
 
     computed,
 
-    watch: usarCicloContexto
-      ? {
-        '$route.query.ciclo_id'(id) {
-          if (!id) {
-            return;
-          }
-
-          this.iniciarComCiclo();
-        },
-      }
-      : {},
+    watch: watchers,
 
     mounted() {
       this.iniciarComCiclo();
