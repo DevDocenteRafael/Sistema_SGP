@@ -76,14 +76,9 @@ class CursoController extends Controller
         $cursos = $query->get();
 
         $eixosConfig = config('eixos', []);
-        $eixosDb = Curso::query()
-            ->whereNotNull('eixo')
-            ->where('eixo', '!=', '')
-            ->distinct()
-            ->orderBy('eixo')
-            ->pluck('eixo')
-            ->all();
+        $eixosDb = $cursos->pluck('eixo')->filter()->unique()->values()->all();
         $eixos = array_values(array_unique(array_merge($eixosConfig, $eixosDb)));
+        sort($eixos, SORT_STRING);
 
         $ciclos = PortfolioCiclo::query()
             ->withCount('cursos')
@@ -98,6 +93,9 @@ class CursoController extends Controller
                 'cursos_count' => (int) $ciclo->cursos_count,
             ]);
 
+        $cicloAtual = $ciclos->firstWhere('atual', true) ?? $ciclos->first();
+        $cicloAtualId = is_array($cicloAtual) ? ($cicloAtual['id'] ?? null) : null;
+
         return response()->json([
             'data' => $cursos,
             'meta' => [
@@ -108,7 +106,7 @@ class CursoController extends Controller
                 'modalidades' => config('cursos.modalidades'),
                 'sim_nao' => config('cursos.sim_nao'),
                 'ciclos' => $ciclos,
-                'ciclo_atual_id' => PortfolioCiclo::atual()?->id,
+                'ciclo_atual_id' => $cicloAtualId,
             ],
         ]);
     }

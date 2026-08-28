@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Importacao\ImportacaoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 use Throwable;
@@ -122,6 +123,8 @@ class ImportacaoController extends Controller
                 'message' => 'Não foi possível concluir a importação: '.$e->getMessage(),
             ], 422);
         }
+
+        Cache::forget('relatorios.contagens');
 
         return response()->json([
             'message' => 'Importação concluída. Os dados de '.$resultado['label'].' foram substituídos.',

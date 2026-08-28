@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CarometroController;
 use App\Http\Controllers\Api\CpedEquipeController;
 use App\Http\Controllers\Api\CursoController;
 use App\Http\Controllers\Api\CursoPorEixoController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EventoController;
 use App\Http\Controllers\Api\FerramentaController;
 use App\Http\Controllers\Api\FluxogramaController;
@@ -69,7 +70,10 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::get('organograma', [OrganogramaController::class, 'index']);
     Route::get('carometro', [CarometroController::class, 'index']);
 
+    Route::get('dashboard', [DashboardController::class, 'resumo']);
+
     Route::get('relatorios', [RelatorioController::class, 'index']);
+    Route::get('relatorios/{tipo}/preview', [RelatorioController::class, 'preview']);
     Route::get('relatorios/{tipo}/pdf', [RelatorioController::class, 'pdf']);
 
     Route::get('importacoes', [ImportacaoController::class, 'catalogo']);

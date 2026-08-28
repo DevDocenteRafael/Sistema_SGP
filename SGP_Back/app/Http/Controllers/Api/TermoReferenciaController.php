@@ -52,7 +52,10 @@ class TermoReferenciaController extends Controller
             }
         }
 
-        $todos = TermoReferencia::query()->get();
+        $todosLeves = TermoReferencia::query()->get([
+            'id',
+            'prazo_deadline',
+        ]);
         $termos = $query->get()->map(fn (TermoReferencia $termo) => $this->serializarTermo($termo));
 
         $eixosConfig = config('eixos', []);
@@ -69,10 +72,10 @@ class TermoReferenciaController extends Controller
             'data' => $termos,
             'meta' => [
                 'total' => $termos->count(),
-                'total_geral' => $todos->count(),
+                'total_geral' => $todosLeves->count(),
                 'eixos' => $eixos,
                 'status' => config('termos_referencia.status', ['Planejamento', 'Em Andamento', 'Em tramitação (fora da CPED)', 'Concluído', 'Arquivado']),
-                'contagens' => TermoReferenciaPrazoService::contarPorPrazo($todos),
+                'contagens' => TermoReferenciaPrazoService::contarPorPrazo($todosLeves),
             ],
         ]);
     }

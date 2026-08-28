@@ -60,20 +60,25 @@ class ResolucaoController extends Controller
             });
         }
 
-        $todas = Resolucao::query()->get();
+        $todasLeves = Resolucao::query()->get([
+            'id',
+            'status',
+            'data_inicio_vigencia',
+            'data_fim_vigencia',
+        ]);
         $registros = $query->get()->map(fn (Resolucao $resolucao) => $this->serializarResolucao($resolucao));
 
         return response()->json([
             'data' => $registros,
             'meta' => [
                 'total' => $registros->count(),
-                'total_geral' => $todas->count(),
+                'total_geral' => $todasLeves->count(),
                 'vigencia_anos' => ResolucaoVigenciaService::vigenciaAnos(),
                 'status' => config('resolucoes.status'),
                 'categorias' => config('resolucoes.categorias', []),
                 'setores' => config('resolucoes.setores', []),
                 'semaforo' => config('resolucoes.semaforo'),
-                'contagens' => ResolucaoVigenciaService::contarPorSemaforo($todas),
+                'contagens' => ResolucaoVigenciaService::contarPorSemaforo($todasLeves),
             ],
         ]);
     }
