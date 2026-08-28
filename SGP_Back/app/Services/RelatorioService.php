@@ -14,10 +14,15 @@ use App\Models\TermoReferencia;
 use App\Models\VisitaTecnica;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
 
 class RelatorioService
 {
+    public const LIMITE_PDF = 1500;
+
+    public const LIMITE_PREVIEW = 200;
+
     public function catalogo(): array
     {
         return array_values(config('relatorios.catalogo', []));
@@ -39,26 +44,31 @@ class RelatorioService
 
     /**
      * @param  array<string, mixed>  $filtros
-     * @return array{definicao: array, filtros: array, registros: Collection, total: int}
+     * @return array{definicao: array, filtros: array, registros: Collection, total: int, truncado: bool, limite: int}
      */
-    public function montar(string $tipo, array $filtros = []): array
+    public function montar(string $tipo, array $filtros = [], ?int $limite = null): array
     {
         $definicao = $this->obterDefinicao($tipo);
         $filtrosAplicados = $this->normalizarFiltros($filtros, $definicao['filtros'] ?? []);
-        $registros = $this->consultar($tipo, $filtrosAplicados);
+        $limiteEfetivo = $limite ?? self::LIMITE_PDF;
+        $consulta = $this->consultar($tipo, $filtrosAplicados, $limiteEfetivo + 1);
+        $truncado = $consulta->count() > $limiteEfetivo;
+        $registros = $truncado ? $consulta->take($limiteEfetivo)->values() : $consulta->values();
 
         return [
             'definicao' => $definicao,
             'filtros' => $filtrosAplicados,
             'registros' => $registros,
             'total' => $registros->count(),
+            'truncado' => $truncado,
+            'limite' => $limiteEfetivo,
         ];
     }
 
     /**
      * @param  array<string, mixed>  $filtros
      */
-    public function consultar(string $tipo, array $filtros = []): Collection
+    public function consultar(string $tipo, array $filtros = [], ?int $limite = null): Collection
     {
         $query = match ($tipo) {
             'resolucoes' => $this->queryResolucoes($filtros),
@@ -74,23 +84,29 @@ class RelatorioService
             default => throw new InvalidArgumentException("Tipo de relatório inválido: {$tipo}"),
         };
 
+        if ($limite !== null) {
+            $query->limit($limite);
+        }
+
         return $query->get()->map(fn ($item) => $this->formatarLinha($item));
     }
 
     public function contagens(): array
     {
-        return [
-            'resolucoes' => Resolucao::query()->count(),
-            'termos-referencia' => TermoReferencia::query()->count(),
-            'cursos' => Curso::query()->count(),
-            'plano-de-metas' => PlanoDeMeta::query()->count(),
-            'pcas' => Pca::query()->count(),
-            'eixos' => CursoPorEixo::query()->count(),
-            'visitas-tecnicas' => VisitaTecnica::query()->count(),
-            'horas-pedagogicas' => HoraPedagogica::query()->count(),
-            'acoes-extensivas' => AcaoExtensiva::query()->count(),
-            'eventos' => Evento::query()->count(),
-        ];
+        return Cache::remember('relatorios.contagens', 60, function () {
+            return [
+                'resolucoes' => Resolucao::query()->count(),
+                'termos-referencia' => TermoReferencia::query()->count(),
+                'cursos' => Curso::query()->count(),
+                'plano-de-metas' => PlanoDeMeta::query()->count(),
+                'pcas' => Pca::query()->count(),
+                'eixos' => CursoPorEixo::query()->count(),
+                'visitas-tecnicas' => VisitaTecnica::query()->count(),
+                'horas-pedagogicas' => HoraPedagogica::query()->count(),
+                'acoes-extensivas' => AcaoExtensiva::query()->count(),
+                'eventos' => Evento::query()->count(),
+            ];
+        });
     }
 
     /**
@@ -148,8 +164,11 @@ class RelatorioService
         ]);
 
         if (! empty($filtros['ano'])) {
-            $query->whereYear('data_inicio_vigencia', $filtros['ano'])
-                ->orWhereYear('data_fim_vigencia', $filtros['ano']);
+            $ano = $filtros['ano'];
+            $query->where(function ($q) use ($ano) {
+                $q->whereYear('data_inicio_vigencia', $ano)
+                    ->orWhereYear('data_fim_vigencia', $ano);
+            });
         }
         if (! empty($filtros['categoria'])) {
             $query->where('categoria', $filtros['categoria']);
@@ -161,8 +180,11 @@ class RelatorioService
             $query->where('setor', $filtros['setor']);
         }
         if (! empty($filtros['relator'])) {
-            $query->where('relator', 'like', "%{$filtros['relator']}%")
-                ->orWhere('setor', 'like', "%{$filtros['relator']}%");
+            $relator = $filtros['relator'];
+            $query->where(function ($q) use ($relator) {
+                $q->where('relator', 'like', "%{$relator}%")
+                    ->orWhere('setor', 'like', "%{$relator}%");
+            });
         }
 
         return $query;

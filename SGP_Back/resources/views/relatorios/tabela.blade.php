@@ -92,6 +92,9 @@
         @if (!empty($usuario))
             <span><strong>Por:</strong> {{ $usuario }}</span>
         @endif
+        @if (!empty($truncado))
+            <span><strong>Atenção:</strong> PDF limitado aos primeiros {{ $limite }} registros. Refine os filtros para exportar o restante.</span>
+        @endif
         @forelse ($filtros as $chave => $valor)
             <span><strong>{{ ucfirst($chave) }}:</strong> {{ $valor }}</span>
         @empty

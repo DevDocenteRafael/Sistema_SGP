@@ -1,19 +1,7 @@
 import { UNIDADES } from './unidades';
 import { podeConsultarDados } from './auth';
 import TabelaContador from '../components/crud/TabelaContador.vue';
-
-const ICONS = {
-  cursos: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
-  metas: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
-  pca: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 12h4"/><path d="M10 8h4"/><path d="M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"/><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/></svg>',
-  eixos: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>',
-  visitas: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
-  horas: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-  acoes: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
-  eventos: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>',
-  resolucoes: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>',
-  'termos-referencia': '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
-};
+import { mixinHistoricoCatalogo } from './formularioHistorico';
 
 const EIXOS_PADRAO = [
   'Gastronomia',
@@ -27,8 +15,35 @@ const EIXOS_PADRAO = [
   'Gestão e Negócios',
 ];
 
+const ORDEM_RELATORIOS = [
+  'resolucoes',
+  'termos-referencia',
+  'cursos',
+  'plano-de-metas',
+  'pcas',
+  'eixos',
+  'visitas-tecnicas',
+  'horas-pedagogicas',
+  'acoes-extensivas',
+  'eventos',
+];
+
+function filtrosVazios() {
+  return {
+    busca: '',
+    ano: '',
+    unidade: '',
+    eixo: '',
+    status: '',
+    categoria: '',
+    setor: '',
+    relator: '',
+  };
+}
+
 export default {
   name: 'Relatorios',
+  mixins: [mixinHistoricoCatalogo],
   components: { TabelaContador },
 
   data() {
@@ -40,27 +55,36 @@ export default {
       mensagem: '',
       catalogo: [],
       selecionado: null,
+      relatorioKey: '',
       registros: [],
       metaApi: {},
-      filtros: {
-        busca: '',
-        ano: '',
-        unidade: '',
-        eixo: '',
-        status: '',
-        categoria: '',
-        setor: '',
-        relator: '',
-      },
+      filtros: filtrosVazios(),
       unidadesBase: UNIDADES,
       eixosBase: EIXOS_PADRAO,
       buscaTimer: null,
+      _trocandoRelatorio: false,
     };
   },
 
   computed: {
     podeConsultar() {
       return podeConsultarDados();
+    },
+
+    catalogoOrdenado() {
+      const peso = (key) => {
+        const indice = ORDEM_RELATORIOS.indexOf(key);
+        return indice === -1 ? 999 : indice;
+      };
+
+      return [...this.catalogo].sort((a, b) => peso(a.key) - peso(b.key));
+    },
+
+    opcoesRelatorios() {
+      return this.catalogoOrdenado.map((item) => ({
+        value: item.key,
+        label: item.label,
+      }));
     },
 
     colunasPreview() {
@@ -153,10 +177,6 @@ export default {
   },
 
   methods: {
-    icone(nome) {
-      return ICONS[nome] || ICONS.cursos;
-    },
-
     temFiltro(nome) {
       return (this.selecionado?.filtros || []).includes(nome);
     },
@@ -181,6 +201,13 @@ export default {
         if (Array.isArray(data.meta?.unidades) && data.meta.unidades.length) {
           this.unidadesBase = data.meta.unidades;
         }
+
+        const viewKey = this.$route?.query?.view;
+        if (viewKey && this.catalogo.some((item) => item.key === String(viewKey))) {
+          this.aplicarEstadoCatalogoDaRota(String(viewKey));
+        } else if (this.catalogoOrdenado.length) {
+          this.selecionar(this.catalogoOrdenado[0], { replaceHistorico: true });
+        }
       } catch (error) {
         this.erro = error.response?.data?.message || 'Não foi possível carregar o catálogo de relatórios.';
       } finally {
@@ -188,21 +215,103 @@ export default {
       }
     },
 
-    selecionar(item) {
+    aoTrocarRelatorio(chave) {
+      if (this._trocandoRelatorio) {
+        return;
+      }
+
+      const key = chave || this.relatorioKey;
+      const item = this.catalogo.find((entrada) => entrada.key === key);
+      if (!item) {
+        return;
+      }
+
+      this.selecionar(item);
+    },
+
+    selecionar(item, { replaceHistorico = false } = {}) {
+      this.aplicarSelecaoLocal(item);
+
+      if (replaceHistorico) {
+        this.definirHistoricoCatalogo(item.key, true);
+      } else {
+        this.empilharHistoricoCatalogo(item.key);
+      }
+    },
+
+    aplicarSelecaoLocal(item) {
+      this._trocandoRelatorio = true;
+      this.relatorioKey = item.key;
+      this.$nextTick(() => {
+        this._trocandoRelatorio = false;
+      });
+
+      if (this.selecionado?.key === item.key && this.registros.length) {
+        return;
+      }
+
       this.selecionado = item;
       this.mensagem = '';
       this.erro = '';
-      this.filtros = { busca: '', ano: '', unidade: '', eixo: '', status: '', categoria: '', setor: '', relator: '' };
+      this.filtros = filtrosVazios();
       this.carregarPrevias();
     },
 
-    voltarCatalogo() {
+    aplicarEstadoCatalogoLocal() {
       this.selecionado = null;
+      this.relatorioKey = '';
       this.registros = [];
       this.metaApi = {};
+      this.filtros = filtrosVazios();
       this.mensagem = '';
       this.erro = '';
-      this.carregarCatalogo();
+    },
+
+    aplicarEstadoCatalogoDaRota(viewKey) {
+      if (!viewKey) {
+        if (this.catalogoOrdenado.length) {
+          this.aplicarSelecaoLocal(this.catalogoOrdenado[0]);
+        } else {
+          this.aplicarEstadoCatalogoLocal();
+        }
+        return;
+      }
+
+      if (this.selecionado?.key === String(viewKey) && this.relatorioKey === String(viewKey)) {
+        return;
+      }
+
+      const item = this.catalogo.find((entrada) => String(entrada.key) === String(viewKey));
+      if (!item) {
+        if (this.catalogoOrdenado.length) {
+          this.aplicarSelecaoLocal(this.catalogoOrdenado[0]);
+        }
+        return;
+      }
+
+      this.aplicarSelecaoLocal(item);
+    },
+
+    async definirHistoricoCatalogo(chave, replace = false) {
+      if (!this.$router || !this.$route || !chave) {
+        return;
+      }
+
+      if (String(this.$route.query.view || '') === String(chave)) {
+        return;
+      }
+
+      this._navCatalogoSilenciosa = true;
+      try {
+        const nav = replace ? this.$router.replace : this.$router.push;
+        await nav.call(this.$router, {
+          query: { ...this.$route.query, view: String(chave) },
+        });
+      } catch {
+        // ignore
+      } finally {
+        this._navCatalogoSilenciosa = false;
+      }
     },
 
     aoBuscar() {
@@ -217,7 +326,7 @@ export default {
     paramsFiltros() {
       const params = {};
       Object.entries(this.filtros).forEach(([chave, valor]) => {
-        if (! valor) {
+        if (!valor) {
           return;
         }
         if (chave === 'busca' || this.temFiltro(chave)) {
@@ -239,6 +348,10 @@ export default {
         });
         this.registros = Array.isArray(data.data) ? data.data : [];
         this.metaApi = data.meta || {};
+
+        if (data.meta?.truncado) {
+          this.mensagem = `Prévia limitada aos primeiros ${data.meta.limite} registros. Use filtros ou exporte o PDF com filtros mais específicos.`;
+        }
       } catch (error) {
         this.registros = [];
         this.erro = error.response?.data?.message || 'Não foi possível carregar a prévia do relatório.';
