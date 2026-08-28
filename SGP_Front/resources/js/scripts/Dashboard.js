@@ -52,7 +52,7 @@ export default {
       },
       meta: {
         eixos: EIXOS_PADRAO,
-        status: ['ATIVO', 'INATIVO'],
+        status: ['ATIVO', 'INATIVO', 'EM REVISÃO'],
       },
       unidadesBase: UNIDADES,
     };
@@ -136,14 +136,29 @@ export default {
       return this.cursosFiltrados;
     },
 
+    totalCursos() {
+      return this.cursosFiltrados.length;
+    },
+
+    cursosAtivos() {
+      return this.cursosFiltrados.filter((curso) => this.statusCurso(curso) === 'ATIVO').length;
+    },
+
+    cursosInativos() {
+      return this.cursosFiltrados.filter((curso) => this.statusCurso(curso) === 'INATIVO').length;
+    },
+
+    cursosEmRevisao() {
+      return this.cursosFiltrados.filter((curso) => this.statusCurso(curso) === 'EM REVISAO').length;
+    },
+
+    totalEixos() {
+      if (this.filtros.eixo) return 1;
+      return new Set(this.cursosFiltrados.map((curso) => curso.eixo).filter(Boolean)).size;
+    },
+
     metricCards() {
       const filtrados = this.cursosFiltrados;
-      const total = filtrados.length;
-      const ativos = filtrados.filter((curso) => this.statusCurso(curso) === 'ATIVO').length;
-      const inativos = filtrados.filter((curso) => this.statusCurso(curso) === 'INATIVO').length;
-      const eixos = this.filtros.eixo
-        ? 1
-        : new Set(filtrados.map((curso) => curso.eixo).filter(Boolean)).size;
       const unidades = this.filtros.unidade
         ? 1
         : new Set(
@@ -155,40 +170,10 @@ export default {
 
       return [
         {
-          label: 'Total de Cursos',
-          value: total,
-          sub: 'portfólio',
-          icon: this.iconPortfolio,
-        },
-        {
-          label: 'Cursos Ativos',
-          value: ativos,
-          accent: true,
-          icon: this.iconCheck,
-        },
-        {
-          label: 'Cursos Inativos',
-          value: inativos,
-          warn: true,
-          icon: this.iconInactive,
-        },
-        {
-          label: 'Eixos Tecnológicos',
-          value: eixos,
-          sub: 'eixos',
-          icon: this.iconEixos,
-        },
-        {
           label: 'Unidades',
           value: unidades,
           sub: 'unidades',
           icon: this.iconUnidades,
-        },
-        {
-          label: 'Visitas Técnicas',
-          value: this.contagens.visitas,
-          sub: 'processos',
-          icon: this.iconVisitas,
         },
         {
           label: 'Horas Pedagógicas',
@@ -207,6 +192,13 @@ export default {
           value: this.contagens.eventos,
           sub: 'cadastrados',
           icon: this.iconEventos,
+        },
+        {
+          label: 'Visitas Técnicas',
+          value: this.contagens.visitas,
+          sub: 'processos',
+          icon: this.iconVisitas,
+          tileClass: 'dashboard-kpi-tile--visitas',
         },
       ];
     },
@@ -302,18 +294,17 @@ export default {
 
       return {
         total,
-        cards: [
-          { title: 'Total no período', value: total, subtitle: '100% do total', percent: 100, color: '#003F7D' },
-          { title: 'Realizadas', value: realizadas, subtitle: `${this.percentual(realizadas, total)}% do total`, percent: this.percentual(realizadas, total), color: '#15803d' },
-          { title: 'Pendentes', value: pendentes, subtitle: `${this.percentual(pendentes, total)}% do total`, percent: this.percentual(pendentes, total), color: '#a16207' },
-          { title: 'Fora do prazo', value: foraPrazo, subtitle: `${this.percentual(foraPrazo, total)}% do total`, percent: this.percentual(foraPrazo, total), color: '#b91c1c' },
-          { title: 'Dentro do prazo', value: dentroPrazo, subtitle: `${this.percentual(dentroPrazo, total)}% do total`, percent: this.percentual(dentroPrazo, total), color: '#1d4ed8' },
-          { title: 'Devolvidas/Recusadas', value: devolvidas, subtitle: `${this.percentual(devolvidas, total)}% do total`, percent: this.percentual(devolvidas, total), color: '#7e22ce' },
+        chipsFluxo: [
+          { title: 'Realizadas', value: realizadas, color: '#15803d', subtitle: `${this.percentual(realizadas, total)}% do total` },
+          { title: 'Pendentes', value: pendentes, color: '#a16207', subtitle: `${this.percentual(pendentes, total)}% do total` },
+          { title: 'No prazo', value: dentroPrazo, color: '#003F7D', subtitle: `${this.percentual(dentroPrazo, total)}% do total` },
+          { title: 'Fora do prazo', value: foraPrazo, color: '#c2410c', subtitle: `${this.percentual(foraPrazo, total)}% do total` },
+          { title: 'Devolvidas', value: devolvidas, color: '#b91c1c', subtitle: `${this.percentual(devolvidas, total)}% do total` },
         ],
         porEixo: this.listaContagem(this.visitas, 'eixo'),
-        porStatus: this.listaContagem(this.visitas, 'status'),
-        porUnidade: this.listaContagem(this.visitas, 'unidade'),
-        porResponsavel: this.listaContagem(this.visitas, 'responsavel'),
+        porStatus: this.listaContagem(this.visitas, 'status', { orange: true }).slice(0, 6),
+        porUnidade: this.listaContagem(this.visitas, 'unidade').slice(0, 8),
+        porResponsavel: this.listaContagem(this.visitas, 'responsavel').slice(0, 8),
       };
     },
 
@@ -328,19 +319,18 @@ export default {
 
       return {
         total,
-        cards: [
-          { title: 'Total no período', value: total, subtitle: '100% do total', percent: 100, color: '#003F7D' },
-          { title: 'Concluídas', value: concluidas, subtitle: `${this.percentual(concluidas, total)}% do total`, percent: this.percentual(concluidas, total), color: '#15803d' },
-          { title: 'Aprovadas', value: aprovadas, subtitle: `${this.percentual(aprovadas, total)}% do total`, percent: this.percentual(aprovadas, total), color: '#047857' },
-          { title: 'Em análise', value: emAnalise, subtitle: `${this.percentual(emAnalise, total)}% do total`, percent: this.percentual(emAnalise, total), color: '#a16207' },
-          { title: 'Solicitadas', value: solicitadas, subtitle: `${this.percentual(solicitadas, total)}% do total`, percent: this.percentual(solicitadas, total), color: '#1d4ed8' },
-          { title: 'Recusadas', value: recusadas, subtitle: `${this.percentual(recusadas, total)}% do total`, percent: this.percentual(recusadas, total), color: '#b91c1c' },
-          { title: 'Inativas', value: inativas, subtitle: `${this.percentual(inativas, total)}% do total`, percent: this.percentual(inativas, total), color: '#6b7280' },
+        chipsFluxo: [
+          { title: 'Concluídas', value: concluidas, color: '#15803d', subtitle: `${this.percentual(concluidas, total)}% do total` },
+          { title: 'Aprovadas', value: aprovadas, color: '#003F7D', subtitle: `${this.percentual(aprovadas, total)}% do total` },
+          { title: 'Em análise', value: emAnalise, color: '#a16207', subtitle: `${this.percentual(emAnalise, total)}% do total` },
+          { title: 'Solicitadas', value: solicitadas, color: '#F57C00', subtitle: `${this.percentual(solicitadas, total)}% do total` },
+          { title: 'Recusadas', value: recusadas, color: '#b91c1c', subtitle: `${this.percentual(recusadas, total)}% do total` },
+          { title: 'Inativas', value: inativas, color: '#6b7280', subtitle: `${this.percentual(inativas, total)}% do total` },
         ],
         porEixo: this.listaContagem(this.horas, 'eixo'),
-        porStatus: this.listaContagem(this.horas, 'status'),
-        porSegmento: this.listaContagem(this.horas, 'segmento'),
-        porPessoa: this.listaContagem(this.horas, 'pessoa'),
+        porStatus: this.listaContagem(this.horas, 'status', { orange: true }).slice(0, 6),
+        porSegmento: this.listaContagem(this.horas, 'segmento').slice(0, 8),
+        porPessoa: this.listaContagem(this.horas, 'pessoa').slice(0, 8),
       };
     },
 
@@ -383,54 +373,48 @@ export default {
       this.erro = '';
 
       try {
-        const [cursosRes, visitasRes, horasRes, acoesRes, eventosRes, resolucoesRes, termosRes] = await Promise.all([
-          window.axios.get('/api/cursos'),
-          window.axios.get('/api/visitas-tecnicas'),
-          window.axios.get('/api/horas-pedagogicas'),
-          window.axios.get('/api/acoes-extensivas'),
-          window.axios.get('/api/eventos'),
-          window.axios.get('/api/resolucoes'),
-          window.axios.get('/api/termos-referencia'),
-        ]);
+        const { data } = await window.axios.get('/api/dashboard');
+        const payload = data.data || {};
 
-        this.courses = cursosRes.data.data ?? [];
+        this.courses = payload.cursos ?? [];
+        this.visitas = payload.visitas ?? [];
+        this.horas = payload.horas ?? [];
 
-        const eixosApi = cursosRes.data.meta?.eixos ?? [];
+        const eixosApi = payload.meta?.eixos ?? [];
         const eixosBanco = this.courses.map((curso) => curso.eixo).filter(Boolean);
         const eixos = Array.from(new Set([...eixosApi, ...eixosBanco, ...EIXOS_PADRAO])).sort();
 
-        const statusApi = cursosRes.data.meta?.status ?? [];
+        const statusApi = payload.meta?.status ?? [];
         const statusBanco = this.courses.map((curso) => curso.status).filter(Boolean);
         const status = Array.from(new Set([...statusApi, ...statusBanco])).sort();
 
         this.meta = {
           eixos,
-          status: status.length ? status : ['ATIVO', 'INATIVO'],
+          status: status.length ? status : ['ATIVO', 'INATIVO', 'EM REVISÃO'],
         };
 
-        this.visitas = visitasRes.data.data ?? [];
-        this.horas = horasRes.data.data ?? [];
         this.contagens = {
-          visitas: visitasRes.data.meta?.total_geral ?? this.visitas.length,
-          horas: horasRes.data.meta?.total_geral ?? this.horas.length,
-          acoes: acoesRes.data.meta?.total_geral ?? (acoesRes.data.data?.length || 0),
-          eventos: eventosRes.data.meta?.total_geral ?? (eventosRes.data.data?.length || 0),
-          resolucoes: resolucoesRes.data.meta?.total_geral ?? resolucoesRes.data.meta?.total ?? (resolucoesRes.data.data?.length || 0),
-          termos: termosRes.data.meta?.total_geral ?? termosRes.data.meta?.total ?? (termosRes.data.data?.length || 0),
+          visitas: 0,
+          horas: 0,
+          acoes: 0,
+          eventos: 0,
+          resolucoes: 0,
+          termos: 0,
+          ...(payload.contagens || {}),
         };
         this.resolucoesContagens = {
           no_prazo: 0,
           atencao: 0,
           critico: 0,
           vencidos: 0,
-          ...(resolucoesRes.data.meta?.contagens || {}),
+          ...(payload.resolucoes_contagens || {}),
         };
         this.termosContagens = {
           no_prazo: 0,
           atencao: 0,
           critico: 0,
           vencidos: 0,
-          ...(termosRes.data.meta?.contagens || {}),
+          ...(payload.termos_contagens || {}),
         };
       } catch (error) {
         this.erro = this.extrairErro(error, 'Não foi possível carregar os dados do dashboard.');
@@ -462,13 +446,14 @@ export default {
       }, {});
     },
 
-    listaContagem(lista, campo) {
+    listaContagem(lista, campo, opcoes = {}) {
       const contagem = this.contarPor(lista, campo);
 
       return this.enriquecerBarras(
         Object.entries(contagem)
           .map(([label, value]) => ({ label, value }))
           .sort((a, b) => b.value - a.value),
+        opcoes,
       );
     },
 
@@ -491,7 +476,28 @@ export default {
     },
 
     normalizarTipo(tipo) {
-      return String(tipo || '').trim();
+      const bruto = String(tipo || '').trim().replace(/\s+/g, ' ');
+      if (!bruto) return '';
+
+      const chave = bruto
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      const mapa = {
+        aperfeicoamento: 'Aperfeiçoamento',
+        'aperfeicoamento/atualizacao': 'Aperfeiçoamento/Atualização',
+        'qualificacao profissional': 'Qualificação Profissional',
+        'habilitacao tecnica': 'Habilitação Técnica',
+      };
+
+      return mapa[chave] || bruto.replace(/\w\S*/g, (palavra) => {
+        const lower = palavra.toLowerCase();
+        if (['de', 'da', 'do', 'das', 'dos', 'e', 'ou'].includes(lower)) {
+          return lower;
+        }
+        return lower.charAt(0).toUpperCase() + lower.slice(1);
+      });
     },
 
     montarCardsPrazo(contagens, total) {

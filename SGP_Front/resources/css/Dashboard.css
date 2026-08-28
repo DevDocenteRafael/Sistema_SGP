@@ -35,7 +35,11 @@
   gap: 0.5rem;
 }
 
-.dashboard-toolbar select,
+.dashboard-toolbar .sgp-select {
+  min-width: 10.5rem;
+}
+
+.dashboard-toolbar .sgp-select__trigger,
 .btn-limpar {
   height: 2.25rem;
   padding: 0 0.85rem;
@@ -68,33 +72,61 @@
   color: #b91c1c;
 }
 
-.dashboard-metrics-grid {
+.dashboard-metrics-grid,
+.dashboard-kpi-strip {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.85rem;
   margin: 1.25rem 2rem 1rem;
+  align-items: stretch;
 }
 
-.dashboard-metric-card {
+.dashboard-kpi-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dashboard-kpi-strip--single {
+  grid-template-columns: 1fr;
+}
+
+.dashboard-kpi-tile--summary {
+  max-width: 42rem;
+}
+
+.dashboard-kpi-tile--summary .dashboard-metric-chips {
+  margin-top: 0.65rem;
+}
+
+.dashboard-metric-card,
+.dashboard-kpi-tile {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 1.15rem 1.2rem;
+  gap: 0.3rem;
+  min-height: 7.5rem;
+  padding: 1rem 1.05rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.85rem;
   background: #fff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 0.15s ease;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.dashboard-metric-card:hover {
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+.dashboard-metric-card:hover,
+.dashboard-kpi-tile:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
 }
 
-.dashboard-quick-card {
-  cursor: pointer;
+.dashboard-kpi-tile.is-accent,
+.dashboard-metric-card.is-accent {
+  border-color: #ffedd5;
 }
 
+.dashboard-kpi-tile--cursos {
+  min-height: 7.5rem;
+}
+
+.dashboard-kpi-tile-head,
 .dashboard-metric-top {
   display: flex;
   align-items: center;
@@ -102,9 +134,13 @@
   gap: 0.75rem;
 }
 
+.dashboard-quick-card {
+  cursor: pointer;
+}
+
 .dashboard-metric-icon {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.1rem;
+  height: 2.1rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -113,6 +149,7 @@
   color: #003f7d;
 }
 
+.dashboard-kpi-tile.is-accent .dashboard-metric-icon,
 .dashboard-metric-card.is-accent .dashboard-metric-icon {
   background: #f57c00;
   color: #fff;
@@ -132,13 +169,14 @@
 }
 
 .dashboard-metric-value {
-  margin: 0.35rem 0 0;
+  margin: 0.25rem 0 0;
   color: #003f7d;
-  font-size: 1.75rem;
+  font-size: 1.65rem;
   font-weight: 700;
   line-height: 1;
 }
 
+.dashboard-kpi-tile.is-accent .dashboard-metric-value,
 .dashboard-metric-card.is-accent .dashboard-metric-value {
   color: #f57c00;
 }
@@ -150,7 +188,317 @@
 .dashboard-metric-title {
   margin: 0;
   color: #6b7280;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.dashboard-metric-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: auto;
+  padding-top: 0.45rem;
+}
+
+.dashboard-metric-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.4rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.65rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.dashboard-metric-chip strong {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.dashboard-metric-cursos-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.15rem;
+  flex: 1;
+}
+
+.dashboard-metric-status-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: flex-end;
+}
+
+.dashboard-metric-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.dashboard-metric-status strong {
+  font-size: 0.9rem;
+}
+
+.dashboard-metric-status.is-ativo strong {
+  color: #003f7d;
+}
+
+.dashboard-metric-status.is-inativo strong {
+  color: #dc2626;
+}
+
+.dashboard-metric-status.is-revisao strong {
+  color: #2563eb;
+}
+
+.dashboard-analytics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 0 2rem 2rem;
+  align-items: start;
+}
+
+.dashboard-metric-share {
+  margin: 0.15rem 0 0;
+  color: #9ca3af;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+@media (min-width: 1100px) {
+  .dashboard-analytics {
+    grid-template-columns: 1.35fr 1fr 1fr;
+  }
+
+  .dashboard-analytics:has(.dashboard-chart-card:nth-child(4)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.dashboard-chart-head {
+  margin-bottom: 0.85rem;
+}
+
+.dashboard-chart-head h3 {
+  margin: 0 0 0.2rem;
+}
+
+.dashboard-chart-head .dashboard-chart-subtitle {
+  margin: 0;
+}
+
+.dashboard-rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.dashboard-rank-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.dashboard-rank-pos {
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.1rem;
+  border-radius: 0.4rem;
+  background: #eef2f7;
+  color: #003f7d;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.dashboard-rank-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard-rank-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+.dashboard-rank-label {
+  min-width: 0;
+  overflow: hidden;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-rank-meta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.dashboard-rank-meta strong {
+  color: #111827;
   font-size: 0.875rem;
+}
+
+.dashboard-rank-meta small {
+  color: #6b7280;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.dashboard-rank-track {
+  height: 0.45rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eef2f7;
+}
+
+.dashboard-rank-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.dashboard-vchart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.dashboard-vchart-plot {
+  position: relative;
+  height: 11.5rem;
+  border-bottom: 1px solid #d1d5db;
+  background: linear-gradient(180deg, #fafbfc 0%, #fff 55%);
+  border-radius: 0.5rem 0.5rem 0 0;
+  overflow: hidden;
+}
+
+.dashboard-vchart-grid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dashboard-vchart-grid span {
+  display: block;
+  width: 100%;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.dashboard-vchart-grid span:first-child {
+  border-top: none;
+}
+
+.dashboard-vbars {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 0.4rem;
+  height: 100%;
+  padding: 0.85rem 0.5rem 0;
+}
+
+.dashboard-vbar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  max-width: 4.25rem;
+  height: 100%;
+}
+
+.dashboard-vbar-shaft {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 0.2rem;
+}
+
+.dashboard-vbar-fill {
+  position: relative;
+  width: 70%;
+  max-width: 2.4rem;
+  min-height: 0;
+  border-radius: 0.4rem 0.4rem 0.15rem 0.15rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: height 0.3s ease;
+}
+
+.dashboard-vbar-value {
+  position: absolute;
+  left: 50%;
+  top: 0.4rem;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+}
+
+.dashboard-vchart-axis {
+  display: flex;
+  justify-content: space-around;
+  gap: 0.4rem;
+  padding: 0 0.5rem;
+}
+
+.dashboard-vbar-caption {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 0;
+  max-width: 4.25rem;
+}
+
+.dashboard-vbar-label {
+  width: 100%;
+  color: #4b5563;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dashboard-vbar-share {
+  color: #9ca3af;
+  font-size: 0.65rem;
+  font-weight: 600;
 }
 
 .dashboard-note {
@@ -190,10 +538,18 @@
   font-weight: 700;
 }
 
+.dashboard-chart-card .dashboard-chart-head h3 {
+  margin: 0 0 0.2rem;
+}
+
 .dashboard-chart-subtitle {
   margin: -0.15rem 0 1rem;
   color: #6b7280;
   font-size: 0.8rem;
+}
+
+.dashboard-chart-card .dashboard-chart-head .dashboard-chart-subtitle {
+  margin: 0;
 }
 
 .dashboard-chart-empty {
