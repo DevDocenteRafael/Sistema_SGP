@@ -5,6 +5,7 @@ import PageTableCard from '../components/crud/PageTableCard.vue';
 import IndicadorPrazo from '../components/ciclo-vida/IndicadorPrazo.vue';
 import LinhaDoTempo from '../components/ciclo-vida/LinhaDoTempo.vue';
 import { podeEditarDados } from './auth';
+import { mixinHistoricoFormulario } from './formularioHistorico';
 
 const ENDPOINT_API = '/api/resolucoes';
 
@@ -43,6 +44,7 @@ function formVazio() {
 
 export default {
   name: 'ControleDeResolucao',
+  mixins: [mixinHistoricoFormulario],
   components: {
     CrudPageHeader,
     CrudAlerts,
@@ -69,6 +71,7 @@ export default {
       debounceTimeout: null,
       detalheAberto: false,
       resolucaoEmEdicao: null,
+      editandoId: null,
       historico: [],
       form: formVazio(),
       registros: [],
@@ -190,8 +193,13 @@ export default {
         return;
       }
 
+      this.aplicarEstadoNovoLocal();
+      this.empilharHistoricoFormulario('novo');
+    },
+    aplicarEstadoNovoLocal() {
       this.modo = 'novo';
       this.resolucaoEmEdicao = null;
+      this.editandoId = null;
       this.historico = [];
       this.form = formVazio();
       this.mensagemErro = '';
@@ -218,12 +226,44 @@ export default {
         return;
       }
 
+      this.aplicarEstadoEdicaoLocal(item);
+      this.empilharHistoricoFormulario('editar', item.id);
+    },
+    aplicarEstadoEdicaoLocal(item) {
       this.modo = 'editar';
       this.resolucaoEmEdicao = item;
+      this.editandoId = item.id;
       this.form = this.preencherForm(item);
       this.mensagemErro = '';
       this.mensagemSucesso = '';
       this.fecharDetalhes();
+    },
+    async aplicarEstadoEdicaoPorId(id) {
+      let item = this.registros.find((registro) => String(registro.id) === String(id));
+
+      if (!item) {
+        try {
+          const { data } = await window.axios.get(`${ENDPOINT_API}/${id}`);
+          item = data.resolucao || data.data || null;
+        } catch {
+          item = null;
+        }
+      }
+
+      if (!item) {
+        this.aplicarEstadoListaLocal();
+        this.limparHistoricoFormulario();
+        return;
+      }
+
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para editar resoluções.';
+        this.aplicarEstadoListaLocal();
+        this.limparHistoricoFormulario();
+        return;
+      }
+
+      this.aplicarEstadoEdicaoLocal(item);
     },
     fecharDetalhes() {
       this.detalheAberto = false;
@@ -233,9 +273,14 @@ export default {
       }
     },
     voltarLista() {
+      this.aplicarEstadoListaLocal();
+      this.limparHistoricoFormulario();
+    },
+    aplicarEstadoListaLocal() {
       this.modo = 'lista';
       this.form = formVazio();
       this.resolucaoEmEdicao = null;
+      this.editandoId = null;
       this.historico = [];
       this.salvando = false;
       this.mensagemErro = '';

@@ -98,10 +98,13 @@
 
           <label>
             Tipo
-            <select v-model="form.tipo">
-            <option value="linear">Linear</option>
-            <option value="funcional">Funcional (com raias)</option>
-            </select>
+            <SearchableSelect
+              v-model="form.tipo"
+              :options="[
+                { value: 'linear', label: 'Linear' },
+                { value: 'funcional', label: 'Funcional (com raias)' },
+              ]"
+            />
           </label>
 
           <label>

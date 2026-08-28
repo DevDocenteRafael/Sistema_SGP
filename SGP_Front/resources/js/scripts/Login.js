@@ -2,6 +2,8 @@ import logoSenac from '../../images/Logo-Senac-branco.png';
 import { marcarSessao } from './auth';
 import { SGP_RODAPE } from './versao';
 
+const STORAGE_CREDENCIAIS = 'sgp_login_lembrado';
+
 export default {
   name: 'Login',
   data() {
@@ -10,12 +12,42 @@ export default {
       rodapeVersao: SGP_RODAPE,
       email: '',
       senha: '',
+      lembrar: true,
       showPassword: false,
       loading: false,
       errorMessage: '',
     };
   },
+  mounted() {
+    this.carregarCredenciaisSalvas();
+  },
   methods: {
+    carregarCredenciaisSalvas() {
+      try {
+        const raw = localStorage.getItem(STORAGE_CREDENCIAIS);
+        if (!raw) return;
+
+        const salvo = JSON.parse(raw);
+        this.email = salvo.email || '';
+        this.senha = salvo.senha || '';
+        this.lembrar = true;
+      } catch {
+        localStorage.removeItem(STORAGE_CREDENCIAIS);
+      }
+    },
+
+    salvarCredenciais() {
+      if (!this.lembrar) {
+        localStorage.removeItem(STORAGE_CREDENCIAIS);
+        return;
+      }
+
+      localStorage.setItem(STORAGE_CREDENCIAIS, JSON.stringify({
+        email: this.email,
+        senha: this.senha,
+      }));
+    },
+
     async handleLogin() {
       this.loading = true;
       this.errorMessage = '';
@@ -26,6 +58,7 @@ export default {
           senha: this.senha,
         });
 
+        this.salvarCredenciais();
         marcarSessao(data.token, data.usuario);
 
         const redirect = this.$route.query.redirect || '/app/inicio';

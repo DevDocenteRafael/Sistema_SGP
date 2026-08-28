@@ -3,6 +3,7 @@ import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import { mixinHistoricoFormulario } from './formularioHistorico';
 
 const ENDPOINT = '/api/jornadas-pedagogicas';
 
@@ -28,6 +29,7 @@ function formVazio() {
 
 export default {
   name: 'JornadaPedagogica',
+  mixins: [mixinHistoricoFormulario],
   components: {
     CrudPageHeader,
     CrudAlerts,
@@ -101,6 +103,11 @@ export default {
     },
 
     abrirNovo() {
+      this.aplicarEstadoNovoLocal();
+      this.empilharHistoricoFormulario('novo');
+    },
+
+    aplicarEstadoNovoLocal() {
       this.modo = 'novo';
       this.editandoId = null;
       this.form = formVazio();
@@ -109,6 +116,11 @@ export default {
     },
 
     abrirEdicao(item) {
+      this.aplicarEstadoEdicaoLocal(item);
+      this.empilharHistoricoFormulario('editar', item.id);
+    },
+
+    aplicarEstadoEdicaoLocal(item) {
       this.modo = 'editar';
       this.editandoId = item.id;
       this.form = {
@@ -132,7 +144,33 @@ export default {
       this.registroDetalhe = null;
     },
 
+    async aplicarEstadoEdicaoPorId(id) {
+      let item = this.registros.find((registro) => String(registro.id) === String(id));
+
+      if (!item) {
+        try {
+          const { data } = await window.axios.get(`${ENDPOINT}/${id}`);
+          item = data.jornada || data.data || null;
+        } catch {
+          item = null;
+        }
+      }
+
+      if (!item) {
+        this.aplicarEstadoListaLocal();
+        this.limparHistoricoFormulario();
+        return;
+      }
+
+      this.aplicarEstadoEdicaoLocal(item);
+    },
+
     voltarLista() {
+      this.aplicarEstadoListaLocal();
+      this.limparHistoricoFormulario();
+    },
+
+    aplicarEstadoListaLocal() {
       this.modo = 'lista';
       this.editandoId = null;
       this.form = formVazio();

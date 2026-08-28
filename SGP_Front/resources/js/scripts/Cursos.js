@@ -4,9 +4,11 @@ import { UNIDADES } from './unidades';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CicloContextoBanner from '../components/crud/CicloContextoBanner.vue';
+import { mixinHistoricoFormulario } from './formularioHistorico';
 
 export default {
   name: 'Cursos',
+  mixins: [mixinHistoricoFormulario],
   components: { PageTableCard, CrudPageHeader, CicloContextoBanner },
   data() {
     return {
@@ -167,6 +169,11 @@ export default {
     },
 
     abrirNovo() {
+      this.aplicarEstadoNovoLocal();
+      this.empilharHistoricoFormulario('novo');
+    },
+
+    aplicarEstadoNovoLocal() {
       this.modo = 'novo';
       this.editandoId = null;
       this.abaForm = 'basico';
@@ -177,6 +184,11 @@ export default {
     },
 
     abrirEdicao(curso) {
+      this.aplicarEstadoEdicaoLocal(curso);
+      this.empilharHistoricoFormulario('editar', curso.id);
+    },
+
+    aplicarEstadoEdicaoLocal(curso) {
       const unidadesOferta = Array.isArray(curso.unidades_oferta) && curso.unidades_oferta.length
         ? [...curso.unidades_oferta]
         : curso.unidade
@@ -219,7 +231,33 @@ export default {
       this.fecharDetalhes();
     },
 
+    async aplicarEstadoEdicaoPorId(id) {
+      let curso = this.cursos.find((item) => String(item.id) === String(id));
+
+      if (!curso) {
+        try {
+          const { data } = await window.axios.get(`/api/cursos/${id}`);
+          curso = data.curso || data.data || null;
+        } catch {
+          curso = null;
+        }
+      }
+
+      if (!curso) {
+        this.aplicarEstadoListaLocal();
+        this.limparHistoricoFormulario();
+        return;
+      }
+
+      this.aplicarEstadoEdicaoLocal(curso);
+    },
+
     voltarLista() {
+      this.aplicarEstadoListaLocal();
+      this.limparHistoricoFormulario();
+    },
+
+    aplicarEstadoListaLocal() {
       this.modo = 'lista';
       this.editandoId = null;
       this.abaForm = 'basico';

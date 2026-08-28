@@ -29,43 +29,61 @@
 
           <div class="filtro-campo filtro-dropdown">
             <label for="filtro-resumo">Prazo</label>
-            <select id="filtro-resumo" v-model="filtroResumo" @change="aplicarResumoFiltro">
-              <option v-for="option in resumoOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
+            <SearchableSelect
+              id="filtro-resumo"
+              input-id="filtro-resumo"
+              v-model="filtroResumo"
+              :options="resumoOptions"
+              @change="aplicarResumoFiltro"
+            />
           </div>
 
           <div class="filtro-campo">
             <label for="filtro-setor">Setor</label>
-            <select id="filtro-setor" v-model="filtros.setor" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="setor in meta.setores" :key="setor" :value="setor">{{ setor }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-setor"
+              input-id="filtro-setor"
+              v-model="filtros.setor"
+              :options="meta.setores"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo">
             <label for="filtro-categoria">Categoria</label>
-            <select id="filtro-categoria" v-model="filtros.categoria" @change="aplicarFiltros">
-              <option value="">Todas</option>
-              <option v-for="categoria in meta.categorias" :key="categoria" :value="categoria">{{ categoria }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-categoria"
+              input-id="filtro-categoria"
+              v-model="filtros.categoria"
+              :options="meta.categorias"
+              empty-option="Todas"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo">
             <label for="filtro-status">Status</label>
-            <select id="filtro-status" v-model="filtros.status" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="status in meta.status" :key="status" :value="status">{{ labelStatus(status) }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-status"
+              input-id="filtro-status"
+              v-model="filtros.status"
+              :options="meta.status.map((status) => ({ value: status, label: labelStatus(status) }))"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo">
             <label for="filtro-ano">Ano</label>
-            <select id="filtro-ano" v-model="filtros.ano" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-ano"
+              input-id="filtro-ano"
+              v-model="filtros.ano"
+              :options="anosDisponiveis"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
         </div>
 
@@ -261,10 +279,13 @@
               </div>
               <div class="form-group">
                 <label for="resolucao-status">Status</label>
-                <select id="resolucao-status" v-model="form.status">
-                  <option value="">Automático (pela vigência)</option>
-                  <option v-for="status in meta.status" :key="status" :value="status">{{ labelStatus(status) }}</option>
-                </select>
+                <SearchableSelect
+                  id="resolucao-status"
+                  input-id="resolucao-status"
+                  v-model="form.status"
+                  :options="meta.status.map((status) => ({ value: status, label: labelStatus(status) }))"
+                  empty-option="Automático (pela vigência)"
+                />
               </div>
               <div class="form-group full">
                 <label for="resolucao-resumo">Resumo <span>*</span></label>
@@ -276,10 +297,13 @@
               </div>
               <div class="form-group">
                 <label for="resolucao-categoria">Categoria</label>
-                <select id="resolucao-categoria" v-model="form.categoria">
-                  <option value="">Selecione...</option>
-                  <option v-for="categoria in meta.categorias" :key="categoria" :value="categoria">{{ categoria }}</option>
-                </select>
+                <SearchableSelect
+                  id="resolucao-categoria"
+                  input-id="resolucao-categoria"
+                  v-model="form.categoria"
+                  :options="meta.categorias"
+                  empty-option="Selecione..."
+                />
               </div>
               <div class="form-group">
                 <label for="resolucao-relator">Relator</label>
@@ -287,10 +311,13 @@
               </div>
               <div class="form-group">
                 <label for="resolucao-setor">Setor</label>
-                <select id="resolucao-setor" v-model="form.setor">
-                  <option value="">Selecione...</option>
-                  <option v-for="setor in meta.setores" :key="setor" :value="setor">{{ setor }}</option>
-                </select>
+                <SearchableSelect
+                  id="resolucao-setor"
+                  input-id="resolucao-setor"
+                  v-model="form.setor"
+                  :options="meta.setores"
+                  empty-option="Selecione..."
+                />
               </div>
             </div>
           </section>

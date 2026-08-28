@@ -1,8 +1,10 @@
 import { UNIDADES } from './unidades';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import { mixinHistoricoFormulario } from './formularioHistorico';
 
 export default {
   name: 'Usuarios',
+  mixins: [mixinHistoricoFormulario],
   components: { PageTableCard },
   data() {
     return {
@@ -121,6 +123,11 @@ export default {
     },
 
     abrirNovo() {
+      this.aplicarEstadoNovoLocal();
+      this.empilharHistoricoFormulario('novo');
+    },
+
+    aplicarEstadoNovoLocal() {
       this.modo = 'novo';
       this.editandoId = null;
       this.usuarioDetalhe = null;
@@ -130,6 +137,11 @@ export default {
     },
 
     abrirEdicao(usuario) {
+      this.aplicarEstadoEdicaoLocal(usuario);
+      this.empilharHistoricoFormulario('editar', usuario.id);
+    },
+
+    aplicarEstadoEdicaoLocal(usuario) {
       this.modo = 'editar';
       this.editandoId = usuario.id;
       this.form = {
@@ -148,7 +160,33 @@ export default {
       this.mensagemErro = '';
     },
 
+    async aplicarEstadoEdicaoPorId(id) {
+      let usuario = this.usuarios.find((item) => String(item.id) === String(id));
+
+      if (!usuario) {
+        try {
+          const { data } = await window.axios.get(`/api/usuarios/${id}`);
+          usuario = data.usuario || data.data || null;
+        } catch {
+          usuario = null;
+        }
+      }
+
+      if (!usuario) {
+        this.aplicarEstadoListaLocal();
+        this.limparHistoricoFormulario();
+        return;
+      }
+
+      this.aplicarEstadoEdicaoLocal(usuario);
+    },
+
     voltarLista() {
+      this.aplicarEstadoListaLocal();
+      this.limparHistoricoFormulario();
+    },
+
+    aplicarEstadoListaLocal() {
       this.modo = 'lista';
       this.editandoId = null;
       this.erroFormulario = '';

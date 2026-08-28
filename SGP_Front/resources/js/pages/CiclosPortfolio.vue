@@ -180,11 +180,13 @@
             <div class="form-grid">
               <div v-if="modo === 'gerar'" class="form-group">
                 <label for="ciclo-origem">Ciclo de origem <span>*</span></label>
-                <select id="ciclo-origem" v-model="form.origem_id" required>
-                  <option v-for="ciclo in registros" :key="`origem-${ciclo.id}`" :value="String(ciclo.id)">
-                    {{ ciclo.nome }}{{ ciclo.atual ? ' (atual)' : '' }}
-                  </option>
-                </select>
+                <SearchableSelect
+                  id="ciclo-origem"
+                  input-id="ciclo-origem"
+                  v-model="form.origem_id"
+                  :options="registros.map((ciclo) => ({ value: String(ciclo.id), label: ciclo.nome + (ciclo.atual ? ' (atual)' : '') }))"
+                  :required="true"
+                />
               </div>
               <div class="form-group" :class="{ full: modo !== 'gerar' }">
                 <label for="ciclo-nome">Nome do ciclo <span>*</span></label>

@@ -23,14 +23,18 @@
           @input="carregar(1)"
         />
       </div>
-      <select v-model="filtros.modulo" @change="carregar(1)">
-        <option value="">Todos os módulos</option>
-        <option v-for="modulo in meta.modulos" :key="modulo" :value="modulo">{{ modulo }}</option>
-      </select>
-      <select v-model="filtros.acao" @change="carregar(1)">
-        <option value="">Todas as ações</option>
-        <option v-for="acao in meta.acoes" :key="acao" :value="acao">{{ labelAcao(acao) }}</option>
-      </select>
+      <SearchableSelect
+        v-model="filtros.modulo"
+        :options="meta.modulos"
+        empty-option="Todos os módulos"
+        @change="carregar(1)"
+      />
+      <SearchableSelect
+        v-model="filtros.acao"
+        :options="meta.acoes.map((acao) => ({ value: acao, label: labelAcao(acao) }))"
+        empty-option="Todas as ações"
+        @change="carregar(1)"
+      />
       <input v-model="filtros.data_inicio" type="date" title="Data início" @change="carregar(1)" />
       <input v-model="filtros.data_fim" type="date" title="Data fim" @change="carregar(1)" />
     </section>

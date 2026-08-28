@@ -33,35 +33,53 @@
 
           <div class="filtro-campo">
             <label for="filtro-ano-hora">Ano</label>
-            <select id="filtro-ano-hora" v-model="filtros.ano" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="ano in anos" :key="ano" :value="ano">{{ ano }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-ano-hora"
+              input-id="filtro-ano-hora"
+              v-model="filtros.ano"
+              :options="anos"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo filtro-campo-eixo">
             <label for="filtro-eixo-hora">Eixo Tecnológico</label>
-            <select id="filtro-eixo-hora" v-model="filtros.eixo" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="eixo in eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-eixo-hora"
+              input-id="filtro-eixo-hora"
+              v-model="filtros.eixo"
+              :options="eixos"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo">
             <label for="filtro-status-hora">Status</label>
-            <select id="filtro-status-hora" v-model="filtros.status" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="status in statusLista" :key="status" :value="status">{{ status }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-status-hora"
+              input-id="filtro-status-hora"
+              v-model="filtros.status"
+              :options="statusLista"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo">
             <label for="filtro-situacao-hora">Situação</label>
-            <select id="filtro-situacao-hora" v-model="filtros.ativo" @change="aplicarFiltros">
-              <option value="">Todas</option>
-              <option value="true">Ativos</option>
-              <option value="false">Inativos</option>
-            </select>
+            <SearchableSelect
+              id="filtro-situacao-hora"
+              input-id="filtro-situacao-hora"
+              v-model="filtros.ativo"
+              :options="[
+                { value: 'true', label: 'Ativos' },
+                { value: 'false', label: 'Inativos' },
+              ]"
+              empty-option="Todas"
+              @change="aplicarFiltros"
+            />
           </div>
         </div>
       </section>
@@ -219,17 +237,25 @@
               </div>
               <div class="form-group">
                 <label for="segmento">Segmento <span>*</span></label>
-                <select id="segmento" v-model="form.segmento" required>
-                  <option value="" disabled>Selecione o segmento</option>
-                  <option v-for="segmento in segmentos" :key="segmento" :value="segmento">{{ segmento }}</option>
-                </select>
+                <SearchableSelect
+                  id="segmento"
+                  input-id="segmento"
+                  v-model="form.segmento"
+                  :options="segmentos"
+                  empty-option="Selecione o segmento"
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="eixo">Eixo <span>*</span></label>
-                <select id="eixo" v-model="form.eixo" required>
-                  <option value="" disabled>Selecione o eixo</option>
-                  <option v-for="eixo in eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
-                </select>
+                <SearchableSelect
+                  id="eixo"
+                  input-id="eixo"
+                  v-model="form.eixo"
+                  :options="eixos"
+                  empty-option="Selecione o eixo"
+                  :required="true"
+                />
               </div>
             </div>
           </section>
@@ -250,24 +276,37 @@
               </div>
               <div class="form-group">
                 <label for="ano">Ano <span>*</span></label>
-                <select id="ano" v-model="form.ano" required>
-                  <option value="" disabled>Selecione o ano</option>
-                  <option v-for="ano in anos" :key="ano" :value="ano">{{ ano }}</option>
-                </select>
+                <SearchableSelect
+                  id="ano"
+                  input-id="ano"
+                  v-model="form.ano"
+                  :options="anos"
+                  empty-option="Selecione o ano"
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="status">Status <span>*</span></label>
-                <select id="status" v-model="form.status" required>
-                  <option value="" disabled>Selecione o status</option>
-                  <option v-for="status in statusLista" :key="status" :value="status">{{ status }}</option>
-                </select>
+                <SearchableSelect
+                  id="status"
+                  input-id="status"
+                  v-model="form.status"
+                  :options="statusLista"
+                  empty-option="Selecione o status"
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="ativo">Ativo</label>
-                <select id="ativo" v-model="form.ativo">
-                  <option value="true">Sim</option>
-                  <option value="false">Não</option>
-                </select>
+                <SearchableSelect
+                  id="ativo"
+                  input-id="ativo"
+                  v-model="form.ativo"
+                  :options="[
+                    { value: 'true', label: 'Sim' },
+                    { value: 'false', label: 'Não' },
+                  ]"
+                />
               </div>
               <div class="form-group full">
                 <label for="motivo">Motivo <span>*</span></label>

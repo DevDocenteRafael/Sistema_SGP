@@ -33,34 +33,50 @@
 
           <div class="filtro-campo">
             <label for="filtro-priorizacao">Priorização</label>
-            <select id="filtro-priorizacao" v-model="filtros.priorizacao" @change="aplicarFiltros">
-              <option value="">Todas</option>
-              <option v-for="item in priorizacoes" :key="item" :value="item">{{ item }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-priorizacao"
+              input-id="filtro-priorizacao"
+              v-model="filtros.priorizacao"
+              :options="priorizacoes"
+              empty-option="Todas"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo filtro-campo-eixo">
             <label for="filtro-eixo">Eixo</label>
-            <select id="filtro-eixo" v-model="filtros.eixo" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="eixo in eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-eixo"
+              input-id="filtro-eixo"
+              v-model="filtros.eixo"
+              :options="eixos"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo">
             <label for="filtro-status">Status</label>
-            <select id="filtro-status" v-model="filtros.status" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="status in statusLista" :key="status" :value="status">{{ status }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-status"
+              input-id="filtro-status"
+              v-model="filtros.status"
+              :options="statusLista"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo">
             <label for="filtro-tipo">Tipo</label>
-            <select id="filtro-tipo" v-model="filtros.tipo" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="tipo in tipos" :key="tipo" :value="tipo">{{ tipo }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-tipo"
+              input-id="filtro-tipo"
+              v-model="filtros.tipo"
+              :options="tipos"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
         </div>
       </section>
@@ -219,10 +235,14 @@
               </div>
               <div class="form-group">
                 <label for="priorizacao">Priorização <span>*</span></label>
-                <select id="priorizacao" v-model="form.priorizacao" required>
-                  <option value="" disabled>Selecione...</option>
-                  <option v-for="item in priorizacoes" :key="item" :value="item">{{ item }}</option>
-                </select>
+                <SearchableSelect
+                  id="priorizacao"
+                  input-id="priorizacao"
+                  v-model="form.priorizacao"
+                  :options="priorizacoes"
+                  empty-option="Selecione..."
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="atribuido">Atribuído <span>*</span></label>
@@ -237,23 +257,35 @@
               </div>
               <div class="form-group">
                 <label for="eixo">Eixo <span>*</span></label>
-                <select id="eixo" v-model="form.eixo" required>
-                  <option value="" disabled>Selecione...</option>
-                  <option v-for="eixo in eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
-                </select>
+                <SearchableSelect
+                  id="eixo"
+                  input-id="eixo"
+                  v-model="form.eixo"
+                  :options="eixos"
+                  empty-option="Selecione..."
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="tipo">Tipo <span>*</span></label>
-                <select id="tipo" v-model="form.tipo" required>
-                  <option v-for="tipo in tipos" :key="tipo" :value="tipo">{{ tipo }}</option>
-                </select>
+                <SearchableSelect
+                  id="tipo"
+                  input-id="tipo"
+                  v-model="form.tipo"
+                  :options="tipos"
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="status">Status <span>*</span></label>
-                <select id="status" v-model="form.status" required>
-                  <option value="" disabled>Selecione...</option>
-                  <option v-for="status in statusLista" :key="status" :value="status">{{ status }}</option>
-                </select>
+                <SearchableSelect
+                  id="status"
+                  input-id="status"
+                  v-model="form.status"
+                  :options="statusLista"
+                  empty-option="Selecione..."
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="ultima_atualizacao">Última atualização</label>

@@ -115,11 +115,9 @@
   }
 
   .importacoes-page .imp-header,
-  .importacoes-page .imp-catalogo,
   .importacoes-page .imp-painel,
   .relatorios-page .rel-header,
-  .relatorios-page .rel-catalogo,
-  .relatorios-page .rel-detalhe {
+  .relatorios-page .rel-painel {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }

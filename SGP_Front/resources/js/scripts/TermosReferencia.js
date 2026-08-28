@@ -9,6 +9,7 @@ import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import { mixinHistoricoFormulario } from './formularioHistorico';
 
 const ENDPOINT_API = '/api/termos-referencia';
 const STATUS_TRAMITACAO = 'Em tramitação (fora da CPED)';
@@ -26,6 +27,7 @@ const FORM_VAZIO = {
 
 export default {
   name: 'TermosReferencia',
+  mixins: [mixinHistoricoFormulario],
   components: {
     IndicadorPrazo,
     LinhaDoTempo,
@@ -165,6 +167,11 @@ export default {
         return;
       }
 
+      this.aplicarEstadoNovoLocal();
+      this.empilharHistoricoFormulario('novo');
+    },
+
+    aplicarEstadoNovoLocal() {
       this.modo = 'novo';
       this.editandoId = null;
       this.abaForm = 'basico';
@@ -184,6 +191,11 @@ export default {
         return;
       }
 
+      this.aplicarEstadoEdicaoLocal(termo);
+      this.empilharHistoricoFormulario('edicao', termo.id);
+    },
+
+    aplicarEstadoEdicaoLocal(termo) {
       this.modo = 'edicao';
       this.editandoId = termo.id;
       this.abaForm = 'basico';
@@ -201,6 +213,34 @@ export default {
       this.mensagemSucesso = '';
       this.fecharDetalhes();
       this.carregarHistorico(termo.id);
+    },
+
+    async aplicarEstadoEdicaoPorId(id) {
+      let termo = this.termos.find((item) => String(item.id) === String(id));
+
+      if (!termo) {
+        try {
+          const { data } = await window.axios.get(`${ENDPOINT_API}/${id}`);
+          termo = data.termo || data.data || null;
+        } catch {
+          termo = null;
+        }
+      }
+
+      if (!termo) {
+        this.aplicarEstadoListaLocal();
+        this.limparHistoricoFormulario();
+        return;
+      }
+
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para editar Termos de Referência.';
+        this.aplicarEstadoListaLocal();
+        this.limparHistoricoFormulario();
+        return;
+      }
+
+      this.aplicarEstadoEdicaoLocal(termo);
     },
 
     /**
@@ -296,9 +336,7 @@ export default {
 
         // Recarregar lista e fechar formulário
         await this.carregarTermos();
-        this.modo = 'lista';
-        this.form = { ...FORM_VAZIO };
-        this.editandoId = null;
+        this.fecharFormulario();
 
         // Limpar mensagem de sucesso após 5 segundos
         setTimeout(() => {
@@ -383,6 +421,11 @@ export default {
     },
 
     fecharFormulario() {
+      this.aplicarEstadoListaLocal();
+      this.limparHistoricoFormulario();
+    },
+
+    aplicarEstadoListaLocal() {
       this.modo = 'lista';
       this.form = { ...FORM_VAZIO };
       this.editandoId = null;

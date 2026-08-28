@@ -33,34 +33,50 @@
 
           <div class="filtro-campo">
             <label for="filtro-ano">Ano</label>
-            <select id="filtro-ano" v-model="filtros.ano" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-ano"
+              input-id="filtro-ano"
+              v-model="filtros.ano"
+              :options="anosDisponiveis"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo filtro-campo-eixo">
             <label for="filtro-eixo">Eixo</label>
-            <select id="filtro-eixo" v-model="filtros.eixo" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="eixo in eixosDisponiveis" :key="eixo" :value="eixo">{{ eixo }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-eixo"
+              input-id="filtro-eixo"
+              v-model="filtros.eixo"
+              :options="eixosDisponiveis"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo">
             <label for="filtro-unidade">Unidade</label>
-            <select id="filtro-unidade" v-model="filtros.unidade" @change="aplicarFiltros">
-              <option value="">Todas</option>
-              <option v-for="unidade in unidades" :key="unidade" :value="unidade">{{ unidade }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-unidade"
+              input-id="filtro-unidade"
+              v-model="filtros.unidade"
+              :options="unidades"
+              empty-option="Todas"
+              @change="aplicarFiltros"
+            />
           </div>
 
           <div class="filtro-campo">
             <label for="filtro-status">Status</label>
-            <select id="filtro-status" v-model="filtros.status" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="status in statusLista" :key="status" :value="status">{{ status }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-status"
+              input-id="filtro-status"
+              v-model="filtros.status"
+              :options="statusLista"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
         </div>
       </section>
@@ -252,32 +268,44 @@
 
               <div class="form-group">
                 <label for="form-eixo">Eixo tecnológico <span>*</span></label>
-                <select id="form-eixo" v-model="form.eixo">
-                  <option value="" disabled>Selecione...</option>
-                  <option v-for="eixo in eixosFormulario" :key="eixo" :value="eixo">{{ eixo }}</option>
-                </select>
+                <SearchableSelect
+                  id="form-eixo"
+                  input-id="form-eixo"
+                  v-model="form.eixo"
+                  :options="eixosFormulario"
+                  empty-option="Selecione..."
+                />
               </div>
 
               <div class="form-group">
                 <label for="form-unidade">Unidade</label>
-                <select id="form-unidade" v-model="form.unidade">
-                  <option value="">Selecione...</option>
-                  <option v-for="unidade in unidades" :key="unidade" :value="unidade">{{ unidade }}</option>
-                </select>
+                <SearchableSelect
+                  id="form-unidade"
+                  input-id="form-unidade"
+                  v-model="form.unidade"
+                  :options="unidades"
+                  empty-option="Selecione..."
+                />
               </div>
 
               <div class="form-group">
                 <label for="form-ano">Ano <span>*</span></label>
-                <select id="form-ano" v-model="form.ano">
-                  <option v-for="ano in anosDisponiveis" :key="`form-${ano}`" :value="ano">{{ ano }}</option>
-                </select>
+                <SearchableSelect
+                  id="form-ano"
+                  input-id="form-ano"
+                  v-model="form.ano"
+                  :options="anosDisponiveis"
+                />
               </div>
 
               <div class="form-group">
                 <label for="form-status">Status <span>*</span></label>
-                <select id="form-status" v-model="form.status">
-                  <option v-for="status in statusLista" :key="`st-${status}`" :value="status">{{ status }}</option>
-                </select>
+                <SearchableSelect
+                  id="form-status"
+                  input-id="form-status"
+                  v-model="form.status"
+                  :options="statusLista"
+                />
               </div>
 
               <div class="form-group">

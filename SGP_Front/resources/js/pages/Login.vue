@@ -65,6 +65,11 @@
               </div>
             </div>
 
+            <label class="login-lembrar">
+              <input v-model="lembrar" type="checkbox" />
+              Lembrar e-mail e senha neste computador
+            </label>
+
             <button type="submit" class="btn-entrar" :disabled="loading">
               {{ loading ? 'Entrando...' : 'Entrar' }}
             </button>

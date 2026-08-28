@@ -28,39 +28,53 @@
           />
         </div>
 
-        <select v-model="filtros.ano" aria-label="Filtrar por ano" @change="carregarRegistros">
-          <option value="">Todos os anos</option>
-          <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
-        </select>
+        <SearchableSelect
+          v-model="filtros.ano"
+          :options="anosDisponiveis"
+          empty-option="Todos os anos"
+          aria-label="Filtrar por ano"
+          @change="carregarRegistros"
+        />
 
-        <select v-model="filtros.segmento" aria-label="Filtrar por segmento" @change="carregarRegistros">
-          <option value="">Todos os segmentos</option>
-          <option v-for="segmento in segmentosDisponiveis" :key="segmento" :value="segmento">
-            {{ segmento }}
-          </option>
-        </select>
+        <SearchableSelect
+          v-model="filtros.segmento"
+          :options="segmentosDisponiveis"
+          empty-option="Todos os segmentos"
+          aria-label="Filtrar por segmento"
+          @change="carregarRegistros"
+        />
 
-        <select v-model="filtros.tipo" aria-label="Filtrar por tipo" @change="carregarRegistros">
-          <option value="">Todos os tipos</option>
-          <option v-for="tipo in tiposDisponiveis" :key="tipo" :value="tipo">{{ tipo }}</option>
-        </select>
+        <SearchableSelect
+          v-model="filtros.tipo"
+          :options="tiposDisponiveis"
+          empty-option="Todos os tipos"
+          aria-label="Filtrar por tipo"
+          @change="carregarRegistros"
+        />
 
-        <select v-model="filtros.mes" aria-label="Filtrar por mês" @change="carregarRegistros">
-          <option value="">Todos os meses</option>
-          <option v-for="mes in mesesDisponiveis" :key="mes" :value="mes">{{ mes }}</option>
-        </select>
+        <SearchableSelect
+          v-model="filtros.mes"
+          :options="mesesDisponiveis"
+          empty-option="Todos os meses"
+          aria-label="Filtrar por mês"
+          @change="carregarRegistros"
+        />
 
-        <select v-model="filtros.status" aria-label="Filtrar por status do registro" @change="carregarRegistros">
-          <option value="">Todos os status</option>
-          <option v-for="status in statusDisponiveis" :key="status" :value="status">{{ status }}</option>
-        </select>
+        <SearchableSelect
+          v-model="filtros.status"
+          :options="statusDisponiveis"
+          empty-option="Todos os status"
+          aria-label="Filtrar por status do registro"
+          @change="carregarRegistros"
+        />
 
-        <select v-model="filtros.situacao" aria-label="Filtrar por situação final" @change="carregarRegistros">
-          <option value="">Todas as situações</option>
-          <option v-for="situacao in situacoesDisponiveis" :key="situacao" :value="situacao">
-            {{ situacao }}
-          </option>
-        </select>
+        <SearchableSelect
+          v-model="filtros.situacao"
+          :options="situacoesDisponiveis"
+          empty-option="Todas as situações"
+          aria-label="Filtrar por situação final"
+          @change="carregarRegistros"
+        />
       </section>
 
       <PageTableCard :total="totalRegistros" aria-label="Tabela de Plano de Metas">
@@ -215,10 +229,11 @@
 
               <label class="campo">
                 <span>Mês de Entrega <em>*</em></span>
-                <select v-model="form.mes_entrega">
-                  <option value="" disabled>Selecione...</option>
-                  <option v-for="mes in mesesDisponiveis" :key="`form-${mes}`" :value="mes">{{ mes }}</option>
-                </select>
+                <SearchableSelect
+                  v-model="form.mes_entrega"
+                  :options="mesesDisponiveis"
+                  empty-option="Selecione..."
+                />
               </label>
 
               <label class="campo">
@@ -238,10 +253,11 @@
 
               <label class="campo">
                 <span>Status do Registro <em>*</em></span>
-                <select v-model="form.status">
-                  <option value="" disabled>Selecione...</option>
-                  <option v-for="status in statusDisponiveis" :key="`st-${status}`" :value="status">{{ status }}</option>
-                </select>
+                <SearchableSelect
+                  v-model="form.status"
+                  :options="statusDisponiveis"
+                  empty-option="Selecione..."
+                />
               </label>
 
               <label class="campo">
@@ -251,12 +267,11 @@
 
               <label class="campo">
                 <span>Situação Final <em>*</em></span>
-                <select v-model="form.status_final">
-                  <option value="" disabled>Selecione...</option>
-                  <option v-for="situacao in situacoesDisponiveis" :key="`sf-${situacao}`" :value="situacao">
-                    {{ situacao }}
-                  </option>
-                </select>
+                <SearchableSelect
+                  v-model="form.status_final"
+                  :options="situacoesDisponiveis"
+                  empty-option="Selecione..."
+                />
               </label>
 
               <label class="campo campo-full">

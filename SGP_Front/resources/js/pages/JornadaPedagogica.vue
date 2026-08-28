@@ -28,10 +28,14 @@
           </div>
           <div class="filtro-campo">
             <label for="filtro-status-jornada">Status</label>
-            <select id="filtro-status-jornada" v-model="filtros.status" @change="aplicarFiltros">
-              <option value="">Todos</option>
-              <option v-for="status in meta.status" :key="status" :value="status">{{ status }}</option>
-            </select>
+            <SearchableSelect
+              id="filtro-status-jornada"
+              input-id="filtro-status-jornada"
+              v-model="filtros.status"
+              :options="meta.status"
+              empty-option="Todos"
+              @change="aplicarFiltros"
+            />
           </div>
         </div>
       </section>
@@ -177,9 +181,13 @@
               </div>
               <div class="form-group">
                 <label for="jornada-status">Status <span>*</span></label>
-                <select id="jornada-status" v-model="form.status" required>
-                  <option v-for="status in meta.status" :key="status" :value="status">{{ status }}</option>
-                </select>
+                <SearchableSelect
+                  id="jornada-status"
+                  input-id="jornada-status"
+                  v-model="form.status"
+                  :options="meta.status"
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="jornada-inicio">Data de início</label>
@@ -191,9 +199,12 @@
               </div>
               <div class="form-group">
                 <label for="jornada-pre">Há pré-jornada?</label>
-                <select id="jornada-pre" v-model="form.tem_pre_jornada">
-                  <option v-for="opcao in meta.sim_nao" :key="opcao" :value="opcao">{{ opcao }}</option>
-                </select>
+                <SearchableSelect
+                  id="jornada-pre"
+                  input-id="jornada-pre"
+                  v-model="form.tem_pre_jornada"
+                  :options="meta.sim_nao"
+                />
               </div>
               <div class="form-group">
                 <label for="jornada-pre-data">Data da pré-jornada</label>

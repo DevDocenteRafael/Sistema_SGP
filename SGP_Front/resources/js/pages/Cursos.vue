@@ -25,32 +25,41 @@
             @input="carregarCursos"
           />
         </div>
-        <select v-model="filtros.ciclo_id" @change="onCicloFiltroChange">
-          <option value="todos">Todos os ciclos</option>
-          <option v-for="ciclo in ciclos" :key="ciclo.id" :value="String(ciclo.id)">
-            {{ ciclo.nome }}{{ ciclo.atual ? ' (atual)' : '' }}
-          </option>
-        </select>
-        <select v-model="filtros.ano" @change="carregarCursos">
-          <option value="">Todos os anos</option>
-          <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
-        </select>
-        <select v-model="filtros.eixo" @change="carregarCursos">
-          <option value="">Todos os eixos</option>
-          <option v-for="eixo in meta.eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
-        </select>
-        <select v-model="filtros.status" @change="carregarCursos">
-          <option value="">Todos os status</option>
-          <option v-for="status in meta.status" :key="status" :value="status">{{ status }}</option>
-        </select>
-        <select v-model="filtros.tipo" @change="carregarCursos">
-          <option value="">Todos os tipos</option>
-          <option v-for="tipo in meta.tipos" :key="tipo" :value="tipo">{{ tipo }}</option>
-        </select>
-        <select v-model="filtros.unidade" @change="carregarCursos">
-          <option value="">Todas as unidades</option>
-          <option v-for="unidade in unidades" :key="unidade" :value="unidade">{{ unidade }}</option>
-        </select>
+        <SearchableSelect
+          v-model="filtros.ciclo_id"
+          :options="[{ value: 'todos', label: 'Todos os ciclos' }, ...ciclos.map((ciclo) => ({ value: String(ciclo.id), label: ciclo.nome + (ciclo.atual ? ' (atual)' : '') }))]"
+          @change="onCicloFiltroChange"
+        />
+        <SearchableSelect
+          v-model="filtros.ano"
+          :options="anosDisponiveis"
+          empty-option="Todos os anos"
+          @change="carregarCursos"
+        />
+        <SearchableSelect
+          v-model="filtros.eixo"
+          :options="meta.eixos"
+          empty-option="Todos os eixos"
+          @change="carregarCursos"
+        />
+        <SearchableSelect
+          v-model="filtros.status"
+          :options="meta.status"
+          empty-option="Todos os status"
+          @change="carregarCursos"
+        />
+        <SearchableSelect
+          v-model="filtros.tipo"
+          :options="meta.tipos"
+          empty-option="Todos os tipos"
+          @change="carregarCursos"
+        />
+        <SearchableSelect
+          v-model="filtros.unidade"
+          :options="unidades"
+          empty-option="Todas as unidades"
+          @change="carregarCursos"
+        />
       </section>
 
       <PageTableCard :total="totalCursos">
@@ -351,10 +360,13 @@
               <div class="form-grid">
                 <div class="form-group full">
                   <label for="eixo">Segmento / Área <span>*</span></label>
-                  <select id="eixo" v-model="form.eixo">
-                    <option value="" disabled>Selecione o segmento...</option>
-                    <option v-for="eixo in meta.eixos" :key="eixo" :value="eixo">{{ eixo }}</option>
-                  </select>
+                  <SearchableSelect
+                    id="eixo"
+                    input-id="eixo"
+                    v-model="form.eixo"
+                    :options="meta.eixos"
+                    empty-option="Selecione o segmento..."
+                  />
                 </div>
                 <div class="form-group full">
                   <label for="titulo">Título do curso <span>*</span></label>
@@ -368,11 +380,12 @@
                 </div>
                 <div class="form-group">
                   <label for="ciclo">Ciclo de portfólio</label>
-                  <select id="ciclo" v-model="form.ciclo_id">
-                    <option v-for="ciclo in ciclos" :key="`form-ciclo-${ciclo.id}`" :value="String(ciclo.id)">
-                      {{ ciclo.nome }}{{ ciclo.atual ? ' (atual)' : '' }}
-                    </option>
-                  </select>
+                  <SearchableSelect
+                    id="ciclo"
+                    input-id="ciclo"
+                    v-model="form.ciclo_id"
+                    :options="ciclos.map((ciclo) => ({ value: String(ciclo.id), label: ciclo.nome + (ciclo.atual ? ' (atual)' : '') }))"
+                  />
                 </div>
                 <div class="form-group">
                   <label for="carga_horaria">Carga horária (CH) <span>*</span></label>
@@ -464,18 +477,22 @@
               <div class="form-grid">
                 <div class="form-group">
                   <label for="status">Status <span>*</span></label>
-                  <select id="status" v-model="form.status">
-                    <option v-for="status in meta.status" :key="status" :value="status">{{ status }}</option>
-                  </select>
+                  <SearchableSelect
+                    id="status"
+                    input-id="status"
+                    v-model="form.status"
+                    :options="meta.status"
+                  />
                 </div>
                 <div class="form-group">
                   <label for="modalidade">Modalidade <span>*</span></label>
-                  <select id="modalidade" v-model="form.modalidade">
-                    <option value="">Selecione...</option>
-                    <option v-for="modalidade in meta.modalidades" :key="modalidade" :value="modalidade">
-                      {{ modalidade }}
-                    </option>
-                  </select>
+                  <SearchableSelect
+                    id="modalidade"
+                    input-id="modalidade"
+                    v-model="form.modalidade"
+                    :options="meta.modalidades"
+                    empty-option="Selecione..."
+                  />
                 </div>
                 <div class="form-group">
                   <label for="codigo_dn">Cód. DN</label>
@@ -503,10 +520,13 @@
                 </div>
                 <div class="form-group">
                   <label for="tipo">Tipo de curso <span>*</span></label>
-                  <select id="tipo" v-model="form.tipo">
-                    <option value="">Selecione...</option>
-                    <option v-for="tipo in meta.tipos" :key="tipo" :value="tipo">{{ tipo }}</option>
-                  </select>
+                  <SearchableSelect
+                    id="tipo"
+                    input-id="tipo"
+                    v-model="form.tipo"
+                    :options="meta.tipos"
+                    empty-option="Selecione..."
+                  />
                 </div>
                 <div class="form-group">
                   <label for="ultima_revisao">Última revisão</label>
@@ -556,17 +576,23 @@
                 </div>
                 <div class="form-group">
                   <label for="compativel_bolsa">Compatível com bolsa</label>
-                  <select id="compativel_bolsa" v-model="form.compativel_bolsa">
-                    <option value="">Selecione...</option>
-                    <option v-for="opcao in meta.sim_nao" :key="opcao" :value="opcao">{{ opcao }}</option>
-                  </select>
+                  <SearchableSelect
+                    id="compativel_bolsa"
+                    input-id="compativel_bolsa"
+                    v-model="form.compativel_bolsa"
+                    :options="meta.sim_nao"
+                    empty-option="Selecione..."
+                  />
                 </div>
                 <div class="form-group">
                   <label for="comercial">Comercial</label>
-                  <select id="comercial" v-model="form.comercial">
-                    <option value="">Selecione...</option>
-                    <option v-for="opcao in meta.sim_nao" :key="opcao" :value="opcao">{{ opcao }}</option>
-                  </select>
+                  <SearchableSelect
+                    id="comercial"
+                    input-id="comercial"
+                    v-model="form.comercial"
+                    :options="meta.sim_nao"
+                    empty-option="Selecione..."
+                  />
                 </div>
                 <div class="form-group">
                   <label for="pcn">PCN</label>

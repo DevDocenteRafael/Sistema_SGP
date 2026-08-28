@@ -30,17 +30,25 @@
             @input="carregarUsuarios"
           />
         </div>
-        <select v-model="filtros.perfil" @change="carregarUsuarios">
-          <option value="">Todos os perfis</option>
-          <option value="Administrador">Administrador</option>
-          <option value="Editor">Editor</option>
-          <option value="Consultor">Consultor</option>
-        </select>
-        <select v-model="filtros.status" @change="carregarUsuarios">
-          <option value="">Todos os status</option>
-          <option value="true">Ativo</option>
-          <option value="false">Inativo</option>
-        </select>
+        <SearchableSelect
+          v-model="filtros.perfil"
+          :options="[
+            { value: 'Administrador', label: 'Administrador' },
+            { value: 'Editor', label: 'Editor' },
+            { value: 'Consultor', label: 'Consultor' },
+          ]"
+          empty-option="Todos os perfis"
+          @change="carregarUsuarios"
+        />
+        <SearchableSelect
+          v-model="filtros.status"
+          :options="[
+            { value: 'true', label: 'Ativo' },
+            { value: 'false', label: 'Inativo' },
+          ]"
+          empty-option="Todos os status"
+          @change="carregarUsuarios"
+        />
       </section>
 
       <PageTableCard :total="usuarios.length">
@@ -243,21 +251,29 @@
             <div class="form-grid">
               <div class="form-group">
                 <label for="perfil">Perfil <span>*</span></label>
-                <select id="perfil" v-model="form.perfil" required>
-                  <option value="" disabled>Selecione o nível de acesso</option>
-                  <option value="Administrador">Administrador — acesso total e gestão de usuários</option>
-                  <option value="Editor">Editor — cria e altera dados do portfólio</option>
-                  <option value="Consultor">Consultor — somente leitura</option>
-                </select>
+                <SearchableSelect
+                  id="perfil"
+                  input-id="perfil"
+                  v-model="form.perfil"
+                  :options="[
+                    { value: 'Administrador', label: 'Administrador — acesso total e gestão de usuários' },
+                    { value: 'Editor', label: 'Editor — cria e altera dados do portfólio' },
+                    { value: 'Consultor', label: 'Consultor — somente leitura' },
+                  ]"
+                  empty-option="Selecione o nível de acesso"
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="unidade">Unidade <span>*</span></label>
-                <select id="unidade" v-model="form.unidade" required>
-                  <option value="" disabled>Selecione a unidade</option>
-                  <option v-for="unidade in unidades" :key="unidade" :value="unidade">
-                    {{ unidade }}
-                  </option>
-                </select>
+                <SearchableSelect
+                  id="unidade"
+                  input-id="unidade"
+                  v-model="form.unidade"
+                  :options="unidades"
+                  empty-option="Selecione a unidade"
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="senha">Senha <span v-if="modo === 'novo'">*</span></label>

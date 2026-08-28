@@ -270,15 +270,12 @@
           </label>
           <label v-if="isFuncional">
             Raia
-            <select
+            <SearchableSelect
               v-model="raiaEditavel"
+              :options="listaRaias.map((raia) => ({ value: raia.id, label: raia.nome }))"
               :disabled="!podeEditar"
               @change="aplicarRaiaNo"
-            >
-              <option v-for="raia in listaRaias" :key="raia.id" :value="raia.id">
-                {{ raia.nome }}
-              </option>
-            </select>
+            />
           </label>
           <label>
             Responsável
@@ -334,64 +331,44 @@
           </label>
           <label>
             Sai de
-            <select
+            <SearchableSelect
               v-model="edgeSourceEditavel"
+              :options="etapasParaConexao.map((etapa) => ({ value: etapa.id, label: rotuloEtapa(etapa) }))"
               :disabled="!podeEditar"
               @change="aplicarReligacaoEdge"
-            >
-              <option
-                v-for="etapa in etapasParaConexao"
-                :key="`src-${etapa.id}`"
-                :value="etapa.id"
-              >
-                {{ rotuloEtapa(etapa) }}
-              </option>
-            </select>
+            />
           </label>
           <label>
             Lado de saída
-            <select
+            <SearchableSelect
               v-model="edgeSourceHandleEditavel"
+              :options="ladosSaidaDisponiveis"
               :disabled="!podeEditar"
               @change="aplicarReligacaoEdge"
-            >
-              <option
-                v-for="lado in ladosSaidaDisponiveis"
-                :key="`sh-${lado.value}`"
-                :value="lado.value"
-              >
-                {{ lado.label }}
-              </option>
-            </select>
+            />
           </label>
           <label>
             Entra em
-            <select
+            <SearchableSelect
               v-model="edgeTargetEditavel"
+              :options="etapasParaConexao.map((etapa) => ({ value: etapa.id, label: rotuloEtapa(etapa) }))"
               :disabled="!podeEditar"
               @change="aplicarReligacaoEdge"
-            >
-              <option
-                v-for="etapa in etapasParaConexao"
-                :key="`tgt-${etapa.id}`"
-                :value="etapa.id"
-              >
-                {{ rotuloEtapa(etapa) }}
-              </option>
-            </select>
+            />
           </label>
           <label>
             Lado de entrada
-            <select
+            <SearchableSelect
               v-model="edgeTargetHandleEditavel"
+              :options="[
+                { value: 'top', label: 'Cima' },
+                { value: 'right', label: 'Direita' },
+                { value: 'bottom', label: 'Baixo' },
+                { value: 'left', label: 'Esquerda' },
+              ]"
               :disabled="!podeEditar"
               @change="aplicarReligacaoEdge"
-            >
-              <option value="top">Cima</option>
-              <option value="right">Direita</option>
-              <option value="bottom">Baixo</option>
-              <option value="left">Esquerda</option>
-            </select>
+            />
           </label>
           <button
             v-if="podeEditar"

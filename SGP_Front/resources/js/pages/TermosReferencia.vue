@@ -21,19 +21,27 @@
             @input="aplicarFiltros"
           />
         </div>
-        <select v-model="filtros.eixo" @change="aplicarFiltros">
-          <option value="">Todos os eixos</option>
-          <option v-for="eixo in eixosDisponiveis" :key="eixo" :value="eixo">{{ eixo }}</option>
-        </select>
-        <select v-model="filtros.status" @change="aplicarFiltros">
-          <option value="">Todos os status</option>
-          <option v-for="status in statusDisponiveis" :key="status" :value="status">{{ status }}</option>
-        </select>
-        <select v-model="filtros.prazo" @change="aplicarFiltros">
-          <option value="">Todos os prazos</option>
-          <option value="proximo">Próximos 30 dias</option>
-          <option value="vencido">Vencidos</option>
-        </select>
+        <SearchableSelect
+          v-model="filtros.eixo"
+          :options="eixosDisponiveis"
+          empty-option="Todos os eixos"
+          @change="aplicarFiltros"
+        />
+        <SearchableSelect
+          v-model="filtros.status"
+          :options="statusDisponiveis"
+          empty-option="Todos os status"
+          @change="aplicarFiltros"
+        />
+        <SearchableSelect
+          v-model="filtros.prazo"
+          :options="[
+            { value: 'proximo', label: 'Próximos 30 dias' },
+            { value: 'vencido', label: 'Vencidos' },
+          ]"
+          empty-option="Todos os prazos"
+          @change="aplicarFiltros"
+        />
       </section>
 
       <PageTableCard :total="totalTermos" aria-label="Tabela de Termos de Referência">
@@ -225,10 +233,13 @@
                 </div>
                 <div class="form-group">
                   <label for="eixo-tr">Eixo <span>*</span></label>
-                  <select id="eixo-tr" v-model="form.eixo">
-                    <option value="" disabled>Selecione o eixo...</option>
-                    <option v-for="eixo in eixosDisponiveis" :key="eixo" :value="eixo">{{ eixo }}</option>
-                  </select>
+                  <SearchableSelect
+                    id="eixo-tr"
+                    input-id="eixo-tr"
+                    v-model="form.eixo"
+                    :options="eixosDisponiveis"
+                    empty-option="Selecione o eixo..."
+                  />
                 </div>
                 <div class="form-group full">
                   <label for="processo-sei">Processo SEI <span>*</span></label>
@@ -250,10 +261,13 @@
               <div class="form-grid">
                 <div class="form-group">
                   <label for="status-tr">Status <span>*</span></label>
-                  <select id="status-tr" v-model="form.status">
-                    <option value="">Selecione o status...</option>
-                    <option v-for="status in statusDisponiveis" :key="status" :value="status">{{ status }}</option>
-                  </select>
+                  <SearchableSelect
+                    id="status-tr"
+                    input-id="status-tr"
+                    v-model="form.status"
+                    :options="statusDisponiveis"
+                    empty-option="Selecione o status..."
+                  />
                 </div>
                 <div class="form-group">
                   <label for="prazo-deadline">Prazo / Deadline <span>*</span></label>
