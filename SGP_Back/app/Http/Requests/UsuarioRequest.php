@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Models\Usuario;
+use App\Rules\CpfValido;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -11,6 +13,26 @@ class UsuarioRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user()?->podeGerenciarUsuarios() === true;
+    }
+
+    protected function failedAuthorization(): void
+    {
+        throw new AuthorizationException('Você não tem permissão para gerenciar usuários.');
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('cpf')) {
+            $this->merge([
+                'cpf' => preg_replace('/\D/', '', (string) $this->input('cpf')),
+            ]);
+        }
+
+        if ($this->filled('telefone')) {
+            $this->merge([
+                'telefone' => preg_replace('/\D/', '', (string) $this->input('telefone')),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -35,7 +57,8 @@ class UsuarioRequest extends FormRequest
             'cpf' => [
                 'nullable',
                 'string',
-                'max:14',
+                'size:11',
+                new CpfValido,
                 Rule::unique('usuarios', 'cpf')->ignore($usuarioId),
             ],
             'perfil' => [
@@ -45,7 +68,7 @@ class UsuarioRequest extends FormRequest
             'status' => ['sometimes', 'boolean'],
             'unidade' => ['nullable', 'string', 'max:100', Rule::in(config('unidades'))],
             'area' => ['nullable', 'string', 'max:100'],
-            'telefone' => ['nullable', 'string', 'max:20'],
+            'telefone' => ['nullable', 'string', 'max:20', 'regex:/^\d{10,11}$/'],
         ];
     }
 
@@ -61,6 +84,8 @@ class UsuarioRequest extends FormRequest
             'perfil.required' => 'O perfil é obrigatório.',
             'perfil.in' => 'Perfil inválido. Use Administrador, Editor ou Consultor.',
             'cpf.unique' => 'Este CPF já está cadastrado.',
+            'cpf.size' => 'Informe um CPF válido.',
+            'telefone.regex' => 'Informe um telefone válido com DDD.',
             'unidade.in' => 'Selecione uma unidade válida.',
         ];
     }

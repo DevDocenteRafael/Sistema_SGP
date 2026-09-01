@@ -2,15 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class PortfolioCicloRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user()?->podeEditarDados() === true;
-    }
+    use AutorizaEdicaoDados;
 
     protected function prepareForValidation(): void
     {
@@ -39,7 +37,9 @@ class PortfolioCicloRequest extends FormRequest
     {
         return [
             'nome.required' => 'Informe o nome do ciclo de portfólio.',
+            'nome.max' => 'O nome deve ter no máximo 80 caracteres.',
             'nome.unique' => 'Já existe um ciclo com este nome.',
+            'observacao.max' => 'A observação deve ter no máximo 2000 caracteres.',
         ];
     }
 }

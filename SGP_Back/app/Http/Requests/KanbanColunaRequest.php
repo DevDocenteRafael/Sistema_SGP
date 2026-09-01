@@ -2,13 +2,20 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
 use Illuminate\Foundation\Http\FormRequest;
 
 class KanbanColunaRequest extends FormRequest
 {
-    public function authorize(): bool
+    use AutorizaEdicaoDados;
+
+    protected function prepareForValidation(): void
     {
-        return $this->user()?->podeEditarDados() === true;
+        if ($this->filled('titulo')) {
+            $this->merge([
+                'titulo' => trim((string) $this->input('titulo')),
+            ]);
+        }
     }
 
     public function rules(): array

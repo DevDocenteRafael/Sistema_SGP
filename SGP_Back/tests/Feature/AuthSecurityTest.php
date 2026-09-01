@@ -124,7 +124,7 @@ class AuthSecurityTest extends TestCase
     public function test_inativar_usuario_revoga_tokens(): void
     {
         $admin = $this->criarAdmin();
-        $alvo = $this->criarUsuario(['email' => 'revogar@teste.com', 'cpf' => '12345678933']);
+        $alvo = $this->criarUsuario(['email' => 'revogar@teste.com', 'cpf' => '52998224725']);
         $alvo->createToken('sgp-api');
 
         $this->assertSame(1, $alvo->tokens()->count());

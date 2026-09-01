@@ -2,15 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class CpedEquipeRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user()?->podeEditarDados() === true;
-    }
+    use AutorizaEdicaoDados;
 
     protected function prepareForValidation(): void
     {

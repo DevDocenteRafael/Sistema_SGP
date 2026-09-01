@@ -2,17 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
 use App\Models\PlanoDeMeta;
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class PlanoDeMetaRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user()?->podeEditarDados() === true;
-    }
+    use AutorizaEdicaoDados;
 
     protected function prepareForValidation(): void
     {
@@ -30,6 +28,12 @@ class PlanoDeMetaRequest extends FormRequest
                 'curso' => $curso,
             ]);
         }
+
+        if ($this->filled('numero_sei')) {
+            $this->merge([
+                'numero_sei' => ProcessoSeiValido::sanitizar($this->input('numero_sei')),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -45,6 +49,7 @@ class PlanoDeMetaRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
+                new ProcessoSeiValido(obrigatorio: true, rotulo: 'Número SEI'),
                 Rule::unique('plano_de_metas', 'numero_sei')->ignore($planoDeMetaId),
             ],
             'codigo_sig' => [
@@ -71,6 +76,7 @@ class PlanoDeMetaRequest extends FormRequest
             'tipo.required' => 'O tipo é obrigatório.',
             'numero_sei.required' => 'Informe o número SEI.',
             'numero_sei.unique' => 'Este número SEI já está cadastrado.',
+            'numero_sei.regex' => 'O número SEI deve conter apenas números, pontos, barras ou hífens.',
             'codigo_sig.required' => 'Informe o código SIG.',
             'codigo_sig.unique' => 'Este código SIG já está cadastrado.',
             'mes_entrega.required' => 'Informe o mês de entrega.',

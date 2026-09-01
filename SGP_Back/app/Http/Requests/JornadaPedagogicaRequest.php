@@ -2,15 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class JornadaPedagogicaRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user()?->podeEditarDados() === true;
-    }
+    use AutorizaEdicaoDados;
 
     protected function prepareForValidation(): void
     {
@@ -47,7 +45,11 @@ class JornadaPedagogicaRequest extends FormRequest
             'data_inicio' => ['nullable', 'date'],
             'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
             'tem_pre_jornada' => ['required', 'string', 'max:3', Rule::in(config('jornadas_pedagogicas.sim_nao'))],
-            'data_pre_jornada' => ['nullable', 'date'],
+            'data_pre_jornada' => [
+                Rule::requiredIf(fn () => $this->input('tem_pre_jornada') === 'Sim'),
+                'nullable',
+                'date',
+            ],
             'local' => ['nullable', 'string', 'max:255'],
             'espaco' => ['nullable', 'string', 'max:255'],
             'verba' => ['nullable', 'string', 'max:100'],
@@ -64,7 +66,7 @@ class JornadaPedagogicaRequest extends FormRequest
     {
         return [
             'titulo.required' => 'O título da jornada é obrigatório.',
-            'data_fim.after_or_equal' => 'A data de término deve ser igual ou posterior à data de início.',
+            'data_pre_jornada.required' => 'Informe a data da pré-jornada.',
             'tem_pre_jornada.required' => 'Informe se há pré-jornada.',
             'status.required' => 'O status é obrigatório.',
             'status.in' => 'Status inválido.',

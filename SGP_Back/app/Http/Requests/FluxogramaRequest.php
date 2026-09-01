@@ -2,15 +2,30 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
 use App\Models\Fluxograma;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class FluxogramaRequest extends FormRequest
 {
-    public function authorize(): bool
+    use AutorizaEdicaoDados;
+
+    protected function prepareForValidation(): void
     {
-        return $this->user()?->podeEditarDados() === true;
+        $merge = [];
+
+        if ($this->filled('titulo')) {
+            $merge['titulo'] = trim((string) $this->input('titulo'));
+        }
+
+        if ($this->exists('descricao') && $this->input('descricao') === '') {
+            $merge['descricao'] = null;
+        }
+
+        if ($merge !== []) {
+            $this->merge($merge);
+        }
     }
 
     public function rules(): array

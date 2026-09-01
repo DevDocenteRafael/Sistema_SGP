@@ -2,15 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class CursoPorEixoRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user()?->podeEditarDados() === true;
-    }
+    use AutorizaEdicaoDados;
 
     public function rules(): array
     {
@@ -20,9 +18,9 @@ class CursoPorEixoRequest extends FormRequest
             'unidade' => ['nullable', 'string', 'max:100', Rule::in(config('unidades'))],
             'ano' => ['required', 'string', 'max:4', Rule::in(config('curso_por_eixos.anos'))],
             'ch' => ['nullable', 'string', 'max:50'],
-            'turmas' => ['nullable', 'string', 'max:20'],
+            'turmas' => ['nullable', 'string', 'max:20', 'regex:/^\d*$/'],
             'codigo' => ['nullable', 'string', 'max:100'],
-            'alunos' => ['nullable', 'string', 'max:20'],
+            'alunos' => ['nullable', 'string', 'max:20', 'regex:/^\d*$/'],
             'instrutores' => ['nullable', 'string', 'max:255'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('curso_por_eixos.status'))],
             'observacao' => ['nullable', 'string'],
@@ -42,6 +40,8 @@ class CursoPorEixoRequest extends FormRequest
             'status.required' => 'O status é obrigatório.',
             'status.in' => 'Status inválido.',
             'unidade.in' => 'Selecione uma unidade válida.',
+            'turmas.regex' => 'Turmas deve conter apenas números.',
+            'alunos.regex' => 'Alunos deve conter apenas números.',
         ];
     }
 }

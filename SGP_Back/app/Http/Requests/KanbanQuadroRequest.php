@@ -2,13 +2,20 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
 use Illuminate\Foundation\Http\FormRequest;
 
 class KanbanQuadroRequest extends FormRequest
 {
-    public function authorize(): bool
+    use AutorizaEdicaoDados;
+
+    protected function prepareForValidation(): void
     {
-        return $this->user()?->podeEditarDados() === true;
+        if ($this->filled('nome')) {
+            $this->merge([
+                'nome' => trim((string) $this->input('nome')),
+            ]);
+        }
     }
 
     public function rules(): array

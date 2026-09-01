@@ -213,6 +213,7 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             'tem_pre_jornada' => 'Sim',
             'data_inicio' => '2026-02-01',
             'data_fim' => '2026-02-03',
+            'data_pre_jornada' => '2026-01-28',
             'local' => 'Asa Norte',
             'espaco' => 'Auditório',
             'verba' => 'R$ 5.000,00',
@@ -227,6 +228,8 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             'tem_pre_jornada' => 'Sim',
             'data_inicio' => '2026-02-01',
             'data_fim' => '2026-02-03',
+            'data_pre_jornada' => '2026-01-28',
+            'data_pre_jornada' => '2026-01-28',
             'local' => 'Asa Norte',
         ])->assertOk()->assertJsonPath('jornada.status', 'Consolidado');
 

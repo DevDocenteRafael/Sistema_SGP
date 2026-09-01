@@ -2,15 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class KanbanMoverCartaoRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user()?->podeEditarDados() === true;
-    }
+    use AutorizaEdicaoDados;
 
     public function rules(): array
     {
@@ -20,7 +18,7 @@ class KanbanMoverCartaoRequest extends FormRequest
                 'integer',
                 Rule::exists('kanban_colunas', 'id'),
             ],
-            'position' => ['required', 'integer', 'min:0'],
+            'position' => ['required', 'integer', 'min:0', 'max:9999'],
         ];
     }
 
@@ -31,6 +29,7 @@ class KanbanMoverCartaoRequest extends FormRequest
             'kanban_coluna_id.exists' => 'Coluna de destino inválida.',
             'position.required' => 'Informe a nova posição do cartão.',
             'position.min' => 'A posição deve ser zero ou maior.',
+            'position.max' => 'A posição informada é inválida.',
         ];
     }
 }

@@ -2,14 +2,22 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class TermoReferenciaRequest extends FormRequest
 {
-    public function authorize(): bool
+    use AutorizaEdicaoDados;
+
+    protected function prepareForValidation(): void
     {
-        return $this->user()?->podeEditarDados() === true;
+        if ($this->filled('processo_sei')) {
+            $this->merge([
+                'processo_sei' => ProcessoSeiValido::sanitizar($this->input('processo_sei')),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -17,7 +25,7 @@ class TermoReferenciaRequest extends FormRequest
         return [
             'nome' => ['required', 'string', 'max:255'],
             'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos', []))],
-            'processo_sei' => ['required', 'string', 'max:50'],
+            'processo_sei' => ['required', 'string', 'max:100', new ProcessoSeiValido(obrigatorio: true)],
             'prazo_deadline' => ['required', 'date'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('termos_referencia.status', ['Planejamento', 'Em Andamento', 'Em tramitação (fora da CPED)', 'Concluído', 'Arquivado']))],
             'observacao' => ['nullable', 'string'],
@@ -35,6 +43,7 @@ class TermoReferenciaRequest extends FormRequest
             'eixo.required' => 'O eixo é obrigatório.',
             'eixo.in' => 'Selecione um eixo válido.',
             'processo_sei.required' => 'O processo SEI é obrigatório.',
+            'processo_sei.regex' => 'O processo SEI deve conter apenas números, pontos, barras ou hífens.',
             'prazo_deadline.required' => 'O prazo/deadline é obrigatório.',
             'prazo_deadline.date' => 'O prazo deve ser uma data válida.',
             'status.required' => 'O status é obrigatório.',

@@ -2,16 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
 use App\Models\Pca;
+use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class PcaRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user()?->podeEditarDados() === true;
-    }
+    use AutorizaEdicaoDados;
 
     protected function prepareForValidation(): void
     {
@@ -30,6 +29,12 @@ class PcaRequest extends FormRequest
         if ($this->filled('curso') && ! $this->filled('titulo')) {
             $this->merge(['titulo' => $this->input('curso')]);
         }
+
+        if ($this->filled('numero_sei')) {
+            $this->merge([
+                'numero_sei' => ProcessoSeiValido::sanitizar($this->input('numero_sei')),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -44,6 +49,7 @@ class PcaRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:100',
+                new ProcessoSeiValido(rotulo: 'Número SEI'),
                 Rule::unique('pcas', 'numero_sei')->ignore($pcaId),
             ],
             'codigo_sig' => [
@@ -54,13 +60,13 @@ class PcaRequest extends FormRequest
             ],
             'eixo' => ['nullable', 'string', 'max:100'],
             'unidade' => ['nullable', 'string', 'max:100'],
-            'carga_horaria' => ['nullable', 'string', 'max:50'],
+            'carga_horaria' => ['nullable', 'integer', 'min:1', 'max:99999'],
             'precificacao' => ['nullable', 'string', 'max:100'],
             'valor_primeiro_modulo' => ['nullable', 'string', 'max:50'],
             'valor' => ['nullable', 'string', 'max:50'],
-            'parcelas_boleto' => ['nullable', 'string', 'max:50'],
+            'parcelas_boleto' => ['nullable', 'integer', 'min:1', 'max:999'],
             'valor_parcela_boleto' => ['nullable', 'string', 'max:50'],
-            'parcelas_cartao' => ['nullable', 'string', 'max:50'],
+            'parcelas_cartao' => ['nullable', 'integer', 'min:1', 'max:999'],
             'valor_cartao' => ['nullable', 'string', 'max:50'],
             'parcela_desc_20' => ['nullable', 'string', 'max:50'],
             'parcela_desc_15' => ['nullable', 'string', 'max:50'],

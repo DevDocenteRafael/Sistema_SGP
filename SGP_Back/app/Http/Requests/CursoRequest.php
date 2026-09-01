@@ -2,15 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class CursoRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user()?->podeEditarDados() === true;
-    }
+    use AutorizaEdicaoDados;
 
     protected function prepareForValidation(): void
     {
@@ -19,6 +18,12 @@ class CursoRequest extends FormRequest
         if (is_array($unidades) && count($unidades) > 0) {
             $this->merge([
                 'unidade' => $unidades[0],
+            ]);
+        }
+
+        if ($this->filled('processo_sei')) {
+            $this->merge([
+                'processo_sei' => ProcessoSeiValido::sanitizar($this->input('processo_sei')),
             ]);
         }
     }
@@ -30,10 +35,10 @@ class CursoRequest extends FormRequest
             'titulo' => ['required', 'string', 'max:255'],
             'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
             'modalidade' => ['nullable', 'string', 'max:100', Rule::in(config('cursos.modalidades'))],
-            'carga_horaria' => ['nullable', 'string', 'max:50'],
-            'turmas' => ['nullable', 'string', 'max:20'],
+            'carga_horaria' => ['nullable', 'string', 'max:50', 'regex:/^\d+$/'],
+            'turmas' => ['nullable', 'string', 'max:20', 'regex:/^\d*$/'],
             'codigo_processo' => ['nullable', 'string', 'max:100'],
-            'alunos' => ['nullable', 'string', 'max:20'],
+            'alunos' => ['nullable', 'string', 'max:20', 'regex:/^\d*$/'],
             'instrutor' => ['nullable', 'string', 'max:255'],
             'descricao' => ['nullable', 'string'],
             'codigo_dn' => ['nullable', 'string', 'max:50'],
@@ -42,7 +47,7 @@ class CursoRequest extends FormRequest
             'tipo' => ['nullable', 'string', 'max:100', Rule::in(config('cursos.tipos'))],
             'status' => ['required', 'string', 'max:50', Rule::in(config('cursos.status'))],
             'ultima_revisao' => ['nullable', 'string', 'max:50'],
-            'processo_sei' => ['nullable', 'string', 'max:100'],
+            'processo_sei' => ['nullable', 'string', 'max:100', new ProcessoSeiValido],
             'data_inicio' => ['nullable', 'date'],
             'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
             'unidade' => ['nullable', 'string', 'max:100', Rule::in(config('unidades'))],
@@ -73,6 +78,10 @@ class CursoRequest extends FormRequest
             'tipo.in' => 'Selecione um tipo válido.',
             'compativel_bolsa.in' => 'Selecione SIM ou NÃO.',
             'comercial.in' => 'Selecione SIM ou NÃO.',
+            'processo_sei.regex' => 'O processo SEI deve conter apenas números, pontos, barras ou hífens.',
+            'carga_horaria.regex' => 'A carga horária deve conter apenas números.',
+            'turmas.regex' => 'Turmas deve conter apenas números.',
+            'alunos.regex' => 'Alunos deve conter apenas números.',
             'data_fim.after_or_equal' => 'A data de término deve ser igual ou posterior à data de início.',
         ];
     }
