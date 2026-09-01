@@ -6,6 +6,13 @@ import IndicadorPrazo from '../components/ciclo-vida/IndicadorPrazo.vue';
 import LinhaDoTempo from '../components/ciclo-vida/LinhaDoTempo.vue';
 import { podeEditarDados } from './auth';
 import { mixinHistoricoFormulario } from './formularioHistorico';
+import {
+  combinarValidacoes,
+  extrairErroApi,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarData,
+} from '../utils/validacao';
 
 const ENDPOINT_API = '/api/resolucoes';
 
@@ -60,6 +67,7 @@ export default {
       salvando: false,
       mensagemSucesso: '',
       mensagemErro: '',
+      erroFormulario: '',
       filtros: {
         busca: '',
         setor: '',
@@ -203,6 +211,7 @@ export default {
       this.historico = [];
       this.form = formVazio();
       this.mensagemErro = '';
+      this.erroFormulario = '';
       this.mensagemSucesso = '';
       this.fecharDetalhes();
     },
@@ -235,6 +244,7 @@ export default {
       this.editandoId = item.id;
       this.form = this.preencherForm(item);
       this.mensagemErro = '';
+      this.erroFormulario = '';
       this.mensagemSucesso = '';
       this.fecharDetalhes();
     },
@@ -284,6 +294,7 @@ export default {
       this.historico = [];
       this.salvando = false;
       this.mensagemErro = '';
+      this.erroFormulario = '';
     },
     preencherForm(item) {
       return {
@@ -305,13 +316,38 @@ export default {
       const arquivo = event.target.files?.[0] || null;
       this.form.anexoFile = arquivo;
     },
+
+    validarFormulario() {
+      return combinarValidacoes(
+        textoObrigatorio(this.form.numero, 'O número da resolução é obrigatório.'),
+        tamanhoMaximo(this.form.numero, 100, 'O número deve ter no máximo 100 caracteres.'),
+        textoObrigatorio(this.form.resumo, 'O resumo da resolução é obrigatório.'),
+        tamanhoMaximo(this.form.resumo, 1000, 'O resumo deve ter no máximo 1000 caracteres.'),
+        this.form.curso_relacionado
+          ? tamanhoMaximo(this.form.curso_relacionado, 255, 'O curso relacionado deve ter no máximo 255 caracteres.')
+          : '',
+        this.form.relator
+          ? tamanhoMaximo(this.form.relator, 255, 'O relator deve ter no máximo 255 caracteres.')
+          : '',
+        validarData(this.form.data_inicio_vigencia, { obrigatorio: true, rotulo: 'Data de início da vigência' }),
+      );
+    },
+
     async salvarResolucao() {
       if (!this.podeEditar) {
         this.mensagemErro = 'Seu perfil não tem permissão para salvar resoluções.';
         return;
       }
 
+      const erroValidacao = this.validarFormulario();
+
+      if (erroValidacao) {
+        this.erroFormulario = erroValidacao;
+        return;
+      }
+
       this.mensagemErro = '';
+      this.erroFormulario = '';
       this.salvando = true;
 
       try {
@@ -321,9 +357,8 @@ export default {
         if (temArquivo) {
           const formData = this.montarFormData();
           if (this.modo === 'editar' && this.resolucaoEmEdicao?.id) {
-            response = await window.axios.post(`${ENDPOINT_API}/${this.resolucaoEmEdicao.id}`, formData, {
-              headers: { 'X-HTTP-Method-Override': 'PUT' },
-            });
+            formData.append('_method', 'PUT');
+            response = await window.axios.post(`${ENDPOINT_API}/${this.resolucaoEmEdicao.id}`, formData);
           } else {
             response = await window.axios.post(ENDPOINT_API, formData);
           }
@@ -343,22 +378,22 @@ export default {
           this.mensagemSucesso = '';
         }, 5000);
       } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível salvar a resolução.');
+        this.erroFormulario = extrairErroApi(error, 'Não foi possível salvar a resolução.');
       } finally {
         this.salvando = false;
       }
     },
     montarPayloadJson() {
       return {
-        numero: this.form.numero,
-        curso_relacionado: this.form.curso_relacionado || null,
+        numero: this.form.numero.trim(),
+        curso_relacionado: this.form.curso_relacionado?.trim() || null,
         categoria: this.form.categoria || null,
-        resumo: this.form.resumo,
-        relator: this.form.relator || null,
+        resumo: this.form.resumo.trim(),
+        relator: this.form.relator?.trim() || null,
         setor: this.form.setor || null,
         data_inicio_vigencia: this.form.data_inicio_vigencia,
         status: this.form.status || null,
-        observacoes: this.form.observacoes || null,
+        observacoes: this.form.observacoes?.trim() || null,
       };
     },
     montarFormData() {
@@ -432,14 +467,7 @@ export default {
       return item.semaforo || 'verde';
     },
     extrairErro(error, fallback) {
-      if (error.response?.data?.message) {
-        return error.response.data.message;
-      }
-      if (error.response?.data?.errors) {
-        const msgs = Object.values(error.response.data.errors).flat();
-        return msgs[0] || fallback;
-      }
-      return error.message || fallback;
+      return extrairErroApi(error, fallback);
     },
   },
 };

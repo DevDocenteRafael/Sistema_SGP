@@ -1,5 +1,16 @@
 import { createCrudPage } from './createCrudPage';
 import { UNIDADES } from './unidades';
+import {
+  combinarValidacoes,
+  formatarDecimalInput,
+  formatarInteiroInput,
+  formatarProcessoSeiInput,
+  somenteAlfanumericoProcesso,
+  textoObrigatorio,
+  validarDecimal,
+  validarInteiro,
+  validarProcessoSei,
+} from '../utils/validacao';
 
 const STATUS_LISTA = ['Vigente', 'Em análise', 'Suspenso', 'Previsto', 'Publicado', 'Ativo', 'Aprovado'];
 const ANOS = ['2025', '2026'];
@@ -102,29 +113,42 @@ export default createCrudPage({
     };
   },
   validarFormulario(form) {
-    if (!form.titulo?.trim()) return 'O título / curso é obrigatório.';
-    if (!form.status?.trim()) return 'O status é obrigatório.';
-    return '';
+    return combinarValidacoes(
+      textoObrigatorio(form.titulo, 'O título / curso é obrigatório.'),
+      textoObrigatorio(form.status, 'O status é obrigatório.'),
+      form.numero_sei ? validarProcessoSei(form.numero_sei, { rotulo: 'Número SEI' }) : '',
+      form.ano ? validarInteiro(form.ano, { rotulo: 'Ano', min: 1900, max: 2100 }) : '',
+      form.carga_horaria ? validarInteiro(form.carga_horaria, { rotulo: 'Carga horária', min: 1, max: 99999 }) : '',
+      form.parcelas_boleto ? validarInteiro(form.parcelas_boleto, { rotulo: 'Parcelas boleto', min: 1, max: 999 }) : '',
+      form.parcelas_cartao ? validarInteiro(form.parcelas_cartao, { rotulo: 'Parcelas cartão', min: 1, max: 999 }) : '',
+      form.valor ? validarDecimal(form.valor, { rotulo: 'Valor' }) : '',
+      form.valor_primeiro_modulo ? validarDecimal(form.valor_primeiro_modulo, { rotulo: 'Valor do 1º módulo' }) : '',
+      form.valor_parcela_boleto ? validarDecimal(form.valor_parcela_boleto, { rotulo: 'Valor parcela boleto' }) : '',
+      form.valor_cartao ? validarDecimal(form.valor_cartao, { rotulo: 'Valor cartão' }) : '',
+    );
   },
   montarPayload(form) {
+    const normalizarNumero = (valor) => String(valor ?? '').trim();
+    const normalizarProcesso = (valor) => somenteAlfanumericoProcesso(valor).trim();
+
     return {
       ano: form.ano || null,
       semestre: form.semestre?.trim() || null,
-      numero_sei: form.numero_sei?.trim() || null,
+      numero_sei: normalizarProcesso(form.numero_sei) || null,
       codigo_sig: form.codigo_sig?.trim() || null,
       titulo: form.titulo.trim(),
       eixo: form.eixo || null,
       unidade: form.unidade || null,
-      carga_horaria: form.carga_horaria?.trim() || null,
+      carga_horaria: normalizarNumero(form.carga_horaria) || null,
       precificacao: form.precificacao?.trim() || null,
-      valor_primeiro_modulo: form.valor_primeiro_modulo?.trim() || null,
-      valor: form.valor?.trim() || null,
-      parcelas_boleto: form.parcelas_boleto?.trim() || null,
-      valor_parcela_boleto: form.valor_parcela_boleto?.trim() || null,
-      parcelas_cartao: form.parcelas_cartao?.trim() || null,
-      valor_cartao: form.valor_cartao?.trim() || null,
-      parcela_desc_20: form.parcela_desc_20?.trim() || null,
-      parcela_desc_15: form.parcela_desc_15?.trim() || null,
+      valor_primeiro_modulo: normalizarNumero(form.valor_primeiro_modulo) || null,
+      valor: normalizarNumero(form.valor) || null,
+      parcelas_boleto: normalizarNumero(form.parcelas_boleto) || null,
+      valor_parcela_boleto: normalizarNumero(form.valor_parcela_boleto) || null,
+      parcelas_cartao: normalizarNumero(form.parcelas_cartao) || null,
+      valor_cartao: normalizarNumero(form.valor_cartao) || null,
+      parcela_desc_20: normalizarNumero(form.parcela_desc_20) || null,
+      parcela_desc_15: normalizarNumero(form.parcela_desc_15) || null,
       status: form.status,
       observacao: form.observacao?.trim() || null,
     };
@@ -154,6 +178,14 @@ export default createCrudPage({
     statusLista: STATUS_LISTA,
   }),
   extraMethods: {
+    formatarNumeroSei: formatarProcessoSeiInput('numero_sei'),
+    formatarCargaHoraria: formatarInteiroInput('carga_horaria'),
+    formatarParcelasBoleto: formatarInteiroInput('parcelas_boleto'),
+    formatarParcelasCartao: formatarInteiroInput('parcelas_cartao'),
+    formatarValor: formatarDecimalInput('valor'),
+    formatarValorPrimeiroModulo: formatarDecimalInput('valor_primeiro_modulo'),
+    formatarValorParcelaBoleto: formatarDecimalInput('valor_parcela_boleto'),
+    formatarValorCartao: formatarDecimalInput('valor_cartao'),
     badgeStatus(status) {
       const valor = String(status || '').toUpperCase();
       if (valor.includes('VIGENTE') || valor.includes('ATIVO') || valor.includes('PUBLICADO') || valor.includes('APROVADO')) {

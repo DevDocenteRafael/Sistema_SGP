@@ -1,6 +1,19 @@
+import { podeGerenciarUsuarios } from './auth';
 import { UNIDADES } from './unidades';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
+import {
+  combinarValidacoes,
+  extrairErroApi,
+  mascaraCpf,
+  mascaraTelefone,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarCpf,
+  validarEmail,
+  validarSenha,
+  somenteNumeros,
+} from '../utils/validacao';
 
 export default {
   name: 'Usuarios',
@@ -26,6 +39,11 @@ export default {
       buscaTimeout: null,
       unidades: UNIDADES,
     };
+  },
+  computed: {
+    podeEditar() {
+      return podeGerenciarUsuarios();
+    },
   },
   mounted() {
     this.carregarUsuarios();
@@ -123,6 +141,11 @@ export default {
     },
 
     abrirNovo() {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Você não tem permissão para cadastrar usuários.';
+        return;
+      }
+
       this.aplicarEstadoNovoLocal();
       this.empilharHistoricoFormulario('novo');
     },
@@ -137,6 +160,11 @@ export default {
     },
 
     abrirEdicao(usuario) {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Você não tem permissão para editar usuários.';
+        return;
+      }
+
       this.aplicarEstadoEdicaoLocal(usuario);
       this.empilharHistoricoFormulario('editar', usuario.id);
     },
@@ -193,12 +221,41 @@ export default {
       this.form = this.formVazio();
     },
 
+    formatarCpf(evento) {
+      this.form.cpf = mascaraCpf(evento.target.value);
+    },
+
+    formatarTelefone(evento) {
+      this.form.telefone = mascaraTelefone(evento.target.value);
+    },
+
+    validarFormulario() {
+      return combinarValidacoes(
+        textoObrigatorio(this.form.nome, 'O nome é obrigatório.'),
+        tamanhoMaximo(this.form.nome, 100, 'O nome deve ter no máximo 100 caracteres.'),
+        validarEmail(this.form.email, { obrigatorio: true }),
+        tamanhoMaximo(this.form.email, 100, 'O e-mail deve ter no máximo 100 caracteres.'),
+        textoObrigatorio(this.form.perfil, 'O perfil é obrigatório.'),
+        validarCpf(this.form.cpf),
+        tamanhoMaximo(this.form.area, 100, 'A área deve ter no máximo 100 caracteres.'),
+        this.modo === 'novo'
+          ? validarSenha(this.form.senha, { obrigatorio: true })
+          : validarSenha(this.form.senha),
+        this.form.senha !== this.form.confirmarSenha ? 'As senhas não coincidem.' : '',
+      );
+    },
+
     async salvarUsuario() {
-      if (this.form.senha || this.form.confirmarSenha) {
-        if (this.form.senha !== this.form.confirmarSenha) {
-          this.erroFormulario = 'As senhas não coincidem.';
-          return;
-        }
+      const erroValidacao = this.validarFormulario();
+
+      if (erroValidacao) {
+        this.erroFormulario = erroValidacao;
+        return;
+      }
+
+      if (!this.podeEditar) {
+        this.erroFormulario = 'Você não tem permissão para salvar usuários.';
+        return;
       }
 
       this.salvando = true;
@@ -212,8 +269,8 @@ export default {
         status: this.form.status,
         unidade: this.form.unidade || null,
         area: this.form.area || null,
-        telefone: this.form.telefone || null,
-        cpf: this.form.cpf || null,
+        cpf: this.form.cpf ? somenteNumeros(this.form.cpf) : null,
+        telefone: this.form.telefone ? somenteNumeros(this.form.telefone) : null,
       };
 
       if (this.form.senha) {
@@ -239,6 +296,11 @@ export default {
     },
 
     async excluirUsuario(usuario) {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Você não tem permissão para excluir usuários.';
+        return;
+      }
+
       const confirmar = window.confirm(
         `Excluir o usuário "${usuario.nome}"? Esta ação não pode ser desfeita.`
       );
@@ -260,19 +322,7 @@ export default {
     },
 
     extrairErro(error, fallback) {
-      if (error.response?.data?.message) {
-        return error.response.data.message;
-      }
-
-      const errors = error.response?.data?.errors;
-
-      if (errors) {
-        const primeiro = Object.values(errors)[0];
-
-        return Array.isArray(primeiro) ? primeiro[0] : fallback;
-      }
-
-      return fallback;
+      return extrairErroApi(error, fallback);
     },
   },
 };

@@ -233,7 +233,7 @@
               </div>
               <div class="form-group">
                 <label for="matricula">Matrícula <span>*</span></label>
-                <input id="matricula" v-model="form.matricula" type="text" maxlength="20" required placeholder="Ex: 2026001" />
+                <input id="matricula" v-model="form.matricula" type="text" maxlength="20" required inputmode="numeric" placeholder="Ex: 2026001" @input="formatarMatricula" />
               </div>
               <div class="form-group">
                 <label for="segmento">Segmento <span>*</span></label>
@@ -269,9 +269,10 @@
                   id="processo_sei"
                   v-model="form.processo_sei"
                   type="text"
-                  maxlength="50"
+                  maxlength="100"
                   required
                   placeholder="Ex: 00002.000111/2026-01"
+                  @input="formatarProcessoSei"
                 />
               </div>
               <div class="form-group">

@@ -2,6 +2,17 @@ import IndicadorPrazo from '../components/ciclo-vida/IndicadorPrazo.vue';
 import LinhaDoTempo from '../components/ciclo-vida/LinhaDoTempo.vue';
 import ProcessoSeiLink from '../components/ciclo-vida/ProcessoSeiLink.vue';
 import BadgeStatus from '../components/termos-referencia/BadgeStatus.vue';
+import {
+  combinarValidacoes,
+  extrairErroApi,
+  formatarProcessoSeiInput,
+  somenteAlfanumericoProcesso,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarData,
+  validarOrdemDatas,
+  validarProcessoSei,
+} from '../utils/validacao';
 import { podeEditarDados } from './auth';
 import Loading from '../components/termos-referencia/Loading.vue';
 import Feedback from '../components/termos-referencia/Feedback.vue';
@@ -60,6 +71,8 @@ export default {
       historico: [],
       mensagemSucesso: '',
       mensagemErro: '',
+      erroFormulario: '',
+      debounceTimeout: null,
       eixosDisponiveis: [],
       statusDisponiveis: ['Planejamento', 'Em Andamento', STATUS_TRAMITACAO, 'Concluído', 'Arquivado'],
       confirmandoExclusao: false,
@@ -115,7 +128,7 @@ export default {
           }
         }
       } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível carregar os Termos de Referência.');
+        this.mensagemErro = extrairErroApi(error, 'Não foi possível carregar os Termos de Referência.');
         this.termos = [];
       } finally {
         this.carregando = false;
@@ -146,7 +159,7 @@ export default {
         this.termoSelecionado = detalhe;
         this.historico = Array.isArray(detalhe.historicos) ? detalhe.historicos : [];
       } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível carregar o histórico do TR.');
+        this.mensagemErro = extrairErroApi(error, 'Não foi possível carregar o histórico do TR.');
       }
     },
 
@@ -178,6 +191,7 @@ export default {
       this.form = { ...FORM_VAZIO };
       this.historico = [];
       this.mensagemErro = '';
+      this.erroFormulario = '';
       this.mensagemSucesso = '';
       this.fecharDetalhes();
     },
@@ -210,6 +224,7 @@ export default {
         data_fim: this.normalizarData(termo.data_fim) || '',
       };
       this.mensagemErro = '';
+      this.erroFormulario = '';
       this.mensagemSucesso = '';
       this.fecharDetalhes();
       this.carregarHistorico(termo.id);
@@ -247,37 +262,27 @@ export default {
      * Valida o formulário antes de enviar
      */
     validarFormulario() {
-      if (!this.form.nome?.trim()) {
-        this.mensagemErro = 'O nome do Termo de Referência é obrigatório.';
-        return false;
-      }
-      if (!this.form.eixo?.trim()) {
-        this.mensagemErro = 'O eixo é obrigatório.';
-        return false;
-      }
-      if (!this.form.processo_sei?.trim()) {
-        this.mensagemErro = 'O processo SEI é obrigatório.';
-        return false;
-      }
-      if (!this.form.prazo_deadline?.trim()) {
-        this.mensagemErro = 'O prazo/deadline é obrigatório.';
-        return false;
-      }
-      if (!this.form.status?.trim()) {
-        this.mensagemErro = 'O status é obrigatório.';
-        return false;
-      }
+      const erro = combinarValidacoes(
+        textoObrigatorio(this.form.nome, 'O nome do Termo de Referência é obrigatório.'),
+        tamanhoMaximo(this.form.nome, 255, 'O nome deve ter no máximo 255 caracteres.'),
+        textoObrigatorio(this.form.eixo, 'O eixo é obrigatório.'),
+        validarProcessoSei(this.form.processo_sei, { obrigatorio: true }),
+        validarData(this.form.prazo_deadline, { obrigatorio: true, rotulo: 'Prazo/deadline' }),
+        textoObrigatorio(this.form.status, 'O status é obrigatório.'),
+        validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
+        validarData(this.form.data_fim, { rotulo: 'Data de término' }),
+        validarOrdemDatas(
+          this.form.data_inicio,
+          this.form.data_fim,
+          'A data de término deve ser posterior ou igual à data de início.',
+        ),
+      );
 
-      // Validação de datas
-      if (this.form.data_inicio && this.form.data_fim) {
-        if (new Date(this.form.data_fim) < new Date(this.form.data_inicio)) {
-          this.mensagemErro = 'A data de término deve ser posterior ou igual à data de início.';
-          return false;
-        }
-      }
-
-      return true;
+      this.erroFormulario = erro;
+      return !erro;
     },
+
+    formatarProcessoSei: formatarProcessoSeiInput('processo_sei'),
 
     /**
      * Normaliza data do formato DD/MM/YYYY para YYYY-MM-DD e vice-versa
@@ -304,7 +309,13 @@ export default {
      * Salva um novo TR ou atualiza um existente
      */
     async salvarTermo() {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para alterar Termos de Referência.';
+        return;
+      }
+
       this.mensagemErro = '';
+      this.erroFormulario = '';
       this.mensagemSucesso = '';
 
       if (!this.validarFormulario()) {
@@ -316,12 +327,12 @@ export default {
       try {
         let response;
         const payload = {
-          nome: this.form.nome,
+          nome: this.form.nome.trim(),
           eixo: this.form.eixo,
-          processo_sei: this.form.processo_sei,
+          processo_sei: somenteAlfanumericoProcesso(this.form.processo_sei).trim(),
           prazo_deadline: this.form.prazo_deadline,
           status: this.form.status,
-          observacao: this.form.observacao || null,
+          observacao: this.form.observacao?.trim() || null,
           data_inicio: this.form.data_inicio || null,
           data_fim: this.form.data_fim || null,
         };
@@ -343,7 +354,7 @@ export default {
           this.mensagemSucesso = '';
         }, 5000);
       } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível salvar o Termo de Referência.');
+        this.erroFormulario = extrairErroApi(error, 'Não foi possível salvar o Termo de Referência.');
       } finally {
         this.carregandoFormulario = false;
       }
@@ -393,7 +404,7 @@ export default {
           this.mensagemSucesso = '';
         }, 5000);
       } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível excluir o Termo de Referência.');
+        this.mensagemErro = extrairErroApi(error, 'Não foi possível excluir o Termo de Referência.');
       } finally {
         this.carregando = false;
         this.confirmandoExclusao = false;
@@ -432,23 +443,7 @@ export default {
       this.abaForm = 'basico';
       this.historico = [];
       this.mensagemErro = '';
-    },
-
-    /**
-     * Extrai mensagem de erro da resposta HTTP
-     */
-    extrairErro(error, defaultMsg) {
-      if (error.response?.data?.message) {
-        return error.response.data.message;
-      }
-      if (error.response?.data?.errors) {
-        const msgs = Object.values(error.response.data.errors).flat();
-        return msgs[0] || defaultMsg;
-      }
-      if (error.message) {
-        return error.message;
-      }
-      return defaultMsg;
+      this.erroFormulario = '';
     },
 
     /**
@@ -457,6 +452,7 @@ export default {
     fecharFeedback() {
       this.mensagemSucesso = '';
       this.mensagemErro = '';
+      this.erroFormulario = '';
     },
 
     /**

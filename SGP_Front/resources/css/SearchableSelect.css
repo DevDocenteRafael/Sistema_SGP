@@ -20,6 +20,11 @@
   cursor: pointer;
 }
 
+.sgp-select__trigger.is-invalid {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
 .sgp-select.is-open .sgp-select__trigger,
 .sgp-select__trigger:focus {
   outline: none;

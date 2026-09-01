@@ -5,6 +5,12 @@ import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
+import {
+  combinarValidacoes,
+  extrairErroApi,
+  tamanhoMaximo,
+  textoObrigatorio,
+} from '../utils/validacao';
 
 const ENDPOINT = '/api/portfolio-ciclos';
 
@@ -128,7 +134,7 @@ export default {
         const { data } = await window.axios.get(ENDPOINT, { params });
         this.registros = data.data ?? [];
       } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível carregar os ciclos de portfólio.');
+        this.mensagemErro = extrairErroApi(error, 'Não foi possível carregar os ciclos de portfólio.');
         this.registros = [];
       } finally {
         this.carregando = false;
@@ -136,6 +142,11 @@ export default {
     },
 
     abrirNovo() {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para cadastrar ciclos de portfólio.';
+        return;
+      }
+
       this.aplicarEstadoNovoLocal();
       this.empilharHistoricoFormulario('novo');
     },
@@ -149,6 +160,11 @@ export default {
     },
 
     abrirGerar() {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para gerar ciclos de portfólio.';
+        return;
+      }
+
       this.aplicarEstadoGerarLocal();
       this.empilharHistoricoFormulario('gerar');
     },
@@ -167,6 +183,11 @@ export default {
     },
 
     abrirEdicao(item) {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para editar ciclos de portfólio.';
+        return;
+      }
+
       this.aplicarEstadoEdicaoLocal(item);
       this.empilharHistoricoFormulario('editar', item.id);
     },
@@ -260,9 +281,28 @@ export default {
       });
     },
 
+    validarFormulario() {
+      return combinarValidacoes(
+        textoObrigatorio(this.form.nome, 'Informe o nome do ciclo de portfólio.'),
+        tamanhoMaximo(this.form.nome, 80, 'O nome deve ter no máximo 80 caracteres.'),
+        this.form.observacao
+          ? tamanhoMaximo(this.form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
+          : '',
+        this.modo === 'gerar' && !this.form.origem_id
+          ? 'Selecione o ciclo de origem para gerar o próximo portfólio.'
+          : '',
+      );
+    },
+
     async salvarRegistro() {
-      if (!this.form.nome.trim()) {
-        this.erroFormulario = 'Informe o nome do ciclo de portfólio.';
+      if (!this.podeEditar) {
+        this.erroFormulario = 'Seu perfil não tem permissão para alterar ciclos de portfólio.';
+        return;
+      }
+
+      const erro = this.validarFormulario();
+      if (erro) {
+        this.erroFormulario = erro;
         return;
       }
 
@@ -306,13 +346,18 @@ export default {
         this.voltarLista();
         await this.carregarRegistros();
       } catch (error) {
-        this.erroFormulario = this.extrairErro(error, 'Não foi possível salvar o ciclo de portfólio.');
+        this.erroFormulario = extrairErroApi(error, 'Não foi possível salvar o ciclo de portfólio.');
       } finally {
         this.salvando = false;
       }
     },
 
     async marcarComoAtual(item) {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para alterar ciclos de portfólio.';
+        return;
+      }
+
       if (item.atual) {
         return;
       }
@@ -323,11 +368,16 @@ export default {
         this.fecharDetalhes();
         await this.carregarRegistros();
       } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível definir o ciclo atual.');
+        this.mensagemErro = extrairErroApi(error, 'Não foi possível definir o ciclo atual.');
       }
     },
 
     async excluirRegistro(item) {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para excluir ciclos de portfólio.';
+        return;
+      }
+
       if (!window.confirm(`Excluir o ciclo "${item.nome}"? Esta ação não pode ser desfeita.`)) {
         return;
       }
@@ -338,7 +388,7 @@ export default {
         this.fecharDetalhes();
         await this.carregarRegistros();
       } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível excluir o ciclo de portfólio.');
+        this.mensagemErro = extrairErroApi(error, 'Não foi possível excluir o ciclo de portfólio.');
       }
     },
 
@@ -346,22 +396,6 @@ export default {
       const total = Number(valor || 0);
 
       return total === 1 ? `1 ${singular}` : `${total} ${plural}`;
-    },
-
-    extrairErro(error, fallback) {
-      if (error.response?.data?.message) {
-        return error.response.data.message;
-      }
-
-      const errors = error.response?.data?.errors;
-
-      if (errors) {
-        const primeiro = Object.values(errors)[0];
-
-        return Array.isArray(primeiro) ? primeiro[0] : fallback;
-      }
-
-      return error.message || fallback;
     },
   },
 };

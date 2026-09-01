@@ -1,4 +1,10 @@
 import { podeConsultarDados, podeEditarDados } from './auth';
+import {
+  combinarValidacoes,
+  extrairErroApi,
+  tamanhoMaximo,
+  textoObrigatorio,
+} from '../utils/validacao';
 
 export default {
   name: 'KanbanQuadros',
@@ -37,6 +43,17 @@ export default {
   },
 
   methods: {
+    validarFormulario() {
+      return combinarValidacoes(
+        textoObrigatorio(this.form.nome, 'Informe o nome do quadro.'),
+        tamanhoMaximo(this.form.nome, 100, 'O nome do quadro pode ter no máximo 100 caracteres.'),
+      );
+    },
+
+    extrairErro(error, fallback) {
+      return extrairErroApi(error, fallback);
+    },
+
     async carregarQuadros() {
       this.carregando = true;
       this.erro = '';
@@ -52,8 +69,7 @@ export default {
         this.quadros = Array.isArray(data.data) ? data.data : [];
         this.podeEditarApi = Boolean(data.meta?.pode_editar);
       } catch (error) {
-        this.erro = error.response?.data?.message
-          || 'Não foi possível carregar os quadros.';
+        this.erro = this.extrairErro(error, 'Não foi possível carregar os quadros.');
         this.quadros = [];
       } finally {
         this.carregando = false;
@@ -98,12 +114,14 @@ export default {
         return;
       }
 
-      const nome = this.form.nome.trim();
+      const erroValidacao = this.validarFormulario();
 
-      if (!nome) {
-        this.erroFormulario = 'Informe o nome do quadro.';
+      if (erroValidacao) {
+        this.erroFormulario = erroValidacao;
         return;
       }
+
+      const nome = this.form.nome.trim();
 
       this.salvando = true;
       this.erroFormulario = '';
@@ -134,9 +152,7 @@ export default {
 
         this.limparMensagemDepois();
       } catch (error) {
-        this.erroFormulario = error.response?.data?.message
-          || error.response?.data?.errors?.nome?.[0]
-          || 'Não foi possível salvar o quadro.';
+        this.erroFormulario = this.extrairErro(error, 'Não foi possível salvar o quadro.');
       } finally {
         this.salvando = false;
       }
@@ -160,8 +176,7 @@ export default {
         this.mensagemSucesso = data.message || 'Quadro excluído com sucesso.';
         this.limparMensagemDepois();
       } catch (error) {
-        this.erro = error.response?.data?.message
-          || 'Não foi possível excluir o quadro.';
+        this.erro = this.extrairErro(error, 'Não foi possível excluir o quadro.');
       } finally {
         this.salvando = false;
       }

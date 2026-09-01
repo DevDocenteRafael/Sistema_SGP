@@ -295,7 +295,7 @@
 
               <div class="form-group">
                 <label for="numero_sei">SEI</label>
-                <input id="numero_sei" v-model="form.numero_sei" type="text" placeholder="Ex.: 0001234.567890/2026-01" />
+                <input id="numero_sei" v-model="form.numero_sei" type="text" maxlength="100" placeholder="Ex.: 0001234.567890/2026-01" @input="formatarNumeroSei" />
               </div>
 
               <div class="form-group">
@@ -339,7 +339,7 @@
 
               <div class="form-group">
                 <label for="carga_horaria">CH</label>
-                <input id="carga_horaria" v-model="form.carga_horaria" type="text" placeholder="Ex.: 1200" />
+                <input id="carga_horaria" v-model="form.carga_horaria" type="text" inputmode="numeric" placeholder="Ex.: 1200" maxlength="50" @input="formatarCargaHoraria" />
               </div>
             </div>
           </section>
@@ -353,27 +353,27 @@
               </div>
               <div class="form-group">
                 <label for="valor_primeiro_modulo">Valor 1º Módulo</label>
-                <input id="valor_primeiro_modulo" v-model="form.valor_primeiro_modulo" type="text" placeholder="Ex.: R$ 800,00" />
+                <input id="valor_primeiro_modulo" v-model="form.valor_primeiro_modulo" type="text" placeholder="Ex.: R$ 800,00" @input="formatarValorPrimeiroModulo" />
               </div>
               <div class="form-group">
                 <label for="valor">Valor Principal</label>
-                <input id="valor" v-model="form.valor" type="text" placeholder="Ex.: R$ 4.800,00" />
+                <input id="valor" v-model="form.valor" type="text" placeholder="Ex.: R$ 4.800,00" @input="formatarValor" />
               </div>
               <div class="form-group">
                 <label for="parcelas_boleto">Parcelas Boleto</label>
-                <input id="parcelas_boleto" v-model="form.parcelas_boleto" type="text" placeholder="Ex.: 12" />
+                <input id="parcelas_boleto" v-model="form.parcelas_boleto" type="text" inputmode="numeric" placeholder="Ex.: 12" maxlength="3" @input="formatarParcelasBoleto" />
               </div>
               <div class="form-group">
                 <label for="valor_parcela_boleto">Valor Parcela Boleto</label>
-                <input id="valor_parcela_boleto" v-model="form.valor_parcela_boleto" type="text" placeholder="Ex.: R$ 400,00" />
+                <input id="valor_parcela_boleto" v-model="form.valor_parcela_boleto" type="text" placeholder="Ex.: R$ 400,00" @input="formatarValorParcelaBoleto" />
               </div>
               <div class="form-group">
                 <label for="parcelas_cartao">Parcelas Cartão</label>
-                <input id="parcelas_cartao" v-model="form.parcelas_cartao" type="text" placeholder="Ex.: 10" />
+                <input id="parcelas_cartao" v-model="form.parcelas_cartao" type="text" inputmode="numeric" placeholder="Ex.: 10" maxlength="3" @input="formatarParcelasCartao" />
               </div>
               <div class="form-group">
                 <label for="valor_cartao">Valor Cartão</label>
-                <input id="valor_cartao" v-model="form.valor_cartao" type="text" placeholder="Ex.: R$ 480,00" />
+                <input id="valor_cartao" v-model="form.valor_cartao" type="text" placeholder="Ex.: R$ 480,00" @input="formatarValorCartao" />
               </div>
               <div class="form-group">
                 <label for="parcela_desc_20">Parcela com desc. 20%</label>

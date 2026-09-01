@@ -215,7 +215,8 @@
         </div>
 
         <form class="form-body" @submit.prevent="salvarTermo" novalidate>
-          <Feedback v-if="mensagemErro" tipo="erro" :mensagem="mensagemErro" :fechavel="true" @fechar="fecharFeedback" />
+          <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
+          <Feedback v-if="mensagemErro && !erroFormulario" tipo="erro" :mensagem="mensagemErro" :fechavel="true" @fechar="fecharFeedback" />
 
           <section v-show="abaForm === 'basico'" class="form-section">
             <div class="form-card">
@@ -248,7 +249,8 @@
                     v-model="form.processo_sei"
                     type="text"
                     placeholder="Ex: 2026.12.85.00001-0"
-                    maxlength="50"
+                    maxlength="100"
+                    @input="formatarProcessoSei"
                   />
                 </div>
               </div>

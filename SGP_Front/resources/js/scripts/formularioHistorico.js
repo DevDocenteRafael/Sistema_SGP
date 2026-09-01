@@ -43,6 +43,24 @@ export const mixinHistoricoFormulario = {
       }
     },
 
+    bloquearFormularioSemPermissao() {
+      if (this.podeEditar === false) {
+        if (typeof this.bloquearSemPermissao === 'function') {
+          this.bloquearSemPermissao();
+        } else {
+          if (typeof this.mensagemErro === 'string') {
+            this.mensagemErro = 'Seu perfil não tem permissão para alterar estes registros.';
+          }
+          this.aplicarEstadoListaLocal();
+          this.limparHistoricoFormulario();
+        }
+
+        return true;
+      }
+
+      return false;
+    },
+
     async sincronizarModoComHistorico() {
       if (this._navFormSilenciosa || !this.$route) {
         return;
@@ -62,6 +80,9 @@ export const mixinHistoricoFormulario = {
         if (this.modo === 'novo') {
           return;
         }
+        if (this.bloquearFormularioSemPermissao()) {
+          return;
+        }
         if (typeof this.aplicarEstadoNovoLocal === 'function') {
           this.aplicarEstadoNovoLocal();
         }
@@ -70,6 +91,9 @@ export const mixinHistoricoFormulario = {
 
       if (form === 'gerar') {
         if (this.modo === 'gerar') {
+          return;
+        }
+        if (this.bloquearFormularioSemPermissao()) {
           return;
         }
         if (typeof this.aplicarEstadoGerarLocal === 'function') {
@@ -85,6 +109,10 @@ export const mixinHistoricoFormulario = {
           ?? null;
 
         if (this.modo === modoAlvo && String(idAtual) === String(id)) {
+          return;
+        }
+
+        if (this.bloquearFormularioSemPermissao()) {
           return;
         }
 

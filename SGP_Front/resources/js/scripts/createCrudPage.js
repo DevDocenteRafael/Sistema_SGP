@@ -7,6 +7,7 @@ import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import TabelaContador from '../components/crud/TabelaContador.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
+import { extrairErroApi } from '../utils/validacao';
 
 /**
  * Factory de páginas CRUD (Vue Options API).
@@ -189,6 +190,11 @@ export function createCrudPage(config) {
     },
 
     aplicarEstadoNovoLocal() {
+      if (!this.podeEditar) {
+        this.bloquearSemPermissao();
+        return;
+      }
+
       this.modo = 'novo';
       this.editandoId = null;
       this.form = this.formVazio();
@@ -459,19 +465,7 @@ export function createCrudPage(config) {
     },
 
     extrairErro(error, fallback) {
-      if (error.response?.data?.message) {
-        return error.response.data.message;
-      }
-
-      const errors = error.response?.data?.errors;
-
-      if (errors) {
-        const primeiro = Object.values(errors)[0];
-
-        return Array.isArray(primeiro) ? primeiro[0] : fallback;
-      }
-
-      return fallback;
+      return extrairErroApi(error, fallback);
     },
 
     ...extraMethods,

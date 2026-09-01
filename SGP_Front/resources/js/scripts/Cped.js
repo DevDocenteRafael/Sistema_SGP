@@ -1,4 +1,11 @@
 import { podeConsultarDados, podeEditarDados } from './auth';
+import {
+  combinarValidacoes,
+  extrairErroApi,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarEmail,
+} from '../utils/validacao';
 
 const TIPOS = ['ordenador', 'assistente', 'responsavel', 'instrutor', 'administrativo'];
 
@@ -494,7 +501,35 @@ export default {
       return formData;
     },
 
+    validarFormulario() {
+      const precisaEixo = this.form.tipo === 'responsavel' || this.form.tipo === 'instrutor';
+
+      return combinarValidacoes(
+        textoObrigatorio(this.form.nome, 'Informe o nome completo.'),
+        tamanhoMaximo(this.form.nome, 100, 'O nome deve ter no máximo 100 caracteres.'),
+        textoObrigatorio(this.form.cargo, 'Informe o cargo / função.'),
+        tamanhoMaximo(this.form.cargo, 100, 'O cargo deve ter no máximo 100 caracteres.'),
+        textoObrigatorio(this.form.setor, 'Selecione o setor / eixo.'),
+        validarEmail(this.form.contato, { obrigatorio: true, rotulo: 'E-mail de contato' }),
+        tamanhoMaximo(this.form.contato, 100, 'O e-mail deve ter no máximo 100 caracteres.'),
+        textoObrigatorio(this.form.tipo, 'Selecione o tipo do membro.'),
+        precisaEixo ? textoObrigatorio(this.form.eixo_vinculado, 'Informe o eixo vinculado.') : '',
+      );
+    },
+
     async salvar() {
+      if (!this.podeEditar) {
+        this.erroFormulario = 'Seu perfil não tem permissão para alterar a equipe CPED.';
+        return;
+      }
+
+      const erroValidacao = this.validarFormulario();
+
+      if (erroValidacao) {
+        this.erroFormulario = erroValidacao;
+        return;
+      }
+
       this.salvando = true;
       this.erroFormulario = '';
 
@@ -525,6 +560,11 @@ export default {
     },
 
     async excluir(pessoa) {
+      if (!this.podeEditar) {
+        this.erro = 'Seu perfil não tem permissão para excluir membros.';
+        return;
+      }
+
       if (!window.confirm(`Excluir o membro "${pessoa.nome}"?`)) {
         return;
       }

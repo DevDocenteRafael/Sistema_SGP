@@ -236,9 +236,10 @@
                   id="processo_sei"
                   v-model="form.processo_sei"
                   type="text"
-                  maxlength="50"
+                  maxlength="100"
                   required
                   placeholder="Ex: 00001.000123/2026-01"
+                  @input="formatarProcessoSei"
                 />
               </div>
               <div class="form-group">

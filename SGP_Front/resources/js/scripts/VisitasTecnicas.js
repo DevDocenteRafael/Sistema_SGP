@@ -1,5 +1,15 @@
 import { createCrudPage } from './createCrudPage';
 import { UNIDADES } from './unidades';
+import {
+  combinarValidacoes,
+  formatarProcessoSeiInput,
+  somenteAlfanumericoProcesso,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarData,
+  validarOrdemDatas,
+  validarProcessoSei,
+} from '../utils/validacao';
 
 const EIXOS = [
   'Gastronomia',
@@ -71,21 +81,33 @@ export default createCrudPage({
     };
   },
   validarFormulario(form) {
-    if (!form.unidade) return 'A unidade é obrigatória.';
-    if (!form.eixo) return 'O eixo é obrigatório.';
-    if (!form.processo_sei?.trim()) return 'O processo SEI é obrigatório.';
-    if (!form.data_solicitacao) return 'A data de solicitação é obrigatória.';
-    if (!form.data_visita_prevista) return 'A data prevista da visita é obrigatória.';
-    if (!form.prazo_limite) return 'O prazo limite é obrigatório.';
-    if (!form.status) return 'O status é obrigatório.';
-    if (!form.responsavel?.trim()) return 'O responsável é obrigatório.';
-    return '';
+    return combinarValidacoes(
+      textoObrigatorio(form.unidade, 'A unidade é obrigatória.'),
+      textoObrigatorio(form.eixo, 'O eixo é obrigatório.'),
+      validarProcessoSei(form.processo_sei, { obrigatorio: true }),
+      validarData(form.data_solicitacao, { obrigatorio: true, rotulo: 'Data de solicitação' }),
+      validarData(form.data_visita_prevista, { obrigatorio: true, rotulo: 'Data prevista da visita' }),
+      validarData(form.prazo_limite, { obrigatorio: true, rotulo: 'Prazo limite' }),
+      validarOrdemDatas(
+        form.data_solicitacao,
+        form.data_visita_prevista,
+        'A data prevista da visita deve ser igual ou posterior à data de solicitação.',
+      ),
+      validarOrdemDatas(
+        form.data_solicitacao,
+        form.prazo_limite,
+        'O prazo limite deve ser igual ou posterior à data de solicitação.',
+      ),
+      textoObrigatorio(form.status, 'O status é obrigatório.'),
+      textoObrigatorio(form.responsavel, 'O responsável é obrigatório.'),
+      tamanhoMaximo(form.responsavel, 150, 'O responsável deve ter no máximo 150 caracteres.'),
+    );
   },
   montarPayload(form) {
     return {
       unidade: form.unidade,
       eixo: form.eixo,
-      processo_sei: form.processo_sei.trim(),
+      processo_sei: somenteAlfanumericoProcesso(form.processo_sei).trim(),
       data_solicitacao: form.data_solicitacao,
       data_visita_prevista: form.data_visita_prevista,
       prazo_limite: form.prazo_limite,
@@ -132,6 +154,7 @@ export default createCrudPage({
     visitasFiltradas: 'listaFiltrada',
   },
   extraMethods: {
+    formatarProcessoSei: formatarProcessoSeiInput('processo_sei'),
     statusClass(status) {
       const mapa = {
         Realizada: 'badge-realizada',

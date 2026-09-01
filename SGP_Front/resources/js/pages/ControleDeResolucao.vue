@@ -268,14 +268,14 @@
         @voltar="voltarLista"
       >
         <form class="form-body" @submit.prevent="salvarResolucao">
-          <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
+          <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
 
           <section class="form-section">
             <h2>Dados da resolução</h2>
             <div class="form-grid">
               <div class="form-group">
                 <label for="resolucao-numero">Número <span>*</span></label>
-                <input id="resolucao-numero" v-model="form.numero" type="text" placeholder="Ex: MEC/2026/001" required />
+                <input id="resolucao-numero" v-model="form.numero" type="text" placeholder="Ex: MEC/2026/001" maxlength="100" required />
               </div>
               <div class="form-group">
                 <label for="resolucao-status">Status</label>
@@ -289,11 +289,11 @@
               </div>
               <div class="form-group full">
                 <label for="resolucao-resumo">Resumo <span>*</span></label>
-                <input id="resolucao-resumo" v-model="form.resumo" type="text" placeholder="Resumo da resolução" required />
+                <input id="resolucao-resumo" v-model="form.resumo" type="text" placeholder="Resumo da resolução" maxlength="1000" required />
               </div>
               <div class="form-group">
                 <label for="resolucao-curso">Curso relacionado</label>
-                <input id="resolucao-curso" v-model="form.curso_relacionado" type="text" placeholder="Curso ou técnico relacionado" />
+                <input id="resolucao-curso" v-model="form.curso_relacionado" type="text" placeholder="Curso ou técnico relacionado" maxlength="255" />
               </div>
               <div class="form-group">
                 <label for="resolucao-categoria">Categoria</label>
@@ -307,7 +307,7 @@
               </div>
               <div class="form-group">
                 <label for="resolucao-relator">Relator</label>
-                <input id="resolucao-relator" v-model="form.relator" type="text" placeholder="Nome do relator" />
+                <input id="resolucao-relator" v-model="form.relator" type="text" placeholder="Nome do relator" maxlength="255" />
               </div>
               <div class="form-group">
                 <label for="resolucao-setor">Setor</label>

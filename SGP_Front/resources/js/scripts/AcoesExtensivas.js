@@ -1,4 +1,13 @@
 import { createCrudPage } from './createCrudPage';
+import {
+  combinarValidacoes,
+  formatarProcessoSeiInput,
+  somenteAlfanumericoProcesso,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarData,
+  validarProcessoSei,
+} from '../utils/validacao';
 
 const PRIORIZACOES = ['Baixa', 'Média', 'Alta', 'Resolvido'];
 const STATUS_LISTA = ['CPED', 'DEP', 'DIREG', 'NC'];
@@ -61,21 +70,25 @@ export default createCrudPage({
     };
   },
   validarFormulario(form) {
-    if (!form.priorizacao) return 'A priorização é obrigatória.';
-    if (!form.atribuido?.trim()) return 'Informe o responsável atribuído.';
-    if (!form.eixo) return 'O eixo é obrigatório.';
-    if (!form.numero_processo_sei?.trim()) return 'O número do processo SEI é obrigatório.';
-    if (!form.tipo) return 'O tipo é obrigatório.';
-    if (!form.assunto?.trim()) return 'O assunto é obrigatório.';
-    if (!form.status) return 'O status é obrigatório.';
-    return '';
+    return combinarValidacoes(
+      textoObrigatorio(form.priorizacao, 'A priorização é obrigatória.'),
+      textoObrigatorio(form.atribuido, 'Informe o responsável atribuído.'),
+      tamanhoMaximo(form.atribuido, 100, 'O responsável atribuído deve ter no máximo 100 caracteres.'),
+      textoObrigatorio(form.eixo, 'O eixo é obrigatório.'),
+      validarProcessoSei(form.numero_processo_sei, { obrigatorio: true, rotulo: 'Número do processo SEI' }),
+      textoObrigatorio(form.tipo, 'O tipo é obrigatório.'),
+      textoObrigatorio(form.assunto, 'O assunto é obrigatório.'),
+      tamanhoMaximo(form.assunto, 500, 'O assunto deve ter no máximo 500 caracteres.'),
+      textoObrigatorio(form.status, 'O status é obrigatório.'),
+      validarData(form.ultima_atualizacao, { rotulo: 'Última atualização' }),
+    );
   },
   montarPayload(form) {
     return {
       priorizacao: form.priorizacao,
       atribuido: form.atribuido.trim(),
       eixo: form.eixo,
-      numero_processo_sei: form.numero_processo_sei.trim(),
+      numero_processo_sei: somenteAlfanumericoProcesso(form.numero_processo_sei).trim(),
       tipo: form.tipo || 'Ação Extensiva',
       assunto: form.assunto.trim(),
       objetivo: form.objetivo?.trim() || null,
@@ -106,6 +119,7 @@ export default createCrudPage({
     eixos: EIXOS,
   }),
   extraMethods: {
+    formatarNumeroProcessoSei: formatarProcessoSeiInput('numero_processo_sei'),
     badgePriorizacao(valor) {
       const mapa = {
         Baixa: 'badge-baixa',

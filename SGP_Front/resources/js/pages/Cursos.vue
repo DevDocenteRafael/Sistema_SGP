@@ -392,9 +392,11 @@
                   <input
                     id="carga_horaria"
                     v-model="form.carga_horaria"
-                    type="number"
+                    type="text"
+                    inputmode="numeric"
                     placeholder="Ex: 800"
                     maxlength="50"
+                    @input="formatarCargaHoraria"
                   />
                 </div>
                 <div class="form-group">
@@ -402,9 +404,11 @@
                   <input
                     id="turmas"
                     v-model="form.turmas"
-                    type="number"
+                    type="text"
+                    inputmode="numeric"
                     placeholder="Ex: 2"
                     maxlength="20"
+                    @input="formatarTurmas"
                   />
                 </div>
                 <div class="form-group">
@@ -422,9 +426,11 @@
                   <input
                     id="alunos"
                     v-model="form.alunos"
-                    type="number"
+                    type="text"
+                    inputmode="numeric"
                     placeholder="Ex: 22"
                     maxlength="20"
+                    @input="formatarAlunos"
                   />
                 </div>
                 <div class="form-group full">
@@ -546,6 +552,7 @@
                     type="text"
                     placeholder="Ex: 2023.000001650-31"
                     maxlength="100"
+                    @input="formatarProcessoSei"
                   />
                 </div>
                 <div class="form-group">

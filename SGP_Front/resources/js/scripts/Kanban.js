@@ -1,5 +1,11 @@
 import draggable from 'vuedraggable';
 import { podeConsultarDados, podeEditarDados } from './auth';
+import {
+  combinarValidacoes,
+  extrairErroApi,
+  tamanhoMaximo,
+  textoObrigatorio,
+} from '../utils/validacao';
 
 function formVazio(colunaTitulo = '') {
   return {
@@ -67,6 +73,31 @@ export default {
       return this.$route.params.slug;
     },
 
+    validarCartao() {
+      return combinarValidacoes(
+        textoObrigatorio(this.form.titulo, 'Informe o título do cartão.'),
+        tamanhoMaximo(this.form.titulo, 150, 'O título pode ter no máximo 150 caracteres.'),
+        tamanhoMaximo(this.form.descricao, 2000, 'A descrição pode ter no máximo 2000 caracteres.'),
+        !this.cartaoEmEdicao
+          ? textoObrigatorio(this.form.coluna_titulo, 'Informe a coluna.')
+          : '',
+        !this.cartaoEmEdicao
+          ? tamanhoMaximo(this.form.coluna_titulo, 80, 'O nome da coluna pode ter no máximo 80 caracteres.')
+          : '',
+      );
+    },
+
+    validarColuna(titulo) {
+      return combinarValidacoes(
+        textoObrigatorio(titulo, 'Informe o nome da coluna.'),
+        tamanhoMaximo(titulo, 80, 'O nome da coluna pode ter no máximo 80 caracteres.'),
+      );
+    },
+
+    extrairErro(error, fallback) {
+      return extrairErroApi(error, fallback);
+    },
+
     async carregarQuadro() {
       this.carregando = true;
       this.erro = '';
@@ -95,8 +126,7 @@ export default {
           : [];
         this.podeEditarApi = Boolean(data.meta?.pode_editar);
       } catch (error) {
-        this.erro = error.response?.data?.message
-          || 'Não foi possível carregar o quadro Kanban.';
+        this.erro = this.extrairErro(error, 'Não foi possível carregar o quadro Kanban.');
         this.colunas = [];
         this.quadro = null;
       } finally {
@@ -171,9 +201,10 @@ export default {
       }
 
       const titulo = this.formColuna.titulo.trim();
+      const erroValidacao = this.validarColuna(titulo);
 
-      if (!titulo) {
-        this.erroFormularioColuna = 'Informe o nome da coluna.';
+      if (erroValidacao) {
+        this.erroFormularioColuna = erroValidacao;
         return;
       }
 
@@ -197,9 +228,7 @@ export default {
         this.fecharModalColuna();
         this.limparMensagemDepois();
       } catch (error) {
-        this.erroFormularioColuna = error.response?.data?.message
-          || error.response?.data?.errors?.titulo?.[0]
-          || 'Não foi possível criar a coluna.';
+        this.erroFormularioColuna = this.extrairErro(error, 'Não foi possível criar a coluna.');
       } finally {
         this.salvando = false;
       }
@@ -230,9 +259,10 @@ export default {
       }
 
       const titulo = this.tituloColunaEditando.trim();
+      const erroValidacao = this.validarColuna(titulo);
 
-      if (!titulo) {
-        this.erro = 'Informe o nome da coluna.';
+      if (erroValidacao) {
+        this.erro = erroValidacao;
         return;
       }
 
@@ -251,9 +281,7 @@ export default {
         this.cancelarEdicaoColuna();
         this.limparMensagemDepois();
       } catch (error) {
-        this.erro = error.response?.data?.message
-          || error.response?.data?.errors?.titulo?.[0]
-          || 'Não foi possível renomear a coluna.';
+        this.erro = this.extrairErro(error, 'Não foi possível renomear a coluna.');
       } finally {
         this.salvando = false;
       }
@@ -282,8 +310,7 @@ export default {
         this.mensagemSucesso = data.message || 'Coluna excluída com sucesso.';
         this.limparMensagemDepois();
       } catch (error) {
-        this.erro = error.response?.data?.message
-          || 'Não foi possível excluir a coluna.';
+        this.erro = this.extrairErro(error, 'Não foi possível excluir a coluna.');
       } finally {
         this.salvando = false;
       }
@@ -291,6 +318,13 @@ export default {
 
     async salvar() {
       if (!this.podeEditar || this.salvando) {
+        return;
+      }
+
+      const erroValidacao = this.validarCartao();
+
+      if (erroValidacao) {
+        this.erroFormulario = erroValidacao;
         return;
       }
 
@@ -303,8 +337,8 @@ export default {
           const { data } = await window.axios.put(
             `/api/kanban/cartoes/${this.cartaoEmEdicao.id}`,
             {
-              titulo: this.form.titulo,
-              descricao: this.form.descricao || null,
+              titulo: this.form.titulo.trim(),
+              descricao: this.form.descricao?.trim() || null,
             }
           );
 
@@ -313,8 +347,8 @@ export default {
         } else {
           const { data } = await window.axios.post(`/api/kanban/quadros/${this.slugAtual()}/cartoes`, {
             coluna_titulo: this.form.coluna_titulo.trim(),
-            titulo: this.form.titulo,
-            descricao: this.form.descricao || null,
+            titulo: this.form.titulo.trim(),
+            descricao: this.form.descricao?.trim() || null,
           });
 
           this.adicionarCartaoLocal(data.kanban_cartao, data.kanban_coluna, data.coluna_criada);
@@ -324,9 +358,7 @@ export default {
         this.fecharModal();
         this.limparMensagemDepois();
       } catch (error) {
-        this.erroFormulario = error.response?.data?.message
-          || error.response?.data?.errors?.coluna_titulo?.[0]
-          || 'Não foi possível salvar o cartão.';
+        this.erroFormulario = this.extrairErro(error, 'Não foi possível salvar o cartão.');
       } finally {
         this.salvando = false;
       }
@@ -350,8 +382,7 @@ export default {
         this.mensagemSucesso = data.message || 'Cartão excluído com sucesso.';
         this.limparMensagemDepois();
       } catch (error) {
-        this.erro = error.response?.data?.message
-          || 'Não foi possível excluir o cartão.';
+        this.erro = this.extrairErro(error, 'Não foi possível excluir o cartão.');
       } finally {
         this.salvando = false;
       }
@@ -395,8 +426,7 @@ export default {
         this.reindexarColuna(colunaDestino);
       } catch (error) {
         this.colunas = snapshot;
-        this.erro = error.response?.data?.message
-          || 'Não foi possível salvar a movimentação.';
+        this.erro = this.extrairErro(error, 'Não foi possível salvar a movimentação.');
       } finally {
         this.salvando = false;
       }

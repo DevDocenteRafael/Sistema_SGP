@@ -1,5 +1,12 @@
 import { createCrudPage } from './createCrudPage';
 import { UNIDADES } from './unidades';
+import {
+  combinarValidacoes,
+  formatarInteiroInput,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarInteiro,
+} from '../utils/validacao';
 
 export default createCrudPage({
   name: 'Eixos',
@@ -49,11 +56,18 @@ export default createCrudPage({
     };
   },
   validarFormulario(form) {
-    if (!form.curso?.trim()) return 'Informe o nome do curso.';
-    if (!form.eixo) return 'Selecione o eixo tecnológico.';
-    if (!form.ano) return 'Selecione o ano.';
-    if (!form.status) return 'Selecione o status.';
-    return '';
+    return combinarValidacoes(
+      textoObrigatorio(form.curso, 'Informe o nome do curso.'),
+      tamanhoMaximo(form.curso, 255, 'O nome do curso deve ter no máximo 255 caracteres.'),
+      textoObrigatorio(form.eixo, 'Selecione o eixo tecnológico.'),
+      textoObrigatorio(form.ano, 'Selecione o ano.'),
+      textoObrigatorio(form.status, 'Selecione o status.'),
+      form.turmas ? validarInteiro(form.turmas, { rotulo: 'Turmas', min: 0, max: 9999 }) : '',
+      form.alunos ? validarInteiro(form.alunos, { rotulo: 'Alunos', min: 0, max: 99999 }) : '',
+      form.ch ? tamanhoMaximo(form.ch, 50, 'A carga horária deve ter no máximo 50 caracteres.') : '',
+      form.codigo ? tamanhoMaximo(form.codigo, 100, 'O código deve ter no máximo 100 caracteres.') : '',
+      form.instrutores ? tamanhoMaximo(form.instrutores, 255, 'Instrutores deve ter no máximo 255 caracteres.') : '',
+    );
   },
   montarPayload(form) {
     return {
@@ -61,13 +75,13 @@ export default createCrudPage({
       eixo: form.eixo,
       unidade: form.unidade || null,
       ano: form.ano,
-      ch: form.ch || null,
-      turmas: form.turmas || null,
-      codigo: form.codigo || null,
-      alunos: form.alunos || null,
-      instrutores: form.instrutores || null,
+      ch: form.ch?.trim() || null,
+      turmas: form.turmas?.trim() || null,
+      codigo: form.codigo?.trim() || null,
+      alunos: form.alunos?.trim() || null,
+      instrutores: form.instrutores?.trim() || null,
       status: form.status,
-      observacao: form.observacao || null,
+      observacao: form.observacao?.trim() || null,
       is_novo: false,
     };
   },
@@ -119,6 +133,8 @@ export default createCrudPage({
     },
   },
   extraMethods: {
+    formatarTurmas: formatarInteiroInput('turmas'),
+    formatarAlunos: formatarInteiroInput('alunos'),
     formatarCh(valor) {
       if (!valor) return '—';
       const texto = String(valor).trim();

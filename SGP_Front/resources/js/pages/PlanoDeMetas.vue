@@ -212,7 +212,8 @@
         @voltar="voltarLista"
       >
         <form class="form-body" novalidate @submit.prevent="salvarRegistro">
-          <div v-if="mensagemErro" class="mensagem-erro mensagem-form">{{ mensagemErro }}</div>
+          <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
+          <div v-else-if="mensagemErro" class="mensagem-erro mensagem-form">{{ mensagemErro }}</div>
 
           <section class="form-section">
             <h2>Dados do registro</h2>
@@ -243,7 +244,7 @@
 
               <label class="campo">
                 <span>Número SEI <em>*</em></span>
-                <input v-model="form.numero_sei" type="text" placeholder="Ex.: 1234567" />
+                <input v-model="form.numero_sei" type="text" placeholder="Ex.: 0001234.567890/2026-01" maxlength="100" @input="formatarNumeroSei" />
               </label>
 
               <label class="campo">

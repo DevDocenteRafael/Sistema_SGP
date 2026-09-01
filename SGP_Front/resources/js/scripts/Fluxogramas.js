@@ -1,4 +1,10 @@
 import { podeConsultarDados, podeEditarDados } from './auth';
+import {
+  combinarValidacoes,
+  extrairErroApi,
+  tamanhoMaximo,
+  textoObrigatorio,
+} from '../utils/validacao';
 
 export default {
   name: 'Fluxogramas',
@@ -45,6 +51,18 @@ export default {
       return tipo === 'funcional' ? 'Funcional' : 'Linear';
     },
 
+    validarFormulario() {
+      return combinarValidacoes(
+        textoObrigatorio(this.form.titulo, 'Informe o título do fluxograma.'),
+        tamanhoMaximo(this.form.titulo, 100, 'O título pode ter no máximo 100 caracteres.'),
+        tamanhoMaximo(this.form.descricao, 2000, 'A descrição pode ter no máximo 2000 caracteres.'),
+      );
+    },
+
+    extrairErro(error, fallback) {
+      return extrairErroApi(error, fallback);
+    },
+
     async carregar() {
       this.carregando = true;
       this.erro = '';
@@ -60,8 +78,7 @@ export default {
         this.fluxogramas = Array.isArray(data.data) ? data.data : [];
         this.podeEditarApi = Boolean(data.meta?.pode_editar);
       } catch (error) {
-        this.erro = error.response?.data?.message
-          || 'Não foi possível carregar os fluxogramas.';
+        this.erro = this.extrairErro(error, 'Não foi possível carregar os fluxogramas.');
         this.fluxogramas = [];
       } finally {
         this.carregando = false;
@@ -110,10 +127,10 @@ export default {
         return;
       }
 
-      const titulo = this.form.titulo.trim();
+      const erroValidacao = this.validarFormulario();
 
-      if (!titulo) {
-        this.erroFormulario = 'Informe o título do fluxograma.';
+      if (erroValidacao) {
+        this.erroFormulario = erroValidacao;
         return;
       }
 
@@ -122,7 +139,7 @@ export default {
       this.erro = '';
 
       const payload = {
-        titulo,
+        titulo: this.form.titulo.trim(),
         descricao: this.form.descricao.trim() || null,
         tipo: this.form.tipo || 'linear',
       };
@@ -162,9 +179,7 @@ export default {
 
         this.limparMensagemDepois();
       } catch (error) {
-        this.erroFormulario = error.response?.data?.message
-          || error.response?.data?.errors?.titulo?.[0]
-          || 'Não foi possível salvar o fluxograma.';
+        this.erroFormulario = this.extrairErro(error, 'Não foi possível salvar o fluxograma.');
       } finally {
         this.salvando = false;
       }
@@ -188,8 +203,7 @@ export default {
         this.mensagemSucesso = data.message || 'Fluxograma excluído com sucesso.';
         this.limparMensagemDepois();
       } catch (error) {
-        this.erro = error.response?.data?.message
-          || 'Não foi possível excluir o fluxograma.';
+        this.erro = this.extrairErro(error, 'Não foi possível excluir o fluxograma.');
       } finally {
         this.salvando = false;
       }

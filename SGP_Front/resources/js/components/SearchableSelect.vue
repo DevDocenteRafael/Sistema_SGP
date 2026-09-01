@@ -4,8 +4,10 @@
       :id="inputId || id || undefined"
       type="button"
       class="sgp-select__trigger"
+      :class="{ 'is-invalid': invalido }"
       :aria-label="ariaLabel"
       :aria-expanded="aberto ? 'true' : 'false'"
+      :aria-required="required ? 'true' : 'false'"
       :disabled="disabled"
       @click="alternar"
     >
@@ -66,11 +68,12 @@ export default {
     required: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
   },
-  emits: ['update:modelValue', 'change'],
+  emits: ['update:modelValue', 'change', 'invalid'],
   data() {
     return {
       aberto: false,
       termo: '',
+      invalido: false,
     };
   },
   computed: {
@@ -129,6 +132,7 @@ export default {
       this.termo = '';
     },
     escolher(valor) {
+      this.invalido = false;
       this.$emit('update:modelValue', valor);
       this.$emit('change', valor);
       this.fechar();
@@ -148,6 +152,22 @@ export default {
       if (!this.$el.contains(event.target)) {
         this.fechar();
       }
+    },
+
+    validar() {
+      if (!this.required) {
+        this.invalido = false;
+        return true;
+      }
+
+      const valido = this.temValor;
+      this.invalido = !valido;
+
+      if (!valido) {
+        this.$emit('invalid');
+      }
+
+      return valido;
     },
   },
 };

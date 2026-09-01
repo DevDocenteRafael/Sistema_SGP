@@ -233,11 +233,11 @@
               </div>
               <div class="form-group">
                 <label for="telefone">Telefone</label>
-                <input id="telefone" v-model="form.telefone" type="text" placeholder="(61) 99999-9999" maxlength="20" />
+                <input id="telefone" v-model="form.telefone" type="text" placeholder="(61) 99999-9999" maxlength="20" @input="formatarTelefone" />
               </div>
               <div class="form-group">
                 <label for="cpf">CPF</label>
-                <input id="cpf" v-model="form.cpf" type="text" placeholder="000.000.000-00" maxlength="14" />
+                <input id="cpf" v-model="form.cpf" type="text" placeholder="000.000.000-00" maxlength="14" @input="formatarCpf" />
               </div>
               <div class="form-group">
                 <label for="area">Área de atuação</label>

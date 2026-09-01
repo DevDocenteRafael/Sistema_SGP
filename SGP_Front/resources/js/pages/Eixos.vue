@@ -315,7 +315,7 @@
 
               <div class="form-group">
                 <label for="form-turmas">Turmas</label>
-                <input id="form-turmas" v-model="form.turmas" type="text" maxlength="20" placeholder="Ex: 2" />
+                <input id="form-turmas" v-model="form.turmas" type="text" maxlength="20" placeholder="Ex: 2" @input="formatarTurmas" />
               </div>
 
               <div class="form-group">
@@ -325,7 +325,7 @@
 
               <div class="form-group">
                 <label for="form-alunos">Alunos</label>
-                <input id="form-alunos" v-model="form.alunos" type="text" maxlength="20" placeholder="Ex: 22" />
+                <input id="form-alunos" v-model="form.alunos" type="text" maxlength="20" placeholder="Ex: 22" @input="formatarAlunos" />
               </div>
 
               <div class="form-group full">

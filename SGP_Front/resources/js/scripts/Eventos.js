@@ -1,5 +1,13 @@
 import { createCrudPage } from './createCrudPage';
 import { UNIDADES } from './unidades';
+import {
+  combinarValidacoes,
+  formatarInteiroInput,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarData,
+  validarInteiro,
+} from '../utils/validacao';
 
 const STATUS_LISTA = ['Planejado', 'Realizado', 'Cancelado'];
 const ANOS = ['2024', '2025', '2026', '2027'];
@@ -72,14 +80,25 @@ export default createCrudPage({
     };
   },
   validarFormulario(form) {
-    if (!form.nome?.trim() || !form.data) {
-      return 'Preencha o nome e a data do evento.';
-    }
-    if (!form.unidade) return 'A unidade é obrigatória.';
-    if (!form.eixo) return 'O eixo é obrigatório.';
-    if (!form.status) return 'O status é obrigatório.';
-    if (!form.possui_acao_extensiva) return 'Informe se possui ação extensiva.';
-    return '';
+    return combinarValidacoes(
+      textoObrigatorio(form.nome, 'Preencha o nome do evento.'),
+      tamanhoMaximo(form.nome, 200, 'O nome deve ter no máximo 200 caracteres.'),
+      validarData(form.data, { obrigatorio: true, rotulo: 'Data do evento' }),
+      textoObrigatorio(form.unidade, 'A unidade é obrigatória.'),
+      textoObrigatorio(form.eixo, 'O eixo é obrigatório.'),
+      textoObrigatorio(form.status, 'O status é obrigatório.'),
+      textoObrigatorio(form.possui_acao_extensiva, 'Informe se possui ação extensiva.'),
+      form.possui_acao_extensiva === 'Sim'
+        ? textoObrigatorio(form.acao_vinculada, 'Informe a ação vinculada.')
+        : '',
+      form.possui_acao_extensiva === 'Sim'
+        ? tamanhoMaximo(form.acao_vinculada, 255, 'A ação vinculada deve ter no máximo 255 caracteres.')
+        : '',
+      form.equipe ? tamanhoMaximo(form.equipe, 255, 'A equipe deve ter no máximo 255 caracteres.') : '',
+      form.quantidade_pessoas !== '' && form.quantidade_pessoas != null
+        ? validarInteiro(form.quantidade_pessoas, { rotulo: 'Quantidade de pessoas', min: 0, max: 999999 })
+        : '',
+    );
   },
   montarPayload(form) {
     return {
@@ -131,6 +150,7 @@ export default createCrudPage({
     acoesVinculaveis: [],
   }),
   extraMethods: {
+    formatarQuantidadePessoas: formatarInteiroInput('quantidade_pessoas'),
     preencherAnoDaData() {
       if (this.form.data && !this.form.ano) {
         this.form.ano = this.form.data.slice(0, 4);

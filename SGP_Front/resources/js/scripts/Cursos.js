@@ -5,6 +5,19 @@ import PageTableCard from '../components/crud/PageTableCard.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CicloContextoBanner from '../components/crud/CicloContextoBanner.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
+import {
+  combinarValidacoes,
+  extrairErroApi,
+  formatarInteiroInput,
+  formatarProcessoSeiInput,
+  somenteAlfanumericoProcesso,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarData,
+  validarInteiro,
+  validarOrdemDatas,
+  validarProcessoSei,
+} from '../utils/validacao';
 
 export default {
   name: 'Cursos',
@@ -161,7 +174,7 @@ export default {
 
           this.lembrarCicloSelecionado();
         } catch (error) {
-          this.mensagemErro = this.extrairErro(error, 'Não foi possível carregar os cursos.');
+          this.mensagemErro = extrairErroApi(error, 'Não foi possível carregar os cursos.');
         } finally {
           this.carregando = false;
         }
@@ -169,6 +182,11 @@ export default {
     },
 
     abrirNovo() {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para criar cursos.';
+        return;
+      }
+
       this.aplicarEstadoNovoLocal();
       this.empilharHistoricoFormulario('novo');
     },
@@ -284,50 +302,56 @@ export default {
     },
 
     validarFormulario() {
-      if (!this.form.eixo) {
+      const erroBasico = combinarValidacoes(
+        textoObrigatorio(this.form.eixo, 'Selecione o segmento / área.'),
+        textoObrigatorio(this.form.titulo, 'O título do curso é obrigatório.'),
+        tamanhoMaximo(this.form.titulo, 255, 'O título deve ter no máximo 255 caracteres.'),
+        textoObrigatorio(this.form.carga_horaria, 'Informe a carga horária.'),
+        validarInteiro(this.form.carga_horaria, { obrigatorio: true, rotulo: 'Carga horária', min: 1, max: 99999 }),
+        this.form.turmas ? validarInteiro(this.form.turmas, { rotulo: 'Turmas', min: 0, max: 9999 }) : '',
+        this.form.alunos ? validarInteiro(this.form.alunos, { rotulo: 'Alunos', min: 0, max: 99999 }) : '',
+        this.form.processo_sei ? validarProcessoSei(this.form.processo_sei) : '',
+      );
+
+      if (erroBasico) {
         this.abaForm = 'basico';
-        return 'Selecione o segmento / área.';
+        return erroBasico;
       }
 
-      if (!this.form.titulo?.trim()) {
-        this.abaForm = 'basico';
-        return 'O título do curso é obrigatório.';
-      }
+      const erroTecnico = combinarValidacoes(
+        textoObrigatorio(this.form.status, 'Selecione o status.'),
+        textoObrigatorio(this.form.modalidade, 'Selecione a modalidade.'),
+        textoObrigatorio(this.form.codigo_sig, 'Informe o código SIG.'),
+        tamanhoMaximo(this.form.codigo_sig, 100, 'O código SIG deve ter no máximo 100 caracteres.'),
+        textoObrigatorio(this.form.tipo, 'Selecione o tipo de curso.'),
+        validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
+        validarData(this.form.data_fim, { rotulo: 'Data de término' }),
+        validarOrdemDatas(
+          this.form.data_inicio,
+          this.form.data_fim,
+          'A data de término deve ser igual ou posterior à data de início.',
+        ),
+      );
 
-      if (!this.form.carga_horaria) {
-        this.abaForm = 'basico';
-        return 'Informe a carga horária.';
-      }
-
-      if (!this.form.status) {
+      if (erroTecnico) {
         this.abaForm = 'tecnico';
-        return 'Selecione o status.';
-      }
-
-      if (!this.form.modalidade) {
-        this.abaForm = 'tecnico';
-        return 'Selecione a modalidade.';
-      }
-
-      if (!this.form.codigo_sig?.trim()) {
-        this.abaForm = 'tecnico';
-        return 'Informe o código SIG.';
-      }
-
-      if (!this.form.tipo) {
-        this.abaForm = 'tecnico';
-        return 'Selecione o tipo de curso.';
-      }
-
-      if (this.form.data_inicio && this.form.data_fim && this.form.data_fim < this.form.data_inicio) {
-        this.abaForm = 'tecnico';
-        return 'A data de término deve ser igual ou posterior à data de início.';
+        return erroTecnico;
       }
 
       return '';
     },
 
+    formatarProcessoSei: formatarProcessoSeiInput('processo_sei'),
+    formatarCargaHoraria: formatarInteiroInput('carga_horaria'),
+    formatarTurmas: formatarInteiroInput('turmas'),
+    formatarAlunos: formatarInteiroInput('alunos'),
+
     async salvarCurso() {
+      if (!this.podeEditar) {
+        this.erroFormulario = 'Seu perfil não tem permissão para salvar cursos.';
+        return;
+      }
+
       const erroValidacao = this.validarFormulario();
 
       if (erroValidacao) {
@@ -358,7 +382,9 @@ export default {
         codigo_sig: this.form.codigo_sig || null,
         identificacao: this.form.identificacao || null,
         ultima_revisao: this.form.ultima_revisao || null,
-        processo_sei: this.form.processo_sei || null,
+        processo_sei: this.form.processo_sei
+          ? somenteAlfanumericoProcesso(this.form.processo_sei).trim()
+          : null,
         data_inicio: this.form.data_inicio || null,
         data_fim: this.form.data_fim || null,
         valores: this.form.valores || null,
@@ -392,7 +418,7 @@ export default {
           return;
         }
 
-        const mensagem = this.extrairErro(error, 'Não foi possível salvar o curso.');
+        const mensagem = extrairErroApi(error, 'Não foi possível salvar o curso.');
 
         if (this.duplicidadeAberta) {
           this.erroDuplicidade = mensagem;
@@ -538,7 +564,7 @@ export default {
         const { data } = await window.axios.get(`/api/cursos/${curso.id}`);
         this.cursoDetalhe = data.curso ?? curso;
       } catch (error) {
-        this.erroDetalhe = this.extrairErro(error, 'Não foi possível carregar os detalhes do curso.');
+        this.erroDetalhe = extrairErroApi(error, 'Não foi possível carregar os detalhes do curso.');
         this.cursoDetalhe = { ...curso };
       } finally {
         this.carregandoDetalhe = false;
@@ -580,24 +606,8 @@ export default {
         this.mensagemSucesso = data.message;
         await this.carregarCursos();
       } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível excluir o curso.');
+        this.mensagemErro = extrairErroApi(error, 'Não foi possível excluir o curso.');
       }
-    },
-
-    extrairErro(error, fallback) {
-      if (error.response?.data?.message) {
-        return error.response.data.message;
-      }
-
-      const errors = error.response?.data?.errors;
-
-      if (errors) {
-        const primeiro = Object.values(errors)[0];
-
-        return Array.isArray(primeiro) ? primeiro[0] : fallback;
-      }
-
-      return fallback;
     },
   },
 };

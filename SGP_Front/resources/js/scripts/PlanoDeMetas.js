@@ -1,4 +1,13 @@
 import { createCrudPage } from './createCrudPage';
+import {
+  combinarValidacoes,
+  formatarProcessoSeiInput,
+  somenteAlfanumericoProcesso,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarInteiro,
+  validarProcessoSei,
+} from '../utils/validacao';
 
 const FILTROS_VAZIOS = {
   busca: '',
@@ -15,7 +24,7 @@ export default createCrudPage({
   endpoint: '/api/plano-de-metas',
   showKey: 'planoDeMeta',
   errorKey: 'mensagemErro',
-  formErrorKey: 'mensagemErro',
+  formErrorKey: 'erroFormulario',
   useDetalheAberto: true,
   checkConsultar: false,
   carregandoInicial: false,
@@ -71,27 +80,35 @@ export default createCrudPage({
     };
   },
   validarFormulario(form) {
-    if (!form.segmento?.trim()) return 'O segmento é obrigatório.';
-    if (!form.curso?.trim()) return 'O curso é obrigatório.';
-    if (!form.tipo?.trim()) return 'O tipo é obrigatório.';
-    if (!form.numero_sei?.trim()) return 'Informe o número SEI.';
-    if (!form.codigo_sig?.trim()) return 'Informe o código SIG.';
-    if (!form.mes_entrega?.trim()) return 'Informe o mês de entrega.';
-    if (!form.status?.trim()) return 'Informe o status do registro.';
-    if (!form.status_final?.trim()) return 'Informe o status final.';
-    return '';
+    const anoFiltro = this.filtros.ano || String(new Date().getFullYear());
+
+    return combinarValidacoes(
+      textoObrigatorio(form.segmento, 'O segmento é obrigatório.'),
+      tamanhoMaximo(form.segmento, 100, 'O segmento deve ter no máximo 100 caracteres.'),
+      textoObrigatorio(form.curso, 'O curso é obrigatório.'),
+      tamanhoMaximo(form.curso, 255, 'O curso deve ter no máximo 255 caracteres.'),
+      textoObrigatorio(form.tipo, 'O tipo é obrigatório.'),
+      tamanhoMaximo(form.tipo, 100, 'O tipo deve ter no máximo 100 caracteres.'),
+      validarProcessoSei(form.numero_sei, { obrigatorio: true, rotulo: 'Número SEI' }),
+      textoObrigatorio(form.codigo_sig, 'Informe o código SIG.'),
+      tamanhoMaximo(form.codigo_sig, 100, 'O código SIG deve ter no máximo 100 caracteres.'),
+      textoObrigatorio(form.mes_entrega, 'Informe o mês de entrega.'),
+      textoObrigatorio(form.status, 'Informe o status do registro.'),
+      textoObrigatorio(form.status_final, 'Informe o status final.'),
+      validarInteiro(anoFiltro, { obrigatorio: true, rotulo: 'Ano do ciclo', min: 1900, max: 2100 }),
+    );
   },
   montarPayload(form) {
     return {
-      segmento: form.segmento,
-      curso: form.curso,
-      tipo: form.tipo,
-      numero_sei: form.numero_sei,
-      codigo_sig: form.codigo_sig,
+      segmento: form.segmento.trim(),
+      curso: form.curso.trim(),
+      tipo: form.tipo.trim(),
+      numero_sei: somenteAlfanumericoProcesso(form.numero_sei).trim(),
+      codigo_sig: form.codigo_sig.trim(),
       mes_entrega: form.mes_entrega,
       status: form.status,
-      origem: form.origem,
-      observacao: form.observacao,
+      origem: form.origem?.trim() || 'Plano de Metas',
+      observacao: form.observacao?.trim() || null,
       status_final: form.status_final,
       ano: Number(this.filtros.ano || new Date().getFullYear()),
     };
@@ -126,6 +143,7 @@ export default createCrudPage({
     situacoesDisponiveis: ['PENDENTE', 'EM ANALISE', 'ENTREGUE', 'PUBLICADO'],
   }),
   extraMethods: {
+    formatarNumeroSei: formatarProcessoSeiInput('numero_sei'),
     statusClass(status) {
       const mapa = {
         PUBLICADO: 'badge-ativo',

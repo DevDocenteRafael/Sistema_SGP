@@ -1,4 +1,13 @@
 import { createCrudPage } from './createCrudPage';
+import {
+  combinarValidacoes,
+  formatarInteiroInput,
+  formatarProcessoSeiInput,
+  somenteAlfanumericoProcesso,
+  textoObrigatorio,
+  validarInteiro,
+  validarProcessoSei,
+} from '../utils/validacao';
 
 const SEGMENTOS = [
   'Gastronomia',
@@ -65,15 +74,17 @@ export default createCrudPage({
     };
   },
   validarFormulario(form) {
-    if (!form.matricula?.trim()) return 'A matrícula é obrigatória.';
-    if (!form.pessoa?.trim()) return 'O nome da pessoa é obrigatório.';
-    if (!form.segmento) return 'O segmento é obrigatório.';
-    if (!form.eixo) return 'O eixo é obrigatório.';
-    if (!form.processo_sei?.trim()) return 'O processo SEI é obrigatório.';
-    if (!form.ano) return 'O ano é obrigatório.';
-    if (!form.motivo?.trim()) return 'O motivo é obrigatório.';
-    if (!form.status) return 'O status é obrigatório.';
-    return '';
+    return combinarValidacoes(
+      textoObrigatorio(form.matricula, 'A matrícula é obrigatória.'),
+      validarInteiro(form.matricula, { rotulo: 'Matrícula', min: 1, max: 999999999 }),
+      textoObrigatorio(form.pessoa, 'O nome da pessoa é obrigatório.'),
+      textoObrigatorio(form.segmento, 'O segmento é obrigatório.'),
+      textoObrigatorio(form.eixo, 'O eixo é obrigatório.'),
+      validarProcessoSei(form.processo_sei, { obrigatorio: true }),
+      validarInteiro(form.ano, { obrigatorio: true, rotulo: 'Ano', min: 1900, max: 2100 }),
+      textoObrigatorio(form.motivo, 'O motivo é obrigatório.'),
+      textoObrigatorio(form.status, 'O status é obrigatório.'),
+    );
   },
   montarPayload(form) {
     return {
@@ -81,7 +92,7 @@ export default createCrudPage({
       pessoa: form.pessoa.trim(),
       segmento: form.segmento,
       eixo: form.eixo,
-      processo_sei: form.processo_sei.trim(),
+      processo_sei: somenteAlfanumericoProcesso(form.processo_sei).trim(),
       ano: Number(form.ano),
       motivo: form.motivo.trim(),
       status: form.status,
@@ -128,6 +139,8 @@ export default createCrudPage({
     },
   },
   extraMethods: {
+    formatarProcessoSei: formatarProcessoSeiInput('processo_sei'),
+    formatarMatricula: formatarInteiroInput('matricula'),
     rotuloAtivo(ativo) {
       return ativo ? 'Sim' : 'Não';
     },

@@ -228,9 +228,10 @@
                   id="numero_processo_sei"
                   v-model="form.numero_processo_sei"
                   type="text"
-                  maxlength="50"
+                  maxlength="100"
                   required
                   placeholder="Ex: 2026.000001381-46"
+                  @input="formatarNumeroProcessoSei"
                 />
               </div>
               <div class="form-group">

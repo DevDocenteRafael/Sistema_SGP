@@ -299,10 +299,12 @@
                 <label for="quantidade_pessoas">Quantidade de Pessoas</label>
                 <input
                   id="quantidade_pessoas"
-                  v-model.number="form.quantidade_pessoas"
-                  type="number"
-                  min="0"
+                  v-model="form.quantidade_pessoas"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="6"
                   placeholder="Ex: 120"
+                  @input="formatarQuantidadePessoas"
                 />
               </div>
               <div class="form-group">

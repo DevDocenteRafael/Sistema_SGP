@@ -1,4 +1,12 @@
 import { podeEditarDados } from './auth';
+import {
+  combinarValidacoes,
+  extrairErroApi,
+  tamanhoMaximo,
+  textoObrigatorio,
+  validarData,
+  validarOrdemDatas,
+} from '../utils/validacao';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
@@ -103,11 +111,22 @@ export default {
     },
 
     abrirNovo() {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para criar jornadas pedagógicas.';
+        return;
+      }
+
       this.aplicarEstadoNovoLocal();
       this.empilharHistoricoFormulario('novo');
     },
 
     aplicarEstadoNovoLocal() {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para alterar jornadas pedagógicas.';
+        this.aplicarEstadoListaLocal();
+        return;
+      }
+
       this.modo = 'novo';
       this.editandoId = null;
       this.form = formVazio();
@@ -116,6 +135,11 @@ export default {
     },
 
     abrirEdicao(item) {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para editar jornadas pedagógicas.';
+        return;
+      }
+
       this.aplicarEstadoEdicaoLocal(item);
       this.empilharHistoricoFormulario('editar', item.id);
     },
@@ -162,6 +186,13 @@ export default {
         return;
       }
 
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para editar jornadas pedagógicas.';
+        this.aplicarEstadoListaLocal();
+        this.limparHistoricoFormulario();
+        return;
+      }
+
       this.aplicarEstadoEdicaoLocal(item);
     },
 
@@ -190,18 +221,25 @@ export default {
     },
 
     validarFormulario() {
-      if (!this.form.titulo?.trim()) {
-        return 'O título da jornada é obrigatório.';
-      }
-
-      if (this.form.data_inicio && this.form.data_fim && this.form.data_fim < this.form.data_inicio) {
-        return 'A data de término deve ser igual ou posterior à data de início.';
-      }
-
-      return '';
+      return combinarValidacoes(
+        textoObrigatorio(this.form.titulo, 'O título da jornada é obrigatório.'),
+        tamanhoMaximo(this.form.titulo, 255, 'O título deve ter no máximo 255 caracteres.'),
+        validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
+        validarData(this.form.data_fim, { rotulo: 'Data de término' }),
+        validarOrdemDatas(this.form.data_inicio, this.form.data_fim),
+        this.form.tem_pre_jornada === 'Sim'
+          ? validarData(this.form.data_pre_jornada, { obrigatorio: true, rotulo: 'Data da pré-jornada' })
+          : '',
+        textoObrigatorio(this.form.status, 'O status é obrigatório.'),
+      );
     },
 
     async salvarRegistro() {
+      if (!this.podeEditar) {
+        this.erroFormulario = 'Seu perfil não tem permissão para salvar jornadas pedagógicas.';
+        return;
+      }
+
       const erro = this.validarFormulario();
 
       if (erro) {
@@ -232,15 +270,14 @@ export default {
       }
 
       try {
-        const headers = {};
         let url = ENDPOINT;
 
         if (this.editandoId) {
           url = `${ENDPOINT}/${this.editandoId}`;
-          headers['X-HTTP-Method-Override'] = 'PUT';
+          formData.append('_method', 'PUT');
         }
 
-        const { data } = await window.axios.post(url, formData, { headers });
+        const { data } = await window.axios.post(url, formData);
         this.mensagemSucesso = data.message;
 
         this.voltarLista();
@@ -253,6 +290,11 @@ export default {
     },
 
     async excluirRegistro(item) {
+      if (!this.podeEditar) {
+        this.mensagemErro = 'Seu perfil não tem permissão para excluir jornadas pedagógicas.';
+        return;
+      }
+
       if (!window.confirm(`Excluir a jornada "${item.titulo}"? Esta ação não pode ser desfeita.`)) {
         return;
       }
@@ -333,19 +375,7 @@ export default {
     },
 
     extrairErro(error, fallback) {
-      if (error.response?.data?.message) {
-        return error.response.data.message;
-      }
-
-      const errors = error.response?.data?.errors;
-
-      if (errors) {
-        const primeiro = Object.values(errors)[0];
-
-        return Array.isArray(primeiro) ? primeiro[0] : fallback;
-      }
-
-      return error.message || fallback;
+      return extrairErroApi(error, fallback);
     },
   },
 };
