@@ -6,17 +6,15 @@
         subtitle="Comparativo entre anos e distribuição por eixo tecnológico"
         :show-novo="podeEditar"
         novo-label="Novo Curso"
+        :show-clear-filters="temFiltro"
+        @limpar-filtros="limparFiltros"
         @novo="abrirNovo"
-      />
-
-      <CicloContextoBanner modulo="eixos" :ciclo="cicloContexto" />
-
-      <CrudAlerts
-        :sucesso="mensagemSucesso"
-        :erro="mensagemErro"
-      />
-
-      <section class="filtros-panel">
+      >
+        <template #actions>
+          <CicloContextoBanner modulo="eixos" :ciclo="cicloContexto" />
+        </template>
+        <template #filters>
+<section class="filtros-panel">
         <div class="filtros-row">
           <div class="filtro-busca">
             <span class="filtro-busca-icon" aria-hidden="true">
@@ -79,7 +77,14 @@
             />
           </div>
         </div>
-      </section>
+                </section>
+        </template>
+      </CrudPageHeader>
+
+      <CrudAlerts
+        :sucesso="mensagemSucesso"
+        :erro="mensagemErro"
+      />
 
       <PageTableCard :total="totalFiltrado">
 
@@ -141,7 +146,7 @@
                   <button
                     type="button"
                     class="btn-icon btn-view"
-                    title="Ver detalhes"
+                    title="Ver detalhes" aria-label="Ver detalhes"
                     @click="abrirDetalhes(item)"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -150,7 +155,7 @@
                     v-if="podeEditar"
                     type="button"
                     class="btn-icon btn-edit"
-                    title="Editar curso"
+                    title="Editar curso" aria-label="Editar curso"
                     @click="abrirEdicao(item)"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
@@ -159,7 +164,7 @@
                     v-if="podeEditar"
                     type="button"
                     class="btn-icon btn-delete"
-                    title="Excluir curso"
+                    title="Excluir curso" aria-label="Excluir curso"
                     @click="excluirRegistro(item)"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -182,7 +187,7 @@
               <h2 id="detalhe-eixo-titulo">Detalhes do Registro</h2>
               <p class="modal-detalhes-subtitle">Informações resumidas do curso por eixo selecionado.</p>
             </div>
-            <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">×</button>
+            <button type="button" class="btn-fechar-x" title="Fechar" aria-label="Fechar" @click="fecharDetalhes">×</button>
           </div>
 
           <div class="modal-form-wrap">

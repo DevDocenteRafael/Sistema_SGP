@@ -5,18 +5,17 @@
       <CrudPageHeader
         title="Cursos"
         subtitle="Catálogo de cursos do portfólio — SENAC DF"
-        info="Os cursos listados são só deste ciclo. Para abrir outro período, use Ciclos de Portfólio."
         :show-novo="podeEditar"
         novo-label="Novo Curso"
+        :show-clear-filters="temFiltro"
+        @limpar-filtros="limparFiltros"
         @novo="abrirNovo"
-      />
-
-      <CicloContextoBanner modulo="cursos" :ciclo="cicloAberto" />
-
-      <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
-      <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
-
-      <section class="filtros-bar">
+      >
+        <template #actions>
+          <CicloContextoBanner modulo="cursos" :ciclo="cicloAberto" />
+        </template>
+        <template #filters>
+<section class="filtros-bar">
         <div class="filtro-busca">
           <input
             v-model="filtros.busca"
@@ -60,7 +59,12 @@
           empty-option="Todas as unidades"
           @change="carregarCursos"
         />
-      </section>
+                </section>
+        </template>
+      </CrudPageHeader>
+
+      <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
+      <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
 
       <PageTableCard :total="totalCursos">
 
@@ -115,7 +119,7 @@
                   <button
                     type="button"
                     class="btn-icon btn-view"
-                    title="Ver detalhes"
+                    title="Ver detalhes" aria-label="Ver detalhes"
                     @click="abrirDetalhes(curso)"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -125,6 +129,7 @@
                     type="button"
                     class="btn-icon btn-edit"
                     title="Editar curso"
+                    aria-label="Editar curso"
                     @click="abrirEdicao(curso)"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
@@ -133,7 +138,7 @@
                     v-if="podeEditar"
                     type="button"
                     class="btn-icon btn-delete"
-                    title="Excluir curso"
+                    title="Excluir curso" aria-label="Excluir curso"
                     @click="excluirCurso(curso)"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -158,7 +163,7 @@
         <div class="modal-detalhes" role="dialog" aria-labelledby="detalhes-curso-titulo">
           <div class="modal-detalhes-header">
             <h2 id="detalhes-curso-titulo">Detalhes do Curso</h2>
-            <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">
+            <button type="button" class="btn-fechar-x" title="Fechar" aria-label="Fechar" @click="fecharDetalhes">
               ×
             </button>
           </div>
@@ -648,7 +653,7 @@
       <div class="modal-detalhes" role="dialog" aria-labelledby="duplicidade-titulo">
         <div class="modal-detalhes-header">
           <h2 id="duplicidade-titulo">Curso semelhante encontrado</h2>
-          <button type="button" class="btn-fechar-x" title="Fechar" @click="cancelarDuplicidade">×</button>
+          <button type="button" class="btn-fechar-x" title="Fechar" aria-label="Fechar" @click="cancelarDuplicidade">×</button>
         </div>
         <p>Já existe curso com título, SIG ou SEI semelhante neste ciclo. Se precisar cadastrar mesmo assim, informe a justificativa.</p>
         <ul class="duplicidade-lista">

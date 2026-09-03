@@ -62,16 +62,17 @@
             </div>
           </div>
           <p class="dashboard-metric-value">{{ totalResolucoes }}</p>
-          <p class="dashboard-metric-title">Resoluções</p>
+          <p class="dashboard-metric-title">
+            <SgpHelpLabel label="Resoluções" />
+          </p>
           <div class="dashboard-metric-chips" aria-label="Resoluções por prazo">
             <span
               v-for="card in cardsResolucoesPrazo"
               :key="card.title"
               class="dashboard-metric-chip"
-              :title="card.subtitle"
             >
               <strong :style="{ color: card.color }">{{ card.value }}</strong>
-              {{ card.title }}
+              <SgpHelpLabel :label="card.title" :help="card.subtitle" />
             </span>
           </div>
         </article>
@@ -84,16 +85,17 @@
             <span class="dashboard-metric-sub">portfólio</span>
           </div>
           <p class="dashboard-metric-value">{{ totalTermos }}</p>
-          <p class="dashboard-metric-title">Termos de Referência</p>
+          <p class="dashboard-metric-title">
+            <SgpHelpLabel label="Termos de Referência" />
+          </p>
           <div class="dashboard-metric-chips" aria-label="Termos por prazo">
             <span
               v-for="card in cardsTermosPrazo"
               :key="card.title"
               class="dashboard-metric-chip"
-              :title="card.subtitle"
             >
               <strong :style="{ color: card.color }">{{ card.value }}</strong>
-              {{ card.title }}
+              <SgpHelpLabel :label="card.title" :help="card.subtitle" />
             </span>
           </div>
         </article>
@@ -106,17 +108,22 @@
           <div class="dashboard-metric-cursos-row">
             <div>
               <p class="dashboard-metric-value">{{ totalCursos }}</p>
-              <p class="dashboard-metric-title">Total de Cursos</p>
+              <p class="dashboard-metric-title">
+                <SgpHelpLabel label="Total de Cursos" />
+              </p>
             </div>
             <div class="dashboard-metric-status-side" aria-label="Status dos cursos">
               <span class="dashboard-metric-status is-ativo">
-                <strong>{{ cursosAtivos }}</strong> Ativos
+                <strong>{{ cursosAtivos }}</strong>
+                <SgpHelpLabel label="Ativos" term="ativo" />
               </span>
               <span class="dashboard-metric-status is-inativo">
-                <strong>{{ cursosInativos }}</strong> Inativos
+                <strong>{{ cursosInativos }}</strong>
+                <SgpHelpLabel label="Inativos" term="inativo" />
               </span>
               <span class="dashboard-metric-status is-revisao">
-                <strong>{{ cursosEmRevisao }}</strong> Em revisão
+                <strong>{{ cursosEmRevisao }}</strong>
+                <SgpHelpLabel label="Em revisão" term="em revisao" />
               </span>
             </div>
           </div>
@@ -133,7 +140,9 @@
             <span v-if="card.sub" class="dashboard-metric-sub">{{ card.sub }}</span>
           </div>
           <p class="dashboard-metric-value">{{ card.value }}</p>
-          <p class="dashboard-metric-title">{{ card.label }}</p>
+          <p class="dashboard-metric-title">
+            <SgpHelpLabel :label="card.label" />
+          </p>
         </article>
       </section>
 
@@ -141,7 +150,7 @@
         <article class="dashboard-chart-card dashboard-chart-card--eixos">
           <div class="dashboard-chart-head">
             <div>
-              <h3>Eixos Tecnológicos</h3>
+              <h3><SgpHelpLabel label="Eixos Tecnológicos" /></h3>
               <p class="dashboard-chart-subtitle">Cursos por eixo · {{ totalEixos }} eixos no filtro</p>
             </div>
           </div>
@@ -172,7 +181,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3>Tipos de Curso</h3>
+              <h3><SgpHelpLabel label="Tipos de Curso" /></h3>
               <p class="dashboard-chart-subtitle">Distribuição por tipo de oferta</p>
             </div>
           </div>
@@ -209,7 +218,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3>Faixas de Carga Horária</h3>
+              <h3><SgpHelpLabel label="Faixas de Carga Horária" /></h3>
               <p class="dashboard-chart-subtitle">Cursos agrupados por carga horária</p>
             </div>
           </div>
@@ -252,16 +261,17 @@
             <span class="dashboard-metric-sub">visitas</span>
           </div>
           <p class="dashboard-metric-value">{{ indicadoresVisitas.total }}</p>
-          <p class="dashboard-metric-title">Total no período</p>
+          <p class="dashboard-metric-title">
+            <SgpHelpLabel label="Total no período" />
+          </p>
           <div class="dashboard-metric-chips" aria-label="Resumo das visitas">
             <span
               v-for="chip in indicadoresVisitas.chipsFluxo"
               :key="chip.title"
               class="dashboard-metric-chip"
-              :title="chip.subtitle"
             >
               <strong :style="{ color: chip.color }">{{ chip.value }}</strong>
-              {{ chip.title }}
+              <SgpHelpLabel :label="chip.title" :help="chip.subtitle" />
             </span>
           </div>
         </article>
@@ -395,16 +405,20 @@
             <span class="dashboard-metric-sub">solicitações</span>
           </div>
           <p class="dashboard-metric-value">{{ indicadoresHoras.total }}</p>
-          <p class="dashboard-metric-title">Total no período</p>
+          <p class="dashboard-metric-title">
+            <SgpHelpLabel
+              label="Total no período"
+              help="Total de solicitações de horas pedagógicas no sistema."
+            />
+          </p>
           <div class="dashboard-metric-chips" aria-label="Resumo das horas pedagógicas">
             <span
               v-for="chip in indicadoresHoras.chipsFluxo"
               :key="chip.title"
               class="dashboard-metric-chip"
-              :title="chip.subtitle"
             >
               <strong :style="{ color: chip.color }">{{ chip.value }}</strong>
-              {{ chip.title }}
+              <SgpHelpLabel :label="chip.title" :help="chip.subtitle" />
             </span>
           </div>
         </article>

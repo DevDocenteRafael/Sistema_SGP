@@ -1,45 +1,59 @@
 <template>
-  <div class="auditoria-page">
-    <header class="auditoria-top">
-      <div class="auditoria-top-row">
-        <div>
-          <h1>Auditoria</h1>
-          <p class="auditoria-subtitle">Histórico de cadastros, edições, exclusões e importações</p>
-        </div>
-      </div>
-      <div class="auditoria-info">
-        Registro automático de quem alterou cada módulo do SGP. Disponível apenas para administradores.
-      </div>
-    </header>
+  <div class="auditoria-page crud-page">
+    <CrudPageHeader
+      title="Auditoria"
+      subtitle="Histórico de cadastros, edições, exclusões e importações"
+      info="Registro automático de quem alterou cada módulo do SGP. Disponível apenas para administradores."
+      :show-clear-filters="temFiltro"
+      filters-aria-label="Filtros de auditoria"
+      @limpar-filtros="limparFiltros"
+    >
+      <template #filters>
+        <section class="filtros-bar" aria-label="Filtros de auditoria">
+          <div class="filtro-busca">
+            <input
+              v-model="filtros.busca"
+              type="search"
+              placeholder="Buscar no resumo, módulo ou ação..."
+              aria-label="Buscar eventos de auditoria"
+              @input="carregar(1)"
+            />
+          </div>
+          <SearchableSelect
+            v-model="filtros.modulo"
+            :options="meta.modulos"
+            empty-option="Todos os módulos"
+            aria-label="Filtrar por módulo"
+            @change="carregar(1)"
+          />
+          <SearchableSelect
+            v-model="filtros.acao"
+            :options="meta.acoes.map((acao) => ({ value: acao, label: labelAcao(acao) }))"
+            empty-option="Todas as ações"
+            aria-label="Filtrar por ação"
+            @change="carregar(1)"
+          />
+          <input
+            v-model="filtros.data_inicio"
+            type="date"
+            title="Data início"
+            aria-label="Data início"
+            @change="carregar(1)"
+          />
+          <input
+            v-model="filtros.data_fim"
+            type="date"
+            title="Data fim"
+            aria-label="Data fim"
+            @change="carregar(1)"
+          />
+        </section>
+      </template>
+    </CrudPageHeader>
 
-    <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
+    <div v-if="mensagemErro" class="alert alert-error" role="alert">{{ mensagemErro }}</div>
 
-    <section class="filtros-bar">
-      <div class="filtro-busca">
-        <input
-          v-model="filtros.busca"
-          type="search"
-          placeholder="Buscar no resumo, módulo ou ação..."
-          @input="carregar(1)"
-        />
-      </div>
-      <SearchableSelect
-        v-model="filtros.modulo"
-        :options="meta.modulos"
-        empty-option="Todos os módulos"
-        @change="carregar(1)"
-      />
-      <SearchableSelect
-        v-model="filtros.acao"
-        :options="meta.acoes.map((acao) => ({ value: acao, label: labelAcao(acao) }))"
-        empty-option="Todas as ações"
-        @change="carregar(1)"
-      />
-      <input v-model="filtros.data_inicio" type="date" title="Data início" @change="carregar(1)" />
-      <input v-model="filtros.data_fim" type="date" title="Data fim" @change="carregar(1)" />
-    </section>
-
-    <PageTableCard :total="meta.total">
+    <PageTableCard :total="meta.total" aria-label="Tabela de auditoria">
 
       <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
@@ -77,17 +91,17 @@
               <td>{{ item.modulo }}</td>
               <td class="resumo-cell">{{ item.resumo }}</td>
               <td class="text-center">
-                <button type="button" class="btn-link" @click="abrirDetalhe(item)">Ver</button>
+                <button type="button" class="btn-link" aria-label="Ver detalhes do evento" @click="abrirDetalhe(item)">Ver</button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <div v-if="meta.last_page > 1" class="paginacao">
-        <button type="button" :disabled="meta.current_page <= 1" @click="paginaAnterior">Anterior</button>
-        <span>Página {{ meta.current_page }} de {{ meta.last_page }}</span>
-        <button type="button" :disabled="meta.current_page >= meta.last_page" @click="paginaProxima">Próxima</button>
+      <div v-if="meta.last_page > 1" class="paginacao" role="navigation" aria-label="Paginação da auditoria">
+        <button type="button" :disabled="meta.current_page <= 1" aria-label="Página anterior" @click="paginaAnterior">Anterior</button>
+        <span aria-live="polite">Página {{ meta.current_page }} de {{ meta.last_page }}</span>
+        <button type="button" :disabled="meta.current_page >= meta.last_page" aria-label="Próxima página" @click="paginaProxima">Próxima</button>
       </div>
     </PageTableCard>
 
@@ -95,7 +109,7 @@
       <div class="modal-card">
         <header class="modal-header">
           <h2>Detalhe do evento</h2>
-          <button type="button" class="btn-fechar" @click="fecharDetalhe">×</button>
+          <button type="button" class="btn-fechar" aria-label="Fechar detalhe" @click="fecharDetalhe">×</button>
         </header>
         <div class="modal-body">
           <dl class="detalhe-lista">
