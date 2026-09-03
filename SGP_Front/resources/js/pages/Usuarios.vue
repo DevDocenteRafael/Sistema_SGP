@@ -1,57 +1,58 @@
 <template>
-  <div class="usuarios-page">
+  <div class="usuarios-page crud-page">
     <!-- LISTA -->
     <template v-if="modo === 'lista'">
-      <header class="usuarios-top">
-        <div class="usuarios-top-row">
-          <div>
-            <h1>Usuários</h1>
-            <p class="usuarios-subtitle">Controle de acesso e perfis do SGP — SENAC DF</p>
-          </div>
-          <button type="button" class="btn-novo" @click="abrirNovo">
-            <span class="btn-novo-icon">+</span>
-            Novo Usuário
-          </button>
-        </div>
-        <div class="usuarios-info">
-          O administrador cadastra o colaborador e define o e-mail e a senha de acesso ao sistema.
-        </div>
-      </header>
+      <CrudPageHeader
+        title="Usuários"
+        subtitle="Controle de acesso e perfis do SGP — SENAC DF"
+        info="O administrador cadastra o colaborador e define o e-mail e a senha de acesso ao sistema."
+        :show-novo="podeEditar"
+        novo-label="Novo Usuário"
+        :show-clear-filters="temFiltro"
+        filters-aria-label="Filtros de usuários"
+        @novo="abrirNovo"
+        @limpar-filtros="limparFiltros"
+      >
+        <template #filters>
+          <section class="filtros-bar" aria-label="Filtros de usuários">
+            <div class="filtro-busca">
+              <input
+                v-model="filtros.busca"
+                type="search"
+                placeholder="Buscar por nome, e-mail, telefone ou unidade..."
+                aria-label="Buscar usuários"
+                @input="carregarUsuarios"
+              />
+            </div>
+            <SearchableSelect
+              v-model="filtros.perfil"
+              :options="[
+                { value: 'Administrador', label: 'Administrador' },
+                { value: 'Editor', label: 'Editor' },
+                { value: 'Consultor', label: 'Consultor' },
+              ]"
+              empty-option="Todos os perfis"
+              aria-label="Filtrar por perfil"
+              @change="carregarUsuarios"
+            />
+            <SearchableSelect
+              v-model="filtros.status"
+              :options="[
+                { value: 'true', label: 'Ativo' },
+                { value: 'false', label: 'Inativo' },
+              ]"
+              empty-option="Todos os status"
+              aria-label="Filtrar por status"
+              @change="carregarUsuarios"
+            />
+          </section>
+        </template>
+      </CrudPageHeader>
 
       <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
       <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
 
-      <section class="filtros-bar">
-        <div class="filtro-busca">
-          <input
-            v-model="filtros.busca"
-            type="search"
-            placeholder="Buscar por nome, e-mail, telefone ou unidade..."
-            @input="carregarUsuarios"
-          />
-        </div>
-        <SearchableSelect
-          v-model="filtros.perfil"
-          :options="[
-            { value: 'Administrador', label: 'Administrador' },
-            { value: 'Editor', label: 'Editor' },
-            { value: 'Consultor', label: 'Consultor' },
-          ]"
-          empty-option="Todos os perfis"
-          @change="carregarUsuarios"
-        />
-        <SearchableSelect
-          v-model="filtros.status"
-          :options="[
-            { value: 'true', label: 'Ativo' },
-            { value: 'false', label: 'Inativo' },
-          ]"
-          empty-option="Todos os status"
-          @change="carregarUsuarios"
-        />
-      </section>
-
-      <PageTableCard :total="usuarios.length">
+      <PageTableCard :total="usuarios.length" aria-label="Tabela de usuários">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
@@ -102,22 +103,25 @@
                     type="button"
                     class="btn-icon btn-view"
                     title="Ver detalhes"
+                    aria-label="Ver detalhes do usuário"
                     @click="abrirDetalhes(usuario)"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
                   <button
                     type="button"
                     class="btn-icon btn-edit"
                     title="Editar usuário"
+                    aria-label="Editar usuário"
                     @click="abrirEdicao(usuario)"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                   </button>
                   <button
                     type="button"
                     class="btn-icon btn-delete"
                     title="Excluir usuário"
+                    aria-label="Excluir usuário"
                     @click="excluirUsuario(usuario)"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -145,7 +149,7 @@
               <h2 id="detalhes-titulo">Detalhes do Registro</h2>
               <p class="modal-detalhes-subtitle">Informações resumidas do usuário selecionado.</p>
             </div>
-            <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">
+            <button type="button" class="btn-fechar-x" title="Fechar" aria-label="Fechar" @click="fecharDetalhes">
               ×
             </button>
           </div>

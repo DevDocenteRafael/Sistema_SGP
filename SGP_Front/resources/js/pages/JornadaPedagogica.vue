@@ -7,12 +7,12 @@
         info="MVP documental. Status leve: rascunho, consolidado ou enviado. Gere o PDF com os dados do plano."
         :show-novo="podeEditar"
         novo-label="Nova Jornada"
+        :show-clear-filters="temFiltro"
+        @limpar-filtros="limparFiltros"
         @novo="abrirNovo"
-      />
-
-      <CrudAlerts :sucesso="mensagemSucesso" :erro="mensagemErro" />
-
-      <section class="filtros-panel" aria-label="Filtros de jornadas pedagógicas">
+      >
+        <template #filters>
+<section class="filtros-panel" aria-label="Filtros de jornadas pedagógicas">
         <div class="filtros-row">
           <div class="filtro-busca">
             <span class="filtro-busca-icon" aria-hidden="true">
@@ -38,9 +38,14 @@
             />
           </div>
         </div>
-      </section>
+                </section>
+        </template>
+      </CrudPageHeader>
+
+      <CrudAlerts :sucesso="mensagemSucesso" :erro="mensagemErro" />
 
       <PageTableCard :total="totalRegistros" aria-label="Tabela de jornadas pedagógicas">
+
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
         <div v-else-if="totalRegistros === 0 && !temFiltro" class="tabela-vazia estado-vazio">
@@ -77,16 +82,16 @@
                   <span class="badge-status" :class="classeStatus(item.status)">{{ item.status }}</span>
                 </td>
                 <td class="text-center acoes">
-                  <button type="button" class="btn-icon btn-view" title="Visualizar" @click="abrirDetalhes(item)">
+                  <button type="button" class="btn-icon btn-view" title="Visualizar" aria-label="Visualizar" @click="abrirDetalhes(item)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
-                  <button v-if="podeEditar" type="button" class="btn-icon btn-edit" title="Editar" @click="abrirEdicao(item)">
+                  <button v-if="podeEditar" type="button" class="btn-icon btn-edit" title="Editar" aria-label="Editar" @click="abrirEdicao(item)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                   </button>
-                  <button type="button" class="btn-icon btn-view" title="Gerar PDF" @click="baixarPdf(item)">
+                  <button type="button" class="btn-icon btn-view" title="Gerar PDF" aria-label="Gerar PDF" @click="baixarPdf(item)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
                   </button>
-                  <button v-if="podeEditar" type="button" class="btn-icon btn-delete" title="Excluir" @click="excluirRegistro(item)">
+                  <button v-if="podeEditar" type="button" class="btn-icon btn-delete" title="Excluir" aria-label="Excluir" @click="excluirRegistro(item)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                   </button>
                 </td>
@@ -100,7 +105,7 @@
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-jornada-titulo">
           <div class="modal-detalhes-header">
             <h2 id="detalhe-jornada-titulo">Detalhes da Jornada Pedagógica</h2>
-            <button type="button" class="btn-fechar-x" title="Fechar" @click="fecharDetalhes">×</button>
+            <button type="button" class="btn-fechar-x" title="Fechar" aria-label="Fechar" @click="fecharDetalhes">×</button>
           </div>
           <div class="detalhe-grid detalhe-grid-2">
             <div class="detalhe-campo detalhe-campo-full">
