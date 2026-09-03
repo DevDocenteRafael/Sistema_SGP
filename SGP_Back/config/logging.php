@@ -55,7 +55,8 @@ return [
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', (string) env('LOG_STACK', 'single')),
-            'ignore_exceptions' => false,
+            // Não derruba a API (ex.: login) se o disco estiver cheio ao gravar log.
+            'ignore_exceptions' => true,
         ],
 
         'single' => [

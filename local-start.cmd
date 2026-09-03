@@ -9,6 +9,32 @@ echo Antes: XAMPP aberto, Start no MySQL, banco SGP criado.
 echo Nao clone o projeto dentro do OneDrive.
 echo.
 
+echo --- Espaco em disco (pre-check) ---
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\windows\check-disk.ps1" > "%TEMP%\sgp-disk-check.txt" 2>&1
+set "DISK_EXIT=%ERRORLEVEL%"
+type "%TEMP%\sgp-disk-check.txt"
+if "%DISK_EXIT%"=="2" (
+  echo.
+  echo [CRITICO] Pouco espaco livre. Login/API/MySQL podem falhar de novo.
+  echo           Liberar espaco no disco C: antes de continuar ^(Temp, Downloads, caches^).
+  echo           Este script NAO apaga arquivos.
+  echo.
+  set /p SEGUIR_CRIT="Continuar mesmo assim? [s/N]: "
+  if /i not "%SEGUIR_CRIT%"=="s" (
+    echo Abortado pelo operador.
+    exit /b 2
+  )
+) else if "%DISK_EXIT%"=="1" (
+  echo.
+  echo [AVISO] Espaco livre baixo. Recomenda-se liberar disco antes de desenvolver.
+  set /p SEGUIR_WARN="Continuar? [S/n]: "
+  if /i "%SEGUIR_WARN%"=="n" exit /b 1
+  if /i "%SEGUIR_WARN%"=="nao" exit /b 1
+) else if not "%DISK_EXIT%"=="0" (
+  echo [AVISO] Nao foi possivel validar o disco ^(exit %DISK_EXIT%^). Seguindo.
+)
+echo.
+
 where php >nul 2>&1
 if errorlevel 1 (
   echo [ERRO] PHP nao encontrado no PATH. Instale PHP 8.2+ e tente de novo.
