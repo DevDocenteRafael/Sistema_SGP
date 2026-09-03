@@ -21,29 +21,35 @@
           :to="item.path"
           @click="onNavigate"
         >
-          <span class="sidebar-link-icon" v-html="icons[item.icon]" />
+          <span class="sidebar-link-icon" aria-hidden="true" v-html="icons[item.icon]" />
           <span class="sidebar-link-label">{{ item.label }}</span>
         </router-link>
       </div>
     </div>
 
     <div class="sidebar-footer">
-      <div v-if="usuario" class="sidebar-user-card">
-        <span class="sidebar-avatar">{{ iniciais }}</span>
-        <div class="sidebar-user-info">
-          <p class="sidebar-user-nome">{{ usuario.nome }}</p>
-          <p v-if="usuario.unidade" class="sidebar-user-unidade">{{ usuario.unidade }}</p>
-        </div>
+      <div class="sidebar-footer-a11y">
+        <AcessibilidadeControles />
       </div>
 
-      <button type="button" class="sidebar-logout" @click="logout">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-          <polyline points="16 17 21 12 16 7" />
-          <line x1="21" x2="9" y1="12" y2="12" />
-        </svg>
-        Sair
-      </button>
+      <div class="sidebar-footer-account">
+        <div v-if="usuario" class="sidebar-user-card">
+          <span class="sidebar-avatar" aria-hidden="true">{{ iniciais }}</span>
+          <div class="sidebar-user-info">
+            <p class="sidebar-user-nome">{{ usuario.nome }}</p>
+            <p v-if="usuario.unidade" class="sidebar-user-unidade">{{ usuario.unidade }}</p>
+          </div>
+        </div>
+
+        <button type="button" class="sidebar-logout" @click="logout" title="Sair da conta">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" x2="9" y1="12" y2="12" />
+          </svg>
+          <span class="sidebar-logout-label">Sair</span>
+        </button>
+      </div>
     </div>
   </nav>
 </template>
