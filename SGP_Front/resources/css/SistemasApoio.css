@@ -1,7 +1,7 @@
 .sistemas-apoio-page {
   margin: -1.5rem;
   min-height: calc(100vh - 0px);
-  background: #f5f7fa;
+  background: var(--sgp-bg, #f5f7fa);
 }
 
 .alert {
@@ -38,9 +38,9 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 1.25rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.75rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   text-decoration: none;
   color: inherit;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);

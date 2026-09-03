@@ -1,4 +1,4 @@
-/* Login — mobile (Login.css tinha zero @media; regras novas) */
+/* Login — mobile / tablet */
 
 @media (max-width: 768px) {
   .login-page {
@@ -20,12 +20,12 @@
   }
 
   .login-header {
-    top: 0.75rem !important;
+    padding-top: 0.75rem !important;
   }
 
   .login-body {
     align-items: flex-start !important;
-    padding: 4.5rem 0.75rem 5rem !important;
+    padding: 1.5rem 0.75rem 1.25rem !important;
   }
 
   .login-content {
@@ -50,15 +50,14 @@
   }
 
   .login-page-footer {
-    bottom: 0.75rem !important;
-    padding: 0 0.75rem;
+    padding: 0.75rem !important;
     font-size: 0.7rem !important;
   }
 }
 
 @media (max-width: 480px) {
   .login-body {
-    padding: 4rem 0.5rem 4.5rem !important;
+    padding: 1rem 0.5rem 1rem !important;
   }
 
   .login-title {
@@ -67,5 +66,18 @@
 
   .login-card {
     padding: 1.25rem 1rem 1.1rem !important;
+  }
+}
+
+/* Viewport baixa: evita card cortado e mantém footer no fluxo */
+@media (max-height: 700px) {
+  .login-body {
+    align-items: flex-start;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .login-title {
+    font-size: 2rem;
   }
 }

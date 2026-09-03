@@ -111,7 +111,7 @@
   .usuarios-page .tabela-card,
   .auditoria-page .tabela-card,
   .tabela-card {
-    overflow-x: auto;
+    overflow: visible;
   }
 
   .importacoes-page .imp-header,
@@ -129,7 +129,7 @@
   }
 
   .auditoria-top,
-  .auditoria-page .filtros-bar {
+  .auditoria-page .tabela-card {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
@@ -195,9 +195,7 @@
     padding-right: 1rem !important;
   }
 
-  .cursos-page .filtros-bar,
   .cursos-page .tabela-card,
-  .usuarios-page .filtros-bar,
   .usuarios-page .tabela-card {
     margin-left: 1rem !important;
     margin-right: 1rem !important;
@@ -208,18 +206,17 @@
   }
 }
 
-@media (max-width: 560px) {
-  .detalhe-grid {
+@media (max-width: 480px) {
+  .inicio-hero-title {
+    font-size: 1.15rem !important;
+  }
+
+  .rel-resumo {
     grid-template-columns: 1fr !important;
   }
 
-  .modal-detalhes-actions {
-    flex-direction: column !important;
-  }
-
-  .cursos-page .btn-secondary,
-  .usuarios-page .btn-secondary,
-  .modal-detalhes-actions .btn-secondary {
-    width: 100% !important;
+  .tabela-card {
+    margin-left: 0.75rem !important;
+    margin-right: 0.75rem !important;
   }
 }

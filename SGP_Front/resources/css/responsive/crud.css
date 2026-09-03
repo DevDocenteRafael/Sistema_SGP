@@ -48,16 +48,16 @@
     align-items: stretch;
   }
 
-  .filtros-panel,
-  .filtros-bar {
-    margin: 0.85rem 1rem 1rem;
-    padding: 0.85rem;
-  }
-
   .filtros-row,
-  .filtros-bar {
+  .crud-toolbar .filtros-bar,
+  .crud-toolbar .filtros-panel {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .crud-toolbar {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
   }
 
   .filtro-busca,
@@ -74,7 +74,7 @@
   }
 
   .tabela-card {
-    margin: 0 1rem 1.25rem;
+    margin: 1.25rem 1rem 1.25rem;
     border-radius: 0.65rem;
   }
 
@@ -150,5 +150,36 @@
 
   .crud-top h1 {
     font-size: 1.2rem;
+  }
+
+  .crud-top-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .crud-top-actions .btn-novo,
+  .crud-top-actions .btn-acao-secundaria {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .kanban-top,
+  .flux-lista-top,
+  .flux-editor-top {
+    padding: 1rem 1rem 0.9rem;
+  }
+
+  .caro-top-inner,
+  .org-top-inner {
+    padding: 1rem;
+  }
+
+  .kanban-top-row,
+  .flux-lista-top-row,
+  .caro-top-row,
+  .org-top-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
