@@ -64,11 +64,20 @@ export default {
         const redirect = this.$route.query.redirect || '/app/inicio';
         this.$router.replace(redirect);
       } catch (error) {
+        const raw = typeof error.response?.data === 'string' ? error.response.data : '';
         if (error.response?.status === 429) {
           this.errorMessage = 'Muitas tentativas de login. Aguarde cerca de 1 minuto e tente novamente.';
         } else if (error.response?.status === 422) {
           const errors = error.response.data.errors;
           this.errorMessage = errors?.email?.[0] || errors?.senha?.[0] || error.response.data.message || 'Dados inválidos.';
+        } else if (
+          error.response?.status === 500
+          && /No space left on device|errno=28|SQLITE_FULL/i.test(raw)
+        ) {
+          this.errorMessage = 'O disco do computador está cheio. Libere espaço em C: e tente entrar novamente.';
+        } else if (error.response?.status === 500) {
+          this.errorMessage = error.response?.data?.message
+            || 'Erro interno no servidor (HTTP 500). Verifique o back-end e o espaço em disco.';
         } else {
           this.errorMessage = error.response?.data?.message
             || `Não foi possível entrar (HTTP ${error.response?.status || 'sem resposta'}). Confira se o back está na pasta SGP_Back e rode php artisan optimize:clear.`;

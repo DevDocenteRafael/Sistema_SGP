@@ -22,6 +22,7 @@ const ORDEM_RELATORIOS = [
   'plano-de-metas',
   'pcas',
   'eixos',
+  'jornadas-pedagogicas',
   'visitas-tecnicas',
   'horas-pedagogicas',
   'acoes-extensivas',
@@ -103,6 +104,9 @@ export default {
           item.semestre,
           item.data,
           item.data_solicitacao,
+          item.data_inicio,
+          item.data_fim,
+          item.data_pre_jornada,
           item.data_inicio_vigencia,
           item.data_fim_vigencia,
           item.prazo_deadline,
@@ -165,6 +169,45 @@ export default {
       const set = new Set(this.registros.map((r) => r.relator).filter(Boolean));
       return Array.from(set).sort();
     },
+
+    temFiltrosAtivos() {
+      return Object.values(this.filtros).some((valor) => valor !== '' && valor != null);
+    },
+
+    /**
+     * Resumo derivado apenas dos registros já retornados pela API (sem inventar dados).
+     */
+    resumoRelatorio() {
+      const total = this.metaApi.total ?? this.registros.length;
+      const cards = [
+        {
+          label: 'Total filtrado',
+          value: total,
+          help: 'Quantidade de registros que atendem aos filtros atuais (conforme a API).',
+        },
+      ];
+
+      const porStatus = {};
+      this.registros.forEach((item) => {
+        const status = String(item.status || '').trim();
+        if (!status) return;
+        porStatus[status] = (porStatus[status] || 0) + 1;
+      });
+
+      const topStatus = Object.entries(porStatus)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 4);
+
+      topStatus.forEach(([status, qtd]) => {
+        cards.push({
+          label: status,
+          value: qtd,
+          help: `Registros com status “${status}” na prévia carregada.`,
+        });
+      });
+
+      return cards;
+    },
   },
 
   created() {
@@ -179,6 +222,11 @@ export default {
   methods: {
     temFiltro(nome) {
       return (this.selecionado?.filtros || []).includes(nome);
+    },
+
+    limparFiltros() {
+      this.filtros = filtrosVazios();
+      this.carregarPrevias();
     },
 
     valorCelula(linha, key) {
@@ -350,7 +398,9 @@ export default {
         this.metaApi = data.meta || {};
 
         if (data.meta?.truncado) {
-          this.mensagem = `Prévia limitada aos primeiros ${data.meta.limite} registros. Use filtros ou exporte o PDF com filtros mais específicos.`;
+          this.mensagem = `Prévia limitada: ${data.meta.total_exibido ?? this.registros.length} de ${data.meta.total} registros. Use filtros ou exporte o PDF.`;
+        } else {
+          this.mensagem = '';
         }
       } catch (error) {
         this.registros = [];

@@ -113,6 +113,11 @@ export function createCrudPage(config) {
       }, 200);
     },
 
+    limparFiltros() {
+      this.filtros = { ...filtrosIniciais };
+      this.aplicarFiltros();
+    },
+
     async carregarRegistros() {
       if (debounceOnLoad) {
         clearTimeout(this.buscaTimeout);

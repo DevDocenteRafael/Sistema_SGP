@@ -16,6 +16,18 @@
     </div>
 
     <div v-if="info" class="crud-info">{{ info }}</div>
+
+    <div v-if="$slots.filters" class="crud-toolbar" role="search" :aria-label="filtersAriaLabel">
+      <slot name="filters" />
+      <button
+        v-if="showClearFilters"
+        type="button"
+        class="btn-limpar-filtros"
+        @click="$emit('limpar-filtros')"
+      >
+        Limpar filtros
+      </button>
+    </div>
   </header>
 </template>
 
@@ -28,7 +40,9 @@ export default {
     info: { type: String, default: '' },
     showNovo: { type: Boolean, default: false },
     novoLabel: { type: String, default: 'Novo' },
+    showClearFilters: { type: Boolean, default: false },
+    filtersAriaLabel: { type: String, default: 'Filtros da listagem' },
   },
-  emits: ['novo'],
+  emits: ['novo', 'limpar-filtros'],
 };
 </script>

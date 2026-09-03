@@ -1,16 +1,19 @@
 <template>
   <div class="indicador-prazo">
-    <div class="indicador-prazo-visual" :class="classeIndicador" :title="textoPrazo">
+    <div class="indicador-prazo-visual" :class="classeIndicador">
       <span class="indicador-prazo-ponto" aria-hidden="true"></span>
-      <span class="indicador-prazo-label">{{ statusLabel }}</span>
+      <SgpHelpLabel :label="statusLabel" :help="textoPrazo" />
     </div>
     <span v-if="mostrarData && dataPrazo" class="indicador-prazo-data">{{ dataPrazo }}</span>
   </div>
 </template>
 
 <script>
+import SgpHelpLabel from '../ui/SgpHelpLabel.vue';
+
 export default {
   name: 'IndicadorPrazo',
+  components: { SgpHelpLabel },
   props: {
     status: {
       type: String,
@@ -44,7 +47,12 @@ export default {
       return labels[this.status] || this.status;
     },
     textoPrazo() {
-      return `Status do prazo: ${this.statusLabel}`;
+      const ajuda = {
+        verde: 'Dentro do prazo esperado (semáforo verde).',
+        amarelo: 'Prazo em atenção — próximo do limite.',
+        vermelho: 'Prazo crítico ou vencido — ação urgente.',
+      };
+      return ajuda[this.status] || `Status do prazo: ${this.statusLabel}`;
     },
   },
 };
@@ -107,8 +115,42 @@ export default {
 }
 
 .indicador-prazo-data {
-  color: #6b7280;
+  color: var(--sgp-text-muted, #6b7280);
   font-size: 0.8rem;
   font-weight: 500;
+}
+
+:global(html[data-theme='dark']) .indicador-verde {
+  border-color: #166534;
+  background: #0b2a1c;
+  color: #86efac;
+}
+
+:global(html[data-theme='dark']) .indicador-verde .indicador-prazo-ponto {
+  background: #86efac;
+}
+
+:global(html[data-theme='dark']) .indicador-amarelo {
+  border-color: #9a3412;
+  background: #3a240f;
+  color: #fdba74;
+}
+
+:global(html[data-theme='dark']) .indicador-amarelo .indicador-prazo-ponto {
+  background: #fdba74;
+}
+
+:global(html[data-theme='dark']) .indicador-vermelho {
+  border-color: #7f1d1d;
+  background: #3f1212;
+  color: #fecaca;
+}
+
+:global(html[data-theme='dark']) .indicador-vermelho .indicador-prazo-ponto {
+  background: #fecaca;
+}
+
+:global(html[data-theme='dark']) .indicador-prazo-data {
+  color: var(--sgp-text-muted, #94a3b8);
 }
 </style>

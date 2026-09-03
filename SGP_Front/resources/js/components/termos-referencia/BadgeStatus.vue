@@ -1,13 +1,25 @@
 <template>
-  <span class="badge-status" :class="[`badge-${tipo}`, { 'badge-tamanho-grande': tamanho === 'grande' }]">
-    <span v-if="icone" class="badge-icone" aria-hidden="true">{{ icone }}</span>
-    {{ label }}
+  <span class="badge-status-wrap">
+    <span class="badge-status" :class="[`badge-${tipo}`, { 'badge-tamanho-grande': tamanho === 'grande' }]">
+      <span v-if="icone" class="badge-icone" aria-hidden="true">{{ icone }}</span>
+      {{ label }}
+    </span>
+    <SgpTooltip
+      v-if="textoAjuda"
+      :text="textoAjuda"
+      mode="icon"
+      :label="`Explicar status ${label}`"
+    />
   </span>
 </template>
 
 <script>
+import SgpTooltip from '../ui/SgpTooltip.vue';
+import { explicar } from '../../utils/glossario';
+
 export default {
   name: 'BadgeStatus',
+  components: { SgpTooltip },
   props: {
     tipo: {
       type: String,
@@ -38,11 +50,26 @@ export default {
       default: 'padrao',
       validator: (v) => ['padrao', 'grande'].includes(v),
     },
+    help: {
+      type: String,
+      default: '',
+    },
+  },
+  computed: {
+    textoAjuda() {
+      return this.help || explicar(this.label);
+    },
   },
 };
 </script>
 
 <style scoped>
+.badge-status-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
 .badge-status {
   display: inline-flex;
   align-items: center;
@@ -65,7 +92,6 @@ export default {
   line-height: 1;
 }
 
-/* Status padrão do TR */
 .badge-planejamento {
   border-color: #dbeafe;
   background: #eff6ff;
@@ -102,7 +128,6 @@ export default {
   color: #4b5563;
 }
 
-/* Status genéricos */
 .badge-sucesso {
   border-color: #bbf7d0;
   background: #ecfdf5;
@@ -125,5 +150,45 @@ export default {
   border-color: #dbeafe;
   background: #eff6ff;
   color: #1d4ed8;
+}
+
+:global(html[data-theme='dark']) .badge-planejamento,
+:global(html[data-theme='dark']) .badge-info {
+  border-color: #1e3a5f;
+  background: #10233f;
+  color: #93c5fd;
+}
+
+:global(html[data-theme='dark']) .badge-andamento,
+:global(html[data-theme='dark']) .badge-aviso {
+  border-color: #9a3412;
+  background: #3a240f;
+  color: #fdba74;
+}
+
+:global(html[data-theme='dark']) .badge-tramitacao {
+  border-color: #5b21b6;
+  background: #2e1065;
+  color: #c4b5fd;
+}
+
+:global(html[data-theme='dark']) .badge-concluido,
+:global(html[data-theme='dark']) .badge-sucesso {
+  border-color: #166534;
+  background: #0b2a1c;
+  color: #86efac;
+}
+
+:global(html[data-theme='dark']) .badge-arquivado,
+:global(html[data-theme='dark']) .badge-padrao {
+  border-color: #334155;
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+:global(html[data-theme='dark']) .badge-erro {
+  border-color: #7f1d1d;
+  background: #3f1212;
+  color: #fecaca;
 }
 </style>

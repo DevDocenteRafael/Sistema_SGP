@@ -130,4 +130,40 @@ router.beforeEach(async (to) => {
   }
 });
 
+const TITULOS_PAGINA = {
+  login: 'Login',
+  inicio: 'Início',
+  dashboard: 'Dashboard',
+  relatorios: 'Relatórios',
+  importacoes: 'Importações',
+  cursos: 'Cursos',
+  'ciclos-portfolio': 'Ciclos de Portfólio',
+  'plano-de-metas': 'Plano de Metas',
+  pca: 'PCA',
+  'controle-de-resolucoes': 'Controle de Resoluções',
+  'termos-de-referencia': 'Termos de Referência',
+  eixos: 'Eixos',
+  'visitas-tecnicas': 'Visitas Técnicas',
+  'horas-pedagogicas': 'Horas Pedagógicas',
+  'acoes-extensivas': 'Ações Extensivas',
+  eventos: 'Eventos',
+  'jornada-pedagogica': 'Jornada Pedagógica',
+  'sistemas-apoio': 'Sistemas de Apoio',
+  ferramentas: 'Ferramentas',
+  'ferramentas-kanban': 'Kanban',
+  'ferramentas-kanban-quadro': 'Kanban',
+  'ferramentas-organograma': 'Organograma',
+  'ferramentas-carometro': 'Carômetro',
+  'ferramentas-fluxograma': 'Fluxogramas',
+  'ferramentas-fluxograma-editor': 'Editor de Fluxograma',
+  cped: 'CPED',
+  auditoria: 'Auditoria',
+  usuarios: 'Usuários',
+};
+
+router.afterEach((to) => {
+  const titulo = TITULOS_PAGINA[to.name] || 'SGP';
+  document.title = `${titulo} · SGP`;
+});
+
 export default router;

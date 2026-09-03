@@ -1,5 +1,7 @@
 <template>
   <div class="app-layout" :class="{ 'menu-open': menuAberto }">
+    <a class="sgp-skip-link" href="#conteudo-principal">Ir para o conteúdo principal</a>
+
     <header class="app-topbar">
       <button
         type="button"
@@ -16,6 +18,36 @@
         </svg>
       </button>
       <span class="app-topbar-title">SGP</span>
+      <div class="app-topbar-a11y" role="group" aria-label="Acessibilidade rápida">
+        <button
+          type="button"
+          class="sgp-a11y-btn"
+          :class="{ 'is-active': theme === 'dark' }"
+          :aria-pressed="theme === 'dark' ? 'true' : 'false'"
+          aria-label="Alternar tema claro ou escuro"
+          @click="alternarTema"
+        >
+          {{ theme === 'dark' ? 'Escuro' : 'Claro' }}
+        </button>
+        <button
+          type="button"
+          class="sgp-a11y-btn sgp-a11y-btn--icon"
+          aria-label="Diminuir fonte"
+          :disabled="!podeDiminuir"
+          @click="diminuirFonte"
+        >
+          A−
+        </button>
+        <button
+          type="button"
+          class="sgp-a11y-btn sgp-a11y-btn--icon"
+          aria-label="Aumentar fonte"
+          :disabled="!podeAumentar"
+          @click="aumentarFonte"
+        >
+          A+
+        </button>
+      </div>
     </header>
 
     <div class="app-overlay" aria-hidden="true" @click="fecharMenu"></div>
@@ -26,7 +58,7 @@
       @fechar="fecharMenu"
     />
 
-    <main class="app-main">
+    <main id="conteudo-principal" class="app-main" tabindex="-1">
       <router-view />
     </main>
   </div>
