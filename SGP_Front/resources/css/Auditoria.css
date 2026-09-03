@@ -1,12 +1,12 @@
 .auditoria-page {
   margin: -1.5rem;
   min-height: calc(100vh - 0px);
-  background: #f5f7fa;
+  background: var(--sgp-bg, #f5f7fa);
 }
 
 .auditoria-top {
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  background: var(--sgp-surface, #fff);
   padding: 1.5rem 2rem 1.25rem;
 }
 
@@ -58,7 +58,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  padding: 1.25rem 2rem;
 }
 
 .filtro-busca {
@@ -72,8 +71,8 @@
   padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
-  background: #fff;
-  color: #111827;
+  background: var(--sgp-input-bg, #fff);
+  color: var(--sgp-text, #111827);
   font-size: 0.9rem;
 }
 
@@ -84,11 +83,11 @@
 }
 
 .tabela-card {
-  margin: 0 2rem 2rem;
-  border: 1px solid #e5e7eb;
+  margin: 1.25rem 2rem 2rem;
+  border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.75rem;
-  background: #fff;
-  overflow: hidden;
+  background: var(--sgp-surface, #fff);
+  overflow: visible;
 }
 
 .tabela-header {
@@ -124,12 +123,12 @@
 }
 
 .auditoria-table th {
-  color: #6b7280;
+  color: var(--sgp-table-head-text, #6b7280);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  background: #f9fafb;
+  background: var(--sgp-table-head, #f9fafb);
 }
 
 .text-center {
@@ -138,14 +137,17 @@
 
 .user-nome {
   margin: 0;
-  color: #111827;
-  font-weight: 600;
+  color: var(--sgp-text, #111827);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .user-email {
   margin: 0.15rem 0 0;
-  color: #6b7280;
+  color: var(--sgp-text-muted, #6b7280);
   font-size: 0.8rem;
+  line-height: 1.3;
 }
 
 .resumo-cell {

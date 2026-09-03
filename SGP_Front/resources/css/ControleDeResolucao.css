@@ -19,16 +19,16 @@
   align-items: center;
   padding: 0.25rem 0.65rem;
   border-radius: 999px;
-  background: #eef6ff;
-  color: #003f7d;
+  background: var(--sgp-info-bg, #eef6ff);
+  color: var(--sgp-info-text, #003f7d);
   font-size: 0.72rem;
   font-weight: 600;
 }
 
 .controle-resolucoes-page .btn-limpar-filtros {
-  border: 1px solid #d1d5db;
-  background: #fff;
-  color: #374151;
+  border: 1px solid var(--sgp-border, #d1d5db);
+  background: var(--sgp-surface, #fff);
+  color: var(--sgp-text, #374151);
   border-radius: 0.5rem;
   padding: 0.55rem 0.9rem;
   font-weight: 600;
@@ -54,8 +54,8 @@
   align-items: center;
   padding: 0.28rem 0.6rem;
   border-radius: 999px;
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--sgp-surface-muted, #f3f4f6);
+  color: var(--sgp-text, #374151);
   font-size: 0.72rem;
   font-weight: 600;
 }
@@ -72,24 +72,24 @@
 }
 
 .controle-resolucoes-page .status-vigente {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--sgp-success-bg, #dcfce7);
+  color: var(--sgp-success-text, #166534);
 }
 
 .controle-resolucoes-page .status-atencao {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--sgp-warning-bg, #fef3c7);
+  color: var(--sgp-warning-text, #92400e);
 }
 
 .controle-resolucoes-page .status-critico,
 .controle-resolucoes-page .status-vencida {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--sgp-error-bg, #fee2e2);
+  color: var(--sgp-error-text, #991b1b);
 }
 
 .controle-resolucoes-page .status-concluida {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: var(--sgp-info-bg, #e0e7ff);
+  color: var(--sgp-info-text, #3730a3);
 }
 
 .controle-resolucoes-page .modal-detalhes-content {

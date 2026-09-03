@@ -7,51 +7,55 @@
   justify-content: space-between;
   gap: 0.75rem 1.25rem;
   margin: 1rem 2rem 0;
-  padding: 0.85rem 1.1rem;
-  border: 1px solid #c7d7ea;
-  border-radius: 0.65rem;
-  background: #f4f8fd;
+  padding: 0.85rem 0 0.35rem;
+  border: none;
+  border-bottom: 1px solid var(--sgp-border, #c7d7ea);
+  border-radius: 0;
+  background: transparent;
 }
 
 .ciclo-volta-banner strong {
-  color: #003f7d;
+  color: var(--sgp-brand, #003f7d);
   font-size: 0.95rem;
 }
 
 .ciclo-volta-banner p {
   margin: 0.2rem 0 0;
-  color: #4b5563;
+  color: var(--sgp-text-muted, #4b5563);
   font-size: 0.8rem;
 }
 
 .ciclos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  padding: 0.25rem 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
 }
 
 .ciclo-card {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  padding: 1.1rem 1.15rem 0.9rem;
-  border: 1px solid #dbe3ee;
-  border-radius: 0.85rem;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  gap: 0.55rem;
+  padding: 1rem 0.25rem 1rem;
+  border: none;
+  border-bottom: 1px solid var(--sgp-border, #dbe3ee);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   cursor: pointer;
   text-align: left;
 }
 
 .ciclo-card:hover {
-  border-color: #93c5fd;
-  box-shadow: 0 8px 20px rgba(0, 63, 125, 0.08);
+  border-color: var(--sgp-border, #93c5fd);
+  background: var(--sgp-row-hover, #eef4fb);
+  box-shadow: none;
 }
 
 .ciclo-card-atual {
-  border-color: #f57c00;
-  box-shadow: inset 4px 0 0 #f57c00;
+  border-color: var(--sgp-border, #f57c00);
+  box-shadow: inset 3px 0 0 var(--sgp-accent, #f57c00);
+  padding-left: 0.75rem;
 }
 
 .ciclo-card-topo {
@@ -63,8 +67,8 @@
 
 .ciclo-card-topo h2 {
   margin: 0;
-  color: #003f7d;
-  font-size: 1.25rem;
+  color: var(--sgp-brand, #003f7d);
+  font-size: 1.15rem;
 }
 
 .ciclo-card-origem,
@@ -93,8 +97,8 @@
 .ciclo-card-composicao li {
   padding: 0.2rem 0.5rem;
   border-radius: 999px;
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--sgp-surface-muted, #f3f4f6);
+  color: var(--sgp-text, #374151);
   font-size: 0.72rem;
   font-weight: 600;
 }
@@ -127,8 +131,8 @@
   padding: 0 0.7rem;
   border: 1px solid #d1d5db;
   border-radius: 0.45rem;
-  background: #fff;
-  color: #003f7d;
+  background: var(--sgp-surface, #fff);
+  color: var(--sgp-brand, #003f7d);
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -143,7 +147,7 @@
   justify-content: flex-end;
   gap: 0.2rem;
   padding-top: 0.35rem;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--sgp-border, #f3f4f6);
 }
 
 .detalhe-grid-2 {

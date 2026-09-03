@@ -5,7 +5,7 @@
 }
 
 .crud-table tbody tr:nth-child(even) {
-  background: #fafbfc;
+  background: var(--sgp-table-row-alt, #f8fafc);
 }
 
 .tabela-header {
