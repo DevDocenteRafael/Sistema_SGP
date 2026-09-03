@@ -1,7 +1,8 @@
 .importacoes-page {
   margin: -1.5rem;
   min-height: calc(100vh - 0px);
-  background: #f5f7fa;
+  background: var(--sgp-bg, #f5f7fa);
+  color: var(--sgp-text, #0f172a);
 }
 
 .imp-header {
@@ -10,21 +11,21 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  background: var(--sgp-surface, #fff);
   padding: 1.5rem 2rem 1.25rem;
 }
 
 .imp-header h1 {
   margin: 0;
-  color: #003f7d;
+  color: var(--sgp-brand, #003f7d);
   font-size: 1.75rem;
   font-weight: 700;
 }
 
 .imp-subtitle {
   margin: 0.35rem 0 0;
-  color: #6b7280;
+  color: var(--sgp-text-muted, #6b7280);
   font-size: 0.875rem;
   max-width: 42rem;
 }
@@ -40,9 +41,9 @@
 }
 
 .btn-secundario {
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #374151;
+  border: 1px solid var(--sgp-border, #e5e7eb);
+  background: var(--sgp-surface, #fff);
+  color: var(--sgp-text, #374151);
 }
 
 .btn-primario {
@@ -74,15 +75,15 @@
 }
 
 .alert-error {
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
+  border: 1px solid var(--sgp-error-border, #fecaca);
+  background: var(--sgp-error-bg, #fef2f2);
+  color: var(--sgp-error-text, #b91c1c);
 }
 
 .alert-success {
-  border: 1px solid #b7e4c7;
-  background: #e8f8ef;
-  color: #0f7b3b;
+  border: 1px solid var(--sgp-success-border, #b7e4c7);
+  background: var(--sgp-success-bg, #e8f8ef);
+  color: var(--sgp-success-text, #0f7b3b);
 }
 
 .imp-painel {
@@ -96,15 +97,15 @@
   gap: 0.65rem 1rem;
   margin-bottom: 1.1rem;
   padding: 1rem 1.15rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.85rem;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  background: var(--sgp-surface, #fff);
+  box-shadow: var(--sgp-shadow, 0 1px 2px rgba(15, 23, 42, 0.04));
 }
 
 .imp-toolbar-label {
   margin: 0;
-  color: #374151;
+  color: var(--sgp-text, #374151);
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -118,7 +119,7 @@
 .imp-toolbar-desc {
   flex: 1 1 100%;
   margin: 0;
-  color: #6b7280;
+  color: var(--sgp-text-muted, #6b7280);
   font-size: 0.84rem;
   line-height: 1.4;
 }
@@ -148,10 +149,10 @@
   width: 100%;
   height: 2.5rem;
   padding: 0 0.85rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.55rem;
-  background: #fff;
-  color: #374151;
+  background: var(--sgp-input-bg, #fff);
+  color: var(--sgp-text, #374151);
   font-size: 0.875rem;
 }
 
@@ -168,10 +169,10 @@
 
 .imp-upload-card {
   padding: 1.15rem 1.2rem 1.25rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.85rem;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  background: var(--sgp-surface, #fff);
+  box-shadow: var(--sgp-shadow, 0 1px 2px rgba(15, 23, 42, 0.04));
 }
 
 .imp-painel-head {
@@ -180,7 +181,7 @@
 
 .imp-kicker {
   margin: 0 0 0.25rem;
-  color: #003f7d;
+  color: var(--sgp-brand, #003f7d);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -189,13 +190,13 @@
 
 .imp-painel-head h2 {
   margin: 0;
-  color: #111827;
+  color: var(--sgp-text, #111827);
   font-size: 1.35rem;
 }
 
 .imp-ajuda {
   margin: 0.4rem 0 0;
-  color: #6b7280;
+  color: var(--sgp-text-muted, #6b7280);
   font-size: 0.875rem;
 }
 
@@ -205,18 +206,18 @@
   justify-content: center;
   min-height: 140px;
   margin-bottom: 1rem;
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed var(--sgp-border-strong, #cbd5e1);
   border-radius: 0.85rem;
-  background: #f8fafc;
-  color: #64748b;
+  background: var(--sgp-surface-muted, #f8fafc);
+  color: var(--sgp-text-muted, #64748b);
   font-size: 0.95rem;
   cursor: pointer;
 }
 
 .imp-dropzone.has-file {
-  border-color: #93c5fd;
-  background: #eff6ff;
-  color: #1e3a8a;
+  border-color: var(--sgp-info-border, #93c5fd);
+  background: var(--sgp-info-bg, #eff6ff);
+  color: var(--sgp-info-text, #1e3a8a);
   font-weight: 600;
 }
 
@@ -234,10 +235,10 @@
 .imp-erros {
   margin-bottom: 1rem;
   padding: 0.85rem 1rem;
-  border: 1px solid #fde68a;
+  border: 1px solid var(--sgp-warning-border, #fde68a);
   border-radius: 0.65rem;
-  background: #fffbeb;
-  color: #92400e;
+  background: var(--sgp-warning-bg, #fffbeb);
+  color: var(--sgp-warning-text, #92400e);
   font-size: 0.85rem;
 }
 
@@ -253,16 +254,16 @@
 
 .imp-tabela-card {
   margin-bottom: 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.85rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   overflow: hidden;
 }
 
 .imp-tabela-meta {
   padding: 0.7rem 0.95rem;
-  border-bottom: 1px solid #e5e7eb;
-  color: #4b5563;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  color: var(--sgp-text-muted, #4b5563);
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -280,21 +281,22 @@
 .imp-table th,
 .imp-table td {
   padding: 0.65rem 0.75rem;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--sgp-border, #f3f4f6);
   text-align: left;
   vertical-align: top;
+  color: var(--sgp-text, #374151);
 }
 
 .imp-table th {
-  background: #f8fafc;
-  color: #374151;
+  background: var(--sgp-table-head, #f8fafc);
+  color: var(--sgp-table-head-text, #374151);
   font-size: 0.72rem;
   text-transform: uppercase;
 }
 
 .imp-td-vazio {
   text-align: center !important;
-  color: #6b7280;
+  color: var(--sgp-text-muted, #6b7280);
   padding: 2rem 1rem !important;
 }
 
@@ -306,18 +308,18 @@
 .imp-tabela-nota {
   margin: 0;
   padding: 0.65rem 0.85rem;
-  color: #6b7280;
+  color: var(--sgp-text-muted, #6b7280);
   font-size: 0.8rem;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--sgp-border, #f3f4f6);
 }
 
 .imp-vazio {
   padding: 2.5rem 1.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.85rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   text-align: center;
-  color: #6b7280;
+  color: var(--sgp-text-muted, #6b7280);
   font-size: 0.9rem;
 }
 

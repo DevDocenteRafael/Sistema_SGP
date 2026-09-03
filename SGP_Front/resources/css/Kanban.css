@@ -1,12 +1,12 @@
 .kanban-page {
   margin: -1.5rem;
   min-height: calc(100vh - 0px);
-  background: #f5f7fa;
+  background: var(--sgp-bg, #f5f7fa);
 }
 
 .kanban-top {
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  background: var(--sgp-surface, #fff);
   padding: 1.25rem 2rem 1.15rem;
 }
 
@@ -58,7 +58,7 @@
   padding: 0 1rem;
   border: 1px solid #d1d5db;
   border-radius: 0.55rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   color: #374151;
   font-weight: 600;
   cursor: pointer;
@@ -157,7 +157,7 @@
   max-height: calc(100vh - 12rem);
   border: 1px solid #e5e7eb;
   border-radius: 0.85rem;
-  background: #f8fafc;
+  background: var(--sgp-surface-muted, #f8fafc);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
@@ -169,7 +169,7 @@
   padding: 0.9rem 1rem 0.75rem;
   border-top: 3px solid #64748b;
   border-bottom: 1px solid #e5e7eb;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   border-radius: 0.85rem 0.85rem 0 0;
 }
 
@@ -189,8 +189,8 @@
   padding: 0.25rem 0.45rem;
   font-size: 0.88rem;
   font-weight: 700;
-  color: #111827;
-  background: #fff;
+  color: var(--sgp-text, #111827);
+  background: var(--sgp-surface, #fff);
 }
 
 .kanban-coluna-meta {
@@ -214,7 +214,7 @@
 
 .kanban-coluna-head h2 {
   margin: 0;
-  color: #111827;
+  color: var(--sgp-text, #111827);
   font-size: 0.92rem;
   font-weight: 700;
   white-space: nowrap;
@@ -230,7 +230,7 @@
   height: 1.5rem;
   padding: 0 0.4rem;
   border-radius: 999px;
-  background: #eef2f7;
+  background: var(--sgp-surface-muted, #eef2f7);
   color: #475569;
   font-size: 0.72rem;
   font-weight: 700;
@@ -258,7 +258,7 @@
   padding: 0.85rem 0.9rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.7rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   cursor: grab;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
@@ -271,7 +271,7 @@
 
 .kanban-cartao h3 {
   margin: 0;
-  color: #111827;
+  color: var(--sgp-text, #111827);
   font-size: 0.88rem;
   font-weight: 700;
   line-height: 1.35;
@@ -308,7 +308,7 @@
   height: 1.6rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.4rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   color: #64748b;
   cursor: pointer;
 }
@@ -365,7 +365,7 @@
   min-height: 8rem;
   border: 1px dashed #cbd5e1;
   border-radius: 0.85rem;
-  background: #f8fafc;
+  background: var(--sgp-surface-muted, #f8fafc);
   color: #64748b;
   font-size: 0.9rem;
   font-weight: 700;
@@ -398,7 +398,7 @@
   max-height: calc(100vh - 2rem);
   overflow: auto;
   border-radius: 1rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
@@ -412,7 +412,7 @@
 
 .modal-head h2 {
   margin: 0;
-  color: #111827;
+  color: var(--sgp-text, #111827);
   font-size: 1.15rem;
 }
 
@@ -473,8 +473,8 @@
   padding: 0.55rem 0.7rem;
   font-size: 0.9rem;
   font-weight: 400;
-  color: #111827;
-  background: #fff;
+  color: var(--sgp-text, #111827);
+  background: var(--sgp-surface, #fff);
 }
 
 .modal-actions {
@@ -494,7 +494,7 @@
 
 .btn-sec {
   border: 1px solid #d1d5db;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   color: #374151;
 }
 

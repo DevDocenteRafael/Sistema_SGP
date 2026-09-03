@@ -5,7 +5,7 @@
 }
 
 .evento-nome {
-  color: #003f7d;
+  color: var(--sgp-brand, #003f7d);
 }
 
 .col-evento {

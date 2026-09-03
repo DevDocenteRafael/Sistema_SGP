@@ -5,12 +5,12 @@
   flex-direction: column;
   background:
     radial-gradient(ellipse 70% 40% at 90% 0%, rgba(13, 148, 136, 0.07), transparent 45%),
-    #f4f7f8;
+    var(--sgp-bg, #f4f7f8);
 }
 
 .flux-editor-top {
   border-bottom: 1px solid #d5e4e2;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   padding: 1rem 1.5rem;
   flex-shrink: 0;
 }
@@ -144,7 +144,7 @@
   padding: 0.55rem 0.85rem;
   border: 1px solid #99f6e4;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.96);
+  background: color-mix(in srgb, var(--sgp-surface, #fff) 96%, transparent);
   box-shadow: 0 6px 20px rgba(15, 61, 58, 0.12);
   color: #334155;
   font-size: 0.8rem;
@@ -212,7 +212,7 @@
 
 .flux-guia-btn.ghost {
   border-color: #fdba74;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   color: #c2410c;
 }
 
@@ -276,7 +276,7 @@
   padding: 0 0.85rem;
   border: 1px solid #99f6e4;
   border-radius: 0.55rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   color: #0f766e;
   font-weight: 600;
   cursor: pointer;
@@ -302,7 +302,7 @@
   padding: 0 0.9rem;
   border: 1px solid #fecaca;
   border-radius: 0.5rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   color: #b91c1c;
   font-weight: 600;
   cursor: pointer;
@@ -412,7 +412,7 @@
 
 .flux-palette,
 .flux-props {
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   border-right: 1px solid #d5e4e2;
   padding: 0.85rem 0.9rem 1rem;
   overflow: auto;
@@ -465,7 +465,7 @@
   padding: 0.45rem 0.5rem;
   border: 1px solid #d5e4e2;
   border-radius: 0.55rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   text-align: left;
   cursor: grab;
 }
@@ -543,7 +543,7 @@
   position: relative;
   min-width: 0;
   min-height: 0;
-  background: #eef6f5;
+  background: color-mix(in srgb, var(--sgp-bg, #eef6f5) 92%, #0d9488);
 }
 
 .flux-canvas-tools {
@@ -560,7 +560,7 @@
   padding: 0 0.75rem;
   border: 1px solid #99f6e4;
   border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.95);
+  background: color-mix(in srgb, var(--sgp-surface, #fff) 95%, transparent);
   color: #0f766e;
   font-size: 0.75rem;
   font-weight: 700;
@@ -608,8 +608,8 @@
   padding: 0.45rem 0.6rem;
   font-size: 0.85rem;
   font-weight: 400;
-  color: #111827;
-  background: #fff;
+  color: var(--sgp-text, #111827);
+  background: var(--sgp-surface, #fff);
   font-family: inherit;
   resize: vertical;
 }

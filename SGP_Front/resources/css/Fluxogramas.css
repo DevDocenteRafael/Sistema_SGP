@@ -3,12 +3,12 @@
   min-height: calc(100vh - 0px);
   background:
     radial-gradient(ellipse 80% 50% at 10% -10%, rgba(13, 148, 136, 0.08), transparent 50%),
-    #f4f7f8;
+    var(--sgp-bg, #f4f7f8);
 }
 
 .flux-lista-top {
   border-bottom: 1px solid #d5e4e2;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   padding: 1.25rem 2rem 1.15rem;
 }
 
@@ -115,7 +115,7 @@
   min-height: 8.5rem;
   border: 1px solid #d5e4e2;
   border-radius: 0.85rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   box-shadow: 0 1px 2px rgba(15, 61, 58, 0.04);
   overflow: hidden;
   cursor: pointer;
@@ -180,7 +180,7 @@
   height: 1.7rem;
   border: 1px solid #d5e4e2;
   border-radius: 0.4rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   color: #64748b;
   cursor: pointer;
 }
@@ -201,7 +201,7 @@
   min-height: 8.5rem;
   border: 1px dashed #99f6e4;
   border-radius: 0.85rem;
-  background: #f0fdfa;
+  background: var(--sgp-surface-muted, #f0fdfa);
   color: #0f766e;
   font-size: 0.9rem;
   font-weight: 700;
@@ -230,7 +230,7 @@
   max-height: calc(100vh - 2rem);
   overflow: auto;
   border-radius: 1rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
@@ -248,7 +248,7 @@
 
 .modal-head h2 {
   margin: 0;
-  color: #111827;
+  color: var(--sgp-text, #111827);
   font-size: 1.15rem;
 }
 
@@ -302,8 +302,8 @@
   padding: 0.55rem 0.7rem;
   font-size: 0.9rem;
   font-weight: 400;
-  color: #111827;
-  background: #fff;
+  color: var(--sgp-text, #111827);
+  background: var(--sgp-surface, #fff);
   font-family: inherit;
   resize: vertical;
 }
@@ -325,7 +325,7 @@
 
 .btn-sec {
   border: 1px solid #d1d5db;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   color: #374151;
 }
 

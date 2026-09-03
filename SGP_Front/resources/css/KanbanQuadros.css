@@ -1,12 +1,12 @@
 .kanban-quadros-page {
   margin: -1.5rem;
   min-height: calc(100vh - 0px);
-  background: #f5f7fa;
+  background: var(--sgp-bg, #f5f7fa);
 }
 
 .kanban-quadros-top {
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  background: var(--sgp-surface, #fff);
   padding: 1.25rem 2rem 1.15rem;
 }
 
@@ -118,7 +118,7 @@
   min-height: 8.5rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.85rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   overflow: hidden;
   cursor: pointer;
@@ -176,7 +176,7 @@
   height: 1.7rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.4rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   color: #64748b;
   cursor: pointer;
 }
@@ -184,7 +184,7 @@
 .kanban-icon-btn:hover {
   color: #003f7d;
   border-color: #bfdbfe;
-  background: #eff6ff;
+  background: var(--sgp-info-bg, #eff6ff);
 }
 
 .kanban-icon-btn.danger:hover {
@@ -197,8 +197,8 @@
   min-height: 8.5rem;
   border: 1px dashed #cbd5e1;
   border-radius: 0.85rem;
-  background: #f8fafc;
-  color: #64748b;
+  background: var(--sgp-surface-muted, #f8fafc);
+  color: var(--sgp-text-muted, #64748b);
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
@@ -208,7 +208,7 @@
 .kanban-quadro-add:hover {
   border-color: #003f7d;
   color: #003f7d;
-  background: #eff6ff;
+  background: var(--sgp-info-bg, #eff6ff);
 }
 
 .modal-overlay {
@@ -226,7 +226,7 @@
   max-height: calc(100vh - 2rem);
   overflow: auto;
   border-radius: 1rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
@@ -244,7 +244,7 @@
 
 .modal-head h2 {
   margin: 0;
-  color: #111827;
+  color: var(--sgp-text, #111827);
   font-size: 1.15rem;
 }
 
@@ -296,8 +296,8 @@
   padding: 0.55rem 0.7rem;
   font-size: 0.9rem;
   font-weight: 400;
-  color: #111827;
-  background: #fff;
+  color: var(--sgp-text, #111827);
+  background: var(--sgp-surface, #fff);
 }
 
 .modal-actions {
@@ -317,7 +317,7 @@
 
 .btn-sec {
   border: 1px solid #d1d5db;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   color: #374151;
 }
 

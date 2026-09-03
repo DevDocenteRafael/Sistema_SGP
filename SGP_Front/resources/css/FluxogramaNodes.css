@@ -362,7 +362,7 @@
   border: 1px solid #d5e4e2;
   border-radius: 0.5rem;
   overflow: hidden;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
 }
 
 .vue-flow__controls {
@@ -374,7 +374,7 @@
 
 .vue-flow__controls-button {
   border: none !important;
-  background: #fff !important;
+  background: var(--sgp-surface, #fff) !important;
   color: #0f766e !important;
 }
 

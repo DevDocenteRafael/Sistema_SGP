@@ -1,12 +1,12 @@
 .ferramentas-page {
   margin: -1.5rem;
   min-height: calc(100vh - 0px);
-  background: #f5f7fa;
+  background: var(--sgp-bg, #f5f7fa);
 }
 
 .ferramentas-top {
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  background: var(--sgp-surface, #fff);
   padding: 1.5rem 2rem 1.25rem;
 }
 
@@ -34,10 +34,10 @@
 .ferramentas-info {
   margin-top: 1rem;
   padding: 0.65rem 1rem;
-  border: 1px solid #dbeafe;
+  border: 1px solid var(--sgp-info-border, #dbeafe);
   border-radius: 0.5rem;
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: var(--sgp-info-bg, #eff6ff);
+  color: var(--sgp-info-text, #1d4ed8);
   font-size: 0.8rem;
 }
 
@@ -77,9 +77,9 @@
   flex-direction: column;
   gap: 0.55rem;
   padding: 1.25rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.75rem;
-  background: #fff;
+  background: var(--sgp-surface, #fff);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   text-align: left;
   transition: border-color 0.15s ease, transform 0.15s ease;
@@ -120,8 +120,8 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.6rem;
-  background: #eff6ff;
-  color: #003f7d;
+  background: var(--sgp-info-bg, #eff6ff);
+  color: var(--sgp-brand, #003f7d);
 }
 
 .ferramenta-card-disabled .ferramenta-icon {
