@@ -13,12 +13,12 @@ body {
 .app-main h1 {
     margin: 0 0 0.5rem;
     font-size: 1.75rem;
-    color: #212529;
+    color: var(--sgp-brand, #212529);
 }
 
 .app-main p {
     margin: 0;
-    color: #6c757d;
+    color: var(--sgp-text-muted, #6c757d);
 }
 
 @source '../**/*.vue';

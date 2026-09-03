@@ -1,12 +1,18 @@
 .app-layout {
   display: flex;
   min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--sgp-bg, #f8f9fa);
 }
 
 .app-main {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   padding: 1.5rem;
-  background: #f8f9fa;
-  color: #212529;
+  background: var(--sgp-bg, #f8f9fa);
+  color: var(--sgp-text, #212529);
+  overflow-x: hidden;
   overflow-y: auto;
 }

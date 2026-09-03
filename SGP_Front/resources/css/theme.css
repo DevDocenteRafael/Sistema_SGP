@@ -1,0 +1,1359 @@
+/**
+ * Tema global do SGP via variáveis CSS.
+ * Light + Dark profissional (não é apenas inverter preto/branco).
+ */
+
+:root {
+  --sgp-font-scale: 1;
+  --sgp-brand: #003f7d;
+  --sgp-brand-strong: #002f5e;
+  --sgp-accent: #f57c00;
+  --sgp-bg: #f3f5f8;
+  --sgp-bg-primary: var(--sgp-bg);
+  --sgp-bg-secondary: #eef1f6;
+  --sgp-surface: #ffffff;
+  --sgp-surface-muted: #f8fafc;
+  --sgp-surface-elevated: #ffffff;
+  --sgp-surface-hover: #f1f5f9;
+  --sgp-surface-active: #e8eef6;
+  --sgp-card: var(--sgp-surface);
+  --sgp-modal: var(--sgp-surface);
+  --sgp-tooltip: #0f172a;
+  --sgp-footer: #ffffff;
+  --sgp-text: #0f172a;
+  --sgp-text-muted: #64748b;
+  --sgp-border: #e2e8f0;
+  --sgp-border-strong: #cbd5e1;
+  --sgp-table-head: #003f7d;
+  --sgp-table-head-text: #ffffff;
+  --sgp-table-row: transparent;
+  --sgp-table-row-alt: #f8fafc;
+  --sgp-row-hover: #eef4fb;
+  --sgp-chart-plot: #f8fafc;
+  --sgp-filter-bg: transparent;
+  --sgp-danger: #b91c1c;
+  --sgp-success-bg: #ecfdf5;
+  --sgp-success-border: #a7f3d0;
+  --sgp-success-text: #065f46;
+  --sgp-error-bg: #fef2f2;
+  --sgp-error-border: #fecaca;
+  --sgp-error-text: #991b1b;
+  --sgp-info-bg: #eff6ff;
+  --sgp-info-border: #bfdbfe;
+  --sgp-info-text: #1e40af;
+  --sgp-warning-bg: #fff7ed;
+  --sgp-warning-border: #fed7aa;
+  --sgp-warning-text: #9a3412;
+  --sgp-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --sgp-shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --sgp-sidebar-bg: #003f7d;
+  --sgp-sidebar-text: #e8eef7;
+  --sgp-sidebar-muted: #9db4d1;
+  --sgp-sidebar-active: #f57c00;
+  --sgp-input-bg: #ffffff;
+  --sgp-overlay: rgba(15, 23, 42, 0.45);
+  --sgp-z-dropdown: 40;
+  --sgp-z-sticky: 50;
+  --sgp-z-overlay: 60;
+  --sgp-z-modal: 70;
+  --sgp-z-tooltip: 80;
+  --sgp-z-skip: 200;
+}
+
+html[data-theme='dark'] {
+  --sgp-brand: #7eb6f5;
+  --sgp-brand-strong: #b9dcff;
+  --sgp-accent: #ff9f40;
+  --sgp-bg: #0b1220;
+  --sgp-bg-primary: var(--sgp-bg);
+  --sgp-bg-secondary: #101827;
+  --sgp-surface: #121a2b;
+  --sgp-surface-muted: #1a2438;
+  --sgp-surface-elevated: #1c2740;
+  --sgp-surface-hover: #223049;
+  --sgp-surface-active: #2a3a56;
+  --sgp-card: var(--sgp-surface);
+  --sgp-modal: #161f32;
+  --sgp-tooltip: #0f172a;
+  --sgp-footer: #0e1626;
+  --sgp-text: #e8eef8;
+  --sgp-text-muted: #9aa8c0;
+  --sgp-border: #2a3650;
+  --sgp-border-strong: #3b4a66;
+  --sgp-table-head: #1a2f4d;
+  --sgp-table-head-text: #e8eef8;
+  --sgp-table-row: transparent;
+  --sgp-table-row-alt: #0f1728;
+  --sgp-row-hover: #182338;
+  --sgp-chart-plot: #101827;
+  --sgp-filter-bg: transparent;
+  --sgp-danger: #fca5a5;
+  --sgp-success-bg: #0b2a1c;
+  --sgp-success-border: #14532d;
+  --sgp-success-text: #86efac;
+  --sgp-error-bg: #3f1212;
+  --sgp-error-border: #7f1d1d;
+  --sgp-error-text: #fecaca;
+  --sgp-info-bg: #14325a;
+  --sgp-info-border: #2b5f9e;
+  --sgp-info-text: #dbeafe;
+  --sgp-warning-bg: #3a240f;
+  --sgp-warning-border: #9a3412;
+  --sgp-warning-text: #fdba74;
+  --sgp-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --sgp-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --sgp-sidebar-bg: #0a1628;
+  --sgp-sidebar-text: #d7e3f5;
+  --sgp-sidebar-muted: #8fa0bb;
+  --sgp-sidebar-active: #ff9f40;
+  --sgp-input-bg: #0f172a;
+  --sgp-overlay: rgba(2, 6, 23, 0.72);
+}
+
+html {
+  font-size: calc(16px * var(--sgp-font-scale, 1)) !important;
+}
+
+body {
+  background: var(--sgp-bg);
+  color: var(--sgp-text);
+}
+
+/* —— Shell / layout —— */
+.app-layout,
+.app-main {
+  background: var(--sgp-bg);
+  color: var(--sgp-text);
+}
+
+.sidebar,
+.app-sidebar,
+#sgp-sidebar {
+  background: var(--sgp-sidebar-bg) !important;
+  color: var(--sgp-sidebar-text);
+}
+
+.app-topbar {
+  background: var(--sgp-sidebar-bg);
+  color: var(--sgp-sidebar-text);
+  border-color: transparent;
+}
+
+/* —— Tipografia de página —— */
+.app-main h1,
+.crud-top h1,
+.dashboard-header h1,
+.cursos-top h1,
+.usuarios-top h1,
+.auditoria-top h1,
+.rel-header h1 {
+  color: var(--sgp-brand);
+}
+
+.app-main p,
+.crud-subtitle,
+.dashboard-description,
+.rel-subtitle,
+.usuarios-subtitle,
+.auditoria-subtitle {
+  color: var(--sgp-text-muted);
+}
+
+/* —— Superfícies —— */
+.crud-page,
+.cursos-page,
+.usuarios-page,
+.auditoria-page,
+.relatorios-page,
+.dashboard-page,
+.importacoes-page,
+.ferramentas-page,
+.inicio-page {
+  background: var(--sgp-bg);
+  color: var(--sgp-text);
+}
+
+.crud-top,
+.dashboard-header,
+.cursos-top,
+.usuarios-top,
+.auditoria-top,
+.rel-header,
+.rel-painel,
+.tabela-card,
+.dashboard-kpi-tile,
+.dashboard-chart-card,
+.rel-tabela-card,
+.modal-detalhes,
+.form-page,
+.rel-resumo-card,
+.inicio-modulo-card,
+.kanban-quadro-card,
+.flux-card {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+  box-shadow: var(--sgp-shadow);
+}
+
+.tabela-header,
+.rel-tabela-header,
+.dashboard-kpi-tile-head {
+  background: var(--sgp-surface-muted) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+.crud-toolbar,
+.dashboard-toolbar,
+.filtros-bar,
+.filtros-panel,
+.rel-filtros {
+  background: var(--sgp-filter-bg, transparent) !important;
+  box-shadow: none !important;
+}
+
+.crud-info,
+.usuarios-info,
+.auditoria-info,
+.cursos-info {
+  background: var(--sgp-info-bg) !important;
+  border-color: var(--sgp-info-border) !important;
+  color: var(--sgp-info-text) !important;
+}
+
+/* —— Formulários —— */
+input:not([type='checkbox']):not([type='radio']):not([type='range']),
+select,
+textarea,
+.sgp-select__trigger,
+.detalhe-valor-box,
+.filtro-busca input,
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: var(--sgp-input-bg) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--sgp-text-muted);
+  opacity: 0.9;
+}
+
+.sgp-select__menu {
+  background: var(--sgp-surface-elevated) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+  box-shadow: var(--sgp-shadow-lg);
+}
+
+.sgp-select__option:hover,
+.sgp-select__option.is-active {
+  background: var(--sgp-surface-muted) !important;
+}
+
+/* —— Tabelas —— */
+.crud-table thead,
+.cursos-table thead,
+.termos-table thead,
+.auditoria-table thead,
+.rel-table thead,
+.usuarios-table thead {
+  background: var(--sgp-table-head) !important;
+  color: var(--sgp-table-head-text) !important;
+}
+
+.crud-table td,
+.cursos-table td,
+.termos-table td,
+.auditoria-table td,
+.rel-table td,
+.usuarios-table td {
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text-muted) !important;
+}
+
+.usuarios-table .user-nome,
+.auditoria-table .user-nome {
+  color: var(--sgp-text) !important;
+  font-weight: 700;
+}
+
+.usuarios-table .user-email,
+.auditoria-table .user-email {
+  color: var(--sgp-text-muted) !important;
+}
+
+.crud-table tbody tr:hover,
+.cursos-table tbody tr:hover,
+.termos-table tbody tr:hover,
+.rel-table tbody tr:hover,
+.usuarios-table tbody tr:hover,
+.auditoria-table tbody tr:hover {
+  background: var(--sgp-row-hover) !important;
+}
+
+.tabela-footer,
+.rel-tabela-footer,
+.inicio-footer {
+  border-color: var(--sgp-border);
+  color: var(--sgp-text-muted);
+  background: var(--sgp-footer);
+}
+
+/* Sidebar: footer herda o azul institucional — NÃO usar --sgp-footer (branco) */
+.sidebar,
+.sidebar-header,
+.sidebar-nav,
+.sidebar-footer {
+  background: var(--sgp-sidebar-bg, #003f7d) !important;
+  color: var(--sgp-sidebar-text, #e8eef7);
+}
+
+.sidebar-footer {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.sidebar .sgp-a11y {
+  background: transparent;
+  border: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.sidebar .sgp-a11y-title {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sidebar .sgp-a11y-btn {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.sidebar .sgp-a11y-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.sidebar .sgp-a11y-btn.is-active {
+  border-color: var(--sgp-sidebar-active, #f57c00);
+  background: rgba(245, 124, 0, 0.28);
+  color: #fff;
+}
+
+.sidebar-user-nome,
+.sidebar-logout {
+  color: #fff;
+}
+
+.sidebar-user-unidade {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* —— Alertas / estados —— */
+.alert-success {
+  background: var(--sgp-success-bg) !important;
+  border-color: var(--sgp-success-border) !important;
+  color: var(--sgp-success-text) !important;
+}
+
+.alert-error {
+  background: var(--sgp-error-bg) !important;
+  border-color: var(--sgp-error-border) !important;
+  color: var(--sgp-error-text) !important;
+}
+
+.estado-vazio-titulo,
+.dashboard-metric-title,
+.dashboard-metric-value,
+.dashboard-chart-card h3,
+.rel-tabela-header h2,
+.rel-filtros-titulo {
+  color: var(--sgp-text) !important;
+}
+
+.estado-vazio-texto,
+.dashboard-chart-subtitle,
+.tabela-loading,
+.tabela-vazia,
+.rel-loading,
+.rel-vazio,
+.rel-filtro-label,
+.rel-resumo-label {
+  color: var(--sgp-text-muted) !important;
+}
+
+.dashboard-metric-chip,
+.dashboard-metric-status,
+.badge,
+.status-badge {
+  border-color: var(--sgp-border);
+}
+
+.rel-resumo-valor {
+  color: var(--sgp-brand) !important;
+}
+
+/* —— Botões —— */
+.btn-secondary,
+.btn-limpar,
+.btn-acao-secundaria,
+.btn-voltar,
+.btn-limpar-filtros {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border-strong) !important;
+  color: var(--sgp-text) !important;
+}
+
+.btn-fechar-x,
+.btn-icon {
+  color: var(--sgp-text-muted) !important;
+}
+
+.btn-icon:hover {
+  background: var(--sgp-surface-muted);
+}
+
+.modal-overlay {
+  background: var(--sgp-overlay) !important;
+}
+
+/* —— Dark: ajustes específicos de identidade —— */
+html[data-theme='dark'] .sidebar-link.is-active,
+html[data-theme='dark'] .nav-item.active,
+html[data-theme='dark'] .menu-item.is-active {
+  background: color-mix(in srgb, var(--sgp-sidebar-active) 22%, transparent);
+  color: #fff;
+}
+
+html[data-theme='dark'] .inicio-hero {
+  background: linear-gradient(135deg, #0b1730 0%, #132746 55%, #0f1c33 100%) !important;
+  color: #e8eef8 !important;
+}
+
+html[data-theme='dark'] .inicio-modulo-card:hover {
+  border-color: var(--sgp-accent) !important;
+}
+
+html[data-theme='dark'] .crud-table thead,
+html[data-theme='dark'] .cursos-table thead,
+html[data-theme='dark'] .termos-table thead,
+html[data-theme='dark'] .auditoria-table thead,
+html[data-theme='dark'] .rel-table thead,
+html[data-theme='dark'] .usuarios-table thead {
+  background: #17365f !important;
+}
+
+html[data-theme='dark'] .badge.badge-ativo,
+html[data-theme='dark'] .badge.is-ativo,
+html[data-theme='dark'] .status-ativo {
+  background: #0b2a1c !important;
+  color: #86efac !important;
+}
+
+html[data-theme='dark'] .badge.badge-inativo,
+html[data-theme='dark'] .badge.is-inativo,
+html[data-theme='dark'] .status-inativo {
+  background: #3f1212 !important;
+  color: #fecaca !important;
+}
+
+html[data-theme='dark'] .badge.badge-revisao,
+html[data-theme='dark'] .badge.is-revisao {
+  background: #3a240f !important;
+  color: #fdba74 !important;
+}
+
+/* Kanban / ferramentas */
+html[data-theme='dark'] .kanban-board,
+html[data-theme='dark'] .kanban-coluna,
+html[data-theme='dark'] .kanban-card,
+html[data-theme='dark'] .carometro-card,
+html[data-theme='dark'] .org-card,
+html[data-theme='dark'] .imp-card,
+html[data-theme='dark'] .ferramenta-card {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .kanban-coluna-header,
+html[data-theme='dark'] .imp-step,
+html[data-theme='dark'] .cped-panel {
+  background: var(--sgp-surface-muted) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .termos-referencia-page,
+html[data-theme='dark'] .termos-referencia-page-form,
+html[data-theme='dark'] .cursos-page-form,
+html[data-theme='dark'] .crud-page-form,
+html[data-theme='dark'] .form-page,
+html[data-theme='dark'] .form-body,
+html[data-theme='dark'] .form-section,
+html[data-theme='dark'] .modal-detalhes,
+html[data-theme='dark'] .modal-confirmacao,
+html[data-theme='dark'] .tabela-footer,
+html[data-theme='dark'] .tabela-header,
+html[data-theme='dark'] .paginacao,
+html[data-theme='dark'] .sgp-tooltip__bubble {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .tabela-header {
+  background: var(--sgp-surface-muted) !important;
+}
+
+html[data-theme='dark'] .btn-view:hover,
+html[data-theme='dark'] .btn-edit:hover,
+html[data-theme='dark'] .btn-delete:hover,
+html[data-theme='dark'] .btn-icon:hover {
+  background: var(--sgp-surface-muted) !important;
+}
+
+html[data-theme='dark'] .sgp-select__menu,
+html[data-theme='dark'] .sgp-select__option {
+  background: var(--sgp-surface-elevated) !important;
+  color: var(--sgp-text) !important;
+  border-color: var(--sgp-border) !important;
+}
+
+html[data-theme='dark'] .sgp-select__option:hover,
+html[data-theme='dark'] .sgp-select__option.is-active,
+html[data-theme='dark'] .sgp-select__option[aria-selected='true'] {
+  background: var(--sgp-surface-muted) !important;
+}
+
+html[data-theme='dark'] .termos-top,
+html[data-theme='dark'] .termos-info,
+html[data-theme='dark'] .crud-toolbar {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+}
+
+html[data-theme='dark'] .crud-toolbar {
+  background: transparent !important;
+}
+
+/* Login: tema próprio (não herdar o fundo genérico das páginas internas) */
+html[data-theme='dark'] .login-page {
+  color-scheme: dark;
+}
+
+html[data-theme='dark'] .login-page,
+html[data-theme='dark'] body:has(.login-page),
+html[data-theme='dark'] #app:has(.login-page) {
+  background: #071525 !important;
+}
+
+html[data-theme='dark'] .login-page .login-card {
+  background: #121e30 !important;
+  border-color: #243248 !important;
+  color: #9aa8c0 !important;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme='dark'] .login-page .login-card-intro,
+html[data-theme='dark'] .login-page .login-card-footer {
+  color: #8fa0bb !important;
+}
+
+html[data-theme='dark'] .login-page .form-group label,
+html[data-theme='dark'] .login-page .login-lembrar {
+  color: #d7e3f5 !important;
+}
+
+html[data-theme='dark'] .login-page .input-wrapper input:-webkit-autofill,
+html[data-theme='dark'] .login-page .input-wrapper input:-webkit-autofill:hover,
+html[data-theme='dark'] .login-page .input-wrapper input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #e8eef8 !important;
+  caret-color: #e8eef8;
+  box-shadow: 0 0 0 1000px #0b1422 inset !important;
+  border-color: #2a3a52 !important;
+  transition: background-color 99999s ease-out;
+}
+
+html[data-theme='dark'] .login-page .input-wrapper input::placeholder {
+  color: #7f8fa8 !important;
+}
+
+html[data-theme='dark'] .login-page .input-icon,
+html[data-theme='dark'] .login-page .toggle-password {
+  color: #8fa0bb !important;
+}
+
+html[data-theme='dark'] .login-page .login-title {
+  color: #f1f5fb !important;
+}
+
+html[data-theme='dark'] .login-page .login-subtitle,
+html[data-theme='dark'] .login-page .login-page-footer {
+  color: rgba(226, 236, 248, 0.7) !important;
+  background: transparent !important;
+}
+
+html[data-theme='light'] .login-page-footer,
+.login-page-footer {
+  background: #004587 !important;
+  color: rgba(255, 255, 255, 0.55) !important;
+  border: none !important;
+}
+
+html[data-theme='dark'] .login-page-footer {
+  background: #050f1c !important;
+  color: rgba(226, 236, 248, 0.7) !important;
+}
+
+html[data-theme='light'] body:has(.login-page),
+html[data-theme='light'] #app:has(.login-page),
+html[data-theme='light']:has(.login-page) {
+  background: #004587 !important;
+  min-height: 100%;
+  height: 100%;
+}
+
+html[data-theme='dark'] body:has(.login-page),
+html[data-theme='dark'] #app:has(.login-page),
+html[data-theme='dark']:has(.login-page) {
+  background: #071525 !important;
+  min-height: 100%;
+  height: 100%;
+}
+
+html[data-theme='dark'] .sidebar,
+html[data-theme='dark'] .sidebar-header,
+html[data-theme='dark'] .sidebar-nav,
+html[data-theme='dark'] .sidebar-footer {
+  background: var(--sgp-sidebar-bg) !important;
+  color: var(--sgp-sidebar-text) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Sobrescreve fundos hardcoded de CSS scoped das páginas internas.
+   Exclui .login-page — identidade visual institucional própria. */
+html[data-theme='dark'] body,
+html[data-theme='dark'] .app-layout,
+html[data-theme='dark'] .app-main,
+html[data-theme='dark'] .crud-page,
+html[data-theme='dark'] .cursos-page,
+html[data-theme='dark'] .usuarios-page,
+html[data-theme='dark'] .auditoria-page,
+html[data-theme='dark'] .relatorios-page,
+html[data-theme='dark'] .dashboard-page,
+html[data-theme='dark'] .importacoes-page,
+html[data-theme='dark'] .ferramentas-page,
+html[data-theme='dark'] .inicio-page,
+html[data-theme='dark'] .cped-page,
+html[data-theme='dark'] .kanban-page,
+html[data-theme='dark'] [class$='-page']:not(.login-page) {
+  background: var(--sgp-bg) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .crud-top,
+html[data-theme='dark'] .cursos-top,
+html[data-theme='dark'] .usuarios-top,
+html[data-theme='dark'] .auditoria-top,
+html[data-theme='dark'] .dashboard-header,
+html[data-theme='dark'] .rel-header,
+html[data-theme='dark'] .tabela-card,
+html[data-theme='dark'] .rel-painel,
+html[data-theme='dark'] .rel-tabela-card,
+html[data-theme='dark'] .rel-resumo-card,
+html[data-theme='dark'] .dashboard-kpi-tile,
+html[data-theme='dark'] .dashboard-chart-card,
+html[data-theme='dark'] .modal-detalhes,
+html[data-theme='dark'] .form-page,
+html[data-theme='dark'] .inicio-modulo-card {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .cursos-table thead,
+html[data-theme='dark'] .crud-table thead {
+  background: #17365f !important;
+  color: #e8eef8 !important;
+}
+
+html[data-theme='dark'] .cursos-table td,
+html[data-theme='dark'] .crud-table td {
+  background: transparent !important;
+  color: var(--sgp-text-muted) !important;
+  border-color: var(--sgp-border) !important;
+}
+
+html[data-theme='dark'] .filtro-busca input,
+html[data-theme='dark'] .sgp-select__trigger,
+html[data-theme='dark'] input:not([type='checkbox']):not([type='radio']),
+html[data-theme='dark'] select,
+html[data-theme='dark'] textarea {
+  background: var(--sgp-input-bg) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .rel-toolbar,
+html[data-theme='dark'] .rel-filtros,
+html[data-theme='dark'] .rel-tabela-card,
+html[data-theme='dark'] .rel-tabela-header,
+html[data-theme='dark'] .rel-table thead,
+html[data-theme='dark'] .rel-resumo-card {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .rel-table thead th,
+html[data-theme='dark'] .rel-tabela-header h2,
+html[data-theme='dark'] .rel-toolbar-label,
+html[data-theme='dark'] .rel-kicker {
+  color: var(--sgp-brand-strong, #b9dcff) !important;
+  background: transparent !important;
+}
+
+html[data-theme='dark'] .rel-table thead {
+  background: #17365f !important;
+}
+
+html[data-theme='dark'] .rel-table thead th {
+  color: #e8eef8 !important;
+}
+
+html[data-theme='dark'] .crud-table a,
+html[data-theme='dark'] .cursos-table a,
+html[data-theme='dark'] .rel-table a,
+html[data-theme='dark'] td a {
+  color: #93c5fd !important;
+}
+
+/* Badges / indicadores — vencem CSS scoped dos componentes */
+html[data-theme='dark'] .badge-planejamento,
+html[data-theme='dark'] .badge-planejado,
+html[data-theme='dark'] .badge-info {
+  border-color: #1e3a5f !important;
+  background: #10233f !important;
+  color: #93c5fd !important;
+}
+
+html[data-theme='dark'] .badge-andamento,
+html[data-theme='dark'] .badge-aviso {
+  border-color: #9a3412 !important;
+  background: #3a240f !important;
+  color: #fdba74 !important;
+}
+
+html[data-theme='dark'] .badge-tramitacao {
+  border-color: #5b21b6 !important;
+  background: #2e1065 !important;
+  color: #c4b5fd !important;
+}
+
+html[data-theme='dark'] .badge-concluido,
+html[data-theme='dark'] .badge-sucesso,
+html[data-theme='dark'] .badge-realizado,
+html[data-theme='dark'] .badge.badge-ativo,
+html[data-theme='dark'] .badge.is-ativo {
+  border-color: #166534 !important;
+  background: #0b2a1c !important;
+  color: #86efac !important;
+}
+
+html[data-theme='dark'] .badge-arquivado,
+html[data-theme='dark'] .badge-padrao,
+html[data-theme='dark'] .badge.badge-inativo,
+html[data-theme='dark'] .badge.is-inativo {
+  border-color: #334155 !important;
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+html[data-theme='dark'] .badge-erro,
+html[data-theme='dark'] .badge.badge-revisao,
+html[data-theme='dark'] .badge.is-revisao {
+  border-color: #7f1d1d !important;
+  background: #3f1212 !important;
+  color: #fecaca !important;
+}
+
+html[data-theme='dark'] .indicador-verde {
+  border-color: #166534 !important;
+  background: #0b2a1c !important;
+  color: #86efac !important;
+}
+
+html[data-theme='dark'] .indicador-amarelo {
+  border-color: #9a3412 !important;
+  background: #3a240f !important;
+  color: #fdba74 !important;
+}
+
+html[data-theme='dark'] .indicador-vermelho {
+  border-color: #7f1d1d !important;
+  background: #3f1212 !important;
+  color: #fecaca !important;
+}
+
+html[data-theme='dark'] .indicador-prazo-ponto {
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .indicador-verde .indicador-prazo-ponto {
+  background: #86efac !important;
+}
+
+html[data-theme='dark'] .indicador-amarelo .indicador-prazo-ponto {
+  background: #fdba74 !important;
+}
+
+html[data-theme='dark'] .indicador-vermelho .indicador-prazo-ponto {
+  background: #fecaca !important;
+}
+
+html[data-theme='dark'] .badge-vigente,
+html[data-theme='dark'] .badge-realizada,
+html[data-theme='dark'] .badge-concluida,
+html[data-theme='dark'] .badge-resolvido,
+html[data-theme='dark'] .badge-enviado,
+html[data-theme='dark'] .badge-atual,
+html[data-theme='dark'] .badge-ativo,
+html[data-theme='dark'] .sistema-badge-ok {
+  border-color: #166534 !important;
+  background: #0b2a1c !important;
+  color: #86efac !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .badge-analise,
+html[data-theme='dark'] .badge-andamento,
+html[data-theme='dark'] .badge-consolidado,
+html[data-theme='dark'] .badge-baixa,
+html[data-theme='dark'] .badge-cped,
+html[data-theme='dark'] .badge-admin {
+  border-color: #1e3a5f !important;
+  background: #10233f !important;
+  color: #93c5fd !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .badge-pendente,
+html[data-theme='dark'] .badge-media,
+html[data-theme='dark'] .badge-direg,
+html[data-theme='dark'] .badge-revisao,
+html[data-theme='dark'] .badge-novo {
+  border-color: #9a3412 !important;
+  background: #3a240f !important;
+  color: #fdba74 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .badge-atrasada,
+html[data-theme='dark'] .badge-alta,
+html[data-theme='dark'] .badge-suspenso,
+html[data-theme='dark'] .badge-cancelada,
+html[data-theme='dark'] .badge-cancelado,
+html[data-theme='dark'] .badge-inativo {
+  border-color: #7f1d1d !important;
+  background: #3f1212 !important;
+  color: #fecaca !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .badge-dep {
+  border-color: #5b21b6 !important;
+  background: #2e1065 !important;
+  color: #c4b5fd !important;
+}
+
+html[data-theme='dark'] .badge-editor {
+  border-color: #14532d !important;
+  background: #0b2a1c !important;
+  color: #86efac !important;
+}
+
+html[data-theme='dark'] .badge-consultor {
+  border-color: #6b21a8 !important;
+  background: #3b0764 !important;
+  color: #e9d5ff !important;
+}
+
+html[data-theme='dark'] .badge-rascunho,
+html[data-theme='dark'] .badge-nc,
+html[data-theme='dark'] .badge-anterior,
+html[data-theme='dark'] .badge-nao,
+html[data-theme='dark'] .sistema-badge {
+  border-color: #334155 !important;
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+html[data-theme='dark'] .badge-status,
+html[data-theme='dark'] .badge-prazo,
+html[data-theme='dark'] span[class*='badge-'] {
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .crud-table tbody tr:nth-child(even),
+html[data-theme='dark'] .cursos-table tbody tr:nth-child(even),
+html[data-theme='dark'] .usuarios-table tbody tr:nth-child(even),
+html[data-theme='dark'] .auditoria-table tbody tr:nth-child(even),
+html[data-theme='dark'] .termos-table tbody tr:nth-child(even) {
+  background: var(--sgp-table-row-alt) !important;
+}
+
+html[data-theme='dark'] .crud-table tbody tr:nth-child(odd),
+html[data-theme='dark'] .cursos-table tbody tr:nth-child(odd),
+html[data-theme='dark'] .usuarios-table tbody tr:nth-child(odd) {
+  background: var(--sgp-table-row) !important;
+}
+
+html[data-theme='dark'] .dashboard-vchart-plot,
+html[data-theme='dark'] .dashboard-rank-track {
+  background: var(--sgp-chart-plot) !important;
+  border-color: var(--sgp-border) !important;
+}
+
+html[data-theme='dark'] .dashboard-vchart-grid span {
+  border-color: var(--sgp-border) !important;
+}
+
+html[data-theme='dark'] .ferramentas-top,
+html[data-theme='dark'] .ferramentas-page,
+html[data-theme='dark'] .sistemas-apoio-page,
+html[data-theme='dark'] .sistema-card,
+html[data-theme='dark'] .ferramenta-card,
+html[data-theme='dark'] .membro-card,
+html[data-theme='dark'] .eixo-membro-card {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .ciclo-card,
+html[data-theme='dark'] .ciclo-volta-banner {
+  background: transparent !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .inicio-footer,
+html[data-theme='dark'] .tabela-footer,
+html[data-theme='dark'] .rel-tabela-footer {
+  background: var(--sgp-footer) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text-muted) !important;
+}
+
+html[data-theme='dark'] .avatar.ring {
+  box-shadow: 0 0 0 2px var(--sgp-surface), 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+html[data-theme='dark'] .rel-toolbar,
+html[data-theme='dark'] .rel-filtros {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .dashboard-status-card,
+html[data-theme='dark'] .dashboard-kpi-card,
+html[data-theme='dark'] .dashboard-summary-panel,
+html[data-theme='dark'] .dashboard-metric-card {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+}
+
+html[data-theme='dark'] .dashboard-metric-icon {
+  background: var(--sgp-info-bg) !important;
+  color: var(--sgp-brand) !important;
+}
+
+html[data-theme='dark'] .ferramenta-icon {
+  background: var(--sgp-info-bg) !important;
+  color: var(--sgp-brand) !important;
+}
+
+html[data-theme='dark'] .funcao-panel,
+html[data-theme='dark'] .carometro-panel,
+html[data-theme='dark'] .chip,
+html[data-theme='dark'] .org-eixo-card,
+html[data-theme='dark'] .setor-badge,
+html[data-theme='dark'] .org-pill {
+  background: var(--sgp-surface-muted) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .inicio-modulo-icon {
+  background: var(--sgp-info-bg) !important;
+  color: var(--sgp-brand) !important;
+}
+
+/* Escala tipográfica — densidade */
+html.sgp-font-large .crud-top,
+html.sgp-font-large .dashboard-header,
+html.sgp-font-large .rel-header {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+html.sgp-font-xlarge .btn-novo,
+html.sgp-font-xlarge .btn-salvar,
+html.sgp-font-xlarge .btn-secondary {
+  min-height: 3rem;
+  height: auto;
+  white-space: normal;
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+}
+
+html.sgp-font-xlarge .sgp-select {
+  min-width: 8rem;
+}
+
+html.sgp-font-xxlarge .crud-toolbar,
+html.sgp-font-xxlarge .filtros-bar,
+html.sgp-font-xxlarge .filtros-row {
+  gap: 0.75rem;
+}
+
+/* Ferramentas — superfícies e texto no modo escuro */
+html[data-theme='dark'] .kanban-page,
+html[data-theme='dark'] .kanban-quadros-page,
+html[data-theme='dark'] .flux-lista-page,
+html[data-theme='dark'] .flux-editor-page,
+html[data-theme='dark'] .caro-page,
+html[data-theme='dark'] .org-page {
+  background: var(--sgp-bg);
+  color: var(--sgp-text);
+}
+
+html[data-theme='dark'] .kanban-top,
+html[data-theme='dark'] .kanban-quadros-top,
+html[data-theme='dark'] .flux-lista-top,
+html[data-theme='dark'] .flux-editor-top,
+html[data-theme='dark'] .caro-top,
+html[data-theme='dark'] .org-top {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+}
+
+html[data-theme='dark'] .kanban-top h1,
+html[data-theme='dark'] .flux-lista-top h1,
+html[data-theme='dark'] .flux-editor-top h1,
+html[data-theme='dark'] .org-top h1 {
+  color: var(--sgp-brand);
+}
+
+html[data-theme='dark'] .kanban-cartao,
+html[data-theme='dark'] .kanban-coluna,
+html[data-theme='dark'] .kanban-quadro-card,
+html[data-theme='dark'] .flux-card,
+html[data-theme='dark'] .flux-palette,
+html[data-theme='dark'] .flux-props,
+html[data-theme='dark'] .vue-flow__minimap,
+html[data-theme='dark'] .vue-flow__controls-button {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border);
+  color: var(--sgp-text);
+}
+
+html[data-theme='dark'] .kanban-quadro-add,
+html[data-theme='dark'] .flux-card-add,
+html[data-theme='dark'] .kanban-coluna {
+  background: var(--sgp-surface-muted) !important;
+  border-color: var(--sgp-border);
+  color: var(--sgp-text-muted);
+}
+
+html[data-theme='dark'] .vue-flow__controls-button {
+  color: var(--sgp-brand) !important;
+}
+
+/* —— Dark: Importações, CPED, CRUD, contraste tipográfico —— */
+html[data-theme='dark'] .imp-header,
+html[data-theme='dark'] .imp-toolbar,
+html[data-theme='dark'] .imp-upload-card,
+html[data-theme='dark'] .imp-tabela-card,
+html[data-theme='dark'] .imp-vazio,
+html[data-theme='dark'] .form-header,
+html[data-theme='dark'] .form-card,
+html[data-theme='dark'] .modal-eixo,
+html[data-theme='dark'] .modal-card,
+html[data-theme='dark'] .modal-perfil,
+html[data-theme='dark'] .modal-detalhes-header,
+html[data-theme='dark'] .org-card,
+html[data-theme='dark'] .carometro-card,
+html[data-theme='dark'] .eixo-membro-card,
+html[data-theme='dark'] .unidade-chip {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .imp-dropzone,
+html[data-theme='dark'] .foto-field,
+html[data-theme='dark'] .eixo-membro-mini,
+html[data-theme='dark'] .form-tab:hover {
+  background: var(--sgp-surface-muted) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text-muted) !important;
+}
+
+html[data-theme='dark'] .imp-dropzone.has-file {
+  background: var(--sgp-info-bg) !important;
+  border-color: var(--sgp-info-border) !important;
+  color: var(--sgp-info-text) !important;
+}
+
+html[data-theme='dark'] .cped-hero {
+  background: linear-gradient(135deg, #050a12 0%, #0a1220 45%, #101a2c 100%) !important;
+  color: #fff !important;
+  border-bottom: 1px solid var(--sgp-border);
+}
+
+html[data-theme='dark'] .cped-hero :is(h1, .cped-hero-kicker, .cped-stat strong, .cped-stat span) {
+  color: #fff !important;
+}
+
+html[data-theme='dark'] .cped-hero-desc {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+html[data-theme='dark'] .cped-stat {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+html[data-theme='dark'] .org-pill-ordenador {
+  background: #0c1830 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .org-pill-ordenador small {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+html[data-theme='dark'] .org-pill-assistente,
+html[data-theme='dark'] .org-pill-administrativo {
+  background: var(--sgp-surface-elevated) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .org-pill-assistente small,
+html[data-theme='dark'] .org-pill-administrativo small,
+html[data-theme='dark'] .cped-loading,
+html[data-theme='dark'] .cped-empty,
+html[data-theme='dark'] .org-nivel-label,
+html[data-theme='dark'] .carometro-detalhe,
+html[data-theme='dark'] .modal-head p,
+html[data-theme='dark'] .modal-perfil-cargo,
+html[data-theme='dark'] .form-header p,
+html[data-theme='dark'] .cursos-subtitle,
+html[data-theme='dark'] .imp-subtitle,
+html[data-theme='dark'] .imp-ajuda,
+html[data-theme='dark'] .imp-toolbar-desc,
+html[data-theme='dark'] .form-card-hint,
+html[data-theme='dark'] .membro-card small {
+  color: var(--sgp-text-muted) !important;
+}
+
+html[data-theme='dark'] .cped-section-head h2,
+html[data-theme='dark'] .grupo-ordenador h3,
+html[data-theme='dark'] .imp-header h1,
+html[data-theme='dark'] .imp-painel-head h2,
+html[data-theme='dark'] .imp-kicker,
+html[data-theme='dark'] .form-header h1,
+html[data-theme='dark'] .form-section h2,
+html[data-theme='dark'] .form-card h2,
+html[data-theme='dark'] .modal-detalhes-header h2,
+html[data-theme='dark'] .modal-confirmacao h2,
+html[data-theme='dark'] .cursos-top h1,
+html[data-theme='dark'] .app-main h1,
+html[data-theme='dark'] .app-main h2 {
+  color: var(--sgp-brand-strong) !important;
+}
+
+html[data-theme='dark'] .carometro-card strong,
+html[data-theme='dark'] .eixo-membro-card strong,
+html[data-theme='dark'] .eixo-membro-mini strong,
+html[data-theme='dark'] .membro-card strong,
+html[data-theme='dark'] .modal-head h2,
+html[data-theme='dark'] .modal-perfil-body h3,
+html[data-theme='dark'] .imp-toolbar-label,
+html[data-theme='dark'] .form-group label,
+html[data-theme='dark'] .modal-form label,
+html[data-theme='dark'] .detalhe-label,
+html[data-theme='dark'] .detalhe-valor,
+html[data-theme='dark'] .crud-page td,
+html[data-theme='dark'] .cursos-page td,
+html[data-theme='dark'] .importacoes-page td,
+html[data-theme='dark'] .usuarios-page td {
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .importacoes-page th,
+html[data-theme='dark'] .imp-table th {
+  background: var(--sgp-table-head) !important;
+  color: var(--sgp-table-head-text) !important;
+}
+
+html[data-theme='dark'] .btn-secundario,
+html[data-theme='dark'] .btn-secondary,
+html[data-theme='dark'] .btn-sec,
+html[data-theme='dark'] .btn-voltar,
+html[data-theme='dark'] .btn-acao-secundaria {
+  background: var(--sgp-surface) !important;
+  border-color: var(--sgp-border) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .btn-danger {
+  background: var(--sgp-error-bg) !important;
+  border-color: var(--sgp-error-border) !important;
+  color: var(--sgp-error-text) !important;
+}
+
+html[data-theme='dark'] .alert-success {
+  background: var(--sgp-success-bg) !important;
+  border-color: var(--sgp-success-border) !important;
+  color: var(--sgp-success-text) !important;
+}
+
+html[data-theme='dark'] .alert-error {
+  background: var(--sgp-error-bg) !important;
+  border-color: var(--sgp-error-border) !important;
+  color: var(--sgp-error-text) !important;
+}
+
+html[data-theme='dark'] .imp-erros {
+  background: var(--sgp-warning-bg) !important;
+  border-color: var(--sgp-warning-border) !important;
+  color: var(--sgp-warning-text) !important;
+}
+
+html[data-theme='dark'] input::placeholder,
+html[data-theme='dark'] textarea::placeholder {
+  color: var(--sgp-text-muted) !important;
+  opacity: 0.85;
+}
+
+html[data-theme='dark'] .sgp-select__value.is-placeholder,
+html[data-theme='dark'] .sgp-select__empty,
+html[data-theme='dark'] .sgp-select__chevron {
+  color: var(--sgp-text-muted) !important;
+}
+
+html[data-theme='dark'] .modal-close:hover,
+html[data-theme='dark'] .btn-fechar-x:hover {
+  background: var(--sgp-surface-muted) !important;
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .modal-confirmacao p,
+html[data-theme='dark'] .modal-confirmacao-nome {
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .form-tab {
+  color: var(--sgp-text-muted) !important;
+}
+
+html[data-theme='dark'] .form-tab.active {
+  background: #17365f !important;
+  color: #fff !important;
+}
+
+html[data-theme='dark'] .btn-view:hover {
+  background: var(--sgp-info-bg) !important;
+}
+
+html[data-theme='dark'] .btn-edit:hover {
+  background: var(--sgp-warning-bg) !important;
+}
+
+html[data-theme='dark'] .btn-delete:hover {
+  background: var(--sgp-error-bg) !important;
+}
+
+html[data-theme='dark'] .app-main .text-muted {
+  color: var(--sgp-text-muted) !important;
+}
+
+html[data-theme='dark'] .app-main .text-dark,
+html[data-theme='dark'] .app-main .text-body {
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .inicio-modulo-label,
+html[data-theme='dark'] .inicio-section-head h2 {
+  color: var(--sgp-brand-strong) !important;
+}
+
+html[data-theme='dark'] .inicio-modulo-desc,
+html[data-theme='dark'] .inicio-section-head p {
+  color: var(--sgp-text-muted) !important;
+}
+
+html[data-theme='dark'] .detalhe-curso-topo {
+  background: var(--sgp-surface-muted) !important;
+  border-color: var(--sgp-border) !important;
+}
+
+html[data-theme='dark'] .detalhe-curso-nome,
+html[data-theme='dark'] .detalhe-valor {
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .detalhe-curso-eixo,
+html[data-theme='dark'] .detalhe-label {
+  color: var(--sgp-text-muted) !important;
+}
+
+html[data-theme='dark'] .detalhe-secao h3 {
+  color: var(--sgp-brand-strong) !important;
+  border-color: var(--sgp-border) !important;
+}
+
+html[data-theme='dark'] .detalhe-curso-icone {
+  background: var(--sgp-info-bg) !important;
+  color: var(--sgp-brand) !important;
+}
+
+html[data-theme='dark'] .detalhe-tr-topo,
+html[data-theme='dark'] [class$='-topo'].detalhe-curso-topo {
+  background: var(--sgp-surface-muted) !important;
+}
+
+html[data-theme='dark'] .detalhe-tr-topo {
+  background: var(--sgp-surface-muted) !important;
+  border-color: var(--sgp-border) !important;
+}
+
+html[data-theme='dark'] .detalhe-tr-nome {
+  color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .detalhe-tr-eixo {
+  color: var(--sgp-text-muted) !important;
+}
+
+html[data-theme='dark'] .detalhe-tr-icone {
+  background: var(--sgp-info-bg) !important;
+  color: var(--sgp-brand) !important;
+}
+
+html[data-theme='dark'] .badge-tipo {
+  background: var(--sgp-info-bg) !important;
+  border-color: var(--sgp-info-border) !important;
+  color: var(--sgp-info-text) !important;
+}

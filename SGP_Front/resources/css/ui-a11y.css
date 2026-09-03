@@ -1,0 +1,351 @@
+/* Tooltip e rótulos de ajuda — padrão global SGP */
+
+.sgp-skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -3rem;
+  z-index: 200;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.45rem;
+  background: #003f7d;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sgp-skip-link:focus {
+  top: 0.75rem;
+  outline: 2px solid #f57c00;
+  outline-offset: 2px;
+}
+
+.sgp-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.sgp-tooltip--block {
+  display: inline-flex;
+}
+
+.sgp-tooltip__trigger--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.3rem;
+  padding: 0;
+  border: 1px solid var(--sgp-border, #d1d5db);
+  border-radius: 999px;
+  background: var(--sgp-surface-muted, #f3f4f6);
+  color: var(--sgp-text-muted, #6b7280);
+  cursor: help;
+  line-height: 1;
+}
+
+.sgp-tooltip__trigger--icon:hover,
+.sgp-tooltip__trigger--icon:focus-visible {
+  color: var(--sgp-brand, #003f7d);
+  border-color: var(--sgp-brand, #003f7d);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 63, 125, 0.18);
+}
+
+.sgp-tooltip__trigger--inline {
+  cursor: help;
+  border-bottom: 1px dotted currentColor;
+  outline: none;
+}
+
+.sgp-tooltip__trigger--inline:focus-visible {
+  box-shadow: 0 0 0 2px rgba(0, 63, 125, 0.18);
+  border-radius: 0.2rem;
+}
+
+.sgp-tooltip__bubble {
+  position: absolute;
+  z-index: 80;
+  width: max-content;
+  max-width: min(16rem, 70vw);
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.45rem;
+  background: #111827;
+  color: #f9fafb;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: left;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+}
+
+.sgp-tooltip__bubble--top {
+  bottom: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.sgp-tooltip__bubble--bottom {
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.sgp-help-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  flex-wrap: wrap;
+}
+
+.sgp-help-label--block {
+  display: inline-flex;
+}
+
+.sgp-help-label__text {
+  color: inherit;
+}
+
+/* Controles de acessibilidade — compactos na sidebar */
+.sgp-a11y {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.45rem;
+  padding: 0.35rem 0.1rem 0.15rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.sgp-a11y-title {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sgp-a11y-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.3rem;
+}
+
+.sgp-a11y-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  flex: 1 1 auto;
+  min-height: 1.7rem;
+  padding: 0 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 0.35rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sgp-a11y-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.sgp-a11y-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sgp-a11y-btn.is-active {
+  border-color: #f57c00;
+  background: rgba(245, 124, 0, 0.25);
+}
+
+.sgp-a11y-btn--icon {
+  flex: 0 0 auto;
+  min-width: 1.7rem;
+  padding: 0;
+  font-size: 0.78rem;
+}
+
+/* Topbar mobile — atalho compacto (fundo azul institucional) */
+.app-topbar-a11y {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.app-topbar-a11y .sgp-a11y-btn {
+  min-height: 2rem;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.app-topbar-a11y .sgp-a11y-btn.is-active {
+  border-color: #f57c00;
+  background: rgba(245, 124, 0, 0.3);
+}
+
+.sgp-tooltip__bubble {
+  z-index: var(--sgp-z-tooltip, 80);
+}
+
+.sgp-skip-link {
+  z-index: var(--sgp-z-skip, 200);
+}
+
+@media (max-width: 768px) {
+  .sgp-tooltip__bubble {
+    max-width: min(14rem, 78vw);
+    font-size: 0.7rem;
+  }
+
+  .rel-resumo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Fonte ampliada — densidades adaptativas */
+html.sgp-font-large .crud-top,
+html.sgp-font-large .dashboard-header,
+html.sgp-font-large .rel-header {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+html.sgp-font-xlarge .btn-novo,
+html.sgp-font-xlarge .btn-salvar,
+html.sgp-font-xlarge .btn-secondary {
+  min-height: 3rem;
+  white-space: normal;
+  height: auto;
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+}
+
+html.sgp-font-xlarge .sgp-select {
+  min-width: 8rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Foco visível global — reforço quando o componente remove outline */
+:where(a, button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline: 2px solid var(--sgp-accent, #f57c00);
+  outline-offset: 2px;
+}
+
+/* —— Scroll horizontal flutuante das tabelas —— */
+.sgp-table-scroll {
+  position: relative;
+  width: 100%;
+}
+
+.tabela-wrap.sgp-hscroll-native-hidden,
+.rel-tabela-wrap.sgp-hscroll-native-hidden,
+.imp-tabela-wrap.sgp-hscroll-native-hidden {
+  scrollbar-width: none;
+}
+
+.tabela-wrap.sgp-hscroll-native-hidden::-webkit-scrollbar,
+.rel-tabela-wrap.sgp-hscroll-native-hidden::-webkit-scrollbar,
+.imp-tabela-wrap.sgp-hscroll-native-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.sgp-table-scroll__sticky-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--sgp-z-sticky, 50);
+  height: 18px;
+  overflow: visible;
+  padding: 4px 8px;
+  box-sizing: border-box;
+  background: var(--sgp-surface, #fff);
+  border-top: 1px solid var(--sgp-border, #e5e7eb);
+  box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.1);
+  touch-action: none;
+  cursor: default;
+}
+
+.sgp-table-scroll__sticky-bar.is-floating {
+  position: fixed;
+  z-index: calc(var(--sgp-z-sticky, 50) + 5);
+  border-radius: 0.4rem 0.4rem 0 0;
+  border: 1px solid var(--sgp-border, #e5e7eb);
+  border-bottom: none;
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.2);
+}
+
+.sgp-table-scroll__track {
+  position: relative;
+  height: 10px;
+  width: 100%;
+  border-radius: 999px;
+  background: var(--sgp-surface-muted, #e2e8f0);
+  cursor: pointer;
+}
+
+.sgp-table-scroll__thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 10px;
+  min-width: 36px;
+  border-radius: 999px;
+  background: var(--sgp-border-strong, #94a3b8);
+  cursor: grab;
+  touch-action: none;
+}
+
+.sgp-table-scroll__sticky-bar.is-dragging .sgp-table-scroll__thumb,
+.sgp-table-scroll__thumb:hover {
+  background: var(--sgp-brand, #003f7d);
+}
+
+.sgp-table-scroll__sticky-bar.is-dragging .sgp-table-scroll__thumb {
+  cursor: grabbing;
+}
+
+.sgp-table-scroll__sticky-bar:focus-visible {
+  outline: 2px solid var(--sgp-accent, #f57c00);
+  outline-offset: -2px;
+}
+
+.sgp-table-scroll__spacer {
+  display: none;
+}
+
+html[data-theme='dark'] .sgp-table-scroll__sticky-bar {
+  background: color-mix(in srgb, var(--sgp-surface, #1e293b) 85%, #000);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+}
+
+html[data-theme='dark'] .sgp-table-scroll__sticky-bar.is-floating {
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.55);
+}
+
+@media (max-width: 480px) {
+  .sgp-table-scroll__sticky-bar.is-floating {
+    border-radius: 0;
+  }
+}
+

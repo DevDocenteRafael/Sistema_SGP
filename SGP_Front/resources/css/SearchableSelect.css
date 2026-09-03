@@ -11,10 +11,10 @@
   width: 100%;
   min-height: 2.25rem;
   padding: 0.35rem 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.5rem;
-  background: #fff;
-  color: #374151;
+  background: var(--sgp-input-bg, #fff);
+  color: var(--sgp-text, #374151);
   font-size: 0.875rem;
   text-align: left;
   cursor: pointer;
@@ -35,7 +35,7 @@
 .sgp-select.is-disabled .sgp-select__trigger {
   opacity: 0.6;
   cursor: not-allowed;
-  background: #f9fafb;
+  background: var(--sgp-surface-muted, #f9fafb);
 }
 
 .sgp-select__value {
@@ -45,7 +45,7 @@
 }
 
 .sgp-select__value.is-placeholder {
-  color: #9ca3af;
+  color: var(--sgp-text-muted, #9ca3af);
 }
 
 .sgp-select__chevron {
@@ -63,20 +63,22 @@
   max-height: 16rem;
   display: flex;
   flex-direction: column;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.6rem;
-  background: #fff;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  background: var(--sgp-surface-elevated, #fff);
+  box-shadow: var(--sgp-shadow-lg, 0 10px 30px rgba(15, 23, 42, 0.12));
   overflow: hidden;
 }
 
 .sgp-select__search {
   width: 100%;
   border: 0;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
   padding: 0.65rem 0.75rem;
   font-size: 0.875rem;
   outline: none;
+  background: var(--sgp-input-bg, #fff);
+  color: var(--sgp-text, #111827);
 }
 
 .sgp-select__list {
@@ -92,7 +94,7 @@
   border-radius: 0.4rem;
   cursor: pointer;
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--sgp-text, #374151);
 }
 
 .sgp-select__option:hover,
@@ -136,5 +138,5 @@
 
 .filtros-bar .sgp-select__trigger,
 .filtro-campo .sgp-select__trigger {
-  background: #f9fafb;
+  background: var(--sgp-input-bg, #f9fafb);
 }
