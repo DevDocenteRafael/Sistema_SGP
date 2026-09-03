@@ -3,10 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\Curso;
+use Database\Seeders\Concerns\UsaCicloPortfolio;
 use Illuminate\Database\Seeder;
 
 class CursoSeeder extends Seeder
 {
+    use UsaCicloPortfolio;
     public function run(): void
     {
         $cursos = [
@@ -124,7 +126,7 @@ class CursoSeeder extends Seeder
         foreach ($cursos as $dados) {
             Curso::updateOrCreate(
                 ['codigo_sig' => $dados['codigo_sig']],
-                $dados
+                $this->comCiclo($dados)
             );
         }
     }

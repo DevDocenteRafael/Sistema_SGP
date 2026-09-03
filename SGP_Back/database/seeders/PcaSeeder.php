@@ -3,10 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\Pca;
+use Database\Seeders\Concerns\UsaCicloPortfolio;
 use Illuminate\Database\Seeder;
 
 class PcaSeeder extends Seeder
 {
+    use UsaCicloPortfolio;
     public function run(): void
     {
         $registros = [
@@ -78,7 +80,7 @@ class PcaSeeder extends Seeder
         foreach ($registros as $registro) {
             Pca::query()->updateOrCreate(
                 ['numero_sei' => $registro['numero_sei']],
-                $registro
+                $this->comCiclo($registro)
             );
         }
     }

@@ -45,7 +45,7 @@ class RelatorioController extends Controller
         return response()->json([
             'data' => $catalogo,
             'meta' => [
-                'eixos' => config('eixos', []),
+                'eixos' => $this->relatorioService->eixosDisponiveis(),
                 'unidades' => config('unidades', []),
             ],
         ]);
@@ -99,9 +99,10 @@ class RelatorioController extends Controller
             'data' => $registros,
             'meta' => [
                 'total' => $payload['total'],
+                'total_exibido' => $payload['total_exibido'],
                 'truncado' => $payload['truncado'],
                 'limite' => $payload['limite'],
-                'eixos' => config('eixos', []),
+                'eixos' => $this->relatorioService->eixosDisponiveis(),
                 'unidades' => config('unidades', []),
                 'status' => $registros->pluck('status')->filter()->unique()->sort()->values(),
                 'categorias' => $registros->pluck('categoria')->filter()->unique()->sort()->values(),

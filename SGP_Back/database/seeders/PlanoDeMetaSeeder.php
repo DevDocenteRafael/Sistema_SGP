@@ -3,10 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\PlanoDeMeta;
+use Database\Seeders\Concerns\UsaCicloPortfolio;
 use Illuminate\Database\Seeder;
 
 class PlanoDeMetaSeeder extends Seeder
 {
+    use UsaCicloPortfolio;
     public function run(): void
     {
         $registros = [
@@ -65,9 +67,9 @@ class PlanoDeMetaSeeder extends Seeder
         ];
 
         foreach ($registros as $registro) {
-            PlanoDeMeta::query()->firstOrCreate(
+            PlanoDeMeta::query()->updateOrCreate(
                 ['numero_sei' => $registro['numero_sei']],
-                $registro
+                $this->comCiclo($registro)
             );
         }
     }

@@ -32,6 +32,9 @@ class DatabaseSeeder extends Seeder
             CpedEquipeSeeder::class,
             KanbanSeeder::class,
             FluxogramaSeeder::class,
+            TermoReferenciaSeeder::class,
+            ResolucaoSeeder::class,
+            JornadaPedagogicaSeeder::class,
         ]);
     }
 }

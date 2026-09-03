@@ -7,6 +7,7 @@ use App\Models\Curso;
 use App\Models\CursoPorEixo;
 use App\Models\Evento;
 use App\Models\HoraPedagogica;
+use App\Models\JornadaPedagogica;
 use App\Models\Pca;
 use App\Models\PlanoDeMeta;
 use App\Models\Resolucao;
@@ -19,9 +20,11 @@ use InvalidArgumentException;
 
 class RelatorioService
 {
-    public const LIMITE_PDF = 1500;
+    /** Limite seguro para PDF (DomPDF); cobre o volume atual do portfólio. */
+    public const LIMITE_PDF = 10000;
 
-    public const LIMITE_PREVIEW = 200;
+    /** Prévia na tela — mesmo teto do PDF para não omitir cursos/eixos. */
+    public const LIMITE_PREVIEW = 10000;
 
     public function catalogo(): array
     {
@@ -44,22 +47,23 @@ class RelatorioService
 
     /**
      * @param  array<string, mixed>  $filtros
-     * @return array{definicao: array, filtros: array, registros: Collection, total: int, truncado: bool, limite: int}
+     * @return array{definicao: array, filtros: array, registros: Collection, total: int, total_exibido: int, truncado: bool, limite: int}
      */
     public function montar(string $tipo, array $filtros = [], ?int $limite = null): array
     {
         $definicao = $this->obterDefinicao($tipo);
         $filtrosAplicados = $this->normalizarFiltros($filtros, $definicao['filtros'] ?? []);
         $limiteEfetivo = $limite ?? self::LIMITE_PDF;
-        $consulta = $this->consultar($tipo, $filtrosAplicados, $limiteEfetivo + 1);
-        $truncado = $consulta->count() > $limiteEfetivo;
-        $registros = $truncado ? $consulta->take($limiteEfetivo)->values() : $consulta->values();
+        $total = $this->contar($tipo, $filtrosAplicados);
+        $registros = $this->consultar($tipo, $filtrosAplicados, $limiteEfetivo);
+        $truncado = $total > $limiteEfetivo;
 
         return [
             'definicao' => $definicao,
             'filtros' => $filtrosAplicados,
             'registros' => $registros,
-            'total' => $registros->count(),
+            'total' => $total,
+            'total_exibido' => $registros->count(),
             'truncado' => $truncado,
             'limite' => $limiteEfetivo,
         ];
@@ -68,27 +72,62 @@ class RelatorioService
     /**
      * @param  array<string, mixed>  $filtros
      */
+    public function contar(string $tipo, array $filtros = []): int
+    {
+        return $this->queryPorTipo($tipo, $filtros)->count();
+    }
+
+    /**
+     * @param  array<string, mixed>  $filtros
+     */
     public function consultar(string $tipo, array $filtros = [], ?int $limite = null): Collection
     {
-        $query = match ($tipo) {
-            'resolucoes' => $this->queryResolucoes($filtros),
-            'termos-referencia' => $this->queryTermosReferencia($filtros),
-            'cursos' => $this->queryCursos($filtros),
-            'plano-de-metas' => $this->queryPlanoDeMetas($filtros),
-            'pcas' => $this->queryPcas($filtros),
-            'eixos' => $this->queryEixos($filtros),
-            'visitas-tecnicas' => $this->queryVisitas($filtros),
-            'horas-pedagogicas' => $this->queryHoras($filtros),
-            'acoes-extensivas' => $this->queryAcoes($filtros),
-            'eventos' => $this->queryEventos($filtros),
-            default => throw new InvalidArgumentException("Tipo de relatório inválido: {$tipo}"),
-        };
+        $query = $this->queryPorTipo($tipo, $filtros);
 
         if ($limite !== null) {
             $query->limit($limite);
         }
 
         return $query->get()->map(fn ($item) => $this->formatarLinha($item));
+    }
+
+    /**
+     * Eixos distintos do cadastro + config (filtro do relatório).
+     *
+     * @return list<string>
+     */
+    public function eixosDisponiveis(): array
+    {
+        return collect(config('eixos', []))
+            ->merge(Curso::query()->whereNotNull('eixo')->where('eixo', '!=', '')->distinct()->pluck('eixo'))
+            ->merge(CursoPorEixo::query()->whereNotNull('eixo')->where('eixo', '!=', '')->distinct()->pluck('eixo'))
+            ->map(fn ($eixo) => trim((string) $eixo))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $filtros
+     */
+    private function queryPorTipo(string $tipo, array $filtros): Builder
+    {
+        return match ($tipo) {
+            'resolucoes' => $this->queryResolucoes($filtros),
+            'termos-referencia' => $this->queryTermosReferencia($filtros),
+            'cursos' => $this->queryCursos($filtros),
+            'plano-de-metas' => $this->queryPlanoDeMetas($filtros),
+            'pcas' => $this->queryPcas($filtros),
+            'eixos' => $this->queryEixos($filtros),
+            'jornadas-pedagogicas' => $this->queryJornadas($filtros),
+            'visitas-tecnicas' => $this->queryVisitas($filtros),
+            'horas-pedagogicas' => $this->queryHoras($filtros),
+            'acoes-extensivas' => $this->queryAcoes($filtros),
+            'eventos' => $this->queryEventos($filtros),
+            default => throw new InvalidArgumentException("Tipo de relatório inválido: {$tipo}"),
+        };
     }
 
     public function contagens(): array
@@ -101,6 +140,7 @@ class RelatorioService
                 'plano-de-metas' => PlanoDeMeta::query()->count(),
                 'pcas' => Pca::query()->count(),
                 'eixos' => CursoPorEixo::query()->count(),
+                'jornadas-pedagogicas' => JornadaPedagogica::query()->count(),
                 'visitas-tecnicas' => VisitaTecnica::query()->count(),
                 'horas-pedagogicas' => HoraPedagogica::query()->count(),
                 'acoes-extensivas' => AcaoExtensiva::query()->count(),
@@ -247,7 +287,10 @@ class RelatorioService
      */
     private function queryPlanoDeMetas(array $filtros): Builder
     {
-        $query = PlanoDeMeta::query()->orderByDesc('ano')->orderBy('curso');
+        $query = PlanoDeMeta::query()
+            ->orderByRaw('CASE WHEN ano IS NULL THEN 1 ELSE 0 END')
+            ->orderByDesc('ano')
+            ->orderBy('curso');
 
         $this->aplicarBusca($query, $filtros, [
             'segmento', 'curso', 'tipo', 'numero_sei', 'codigo_sig',
@@ -269,7 +312,11 @@ class RelatorioService
      */
     private function queryPcas(array $filtros): Builder
     {
-        $query = Pca::query()->orderByDesc('ano')->orderBy('titulo');
+        // Importação costuma trazer título/CH/valor/SEI; eixo/unidade/semestre/status vêm raros.
+        $query = Pca::query()
+            ->orderByRaw("CASE WHEN COALESCE(TRIM(eixo), '') = '' AND COALESCE(TRIM(unidade), '') = '' THEN 1 ELSE 0 END")
+            ->orderByDesc('ano')
+            ->orderBy('titulo');
 
         $this->aplicarBusca($query, $filtros, [
             'titulo', 'numero_sei', 'codigo_sig', 'eixo', 'unidade', 'semestre', 'status', 'observacao',
@@ -296,7 +343,11 @@ class RelatorioService
      */
     private function queryEixos(array $filtros): Builder
     {
-        $query = CursoPorEixo::query()->orderBy('eixo')->orderBy('curso');
+        // Prioriza linhas com dados operacionais (importações-resumo costumam vir só com curso/eixo/CH).
+        $query = CursoPorEixo::query()
+            ->orderByRaw("CASE WHEN COALESCE(TRIM(unidade), '') = '' AND COALESCE(TRIM(ano), '') = '' THEN 1 ELSE 0 END")
+            ->orderBy('eixo')
+            ->orderBy('curso');
 
         $this->aplicarBusca($query, $filtros, [
             'curso', 'eixo', 'unidade', 'codigo', 'instrutores', 'observacao',
@@ -321,9 +372,38 @@ class RelatorioService
     /**
      * @param  array<string, string>  $filtros
      */
+    private function queryJornadas(array $filtros): Builder
+    {
+        $query = JornadaPedagogica::query()->orderByDesc('data_inicio')->orderByDesc('id');
+
+        $this->aplicarBusca($query, $filtros, [
+            'titulo', 'local', 'espaco', 'verba', 'setores', 'programacao', 'observacoes', 'status',
+        ]);
+
+        if (! empty($filtros['ano'])) {
+            $ano = $filtros['ano'];
+            $query->where(function (Builder $q) use ($ano) {
+                $q->whereYear('data_inicio', $ano)
+                    ->orWhereYear('data_fim', $ano)
+                    ->orWhereYear('data_pre_jornada', $ano);
+            });
+        }
+        if (! empty($filtros['status'])) {
+            $query->where('status', $filtros['status']);
+        }
+
+        return $query;
+    }
+
+    /**
+     * @param  array<string, string>  $filtros
+     */
     private function queryVisitas(array $filtros): Builder
     {
-        $query = VisitaTecnica::query()->orderByDesc('data_solicitacao');
+        // Planilha CEPS costuma trazer só unidade + SEI; datas/status/responsável vêm do cadastro manual.
+        $query = VisitaTecnica::query()
+            ->orderByRaw("CASE WHEN COALESCE(TRIM(status), '') = '' THEN 1 ELSE 0 END")
+            ->orderByDesc('data_solicitacao');
 
         $this->aplicarBusca($query, $filtros, [
             'unidade', 'eixo', 'processo_sei', 'responsavel', 'status', 'relatorio', 'observacao',
@@ -347,7 +427,10 @@ class RelatorioService
      */
     private function queryHoras(array $filtros): Builder
     {
-        $query = HoraPedagogica::query()->orderByDesc('ano')->orderBy('pessoa');
+        $query = HoraPedagogica::query()
+            ->orderByRaw("CASE WHEN COALESCE(TRIM(pessoa), '') = '' THEN 1 ELSE 0 END")
+            ->orderByDesc('ano')
+            ->orderBy('pessoa');
 
         $this->aplicarBusca($query, $filtros, [
             'matricula', 'pessoa', 'segmento', 'eixo', 'processo_sei', 'motivo', 'status', 'observacao',
@@ -418,7 +501,7 @@ class RelatorioService
     {
         $linha = $item->toArray();
 
-        foreach (['data_solicitacao', 'data_visita_prevista', 'prazo_limite', 'data', 'ultima_atualizacao', 'data_inicio', 'data_fim', 'data_inicio_vigencia', 'data_fim_vigencia', 'prazo_deadline'] as $campo) {
+        foreach (['data_solicitacao', 'data_visita_prevista', 'prazo_limite', 'data', 'ultima_atualizacao', 'data_inicio', 'data_fim', 'data_pre_jornada', 'data_inicio_vigencia', 'data_fim_vigencia', 'prazo_deadline'] as $campo) {
             if (isset($linha[$campo]) && $linha[$campo]) {
                 $valor = $linha[$campo];
                 if (is_string($valor) && strlen($valor) >= 10) {

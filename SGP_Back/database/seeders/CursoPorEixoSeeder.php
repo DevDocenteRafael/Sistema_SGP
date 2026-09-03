@@ -3,10 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\CursoPorEixo;
+use Database\Seeders\Concerns\UsaCicloPortfolio;
 use Illuminate\Database\Seeder;
 
 class CursoPorEixoSeeder extends Seeder
 {
+    use UsaCicloPortfolio;
     public function run(): void
     {
         $registros = [
@@ -398,7 +400,7 @@ class CursoPorEixoSeeder extends Seeder
                     'ano' => $dados['ano'],
                     'codigo' => $dados['codigo'],
                 ],
-                $dados
+                $this->comCiclo($dados)
             );
         }
     }
