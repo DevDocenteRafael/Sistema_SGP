@@ -1,6 +1,7 @@
 import { podeGerenciarUsuarios } from './auth';
 import { UNIDADES } from './unidades';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 import {
   combinarValidacoes,
@@ -18,7 +19,7 @@ import {
 export default {
   name: 'Usuarios',
   mixins: [mixinHistoricoFormulario],
-  components: { PageTableCard },
+  components: { PageTableCard, CrudPageHeader },
   data() {
     return {
       modo: 'lista',
@@ -44,11 +45,19 @@ export default {
     podeEditar() {
       return podeGerenciarUsuarios();
     },
+    temFiltro() {
+      return Object.values(this.filtros).some((valor) => valor !== '' && valor != null);
+    },
   },
   mounted() {
     this.carregarUsuarios();
   },
   methods: {
+    limparFiltros() {
+      this.filtros = { busca: '', perfil: '', status: '' };
+      this.carregarUsuarios();
+    },
+
     formVazio() {
       return {
         nome: '',

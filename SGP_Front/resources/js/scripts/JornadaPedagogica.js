@@ -82,6 +82,11 @@ export default {
     this.carregarRegistros();
   },
   methods: {
+    limparFiltros() {
+      this.filtros = { busca: '', status: '' };
+      this.aplicarFiltros();
+    },
+
     aplicarFiltros() {
       clearTimeout(this.buscaTimeout);
       this.buscaTimeout = setTimeout(() => this.carregarRegistros(), 200);

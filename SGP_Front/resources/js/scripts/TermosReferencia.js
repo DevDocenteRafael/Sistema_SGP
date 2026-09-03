@@ -98,6 +98,16 @@ export default {
     },
   },
   methods: {
+    limparFiltros() {
+      this.filtros = {
+        busca: '',
+        eixo: '',
+        status: '',
+        prazo: '',
+      };
+      this.carregarTermos();
+    },
+
     /**
      * Carrega a lista de Termos de Referência do backend com filtros
      */

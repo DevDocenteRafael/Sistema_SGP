@@ -113,6 +113,19 @@ export default {
     },
   },
   methods: {
+    limparFiltros() {
+      const cicloId = this.filtros.ciclo_id;
+      this.filtros = {
+        busca: '',
+        ciclo_id: cicloId,
+        ano: '',
+        eixo: '',
+        status: '',
+        tipo: '',
+        unidade: '',
+      };
+      this.carregarCursos();
+    },
     formVazio() {
       return {
         ciclo_id: '',

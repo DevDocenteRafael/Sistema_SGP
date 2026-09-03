@@ -1,4 +1,5 @@
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 
 const ACAO_LABEL = {
   criar: 'Criou',
@@ -9,7 +10,7 @@ const ACAO_LABEL = {
 
 export default {
   name: 'Auditoria',
-  components: { PageTableCard },
+  components: { PageTableCard, CrudPageHeader },
   data() {
     return {
       registros: [],
@@ -37,7 +38,23 @@ export default {
   mounted() {
     this.carregar();
   },
+  computed: {
+    temFiltro() {
+      return Object.values(this.filtros).some((valor) => valor !== '' && valor != null);
+    },
+  },
   methods: {
+    limparFiltros() {
+      this.filtros = {
+        busca: '',
+        modulo: '',
+        acao: '',
+        data_inicio: '',
+        data_fim: '',
+      };
+      this.carregar(1);
+    },
+
     labelAcao(acao) {
       return ACAO_LABEL[acao] ?? acao;
     },
