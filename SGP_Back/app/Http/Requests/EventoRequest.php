@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Models\UnidadeOferta;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -16,7 +17,7 @@ class EventoRequest extends FormRequest
             'nome' => ['required', 'string', 'max:200'],
             'ano' => ['nullable', 'string', 'max:4', Rule::in(config('eventos.anos'))],
             'data' => ['required', 'date'],
-            'unidade' => ['required', 'string', 'max:100', Rule::in(config('unidades'))],
+            'unidade' => ['required', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
             'eixo' => ['required', 'string', 'max:150', Rule::in(config('eventos.eixos'))],
             'quantidade_pessoas' => ['nullable', 'integer', 'min:0', 'max:999999'],
             'equipe' => ['nullable', 'string', 'max:255'],
@@ -28,7 +29,7 @@ class EventoRequest extends FormRequest
                 'max:255',
             ],
             'status' => ['required', 'string', 'max:50', Rule::in(config('eventos.status'))],
-            'observacao' => ['nullable', 'string'],
+            'observacao' => ['nullable', 'string', 'max:2000'],
         ];
     }
 

@@ -71,7 +71,7 @@ class PcaRequest extends FormRequest
             'parcela_desc_20' => ['nullable', 'string', 'max:50'],
             'parcela_desc_15' => ['nullable', 'string', 'max:50'],
             'status' => ['required', 'string', 'max:50'],
-            'observacao' => ['nullable', 'string'],
+            'observacao' => ['nullable', 'string', 'max:2000'],
             'ano' => ['nullable', 'integer', 'min:1900', 'max:2100'],
             'ciclo_id' => ['nullable', 'integer', Rule::exists('portfolio_ciclos', 'id')],
         ];

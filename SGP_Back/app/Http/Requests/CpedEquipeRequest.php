@@ -55,7 +55,7 @@ class CpedEquipeRequest extends FormRequest
             'remover_foto' => ['nullable', 'boolean'],
             'cor' => ['nullable', 'string', 'max:20'],
             'ativo' => ['nullable', 'boolean'],
-            'observacao' => ['nullable', 'string'],
+            'observacao' => ['nullable', 'string', 'max:2000'],
         ];
     }
 

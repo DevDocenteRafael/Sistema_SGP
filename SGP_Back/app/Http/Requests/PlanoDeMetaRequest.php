@@ -62,7 +62,7 @@ class PlanoDeMetaRequest extends FormRequest
             'status' => ['required', 'string', 'max:50'],
             'origem' => ['nullable', 'string', 'max:100'],
             'status_final' => ['required', 'string', 'max:50'],
-            'observacao' => ['nullable', 'string'],
+            'observacao' => ['nullable', 'string', 'max:2000'],
             'ano' => ['nullable', 'integer', 'min:1900', 'max:2100'],
             'ciclo_id' => ['nullable', 'integer', Rule::exists('portfolio_ciclos', 'id')],
         ];

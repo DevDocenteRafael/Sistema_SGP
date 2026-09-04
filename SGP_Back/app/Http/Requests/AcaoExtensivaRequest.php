@@ -29,7 +29,7 @@ class AcaoExtensivaRequest extends FormRequest
             'numero_processo_sei' => ['required', 'string', 'max:100', new ProcessoSeiValido(obrigatorio: true, rotulo: 'Número do processo SEI')],
             'tipo' => ['required', 'string', 'max:100', Rule::in(config('acoes_extensivas.tipos'))],
             'assunto' => ['required', 'string', 'max:500'],
-            'objetivo' => ['nullable', 'string'],
+            'objetivo' => ['nullable', 'string', 'max:2000'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('acoes_extensivas.status'))],
             'ultima_atualizacao' => ['nullable', 'date'],
         ];

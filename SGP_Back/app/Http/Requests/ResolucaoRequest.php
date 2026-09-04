@@ -42,7 +42,7 @@ class ResolucaoRequest extends FormRequest
             'setor' => ['nullable', 'string', 'max:120', Rule::in(config('resolucoes.setores'))],
             'data_inicio_vigencia' => ['required', 'date'],
             'status' => ['nullable', 'string', 'max:50', Rule::in(config('resolucoes.status'))],
-            'observacoes' => ['nullable', 'string'],
+            'observacoes' => ['nullable', 'string', 'max:2000'],
             'anexo_path' => ['nullable', 'string', 'max:255'],
             'anexo' => ['nullable', 'file', 'max:5120', 'mimes:pdf,doc,docx,odt,jpg,jpeg,png'],
         ];

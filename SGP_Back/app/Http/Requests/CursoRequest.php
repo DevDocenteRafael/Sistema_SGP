@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Models\UnidadeOferta;
 use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -40,7 +41,7 @@ class CursoRequest extends FormRequest
             'codigo_processo' => ['nullable', 'string', 'max:100'],
             'alunos' => ['nullable', 'string', 'max:20', 'regex:/^\d*$/'],
             'instrutor' => ['nullable', 'string', 'max:255'],
-            'descricao' => ['nullable', 'string'],
+            'descricao' => ['nullable', 'string', 'max:5000'],
             'codigo_dn' => ['nullable', 'string', 'max:50'],
             'codigo_sig' => ['nullable', 'string', 'max:100'],
             'identificacao' => ['nullable', 'string', 'max:50'],
@@ -50,10 +51,10 @@ class CursoRequest extends FormRequest
             'processo_sei' => ['nullable', 'string', 'max:100', new ProcessoSeiValido],
             'data_inicio' => ['nullable', 'date'],
             'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
-            'unidade' => ['nullable', 'string', 'max:100', Rule::in(config('unidades'))],
+            'unidade' => ['nullable', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
             'unidades_oferta' => ['nullable', 'array'],
-            'unidades_oferta.*' => ['string', Rule::in(config('unidades'))],
-            'observacoes' => ['nullable', 'string'],
+            'unidades_oferta.*' => ['string', Rule::in(UnidadeOferta::nomesExistentes())],
+            'observacoes' => ['nullable', 'string', 'max:2000'],
             'valores' => ['nullable', 'string', 'max:255'],
             'compativel_bolsa' => ['nullable', 'string', 'max:10', Rule::in(config('cursos.sim_nao'))],
             'comercial' => ['nullable', 'string', 'max:10', Rule::in(config('cursos.sim_nao'))],

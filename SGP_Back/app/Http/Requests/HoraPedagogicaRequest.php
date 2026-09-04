@@ -48,7 +48,7 @@ class HoraPedagogicaRequest extends FormRequest
             'motivo' => ['required', 'string', 'max:255'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('horas_pedagogicas.status'))],
             'ativo' => ['nullable', 'boolean'],
-            'observacao' => ['nullable', 'string'],
+            'observacao' => ['nullable', 'string', 'max:2000'],
         ];
     }
 

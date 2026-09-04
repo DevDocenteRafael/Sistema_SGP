@@ -53,10 +53,10 @@ class JornadaPedagogicaRequest extends FormRequest
             'local' => ['nullable', 'string', 'max:255'],
             'espaco' => ['nullable', 'string', 'max:255'],
             'verba' => ['nullable', 'string', 'max:100'],
-            'custos' => ['nullable', 'string'],
-            'programacao' => ['nullable', 'string'],
+            'custos' => ['nullable', 'string', 'max:2000'],
+            'programacao' => ['nullable', 'string', 'max:2000'],
             'setores' => ['nullable', 'string', 'max:255'],
-            'observacoes' => ['nullable', 'string'],
+            'observacoes' => ['nullable', 'string', 'max:2000'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('jornadas_pedagogicas.status'))],
             'anexo' => ['nullable', 'file', 'max:5120', 'mimes:pdf,doc,docx,odt,jpg,jpeg,png'],
         ];
