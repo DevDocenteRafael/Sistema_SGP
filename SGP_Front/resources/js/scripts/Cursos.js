@@ -1,6 +1,7 @@
 import { podeEditarDados } from './auth';
 import { lerCicloContexto, salvarCicloContexto } from './cicloContexto';
 import { UNIDADES } from './unidades';
+import { carregarUnidadesNomes, carregarUnidadesOpcoes } from './unidadesApi';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CicloContextoBanner from '../components/crud/CicloContextoBanner.vue';
@@ -11,6 +12,7 @@ import {
   formatarInteiroInput,
   formatarProcessoSeiInput,
   somenteAlfanumericoProcesso,
+  somenteNumeros,
   tamanhoMaximo,
   textoObrigatorio,
   validarData,
@@ -56,6 +58,8 @@ export default {
       buscaTimeout: null,
       anosDisponiveis: ['2026', '2025', '2024', '2023'],
       unidades: UNIDADES,
+      unidadesOpcoes: [],
+      regiaoOfertaSelecionada: '',
       detalheAberto: false,
       cursoDetalhe: null,
       carregandoDetalhe: false,
@@ -95,10 +99,37 @@ export default {
         { id: 'comercial', label: 'Dados Comerciais' },
       ];
     },
+    indiceAbaForm() {
+      return this.abasForm.findIndex((aba) => aba.id === this.abaForm);
+    },
+    ehPrimeiraAbaForm() {
+      return this.indiceAbaForm <= 0;
+    },
+    ehUltimaAbaForm() {
+      return this.indiceAbaForm >= this.abasForm.length - 1;
+    },
+    opcoesRegiaoOferta() {
+      return this.unidadesOpcoes.map((ra) => ({
+        value: String(ra.id),
+        label: ra.nome,
+      }));
+    },
+    regiaoOfertaAtual() {
+      if (!this.regiaoOfertaSelecionada) {
+        return null;
+      }
+      return this.unidadesOpcoes.find((ra) => String(ra.id) === String(this.regiaoOfertaSelecionada)) || null;
+    },
+    unidadesSelecionadasResumo() {
+      return [...this.form.unidades_oferta];
+    },
   },
-  mounted() {
+  async mounted() {
     this.aplicarCicloInicial();
-    this.carregarCursos();
+    await Promise.all([
+      this.carregarCursos(),
+      this.carregarUnidadesOferta(),
+    ]);
   },
   watch: {
     '$route.query.ciclo_id'(id) {
@@ -125,6 +156,18 @@ export default {
         unidade: '',
       };
       this.carregarCursos();
+    },
+
+    async carregarUnidadesOferta() {
+      const [nomes, opcoes] = await Promise.all([
+        carregarUnidadesNomes({ forcar: true }),
+        carregarUnidadesOpcoes(),
+      ]);
+      this.unidades = nomes;
+      this.unidadesOpcoes = opcoes;
+      if (!this.regiaoOfertaSelecionada && opcoes.length) {
+        this.regiaoOfertaSelecionada = String(opcoes[0].id);
+      }
     },
     formVazio() {
       return {
@@ -238,10 +281,10 @@ export default {
         status: curso.status ?? 'ATIVO',
         unidade: curso.unidade ?? '',
         unidades_oferta: unidadesOferta,
-        carga_horaria: curso.carga_horaria ?? '',
-        turmas: curso.turmas ?? '',
+        carga_horaria: somenteNumeros(curso.carga_horaria).slice(0, 5),
+        turmas: somenteNumeros(curso.turmas).slice(0, 4),
         codigo_processo: curso.codigo_processo ?? '',
-        alunos: curso.alunos ?? '',
+        alunos: somenteNumeros(curso.alunos).slice(0, 5),
         instrutor: curso.instrutor ?? '',
         descricao: curso.descricao ?? '',
         codigo_dn: curso.codigo_dn ?? '',
@@ -314,50 +357,130 @@ export default {
       return this.form.unidades_oferta.includes(unidade);
     },
 
-    validarFormulario() {
-      const erroBasico = combinarValidacoes(
-        textoObrigatorio(this.form.eixo, 'Selecione o segmento / área.'),
-        textoObrigatorio(this.form.titulo, 'O título do curso é obrigatório.'),
-        tamanhoMaximo(this.form.titulo, 255, 'O título deve ter no máximo 255 caracteres.'),
-        textoObrigatorio(this.form.carga_horaria, 'Informe a carga horária.'),
-        validarInteiro(this.form.carga_horaria, { obrigatorio: true, rotulo: 'Carga horária', min: 1, max: 99999 }),
-        this.form.turmas ? validarInteiro(this.form.turmas, { rotulo: 'Turmas', min: 0, max: 9999 }) : '',
-        this.form.alunos ? validarInteiro(this.form.alunos, { rotulo: 'Alunos', min: 0, max: 99999 }) : '',
-        this.form.processo_sei ? validarProcessoSei(this.form.processo_sei) : '',
-      );
-
-      if (erroBasico) {
-        this.abaForm = 'basico';
-        return erroBasico;
+    validarAba(abaId) {
+      if (abaId === 'basico') {
+        return combinarValidacoes(
+          textoObrigatorio(this.form.eixo, 'Selecione o segmento / área.'),
+          textoObrigatorio(this.form.titulo, 'O título do curso é obrigatório.'),
+          tamanhoMaximo(this.form.titulo, 255, 'O título deve ter no máximo 255 caracteres.'),
+          textoObrigatorio(this.form.carga_horaria, 'Informe a carga horária.'),
+          validarInteiro(this.form.carga_horaria, { obrigatorio: true, rotulo: 'Carga horária', min: 1, max: 99999 }),
+          this.form.turmas ? validarInteiro(this.form.turmas, { rotulo: 'Turmas', min: 0, max: 9999 }) : '',
+          this.form.alunos ? validarInteiro(this.form.alunos, { rotulo: 'Alunos', min: 0, max: 99999 }) : '',
+          this.form.codigo_processo
+            ? tamanhoMaximo(this.form.codigo_processo, 100, 'O código do processo deve ter no máximo 100 caracteres.')
+            : '',
+          this.form.instrutor
+            ? tamanhoMaximo(this.form.instrutor, 255, 'O instrutor deve ter no máximo 255 caracteres.')
+            : '',
+          this.form.descricao
+            ? tamanhoMaximo(this.form.descricao, 5000, 'A descrição deve ter no máximo 5000 caracteres.')
+            : '',
+        );
       }
 
-      const erroTecnico = combinarValidacoes(
-        textoObrigatorio(this.form.status, 'Selecione o status.'),
-        textoObrigatorio(this.form.modalidade, 'Selecione a modalidade.'),
-        textoObrigatorio(this.form.codigo_sig, 'Informe o código SIG.'),
-        tamanhoMaximo(this.form.codigo_sig, 100, 'O código SIG deve ter no máximo 100 caracteres.'),
-        textoObrigatorio(this.form.tipo, 'Selecione o tipo de curso.'),
-        validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
-        validarData(this.form.data_fim, { rotulo: 'Data de término' }),
-        validarOrdemDatas(
-          this.form.data_inicio,
-          this.form.data_fim,
-          'A data de término deve ser igual ou posterior à data de início.',
-        ),
-      );
+      if (abaId === 'tecnico') {
+        return combinarValidacoes(
+          textoObrigatorio(this.form.status, 'Selecione o status.'),
+          textoObrigatorio(this.form.modalidade, 'Selecione a modalidade.'),
+          textoObrigatorio(this.form.codigo_sig, 'Informe o código SIG.'),
+          tamanhoMaximo(this.form.codigo_sig, 100, 'O código SIG deve ter no máximo 100 caracteres.'),
+          this.form.codigo_dn
+            ? tamanhoMaximo(this.form.codigo_dn, 50, 'O código DN deve ter no máximo 50 caracteres.')
+            : '',
+          this.form.identificacao
+            ? tamanhoMaximo(this.form.identificacao, 50, 'A identificação deve ter no máximo 50 caracteres.')
+            : '',
+          textoObrigatorio(this.form.tipo, 'Selecione o tipo de curso.'),
+          this.form.processo_sei ? validarProcessoSei(this.form.processo_sei) : '',
+          validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
+          validarData(this.form.data_fim, { rotulo: 'Data de término' }),
+          validarOrdemDatas(
+            this.form.data_inicio,
+            this.form.data_fim,
+            'A data de término deve ser igual ou posterior à data de início.',
+          ),
+        );
+      }
 
-      if (erroTecnico) {
-        this.abaForm = 'tecnico';
-        return erroTecnico;
+      if (abaId === 'comercial') {
+        return combinarValidacoes(
+          this.form.observacoes
+            ? tamanhoMaximo(this.form.observacoes, 2000, 'As observações devem ter no máximo 2000 caracteres.')
+            : '',
+          this.form.valores
+            ? tamanhoMaximo(this.form.valores, 255, 'Valores deve ter no máximo 255 caracteres.')
+            : '',
+          this.form.pcn ? tamanhoMaximo(this.form.pcn, 255, 'PCN deve ter no máximo 255 caracteres.') : '',
+          this.form.pcr ? tamanhoMaximo(this.form.pcr, 255, 'PCR deve ter no máximo 255 caracteres.') : '',
+        );
       }
 
       return '';
     },
 
+    validarFormulario() {
+      for (const aba of this.abasForm) {
+        const erro = this.validarAba(aba.id);
+        if (erro) {
+          this.abaForm = aba.id;
+          return erro;
+        }
+      }
+
+      return '';
+    },
+
+    selecionarAbaForm(abaId) {
+      const destino = this.abasForm.findIndex((aba) => aba.id === abaId);
+      if (destino < 0) {
+        return;
+      }
+
+      const atual = Math.max(this.indiceAbaForm, 0);
+      if (destino > atual) {
+        for (let i = atual; i < destino; i += 1) {
+          const erro = this.validarAba(this.abasForm[i].id);
+          if (erro) {
+            this.abaForm = this.abasForm[i].id;
+            this.erroFormulario = erro;
+            return;
+          }
+        }
+      }
+
+      this.erroFormulario = '';
+      this.abaForm = abaId;
+    },
+
+    irAbaAnterior() {
+      if (this.ehPrimeiraAbaForm) {
+        return;
+      }
+
+      this.erroFormulario = '';
+      this.abaForm = this.abasForm[this.indiceAbaForm - 1].id;
+    },
+
+    irAbaProxima() {
+      if (this.ehUltimaAbaForm) {
+        return;
+      }
+
+      const erro = this.validarAba(this.abaForm);
+      if (erro) {
+        this.erroFormulario = erro;
+        return;
+      }
+
+      this.erroFormulario = '';
+      this.abaForm = this.abasForm[this.indiceAbaForm + 1].id;
+    },
+
     formatarProcessoSei: formatarProcessoSeiInput('processo_sei'),
-    formatarCargaHoraria: formatarInteiroInput('carga_horaria'),
-    formatarTurmas: formatarInteiroInput('turmas'),
-    formatarAlunos: formatarInteiroInput('alunos'),
+    formatarCargaHoraria: formatarInteiroInput('carga_horaria', { maxDigitos: 5 }),
+    formatarTurmas: formatarInteiroInput('turmas', { maxDigitos: 4 }),
+    formatarAlunos: formatarInteiroInput('alunos', { maxDigitos: 5 }),
 
     async salvarCurso() {
       if (!this.podeEditar) {
@@ -503,6 +626,11 @@ export default {
 
       if (texto.length < 10) {
         this.erroDuplicidade = 'A justificativa deve ter pelo menos 10 caracteres.';
+        return;
+      }
+
+      if (texto.length > 2000) {
+        this.erroDuplicidade = 'A justificativa deve ter no máximo 2000 caracteres.';
         return;
       }
 

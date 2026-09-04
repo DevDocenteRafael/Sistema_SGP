@@ -19,6 +19,7 @@ const appChildren = [
   { path: 'eventos', name: 'eventos', component: () => import('../pages/Eventos.vue'), meta: { menu: 'eventos' } },
   { path: 'jornada-pedagogica', name: 'jornada-pedagogica', component: () => import('../pages/JornadaPedagogica.vue'), meta: { menu: 'jornada-pedagogica' } },
   { path: 'sistemas-apoio', name: 'sistemas-apoio', component: () => import('../pages/SistemasApoio.vue'), meta: { menu: 'sistemas-apoio' } },
+  { path: 'unidades', name: 'unidades', component: () => import('../pages/Unidades.vue'), meta: { menu: 'unidades' } },
   { path: 'ferramentas', name: 'ferramentas', component: () => import('../pages/Ferramentas.vue'), meta: { menu: 'ferramentas' } },
   {
     path: 'ferramentas/kanban',
@@ -149,6 +150,7 @@ const TITULOS_PAGINA = {
   eventos: 'Eventos',
   'jornada-pedagogica': 'Jornada Pedagógica',
   'sistemas-apoio': 'Sistemas de Apoio',
+  unidades: 'Unidades',
   ferramentas: 'Ferramentas',
   'ferramentas-kanban': 'Kanban',
   'ferramentas-kanban-quadro': 'Kanban',

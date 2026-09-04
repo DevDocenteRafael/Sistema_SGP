@@ -34,7 +34,10 @@
 
       <div class="sidebar-footer-account">
         <div v-if="usuario" class="sidebar-user-card">
-          <span class="sidebar-avatar" aria-hidden="true">{{ iniciais }}</span>
+          <span class="sidebar-avatar" aria-hidden="true">
+            <img v-if="usuario.foto" :src="usuario.foto" :alt="usuario.nome" />
+            <template v-else>{{ iniciais }}</template>
+          </span>
           <div class="sidebar-user-info">
             <p class="sidebar-user-nome">{{ usuario.nome }}</p>
             <p v-if="usuario.unidade" class="sidebar-user-unidade">{{ usuario.unidade }}</p>

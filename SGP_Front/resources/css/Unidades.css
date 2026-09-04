@@ -1,0 +1,17 @@
+.lista-tabs {
+  margin: 0 1.5rem 1rem;
+}
+
+.check-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+  font-weight: 600;
+}
+
+.acoes {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+}

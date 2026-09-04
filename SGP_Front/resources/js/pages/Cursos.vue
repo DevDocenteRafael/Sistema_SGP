@@ -343,15 +343,18 @@
           </span>
         </header>
 
-        <div class="form-tabs">
+        <div class="form-tabs" role="tablist" aria-label="Etapas do formulário">
           <button
-            v-for="aba in abasForm"
+            v-for="(aba, indice) in abasForm"
             :key="aba.id"
             type="button"
             class="form-tab"
+            role="tab"
+            :aria-selected="abaForm === aba.id"
             :class="{ active: abaForm === aba.id }"
-            @click="abaForm = aba.id"
+            @click="selecionarAbaForm(aba.id)"
           >
+            <span class="form-tab-step">{{ indice + 1 }}</span>
             {{ aba.label }}
           </button>
         </div>
@@ -400,7 +403,7 @@
                     type="text"
                     inputmode="numeric"
                     placeholder="Ex: 800"
-                    maxlength="50"
+                    maxlength="5"
                     @input="formatarCargaHoraria"
                   />
                 </div>
@@ -412,7 +415,7 @@
                     type="text"
                     inputmode="numeric"
                     placeholder="Ex: 2"
-                    maxlength="20"
+                    maxlength="4"
                     @input="formatarTurmas"
                   />
                 </div>
@@ -434,7 +437,7 @@
                     type="text"
                     inputmode="numeric"
                     placeholder="Ex: 22"
-                    maxlength="20"
+                    maxlength="5"
                     @input="formatarAlunos"
                   />
                 </div>
@@ -453,19 +456,53 @@
 
             <div class="form-card">
               <h2>Unidades de oferta</h2>
-              <p class="form-card-hint">Selecione as unidades onde o curso será oferecido</p>
-              <div class="unidades-grid">
+              <p class="form-card-hint">Escolha a região administrativa e marque CEP, Polo ou Faculdade onde o curso será oferecido.</p>
+
+              <div class="form-group">
+                <label for="regiao-oferta">Região administrativa</label>
+                <SearchableSelect
+                  id="regiao-oferta"
+                  input-id="regiao-oferta"
+                  v-model="regiaoOfertaSelecionada"
+                  :options="opcoesRegiaoOferta"
+                  empty-option="Selecione a região..."
+                />
+              </div>
+
+              <div v-if="unidadesSelecionadasResumo.length" class="unidades-selecionadas">
+                <span class="unidades-selecionadas-label">Selecionadas:</span>
                 <button
-                  v-for="unidade in unidades"
-                  :key="unidade"
+                  v-for="nome in unidadesSelecionadasResumo"
+                  :key="'sel-' + nome"
                   type="button"
-                  class="unidade-chip"
-                  :class="{ selected: unidadeSelecionada(unidade) }"
-                  @click="toggleUnidade(unidade)"
+                  class="unidade-chip selected"
+                  @click="toggleUnidade(nome)"
                 >
-                  <span>{{ unidade }}</span>
-                  <span v-if="unidadeSelecionada(unidade)" class="unidade-chip-check">✓</span>
+                  <span>{{ nome }}</span>
+                  <span class="unidade-chip-check">✓</span>
                 </button>
+              </div>
+
+              <div v-if="regiaoOfertaAtual" class="unidades-grupos">
+                <div v-for="grupo in regiaoOfertaAtual.grupos" :key="grupo.tipo" class="unidade-grupo">
+                  <h3>{{ grupo.label }}</h3>
+                  <div class="unidades-grid">
+                    <button
+                      v-for="unidade in grupo.unidades"
+                      :key="unidade.id"
+                      type="button"
+                      class="unidade-chip"
+                      :class="{ selected: unidadeSelecionada(unidade.nome) }"
+                      @click="toggleUnidade(unidade.nome)"
+                    >
+                      <span>{{ unidade.nome }}</span>
+                      <span v-if="unidadeSelecionada(unidade.nome)" class="unidade-chip-check">✓</span>
+                    </button>
+                  </div>
+                </div>
+                <p v-if="!regiaoOfertaAtual.grupos?.length" class="form-card-hint">
+                  Nenhuma unidade ativa nesta região.
+                </p>
               </div>
             </div>
 
@@ -476,6 +513,7 @@
                   id="descricao"
                   v-model="form.descricao"
                   rows="5"
+                  maxlength="5000"
                   placeholder="Descreva os objetivos, conteúdo programático e público-alvo do curso..."
                 />
               </div>
@@ -516,7 +554,7 @@
                     v-model="form.codigo_sig"
                     type="text"
                     placeholder="Ex: 129820"
-                    maxlength="50"
+                    maxlength="100"
                   />
                 </div>
                 <div class="form-group">
@@ -632,6 +670,7 @@
                     id="observacoes"
                     v-model="form.observacoes"
                     rows="4"
+                    maxlength="2000"
                     placeholder="Observações adicionais sobre valores, condições comerciais, etc..."
                   />
                 </div>
@@ -641,7 +680,28 @@
 
           <div class="form-actions">
             <button type="button" class="btn-secondary" @click="voltarLista">Cancelar</button>
-            <button type="submit" class="btn-salvar" :disabled="salvando">
+            <button
+              v-if="!ehPrimeiraAbaForm"
+              type="button"
+              class="btn-secondary"
+              @click="irAbaAnterior"
+            >
+              Anterior
+            </button>
+            <button
+              v-if="!ehUltimaAbaForm"
+              type="button"
+              class="btn-salvar"
+              @click="irAbaProxima"
+            >
+              Próximo
+            </button>
+            <button
+              v-else
+              type="submit"
+              class="btn-salvar"
+              :disabled="salvando"
+            >
               {{ salvando ? 'Salvando...' : modo === 'novo' ? 'Cadastrar Curso' : 'Salvar Alterações' }}
             </button>
           </div>
@@ -668,6 +728,7 @@
             id="justificativa-duplicidade"
             v-model="justificativaDuplicidade"
             rows="3"
+            maxlength="2000"
             placeholder="Explique por que este cadastro precisa coexistir com o curso já existente."
           />
         </div>
