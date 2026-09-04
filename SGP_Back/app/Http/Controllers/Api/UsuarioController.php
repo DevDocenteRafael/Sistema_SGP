@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UsuarioRequest;
 use App\Models\Usuario;
 use App\Services\CadastroAuditoriaService;
+use App\Services\UsuarioFotoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,7 @@ class UsuarioController extends Controller
 {
     public function __construct(
         private CadastroAuditoriaService $auditoria,
+        private UsuarioFotoService $fotos,
     ) {
     }
 
@@ -46,9 +48,13 @@ class UsuarioController extends Controller
 
     public function store(UsuarioRequest $request): JsonResponse
     {
-        $dados = $request->validated();
+        $dados = $request->safe()->except(['foto', 'remover_foto']);
         $dados['senha'] = Hash::make($dados['senha']);
         $dados['status'] = $dados['status'] ?? true;
+
+        if ($request->hasFile('foto')) {
+            $dados['foto'] = $this->fotos->salvar($request->file('foto'));
+        }
 
         $usuario = Usuario::create($dados);
 
@@ -56,7 +62,7 @@ class UsuarioController extends Controller
 
         return response()->json([
             'message' => 'Usuário cadastrado com sucesso. Informe o e-mail e a senha ao colaborador.',
-            'usuario' => $usuario,
+            'usuario' => $usuario->fresh(),
         ], 201);
     }
 
@@ -69,7 +75,7 @@ class UsuarioController extends Controller
 
     public function update(UsuarioRequest $request, Usuario $usuario): JsonResponse
     {
-        $dados = $request->validated();
+        $dados = $request->safe()->except(['foto', 'remover_foto']);
 
         if (! empty($dados['senha'])) {
             $dados['senha'] = Hash::make($dados['senha']);
@@ -97,6 +103,16 @@ class UsuarioController extends Controller
             return response()->json([
                 'message' => 'Não é possível inativar o último administrador ativo.',
             ], 422);
+        }
+
+        $fotoAnterior = $usuario->caminhoFoto();
+
+        if ($request->boolean('remover_foto')) {
+            $dados['foto'] = null;
+            $this->fotos->apagar($fotoAnterior);
+        } elseif ($request->hasFile('foto')) {
+            $dados['foto'] = $this->fotos->salvar($request->file('foto'));
+            $this->fotos->apagar($fotoAnterior);
         }
 
         $usuario->fill($dados);
@@ -137,6 +153,7 @@ class UsuarioController extends Controller
             ], 422);
         }
 
+        $this->fotos->apagar($usuario->caminhoFoto());
         $usuario->tokens()->delete();
         $usuario->delete();
 

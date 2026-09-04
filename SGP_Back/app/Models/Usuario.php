@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\UsuarioFotoService;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -29,6 +31,7 @@ class Usuario extends Authenticatable
         'unidade',
         'area',
         'telefone',
+        'foto',
     ];
 
     protected $hidden = [
@@ -40,6 +43,24 @@ class Usuario extends Authenticatable
         return [
             'status' => 'boolean',
         ];
+    }
+
+    /**
+     * Na API/JSON, `foto` é a URL pública.
+     * O caminho relativo no disco fica em getRawOriginal('foto').
+     */
+    protected function foto(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => app(UsuarioFotoService::class)->urlPublica($value),
+        );
+    }
+
+    public function caminhoFoto(): ?string
+    {
+        $caminho = $this->getRawOriginal('foto');
+
+        return is_string($caminho) && $caminho !== '' ? $caminho : null;
     }
 
     public function getAuthPassword(): string

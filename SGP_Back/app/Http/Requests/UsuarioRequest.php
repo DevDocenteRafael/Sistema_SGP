@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Usuario;
+use App\Models\UnidadeOferta;
 use App\Rules\CpfValido;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
@@ -31,6 +32,18 @@ class UsuarioRequest extends FormRequest
         if ($this->filled('telefone')) {
             $this->merge([
                 'telefone' => preg_replace('/\D/', '', (string) $this->input('telefone')),
+            ]);
+        }
+
+        if ($this->has('status')) {
+            $this->merge([
+                'status' => filter_var($this->input('status'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
+            ]);
+        }
+
+        if ($this->has('remover_foto')) {
+            $this->merge([
+                'remover_foto' => filter_var($this->input('remover_foto'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
             ]);
         }
     }
@@ -66,9 +79,11 @@ class UsuarioRequest extends FormRequest
                 Rule::in(config('permissoes.perfis')),
             ],
             'status' => ['sometimes', 'boolean'],
-            'unidade' => ['nullable', 'string', 'max:100', Rule::in(config('unidades'))],
+            'unidade' => ['nullable', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
             'area' => ['nullable', 'string', 'max:100'],
             'telefone' => ['nullable', 'string', 'max:20', 'regex:/^\d{10,11}$/'],
+            'foto' => ['nullable', 'image', 'max:2048'],
+            'remover_foto' => ['nullable', 'boolean'],
         ];
     }
 
@@ -87,6 +102,8 @@ class UsuarioRequest extends FormRequest
             'cpf.size' => 'Informe um CPF válido.',
             'telefone.regex' => 'Informe um telefone válido com DDD.',
             'unidade.in' => 'Selecione uma unidade válida.',
+            'foto.image' => 'A foto deve ser uma imagem válida.',
+            'foto.max' => 'A foto deve ter no máximo 2 MB.',
         ];
     }
 }

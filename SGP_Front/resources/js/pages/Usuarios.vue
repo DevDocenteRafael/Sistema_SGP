@@ -78,7 +78,8 @@
                 <td>
                   <div class="user-cell">
                     <span class="avatar" :class="avatarClass(usuario.perfil)">
-                      {{ iniciais(usuario.nome) }}
+                      <img v-if="usuario.foto" :src="usuario.foto" :alt="usuario.nome" />
+                      <template v-else>{{ iniciais(usuario.nome) }}</template>
                     </span>
                     <div>
                       <p class="user-nome">{{ usuario.nome }}</p>
@@ -155,6 +156,12 @@
           </div>
 
           <div class="modal-form-wrap">
+            <div class="detalhe-avatar-wrap">
+              <span class="avatar avatar-lg" :class="avatarClass(usuarioDetalhe.perfil)">
+                <img v-if="usuarioDetalhe.foto" :src="usuarioDetalhe.foto" :alt="usuarioDetalhe.nome" />
+                <template v-else>{{ iniciais(usuarioDetalhe.nome) }}</template>
+              </span>
+            </div>
             <div class="detalhe-form-grid">
               <div class="detalhe-form-campo campo-full">
                 <span>Nome</span>
@@ -223,6 +230,26 @@
 
         <form class="form-body" @submit.prevent="salvarUsuario">
           <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
+
+          <section class="form-section">
+            <h2>Foto do perfil</h2>
+            <div class="foto-field">
+              <span class="avatar avatar-xl" :class="avatarClass(form.perfil)">
+                <img v-if="form.foto" :src="form.foto" alt="Prévia da foto" />
+                <template v-else>{{ iniciais(form.nome) }}</template>
+              </span>
+              <div class="foto-field-actions">
+                <label class="btn-foto">
+                  Enviar foto
+                  <input type="file" accept="image/*" @change="onFotoSelecionada" />
+                </label>
+                <button v-if="form.foto" type="button" class="link-btn" @click="limparFoto">
+                  Remover foto
+                </button>
+                <small class="campo-ajuda">JPG, PNG ou WEBP até 2 MB.</small>
+              </div>
+            </div>
+          </section>
 
           <section class="form-section">
             <h2>Dados Pessoais</h2>

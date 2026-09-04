@@ -1,5 +1,6 @@
-import { podeGerenciarUsuarios } from './auth';
+import { atualizarUsuarioSessao, getUsuario, podeGerenciarUsuarios } from './auth';
 import { UNIDADES } from './unidades';
+import { carregarUnidadesNomes } from './unidadesApi';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
@@ -51,6 +52,12 @@ export default {
   },
   mounted() {
     this.carregarUsuarios();
+    carregarUnidadesNomes().then((nomes) => {
+      this.unidades = nomes;
+    });
+  },
+  beforeUnmount() {
+    this.revogarPreviewFoto();
   },
   methods: {
     limparFiltros() {
@@ -70,6 +77,9 @@ export default {
         area: '',
         telefone: '',
         cpf: '',
+        foto: '',
+        fotoArquivo: null,
+        removerFoto: false,
       };
     },
 
@@ -160,6 +170,7 @@ export default {
     },
 
     aplicarEstadoNovoLocal() {
+      this.revogarPreviewFoto();
       this.modo = 'novo';
       this.editandoId = null;
       this.usuarioDetalhe = null;
@@ -179,6 +190,7 @@ export default {
     },
 
     aplicarEstadoEdicaoLocal(usuario) {
+      this.revogarPreviewFoto();
       this.modo = 'editar';
       this.editandoId = usuario.id;
       this.form = {
@@ -192,6 +204,9 @@ export default {
         area: usuario.area ?? '',
         telefone: usuario.telefone ?? '',
         cpf: usuario.cpf ?? '',
+        foto: usuario.foto || '',
+        fotoArquivo: null,
+        removerFoto: false,
       };
       this.erroFormulario = '';
       this.mensagemErro = '';
@@ -224,10 +239,49 @@ export default {
     },
 
     aplicarEstadoListaLocal() {
+      this.revogarPreviewFoto();
       this.modo = 'lista';
       this.editandoId = null;
       this.erroFormulario = '';
       this.form = this.formVazio();
+    },
+
+    revogarPreviewFoto() {
+      if (this.form?.foto && String(this.form.foto).startsWith('blob:')) {
+        URL.revokeObjectURL(this.form.foto);
+      }
+    },
+
+    onFotoSelecionada(evento) {
+      const arquivo = evento.target.files?.[0];
+      evento.target.value = '';
+
+      if (!arquivo) {
+        return;
+      }
+
+      if (!String(arquivo.type || '').startsWith('image/')) {
+        this.erroFormulario = 'A foto deve ser uma imagem válida.';
+        return;
+      }
+
+      if (arquivo.size > 2 * 1024 * 1024) {
+        this.erroFormulario = 'A foto deve ter no máximo 2 MB.';
+        return;
+      }
+
+      this.revogarPreviewFoto();
+      this.form.fotoArquivo = arquivo;
+      this.form.removerFoto = false;
+      this.form.foto = URL.createObjectURL(arquivo);
+      this.erroFormulario = '';
+    },
+
+    limparFoto() {
+      this.revogarPreviewFoto();
+      this.form.foto = '';
+      this.form.fotoArquivo = null;
+      this.form.removerFoto = true;
     },
 
     formatarCpf(evento) {
@@ -254,6 +308,32 @@ export default {
       );
     },
 
+    montarFormData() {
+      const formData = new FormData();
+      formData.append('nome', this.form.nome.trim());
+      formData.append('email', this.form.email.trim());
+      formData.append('perfil', this.form.perfil);
+      formData.append('status', this.form.status ? '1' : '0');
+      formData.append('unidade', this.form.unidade || '');
+      formData.append('area', this.form.area?.trim() || '');
+      formData.append('cpf', this.form.cpf ? somenteNumeros(this.form.cpf) : '');
+      formData.append('telefone', this.form.telefone ? somenteNumeros(this.form.telefone) : '');
+
+      if (this.form.senha) {
+        formData.append('senha', this.form.senha);
+      }
+
+      if (this.form.fotoArquivo) {
+        formData.append('foto', this.form.fotoArquivo);
+      }
+
+      if (this.form.removerFoto && !this.form.fotoArquivo) {
+        formData.append('remover_foto', '1');
+      }
+
+      return formData;
+    },
+
     async salvarUsuario() {
       const erroValidacao = this.validarFormulario();
 
@@ -271,28 +351,30 @@ export default {
       this.erroFormulario = '';
       this.mensagemSucesso = '';
 
-      const payload = {
-        nome: this.form.nome,
-        email: this.form.email,
-        perfil: this.form.perfil,
-        status: this.form.status,
-        unidade: this.form.unidade || null,
-        area: this.form.area || null,
-        cpf: this.form.cpf ? somenteNumeros(this.form.cpf) : null,
-        telefone: this.form.telefone ? somenteNumeros(this.form.telefone) : null,
-      };
-
-      if (this.form.senha) {
-        payload.senha = this.form.senha;
-      }
-
       try {
+        const formData = this.montarFormData();
+        let usuarioSalvo = null;
+
         if (this.editandoId) {
-          const { data } = await window.axios.put(`/api/usuarios/${this.editandoId}`, payload);
+          formData.append('_method', 'PUT');
+          const { data } = await window.axios.post(`/api/usuarios/${this.editandoId}`, formData);
           this.mensagemSucesso = data.message;
+          usuarioSalvo = data.usuario;
         } else {
-          const { data } = await window.axios.post('/api/usuarios', payload);
+          const { data } = await window.axios.post('/api/usuarios', formData);
           this.mensagemSucesso = data.message;
+          usuarioSalvo = data.usuario;
+        }
+
+        const logado = getUsuario();
+        if (usuarioSalvo && logado && String(logado.id) === String(usuarioSalvo.id)) {
+          atualizarUsuarioSessao({
+            nome: usuarioSalvo.nome,
+            email: usuarioSalvo.email,
+            perfil: usuarioSalvo.perfil,
+            unidade: usuarioSalvo.unidade ?? null,
+            foto: usuarioSalvo.foto ?? null,
+          });
         }
 
         this.voltarLista();

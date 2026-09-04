@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class UsuarioApiTest extends TestCase
@@ -116,5 +118,45 @@ class UsuarioApiTest extends TestCase
         $filtered->assertOk();
         $filtered->assertJsonPath('data.0.perfil', Usuario::PERFIL_CONSULTOR);
         $this->assertCount(1, $filtered->json('data'));
+    }
+
+    public function test_admin_can_upload_and_remove_usuario_foto(): void
+    {
+        Storage::fake('public');
+
+        $admin = $this->admin();
+        $this->actingAs($admin, 'sanctum');
+
+        $jpegMinimo = base64_decode(
+            '/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxAQEBUQEBAVFRUVFRUVFRUVFRUWFxUVFRUYHSggGBolGxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lHyUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAAEAAQMBIgACEQEDEQH/xAAbAAACAwEBAQAAAAAAAAAAAAADBAECBQYAB//EAD0QAAIBAwIEBAMFBQkAAAAAAAECAwAEERIhBTFBEyJRYQYycYEUQpGhscHRFSMzUmLh8PEWJDNDc4KS/8QAGQEAAwEBAQAAAAAAAAAAAAAAAAECAwQF/8QAJBEAAgICAgICAwEAAAAAAAAAAAECEQMhEjEEE0FRImFxMv/aAAwDAQACEQMRAD8A9oFFFFABRRRQAUUUUAFFFFAH/9k='
+        );
+
+        $create = $this->post('/api/usuarios', [
+            'nome' => 'Admin Com Foto',
+            'email' => 'admin.foto@teste.com',
+            'senha' => 'senha123',
+            'perfil' => Usuario::PERFIL_ADMINISTRADOR,
+            'status' => true,
+            'unidade' => 'Asa Norte',
+            'foto' => UploadedFile::fake()->createWithContent('admin.jpg', $jpegMinimo),
+        ]);
+
+        $create->assertCreated();
+        $this->assertStringContainsString('/storage/usuarios/', $create->json('usuario.foto'));
+
+        $id = $create->json('usuario.id');
+
+        $update = $this->post("/api/usuarios/{$id}", [
+            '_method' => 'PUT',
+            'nome' => 'Admin Com Foto',
+            'email' => 'admin.foto@teste.com',
+            'perfil' => Usuario::PERFIL_ADMINISTRADOR,
+            'status' => true,
+            'unidade' => 'Asa Norte',
+            'remover_foto' => '1',
+        ]);
+
+        $update->assertOk();
+        $this->assertNull($update->json('usuario.foto'));
     }
 }
