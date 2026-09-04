@@ -32,6 +32,7 @@ export const MENU_POR_PERFIL = {
   'jornada-pedagogica': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
   ferramentas: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
   'sistemas-apoio': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  unidades: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
   cped: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
   usuarios: [PERFIS.ADMINISTRADOR],
 };
@@ -68,10 +69,30 @@ export function clearSessao() {
 
 export function marcarSessao(token, usuario) {
   localStorage.setItem('sgp_token', token);
-  localStorage.setItem('sgp_usuario', JSON.stringify(usuario));
+  localStorage.setItem('sgp_usuario', JSON.stringify({
+    id: usuario.id,
+    nome: usuario.nome,
+    email: usuario.email,
+    perfil: usuario.perfil,
+    unidade: usuario.unidade ?? null,
+    foto: usuario.foto ?? null,
+  }));
   window.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
   sessaoValida = true;
   validacaoEmAndamento = null;
+}
+
+/** Atualiza campos do usuário logado no localStorage (ex.: foto). */
+export function atualizarUsuarioSessao(parcial) {
+  const atual = getUsuario();
+  if (!atual) {
+    return;
+  }
+
+  localStorage.setItem('sgp_usuario', JSON.stringify({
+    ...atual,
+    ...parcial,
+  }));
 }
 
 /**
@@ -111,6 +132,8 @@ export async function garantirSessao() {
         nome: usuario.nome,
         email: usuario.email,
         perfil: usuario.perfil,
+        unidade: usuario.unidade ?? null,
+        foto: usuario.foto ?? null,
       }));
       sessaoValida = true;
       return true;

@@ -265,6 +265,12 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             $this->assertArrayHasKey('url', $item);
             $this->assertArrayNotHasKey('senha', $item);
             $this->assertArrayNotHasKey('password', $item);
+            $this->assertFalse($item['placeholder'] ?? true);
         }
+
+        $porChave = collect($response->json('data'))->keyBy('key');
+        $this->assertSame('https://seisenac.df.senac.br/sei/', $porChave['sei']['url']);
+        $this->assertSame('https://cloud.plataforma.senac.br/', $porChave['sig']['url']);
+        $this->assertSame('https://sigin.df.senac.br/', $porChave['sigin']['url']);
     }
 }

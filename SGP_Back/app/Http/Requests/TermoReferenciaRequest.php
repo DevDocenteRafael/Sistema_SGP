@@ -28,7 +28,7 @@ class TermoReferenciaRequest extends FormRequest
             'processo_sei' => ['required', 'string', 'max:100', new ProcessoSeiValido(obrigatorio: true)],
             'prazo_deadline' => ['required', 'date'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('termos_referencia.status', ['Planejamento', 'Em Andamento', 'Em tramitação (fora da CPED)', 'Concluído', 'Arquivado']))],
-            'observacao' => ['nullable', 'string'],
+            'observacao' => ['nullable', 'string', 'max:2000'],
             'data_inicio' => ['nullable', 'date'],
             'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
             'concluido_em' => ['nullable', 'datetime'],

@@ -6,9 +6,11 @@ import {
   cpfValido,
   validarProcessoSei,
   validarInteiro,
+  validarDecimal,
   validarCpf,
   validarOrdemDatas,
   combinarValidacoes,
+  normalizarTextoMonetario,
 } from '../resources/js/utils/validacao.js';
 
 function test(nome, fn) {
@@ -64,6 +66,26 @@ run('validarProcessoSei rejeita caracteres inválidos e ausência de números', 
 run('validarInteiro rejeita letras', () => {
   assert.match(validarInteiro('12a3', { rotulo: 'Turmas' }), /apenas números/i);
   assert.equal(validarInteiro('120', { rotulo: 'CH', min: 1 }), '');
+});
+
+run('validarInteiro aceita matrícula longa por maxDigitos', () => {
+  const matricula = '123456789012345';
+  assert.equal(validarInteiro(matricula, { rotulo: 'Matrícula', min: 1, maxDigitos: 50 }), '');
+  assert.match(
+    validarInteiro(`${matricula}999999999999999999999999999999999999`, { rotulo: 'Matrícula', maxDigitos: 50 }),
+    /máximo 50 dígitos/i,
+  );
+});
+
+run('validarDecimal aceita valores com R$ e rejeita inválidos', () => {
+  assert.equal(validarDecimal('R$ 4.800,00'), '');
+  assert.equal(validarDecimal('-'), '');
+  assert.match(validarDecimal('abc', { rotulo: 'Valor' }), /número válido/i);
+});
+
+run('normalizarTextoMonetario remove moeda e placeholders', () => {
+  assert.equal(normalizarTextoMonetario('R$ 1.200,50'), '1.200,50');
+  assert.equal(normalizarTextoMonetario('-'), '');
 });
 
 run('validarOrdemDatas rejeita fim anterior ao início', () => {

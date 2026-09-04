@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Models\UnidadeOferta;
 use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,7 +24,7 @@ class VisitaTecnicaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'unidade' => ['required', 'string', 'max:100', Rule::in(config('unidades'))],
+            'unidade' => ['required', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
             'eixo' => ['required', 'string', 'max:150', Rule::in(config('visitas_tecnicas.eixos'))],
             'processo_sei' => ['required', 'string', 'max:100', new ProcessoSeiValido(obrigatorio: true)],
             'data_solicitacao' => ['required', 'date'],
@@ -31,8 +32,8 @@ class VisitaTecnicaRequest extends FormRequest
             'prazo_limite' => ['required', 'date', 'after_or_equal:data_solicitacao'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('visitas_tecnicas.status'))],
             'responsavel' => ['required', 'string', 'max:150'],
-            'relatorio' => ['nullable', 'string'],
-            'observacao' => ['nullable', 'string'],
+            'relatorio' => ['nullable', 'string', 'max:2000'],
+            'observacao' => ['nullable', 'string', 'max:2000'],
         ];
     }
 

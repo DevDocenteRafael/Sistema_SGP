@@ -29,6 +29,19 @@ export function somenteDecimal(valor) {
   return String(valor ?? '').replace(/[^\d.,]/g, '');
 }
 
+/** Remove R$, espaços e placeholders (ex.: "-") de campos monetários. */
+export function normalizarTextoMonetario(valor) {
+  let texto = String(valor ?? '').trim();
+
+  if (!texto || texto === '-' || texto === '—' || texto === '–' || texto === '.') {
+    return '';
+  }
+
+  texto = texto.replace(/R\$\s*/gi, '').replace(/\s/g, '');
+
+  return texto;
+}
+
 export function mascaraCpf(valor) {
   const numeros = somenteNumeros(valor).slice(0, 11);
 
@@ -132,7 +145,7 @@ export function validarEmail(campo, { obrigatorio = false, rotulo = 'E-mail' } =
   return '';
 }
 
-export function validarInteiro(valor, { obrigatorio = false, min = 0, max = null, rotulo = 'Campo' } = {}) {
+export function validarInteiro(valor, { obrigatorio = false, min = 0, max = null, maxDigitos = null, rotulo = 'Campo' } = {}) {
   const texto = String(valor ?? '').trim();
 
   if (!texto) {
@@ -143,21 +156,30 @@ export function validarInteiro(valor, { obrigatorio = false, min = 0, max = null
     return `${rotulo} deve conter apenas números.`;
   }
 
-  const numero = Number(texto);
-
-  if (numero < min) {
-    return `${rotulo} deve ser no mínimo ${min}.`;
+  if (maxDigitos != null && texto.length > maxDigitos) {
+    return `${rotulo} deve ter no máximo ${maxDigitos} dígitos.`;
   }
 
-  if (max != null && numero > max) {
-    return `${rotulo} deve ser no máximo ${max}.`;
+  // Comparações numéricas só para valores seguros (evita quebrar matrículas longas).
+  if (texto.length <= 15) {
+    const numero = Number(texto);
+
+    if (numero < min) {
+      return `${rotulo} deve ser no mínimo ${min}.`;
+    }
+
+    if (max != null && numero > max) {
+      return `${rotulo} deve ser no máximo ${max}.`;
+    }
+  } else if (min > 0 && /^0+$/.test(texto)) {
+    return `${rotulo} deve ser no mínimo ${min}.`;
   }
 
   return '';
 }
 
 export function validarDecimal(valor, { obrigatorio = false, rotulo = 'Valor' } = {}) {
-  const texto = String(valor ?? '').trim();
+  const texto = normalizarTextoMonetario(valor);
 
   if (!texto) {
     return obrigatorio ? `${rotulo} é obrigatório.` : '';
@@ -252,15 +274,19 @@ export function formatarProcessoSeiInput(campo = 'processo_sei') {
 }
 
 /** Factory para @input em campos numéricos inteiros (v-model). */
-export function formatarInteiroInput(campo) {
+export function formatarInteiroInput(campo, { maxDigitos = null } = {}) {
   return function formatarInteiro(evento) {
-    this.form[campo] = somenteNumeros(evento.target.value);
+    let digitos = somenteNumeros(evento.target.value);
+    if (maxDigitos != null) {
+      digitos = digitos.slice(0, maxDigitos);
+    }
+    this.form[campo] = digitos;
   };
 }
 
 /** Factory para @input em campos decimais/monetários (v-model). */
 export function formatarDecimalInput(campo) {
   return function formatarDecimal(evento) {
-    this.form[campo] = somenteDecimal(evento.target.value);
+    this.form[campo] = somenteDecimal(normalizarTextoMonetario(evento.target.value));
   };
 }
