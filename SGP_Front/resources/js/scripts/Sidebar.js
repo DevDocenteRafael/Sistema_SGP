@@ -85,12 +85,22 @@ export default {
       type: Boolean,
       default: false,
     },
+    recolhido: {
+      type: Boolean,
+      default: false,
+    },
   },
-  emits: ['fechar'],
+  emits: ['fechar', 'alternar-recolhimento'],
   data() {
     return {
       logoSenac,
       icons: ICONS,
+      secoesAbertas: {
+        'PORTFÓLIO': true,
+        'PRAZOS': false,
+        'PROCESSOS': false,
+        'INSTITUCIONAL': false,
+      },
     };
   },
   computed: {
@@ -121,7 +131,27 @@ export default {
         .filter((secao) => secao.itens.length > 0);
     },
   },
+  watch: {
+    $route: {
+      immediate: true,
+      handler(route) {
+        const secaoAtual = MENU_SECOES.find((secao) => secao.itens.some((item) => item.rota === route.name));
+
+        if (secaoAtual?.titulo) {
+          this.secoesAbertas = Object.fromEntries(
+            Object.keys(this.secoesAbertas).map((titulo) => [titulo, titulo === secaoAtual.titulo]),
+          );
+        }
+      },
+    },
+  },
   methods: {
+    alternarSecao(titulo) {
+      const estaAberta = this.secoesAbertas[titulo];
+      this.secoesAbertas = Object.fromEntries(
+        Object.keys(this.secoesAbertas).map((chave) => [chave, chave === titulo ? !estaAberta : false]),
+      );
+    },
     onNavigate() {
       this.$emit('fechar');
     },

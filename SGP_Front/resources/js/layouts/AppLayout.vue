@@ -1,5 +1,5 @@
 <template>
-  <div class="app-layout" :class="{ 'menu-open': menuAberto }">
+  <div class="app-layout" :class="{ 'menu-open': menuAberto, 'menu-collapsed': menuRecolhido }">
     <a class="sgp-skip-link" href="#conteudo-principal">Ir para o conteúdo principal</a>
 
     <header class="app-topbar">
@@ -55,7 +55,9 @@
     <Sidebar
       id="sgp-sidebar"
       :aberto="menuAberto"
+      :recolhido="menuRecolhido"
       @fechar="fecharMenu"
+      @alternar-recolhimento="alternarRecolhimento"
     />
 
     <main id="conteudo-principal" class="app-main" tabindex="-1">

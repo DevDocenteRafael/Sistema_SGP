@@ -17,6 +17,7 @@ export default {
     const atual = obterAcessibilidade();
     return {
       menuAberto: false,
+      menuRecolhido: localStorage.getItem('sgp_menu_recolhido') === 'true',
       theme: atual.theme,
       fontScale: atual.fontScale,
       unsubscribe: null,
@@ -56,6 +57,10 @@ export default {
     },
     fecharMenu() {
       this.menuAberto = false;
+    },
+    alternarRecolhimento() {
+      this.menuRecolhido = !this.menuRecolhido;
+      localStorage.setItem('sgp_menu_recolhido', String(this.menuRecolhido));
     },
     onResize() {
       if (window.innerWidth > BREAKPOINTS.md && this.menuAberto) {
