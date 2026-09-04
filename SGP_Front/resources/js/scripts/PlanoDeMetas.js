@@ -95,6 +95,12 @@ export default createCrudPage({
       textoObrigatorio(form.mes_entrega, 'Informe o mês de entrega.'),
       textoObrigatorio(form.status, 'Informe o status do registro.'),
       textoObrigatorio(form.status_final, 'Informe o status final.'),
+      form.origem
+        ? tamanhoMaximo(form.origem, 100, 'A origem deve ter no máximo 100 caracteres.')
+        : '',
+      form.observacao
+        ? tamanhoMaximo(form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
+        : '',
       validarInteiro(anoFiltro, { obrigatorio: true, rotulo: 'Ano do ciclo', min: 1900, max: 2100 }),
     );
   },

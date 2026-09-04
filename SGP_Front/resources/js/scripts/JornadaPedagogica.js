@@ -236,6 +236,27 @@ export default {
           ? validarData(this.form.data_pre_jornada, { obrigatorio: true, rotulo: 'Data da pré-jornada' })
           : '',
         textoObrigatorio(this.form.status, 'O status é obrigatório.'),
+        this.form.local
+          ? tamanhoMaximo(this.form.local, 255, 'O local deve ter no máximo 255 caracteres.')
+          : '',
+        this.form.espaco
+          ? tamanhoMaximo(this.form.espaco, 255, 'O espaço deve ter no máximo 255 caracteres.')
+          : '',
+        this.form.verba
+          ? tamanhoMaximo(this.form.verba, 100, 'A verba deve ter no máximo 100 caracteres.')
+          : '',
+        this.form.setores
+          ? tamanhoMaximo(this.form.setores, 255, 'Setores deve ter no máximo 255 caracteres.')
+          : '',
+        this.form.custos
+          ? tamanhoMaximo(this.form.custos, 2000, 'Custos deve ter no máximo 2000 caracteres.')
+          : '',
+        this.form.programacao
+          ? tamanhoMaximo(this.form.programacao, 2000, 'A programação deve ter no máximo 2000 caracteres.')
+          : '',
+        this.form.observacoes
+          ? tamanhoMaximo(this.form.observacoes, 2000, 'As observações devem ter no máximo 2000 caracteres.')
+          : '',
       );
     },
 

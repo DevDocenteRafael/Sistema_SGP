@@ -101,6 +101,12 @@ export default createCrudPage({
       textoObrigatorio(form.status, 'O status é obrigatório.'),
       textoObrigatorio(form.responsavel, 'O responsável é obrigatório.'),
       tamanhoMaximo(form.responsavel, 150, 'O responsável deve ter no máximo 150 caracteres.'),
+      form.relatorio
+        ? tamanhoMaximo(form.relatorio, 2000, 'O relatório deve ter no máximo 2000 caracteres.')
+        : '',
+      form.observacao
+        ? tamanhoMaximo(form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
+        : '',
     );
   },
   montarPayload(form) {
