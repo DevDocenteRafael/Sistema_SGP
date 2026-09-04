@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\UnidadeOferta;
 use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VisitaTecnicaRequest;
@@ -68,7 +69,7 @@ class VisitaTecnicaController extends Controller
                 'eixos' => config('visitas_tecnicas.eixos'),
                 'status' => config('visitas_tecnicas.status'),
                 'anos' => config('visitas_tecnicas.anos'),
-                'unidades' => config('unidades'),
+                'unidades' => UnidadeOferta::nomesAtivos(),
                 'prazos' => config('visitas_tecnicas.prazos'),
             ],
         ]);

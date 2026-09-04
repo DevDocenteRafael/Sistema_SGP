@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\UnidadeOferta;
 use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PcaRequest;
@@ -122,7 +123,7 @@ class PcaController extends Controller
                 'anos' => $anos,
                 'semestres' => $semestres,
                 'eixos' => $eixos,
-                'unidades' => config('unidades'),
+                'unidades' => UnidadeOferta::nomesAtivos(),
             ],
         ]);
     }

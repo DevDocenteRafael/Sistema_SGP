@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
+use App\Models\UnidadeOferta;
 use App\Services\RelatorioService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -46,7 +47,7 @@ class RelatorioController extends Controller
             'data' => $catalogo,
             'meta' => [
                 'eixos' => $this->relatorioService->eixosDisponiveis(),
-                'unidades' => config('unidades', []),
+                'unidades' => UnidadeOferta::nomesAtivos(),
             ],
         ]);
     }
@@ -103,7 +104,7 @@ class RelatorioController extends Controller
                 'truncado' => $payload['truncado'],
                 'limite' => $payload['limite'],
                 'eixos' => $this->relatorioService->eixosDisponiveis(),
-                'unidades' => config('unidades', []),
+                'unidades' => UnidadeOferta::nomesAtivos(),
                 'status' => $registros->pluck('status')->filter()->unique()->sort()->values(),
                 'categorias' => $registros->pluck('categoria')->filter()->unique()->sort()->values(),
                 'setores' => $registros->pluck('setor')->filter()->unique()->sort()->values(),

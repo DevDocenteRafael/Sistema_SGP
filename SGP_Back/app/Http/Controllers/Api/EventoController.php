@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\UnidadeOferta;
 use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EventoRequest;
@@ -101,7 +102,7 @@ class EventoController extends Controller
                 'status' => config('eventos.status'),
                 'anos' => $anos,
                 'eixos' => $eixos,
-                'unidades' => config('unidades'),
+                'unidades' => UnidadeOferta::nomesAtivos(),
                 'possui_acao_extensiva' => config('eventos.possui_acao_extensiva'),
                 'acoes_vinculaveis' => $acoesVinculaveis,
             ],

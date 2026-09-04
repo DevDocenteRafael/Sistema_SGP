@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\UnidadeOferta;
 use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CursoPorEixoRequest;
@@ -64,7 +65,7 @@ class CursoPorEixoController extends Controller
                 'eixos' => config('eixos_tecnologicos'),
                 'status' => config('curso_por_eixos.status'),
                 'anos' => config('curso_por_eixos.anos'),
-                'unidades' => config('unidades'),
+                'unidades' => UnidadeOferta::nomesAtivos(),
             ],
         ]);
     }

@@ -23,6 +23,8 @@ use App\Http\Controllers\Api\PlanoDeMetaController;
 use App\Http\Controllers\Api\RelatorioController;
 use App\Http\Controllers\Api\ResolucaoController;
 use App\Http\Controllers\Api\TermoReferenciaController;
+use App\Http\Controllers\Api\UnidadeOfertaController;
+use App\Http\Controllers\Api\RegiaoAdministrativaController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\VisitaTecnicaController;
 use App\Models\Usuario;
@@ -64,6 +66,14 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::apiResource('jornadas-pedagogicas', JornadaPedagogicaController::class)
         ->parameters(['jornadas-pedagogicas' => 'jornadaPedagogica']);
     Route::get('sistemas-apoio', [SistemaApoioController::class, 'index']);
+    Route::get('unidades-oferta/nomes', [UnidadeOfertaController::class, 'nomes']);
+    Route::get('unidades-oferta/opcoes', [UnidadeOfertaController::class, 'opcoes']);
+    Route::apiResource('regioes-administrativas', RegiaoAdministrativaController::class)
+        ->parameters(['regioes-administrativas' => 'regiaoAdministrativa'])
+        ->except(['destroy']);
+    Route::apiResource('unidades-oferta', UnidadeOfertaController::class)
+        ->parameters(['unidades-oferta' => 'unidadeOferta'])
+        ->except(['destroy']);
     Route::apiResource('cped-equipes', CpedEquipeController::class)
         ->parameters(['cped-equipes' => 'cpedEquipe']);
     Route::get('ferramentas', [FerramentaController::class, 'index']);
