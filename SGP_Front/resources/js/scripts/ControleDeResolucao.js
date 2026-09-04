@@ -329,6 +329,9 @@ export default {
         this.form.relator
           ? tamanhoMaximo(this.form.relator, 255, 'O relator deve ter no máximo 255 caracteres.')
           : '',
+        this.form.observacoes
+          ? tamanhoMaximo(this.form.observacoes, 2000, 'As observações devem ter no máximo 2000 caracteres.')
+          : '',
         validarData(this.form.data_inicio_vigencia, { obrigatorio: true, rotulo: 'Data de início da vigência' }),
       );
     },

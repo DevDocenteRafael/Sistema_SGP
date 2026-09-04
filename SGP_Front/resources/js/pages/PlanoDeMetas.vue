@@ -225,12 +225,12 @@
             <div class="form-grid form-grid-page">
               <label class="campo">
                 <span>Segmento <em>*</em></span>
-                <input v-model="form.segmento" type="text" placeholder="Ex.: Infraestrutura" />
+                <input v-model="form.segmento" type="text" maxlength="100" placeholder="Ex.: Infraestrutura" />
               </label>
 
               <label class="campo">
                 <span>Tipo <em>*</em></span>
-                <input v-model="form.tipo" type="text" placeholder="Ex.: QUALIFICAÇÃO" />
+                <input v-model="form.tipo" type="text" maxlength="100" placeholder="Ex.: QUALIFICAÇÃO" />
               </label>
 
               <label class="campo">
@@ -244,7 +244,7 @@
 
               <label class="campo">
                 <span>Curso <em>*</em></span>
-                <input v-model="form.curso" type="text" placeholder="Nome do curso" />
+                <input v-model="form.curso" type="text" maxlength="255" placeholder="Nome do curso" />
               </label>
 
               <label class="campo">
@@ -254,7 +254,7 @@
 
               <label class="campo">
                 <span>Código SIG <em>*</em></span>
-                <input v-model="form.codigo_sig" type="text" placeholder="Ex.: SIG-001" />
+                <input v-model="form.codigo_sig" type="text" placeholder="Ex.: SIG-001" maxlength="100" />
               </label>
 
               <label class="campo">
@@ -268,7 +268,7 @@
 
               <label class="campo">
                 <span>Origem</span>
-                <input v-model="form.origem" type="text" placeholder="Ex.: Plano de Metas" />
+                <input v-model="form.origem" type="text" maxlength="100" placeholder="Ex.: Plano de Metas" />
               </label>
 
               <label class="campo">
@@ -285,6 +285,7 @@
                 <textarea
                   v-model="form.observacao"
                   rows="4"
+                  maxlength="2000"
                   placeholder="Explique o motivo do item estar em análise, pendente ou outra situação relevante..."
                 />
               </label>

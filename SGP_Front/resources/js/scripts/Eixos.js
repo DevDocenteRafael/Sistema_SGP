@@ -41,15 +41,21 @@ export default createCrudPage({
   }),
   normalizarRegistro: (registro) => ({ ...registro }),
   montarForm(registro) {
+    const limparInteiro = (valor) => {
+      const texto = String(valor ?? '').trim();
+      if (!texto) return '';
+      return texto.replace(/\D/g, '');
+    };
+
     return {
       curso: registro.curso ?? '',
       eixo: registro.eixo ?? '',
       unidade: registro.unidade ?? '',
       ano: registro.ano ?? '2025',
-      ch: registro.ch ?? '',
-      turmas: registro.turmas ?? '',
+      ch: limparInteiro(registro.ch),
+      turmas: limparInteiro(registro.turmas),
       codigo: registro.codigo ?? '',
-      alunos: registro.alunos ?? '',
+      alunos: limparInteiro(registro.alunos),
       instrutores: registro.instrutores ?? '',
       status: registro.status ?? 'Ativo',
       observacao: registro.observacao ?? '',
@@ -64,9 +70,12 @@ export default createCrudPage({
       textoObrigatorio(form.status, 'Selecione o status.'),
       form.turmas ? validarInteiro(form.turmas, { rotulo: 'Turmas', min: 0, max: 9999 }) : '',
       form.alunos ? validarInteiro(form.alunos, { rotulo: 'Alunos', min: 0, max: 99999 }) : '',
-      form.ch ? tamanhoMaximo(form.ch, 50, 'A carga horária deve ter no máximo 50 caracteres.') : '',
+      form.ch ? validarInteiro(form.ch, { rotulo: 'Carga horária', min: 0, max: 99999 }) : '',
       form.codigo ? tamanhoMaximo(form.codigo, 100, 'O código deve ter no máximo 100 caracteres.') : '',
       form.instrutores ? tamanhoMaximo(form.instrutores, 255, 'Instrutores deve ter no máximo 255 caracteres.') : '',
+      form.observacao
+        ? tamanhoMaximo(form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
+        : '',
     );
   },
   montarPayload(form) {
@@ -133,8 +142,9 @@ export default createCrudPage({
     },
   },
   extraMethods: {
-    formatarTurmas: formatarInteiroInput('turmas'),
-    formatarAlunos: formatarInteiroInput('alunos'),
+    formatarTurmas: formatarInteiroInput('turmas', { maxDigitos: 4 }),
+    formatarAlunos: formatarInteiroInput('alunos', { maxDigitos: 5 }),
+    formatarChCampo: formatarInteiroInput('ch', { maxDigitos: 5 }),
     formatarCh(valor) {
       if (!valor) return '—';
       const texto = String(valor).trim();

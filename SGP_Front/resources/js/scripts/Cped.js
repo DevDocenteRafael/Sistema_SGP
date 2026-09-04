@@ -514,6 +514,12 @@ export default {
         tamanhoMaximo(this.form.contato, 100, 'O e-mail deve ter no máximo 100 caracteres.'),
         textoObrigatorio(this.form.tipo, 'Selecione o tipo do membro.'),
         precisaEixo ? textoObrigatorio(this.form.eixo_vinculado, 'Informe o eixo vinculado.') : '',
+        this.form.iniciais
+          ? tamanhoMaximo(this.form.iniciais, 20, 'As iniciais devem ter no máximo 20 caracteres.')
+          : '',
+        this.form.observacao
+          ? tamanhoMaximo(this.form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
+          : '',
       );
     },
 

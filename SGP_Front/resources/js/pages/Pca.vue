@@ -305,7 +305,7 @@
 
               <div class="form-group">
                 <label for="codigo_sig">SIG</label>
-                <input id="codigo_sig" v-model="form.codigo_sig" type="text" placeholder="Ex.: SIG-001" />
+                <input id="codigo_sig" v-model="form.codigo_sig" type="text" maxlength="100" placeholder="Ex.: SIG-001" />
               </div>
 
               <div class="form-group full">
@@ -344,7 +344,7 @@
 
               <div class="form-group">
                 <label for="carga_horaria">CH</label>
-                <input id="carga_horaria" v-model="form.carga_horaria" type="text" inputmode="numeric" placeholder="Ex.: 1200" maxlength="50" @input="formatarCargaHoraria" />
+                <input id="carga_horaria" v-model="form.carga_horaria" type="text" inputmode="numeric" placeholder="Ex.: 1200" maxlength="5" @input="formatarCargaHoraria" />
               </div>
             </div>
           </section>
@@ -354,15 +354,15 @@
             <div class="form-grid form-grid-3">
               <div class="form-group">
                 <label for="precificacao">Precificação</label>
-                <input id="precificacao" v-model="form.precificacao" type="text" placeholder="Ex.: R$ 4.800,00" />
+                <input id="precificacao" v-model="form.precificacao" type="text" maxlength="100" placeholder="Ex.: R$ 4.800,00" />
               </div>
               <div class="form-group">
                 <label for="valor_primeiro_modulo">Valor 1º Módulo</label>
-                <input id="valor_primeiro_modulo" v-model="form.valor_primeiro_modulo" type="text" placeholder="Ex.: R$ 800,00" @input="formatarValorPrimeiroModulo" />
+                <input id="valor_primeiro_modulo" v-model="form.valor_primeiro_modulo" type="text" maxlength="50" placeholder="Ex.: 800,00" @input="formatarValorPrimeiroModulo" />
               </div>
               <div class="form-group">
                 <label for="valor">Valor Principal</label>
-                <input id="valor" v-model="form.valor" type="text" placeholder="Ex.: R$ 4.800,00" @input="formatarValor" />
+                <input id="valor" v-model="form.valor" type="text" maxlength="50" placeholder="Ex.: 4.800,00" @input="formatarValor" />
               </div>
               <div class="form-group">
                 <label for="parcelas_boleto">Parcelas Boleto</label>
@@ -370,7 +370,7 @@
               </div>
               <div class="form-group">
                 <label for="valor_parcela_boleto">Valor Parcela Boleto</label>
-                <input id="valor_parcela_boleto" v-model="form.valor_parcela_boleto" type="text" placeholder="Ex.: R$ 400,00" @input="formatarValorParcelaBoleto" />
+                <input id="valor_parcela_boleto" v-model="form.valor_parcela_boleto" type="text" maxlength="50" placeholder="Ex.: 400,00" @input="formatarValorParcelaBoleto" />
               </div>
               <div class="form-group">
                 <label for="parcelas_cartao">Parcelas Cartão</label>
@@ -378,15 +378,15 @@
               </div>
               <div class="form-group">
                 <label for="valor_cartao">Valor Cartão</label>
-                <input id="valor_cartao" v-model="form.valor_cartao" type="text" placeholder="Ex.: R$ 480,00" @input="formatarValorCartao" />
+                <input id="valor_cartao" v-model="form.valor_cartao" type="text" maxlength="50" placeholder="Ex.: 480,00" @input="formatarValorCartao" />
               </div>
               <div class="form-group">
                 <label for="parcela_desc_20">Parcela com desc. 20%</label>
-                <input id="parcela_desc_20" v-model="form.parcela_desc_20" type="text" placeholder="Ex.: R$ 320,00" />
+                <input id="parcela_desc_20" v-model="form.parcela_desc_20" type="text" maxlength="50" placeholder="Ex.: 320,00" @input="formatarParcelaDesc20" />
               </div>
               <div class="form-group">
                 <label for="parcela_desc_15">Parcela com desc. 15%</label>
-                <input id="parcela_desc_15" v-model="form.parcela_desc_15" type="text" placeholder="Ex.: R$ 340,00" />
+                <input id="parcela_desc_15" v-model="form.parcela_desc_15" type="text" maxlength="50" placeholder="Ex.: 340,00" @input="formatarParcelaDesc15" />
               </div>
             </div>
           </section>
@@ -411,6 +411,7 @@
                   id="observacao"
                   v-model="form.observacao"
                   rows="4"
+                  maxlength="2000"
                   placeholder="Observações sobre precificação, status ou validação..."
                 />
               </div>

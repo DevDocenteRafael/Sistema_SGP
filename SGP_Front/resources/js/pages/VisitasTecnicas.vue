@@ -320,6 +320,7 @@
                   id="relatorio"
                   v-model="form.relatorio"
                   rows="4"
+                  maxlength="2000"
                   placeholder="Descreva o relatório da visita, quando houver"
                 ></textarea>
               </div>
@@ -329,6 +330,7 @@
                   id="observacao"
                   v-model="form.observacao"
                   rows="3"
+                  maxlength="2000"
                   placeholder="Informações adicionais ou pendências"
                 ></textarea>
               </div>

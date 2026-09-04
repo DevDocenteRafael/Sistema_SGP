@@ -80,6 +80,9 @@ export default createCrudPage({
       textoObrigatorio(form.assunto, 'O assunto é obrigatório.'),
       tamanhoMaximo(form.assunto, 500, 'O assunto deve ter no máximo 500 caracteres.'),
       textoObrigatorio(form.status, 'O status é obrigatório.'),
+      form.objetivo
+        ? tamanhoMaximo(form.objetivo, 2000, 'O objetivo deve ter no máximo 2000 caracteres.')
+        : '',
       validarData(form.ultima_atualizacao, { rotulo: 'Última atualização' }),
     );
   },

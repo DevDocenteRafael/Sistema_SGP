@@ -98,6 +98,9 @@ export default createCrudPage({
       form.quantidade_pessoas !== '' && form.quantidade_pessoas != null
         ? validarInteiro(form.quantidade_pessoas, { rotulo: 'Quantidade de pessoas', min: 0, max: 999999 })
         : '',
+      form.observacao
+        ? tamanhoMaximo(form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
+        : '',
     );
   },
   montarPayload(form) {

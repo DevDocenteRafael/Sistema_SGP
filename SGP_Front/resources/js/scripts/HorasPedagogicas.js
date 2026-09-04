@@ -4,6 +4,7 @@ import {
   formatarInteiroInput,
   formatarProcessoSeiInput,
   somenteAlfanumericoProcesso,
+  tamanhoMaximo,
   textoObrigatorio,
   validarInteiro,
   validarProcessoSei,
@@ -76,14 +77,19 @@ export default createCrudPage({
   validarFormulario(form) {
     return combinarValidacoes(
       textoObrigatorio(form.matricula, 'A matrícula é obrigatória.'),
-      validarInteiro(form.matricula, { rotulo: 'Matrícula', min: 1, max: 999999999 }),
+      validarInteiro(form.matricula, { rotulo: 'Matrícula', min: 1, maxDigitos: 50 }),
       textoObrigatorio(form.pessoa, 'O nome da pessoa é obrigatório.'),
+      tamanhoMaximo(form.pessoa, 150, 'O nome da pessoa deve ter no máximo 150 caracteres.'),
       textoObrigatorio(form.segmento, 'O segmento é obrigatório.'),
       textoObrigatorio(form.eixo, 'O eixo é obrigatório.'),
       validarProcessoSei(form.processo_sei, { obrigatorio: true }),
       validarInteiro(form.ano, { obrigatorio: true, rotulo: 'Ano', min: 1900, max: 2100 }),
       textoObrigatorio(form.motivo, 'O motivo é obrigatório.'),
+      tamanhoMaximo(form.motivo, 255, 'O motivo deve ter no máximo 255 caracteres.'),
       textoObrigatorio(form.status, 'O status é obrigatório.'),
+      form.observacao
+        ? tamanhoMaximo(form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
+        : '',
     );
   },
   montarPayload(form) {
@@ -140,7 +146,7 @@ export default createCrudPage({
   },
   extraMethods: {
     formatarProcessoSei: formatarProcessoSeiInput('processo_sei'),
-    formatarMatricula: formatarInteiroInput('matricula'),
+    formatarMatricula: formatarInteiroInput('matricula', { maxDigitos: 50 }),
     rotuloAtivo(ativo) {
       return ativo ? 'Sim' : 'Não';
     },

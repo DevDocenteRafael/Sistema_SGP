@@ -1,4 +1,5 @@
 import { UNIDADES } from './unidades';
+import { carregarUnidadesNomes } from './unidadesApi';
 
 const EIXOS_PADRAO = [
   'Gastronomia',
@@ -365,6 +366,9 @@ export default {
 
   created() {
     this.carregarDashboard();
+    carregarUnidadesNomes().then((nomes) => {
+      this.unidadesBase = nomes;
+    });
   },
 
   methods: {
