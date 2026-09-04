@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call([
+            UnidadeOfertaSeeder::class,
             UsuarioSeeder::class,
             CursoSeeder::class,
             PlanoDeMetaSeeder::class,
