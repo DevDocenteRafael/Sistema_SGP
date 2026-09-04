@@ -233,15 +233,15 @@
               </div>
               <div class="form-group full">
                 <label for="jornada-custos">Custos</label>
-                <textarea id="jornada-custos" v-model="form.custos" rows="3" />
+                <textarea id="jornada-custos" v-model="form.custos" rows="3" maxlength="2000" />
               </div>
               <div class="form-group full">
                 <label for="jornada-programacao">Programação</label>
-                <textarea id="jornada-programacao" v-model="form.programacao" rows="5" />
+                <textarea id="jornada-programacao" v-model="form.programacao" rows="5" maxlength="2000" />
               </div>
               <div class="form-group full">
                 <label for="jornada-obs">Observações</label>
-                <textarea id="jornada-obs" v-model="form.observacoes" rows="3" />
+                <textarea id="jornada-obs" v-model="form.observacoes" rows="3" maxlength="2000" />
               </div>
               <div class="form-group full">
                 <label for="jornada-anexo">Anexo</label>

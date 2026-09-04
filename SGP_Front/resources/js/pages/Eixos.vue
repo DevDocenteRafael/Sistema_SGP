@@ -315,12 +315,12 @@
 
               <div class="form-group">
                 <label for="form-ch">Carga horária (CH)</label>
-                <input id="form-ch" v-model="form.ch" type="text" maxlength="50" placeholder="Ex: 160" />
+                <input id="form-ch" v-model="form.ch" type="text" inputmode="numeric" maxlength="5" placeholder="Ex: 160" @input="formatarChCampo" />
               </div>
 
               <div class="form-group">
                 <label for="form-turmas">Turmas</label>
-                <input id="form-turmas" v-model="form.turmas" type="text" maxlength="20" placeholder="Ex: 2" @input="formatarTurmas" />
+                <input id="form-turmas" v-model="form.turmas" type="text" inputmode="numeric" maxlength="4" placeholder="Ex: 2" @input="formatarTurmas" />
               </div>
 
               <div class="form-group">
@@ -330,7 +330,7 @@
 
               <div class="form-group">
                 <label for="form-alunos">Alunos</label>
-                <input id="form-alunos" v-model="form.alunos" type="text" maxlength="20" placeholder="Ex: 22" @input="formatarAlunos" />
+                <input id="form-alunos" v-model="form.alunos" type="text" inputmode="numeric" maxlength="5" placeholder="Ex: 22" @input="formatarAlunos" />
               </div>
 
               <div class="form-group full">
@@ -340,7 +340,7 @@
 
               <div class="form-group full">
                 <label for="form-observacao">Observação</label>
-                <textarea id="form-observacao" v-model="form.observacao" rows="3" />
+                <textarea id="form-observacao" v-model="form.observacao" rows="3" maxlength="2000" />
               </div>
             </div>
           </section>

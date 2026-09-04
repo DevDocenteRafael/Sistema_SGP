@@ -90,11 +90,25 @@ export default {
       return podeEditarDados();
     },
     abasForm() {
-      return [
+      const abas = [
         { id: 'basico', label: 'Dados Básicos' },
         { id: 'acompanhamento', label: 'Acompanhamento' },
-        { id: 'historico', label: 'Histórico' },
       ];
+
+      if (this.modo !== 'novo') {
+        abas.push({ id: 'historico', label: 'Histórico' });
+      }
+
+      return abas;
+    },
+    indiceAbaForm() {
+      return this.abasForm.findIndex((aba) => aba.id === this.abaForm);
+    },
+    ehPrimeiraAbaForm() {
+      return this.indiceAbaForm <= 0;
+    },
+    ehUltimaAbaForm() {
+      return this.indiceAbaForm >= this.abasForm.length - 1;
     },
   },
   methods: {
@@ -271,25 +285,94 @@ export default {
     /**
      * Valida o formulário antes de enviar
      */
-    validarFormulario() {
-      const erro = combinarValidacoes(
-        textoObrigatorio(this.form.nome, 'O nome do Termo de Referência é obrigatório.'),
-        tamanhoMaximo(this.form.nome, 255, 'O nome deve ter no máximo 255 caracteres.'),
-        textoObrigatorio(this.form.eixo, 'O eixo é obrigatório.'),
-        validarProcessoSei(this.form.processo_sei, { obrigatorio: true }),
-        validarData(this.form.prazo_deadline, { obrigatorio: true, rotulo: 'Prazo/deadline' }),
-        textoObrigatorio(this.form.status, 'O status é obrigatório.'),
-        validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
-        validarData(this.form.data_fim, { rotulo: 'Data de término' }),
-        validarOrdemDatas(
-          this.form.data_inicio,
-          this.form.data_fim,
-          'A data de término deve ser posterior ou igual à data de início.',
-        ),
-      );
+    validarAba(abaId) {
+      if (abaId === 'basico') {
+        return combinarValidacoes(
+          textoObrigatorio(this.form.nome, 'O nome do Termo de Referência é obrigatório.'),
+          tamanhoMaximo(this.form.nome, 255, 'O nome deve ter no máximo 255 caracteres.'),
+          textoObrigatorio(this.form.eixo, 'O eixo é obrigatório.'),
+          validarProcessoSei(this.form.processo_sei, { obrigatorio: true }),
+        );
+      }
 
-      this.erroFormulario = erro;
-      return !erro;
+      if (abaId === 'acompanhamento') {
+        return combinarValidacoes(
+          validarData(this.form.prazo_deadline, { obrigatorio: true, rotulo: 'Prazo/deadline' }),
+          textoObrigatorio(this.form.status, 'O status é obrigatório.'),
+          validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
+          validarData(this.form.data_fim, { rotulo: 'Data de término' }),
+          validarOrdemDatas(
+            this.form.data_inicio,
+            this.form.data_fim,
+            'A data de término deve ser posterior ou igual à data de início.',
+          ),
+          this.form.observacao
+            ? tamanhoMaximo(this.form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
+            : '',
+        );
+      }
+
+      return '';
+    },
+
+    validarFormulario() {
+      for (const aba of this.abasForm) {
+        const erro = this.validarAba(aba.id);
+        if (erro) {
+          this.abaForm = aba.id;
+          this.erroFormulario = erro;
+          return false;
+        }
+      }
+
+      this.erroFormulario = '';
+      return true;
+    },
+
+    selecionarAbaForm(abaId) {
+      const destino = this.abasForm.findIndex((aba) => aba.id === abaId);
+      if (destino < 0) {
+        return;
+      }
+
+      const atual = Math.max(this.indiceAbaForm, 0);
+      if (destino > atual) {
+        for (let i = atual; i < destino; i += 1) {
+          const erro = this.validarAba(this.abasForm[i].id);
+          if (erro) {
+            this.abaForm = this.abasForm[i].id;
+            this.erroFormulario = erro;
+            return;
+          }
+        }
+      }
+
+      this.erroFormulario = '';
+      this.abaForm = abaId;
+    },
+
+    irAbaAnterior() {
+      if (this.ehPrimeiraAbaForm) {
+        return;
+      }
+
+      this.erroFormulario = '';
+      this.abaForm = this.abasForm[this.indiceAbaForm - 1].id;
+    },
+
+    irAbaProxima() {
+      if (this.ehUltimaAbaForm) {
+        return;
+      }
+
+      const erro = this.validarAba(this.abaForm);
+      if (erro) {
+        this.erroFormulario = erro;
+        return;
+      }
+
+      this.erroFormulario = '';
+      this.abaForm = this.abasForm[this.indiceAbaForm + 1].id;
     },
 
     formatarProcessoSei: formatarProcessoSeiInput('processo_sei'),

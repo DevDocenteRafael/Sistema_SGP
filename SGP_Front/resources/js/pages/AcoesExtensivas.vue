@@ -313,6 +313,7 @@
                   id="objetivo"
                   v-model="form.objetivo"
                   rows="5"
+                  maxlength="2000"
                   placeholder="Descreva o objetivo da ação"
                 ></textarea>
               </div>

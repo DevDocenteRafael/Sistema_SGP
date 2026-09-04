@@ -206,15 +206,18 @@
         :subtitle="modo === 'novo' ? 'Preencha as informações para adicionar um novo TR' : 'Atualize os dados, o acompanhamento e o histórico do TR — inclusive após a saída da CPED.'"
         @voltar="fecharFormulario"
       >
-        <div class="form-tabs">
+        <div class="form-tabs" role="tablist" aria-label="Etapas do formulário">
           <button
-            v-for="aba in abasForm"
+            v-for="(aba, indice) in abasForm"
             :key="aba.id"
             type="button"
             class="form-tab"
+            role="tab"
+            :aria-selected="abaForm === aba.id"
             :class="{ active: abaForm === aba.id }"
-            @click="abaForm = aba.id"
+            @click="selecionarAbaForm(aba.id)"
           >
+            <span class="form-tab-step">{{ indice + 1 }}</span>
             {{ aba.label }}
           </button>
         </div>
@@ -294,6 +297,7 @@
                     id="observacao-tr"
                     v-model="form.observacao"
                     rows="4"
+                    maxlength="2000"
                     placeholder="Adicione observações, justificativas ou informações adicionais sobre o TR..."
                   ></textarea>
                 </div>
@@ -315,8 +319,31 @@
             <button type="button" class="btn-secondary" @click="fecharFormulario" :disabled="carregandoFormulario">
               Cancelar
             </button>
-            <button v-if="podeEditar" type="submit" class="btn-salvar" :disabled="carregandoFormulario">
-              {{ carregandoFormulario ? 'Salvando...' : 'Salvar Termo de Referência' }}
+            <button
+              v-if="!ehPrimeiraAbaForm"
+              type="button"
+              class="btn-secondary"
+              :disabled="carregandoFormulario"
+              @click="irAbaAnterior"
+            >
+              Anterior
+            </button>
+            <button
+              v-if="!ehUltimaAbaForm"
+              type="button"
+              class="btn-salvar"
+              :disabled="carregandoFormulario"
+              @click="irAbaProxima"
+            >
+              Próximo
+            </button>
+            <button
+              v-else-if="podeEditar"
+              type="submit"
+              class="btn-salvar"
+              :disabled="carregandoFormulario"
+            >
+              {{ carregandoFormulario ? 'Salvando...' : (modo === 'novo' ? 'Cadastrar Termo de Referência' : 'Salvar Termo de Referência') }}
             </button>
           </div>
         </form>

@@ -233,11 +233,11 @@
             <div class="form-grid">
               <div class="form-group">
                 <label for="pessoa">Pessoa <span>*</span></label>
-                <input id="pessoa" v-model="form.pessoa" type="text" maxlength="100" required placeholder="Nome completo" />
+                <input id="pessoa" v-model="form.pessoa" type="text" maxlength="150" required placeholder="Nome completo" />
               </div>
               <div class="form-group">
                 <label for="matricula">Matrícula <span>*</span></label>
-                <input id="matricula" v-model="form.matricula" type="text" maxlength="20" required inputmode="numeric" placeholder="Ex: 2026001" @input="formatarMatricula" />
+                <input id="matricula" v-model="form.matricula" type="text" maxlength="50" required inputmode="numeric" placeholder="Ex: 2026001" @input="formatarMatricula" />
               </div>
               <div class="form-group">
                 <label for="segmento">Segmento <span>*</span></label>
@@ -319,7 +319,7 @@
                   id="motivo"
                   v-model="form.motivo"
                   type="text"
-                  maxlength="200"
+                  maxlength="255"
                   required
                   placeholder="Motivo da solicitação de horas"
                 />
@@ -330,6 +330,7 @@
                   id="observacao"
                   v-model="form.observacao"
                   rows="3"
+                  maxlength="2000"
                   placeholder="Informações adicionais ou pendências"
                 ></textarea>
               </div>

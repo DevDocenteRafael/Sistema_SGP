@@ -548,7 +548,7 @@
 
           <label>
             Observação
-            <textarea v-model="form.observacao" rows="3"></textarea>
+            <textarea v-model="form.observacao" rows="3" maxlength="2000"></textarea>
           </label>
 
           <div class="modal-actions">

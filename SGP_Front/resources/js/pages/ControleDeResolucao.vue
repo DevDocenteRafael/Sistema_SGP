@@ -345,7 +345,7 @@
             <div class="form-grid">
               <div class="form-group full">
                 <label for="resolucao-observacoes">Observações</label>
-                <textarea id="resolucao-observacoes" v-model="form.observacoes" rows="3" placeholder="Informações complementares"></textarea>
+                <textarea id="resolucao-observacoes" v-model="form.observacoes" rows="3" maxlength="2000" placeholder="Informações complementares"></textarea>
               </div>
               <div class="form-group full">
                 <label for="resolucao-anexo">Anexo</label>

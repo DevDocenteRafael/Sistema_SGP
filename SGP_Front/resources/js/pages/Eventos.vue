@@ -366,6 +366,7 @@
                   id="observacao"
                   v-model="form.observacao"
                   rows="4"
+                  maxlength="2000"
                   placeholder="Observações do evento"
                 ></textarea>
               </div>
