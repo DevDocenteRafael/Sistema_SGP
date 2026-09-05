@@ -7,7 +7,6 @@ return [
     'Gama',
     'Ceilândia',
     'Sobradinho',
-    'Jessé Freire',
     'Santa Maria',
     'São Sebastião',
     'Brazlândia',

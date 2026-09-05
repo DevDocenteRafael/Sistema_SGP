@@ -16,7 +16,7 @@ class UnidadeOfertaController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar unidades de oferta.')) {
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar estruturas institucionais.')) {
             return $negado;
         }
 
@@ -29,6 +29,9 @@ class UnidadeOfertaController extends Controller
             $query->where(function ($q) use ($busca) {
                 $q->where('nome', 'like', "%{$busca}%")
                     ->orWhere('tipo', 'like', "%{$busca}%")
+                    ->orWhere('codigo', 'like', "%{$busca}%")
+                    ->orWhere('endereco', 'like', "%{$busca}%")
+                    ->orWhere('responsavel', 'like', "%{$busca}%")
                     ->orWhereHas('regiaoAdministrativa', fn ($ra) => $ra->where('nome', 'like', "%{$busca}%"));
             });
         }
@@ -61,7 +64,7 @@ class UnidadeOfertaController extends Controller
 
     public function nomes(Request $request): JsonResponse
     {
-        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar unidades de oferta.')) {
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar estruturas institucionais.')) {
             return $negado;
         }
 
@@ -72,7 +75,7 @@ class UnidadeOfertaController extends Controller
 
     public function opcoes(Request $request): JsonResponse
     {
-        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar unidades de oferta.')) {
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar estruturas institucionais.')) {
             return $negado;
         }
 
@@ -84,7 +87,7 @@ class UnidadeOfertaController extends Controller
                 if (! $incluirInativas) {
                     $q->where('ativo', true);
                 }
-                $q->orderByRaw("CASE tipo WHEN 'cep' THEN 1 WHEN 'polo' THEN 2 WHEN 'faculdade' THEN 3 ELSE 4 END")
+                $q->orderByRaw("CASE tipo WHEN 'faculdade' THEN 1 WHEN 'polo' THEN 2 WHEN 'unidade' THEN 3 WHEN 'cep' THEN 3 ELSE 4 END")
                     ->orderBy('nome');
             }])
             ->orderBy('nome')
@@ -133,20 +136,20 @@ class UnidadeOfertaController extends Controller
 
     public function store(UnidadeOfertaRequest $request): JsonResponse
     {
-        $dados = $request->validated();
+        $dados = collect($request->validated())->except('localidade')->all();
         $dados['ativo'] = $dados['ativo'] ?? true;
 
         $unidade = UnidadeOferta::create($dados);
 
         return response()->json([
-            'message' => 'Unidade de oferta cadastrada com sucesso.',
+            'message' => 'Estrutura institucional cadastrada com sucesso.',
             'unidade_oferta' => $unidade->fresh()->load('regiaoAdministrativa:id,nome,ativo'),
         ], 201);
     }
 
     public function show(Request $request, UnidadeOferta $unidadeOferta): JsonResponse
     {
-        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar esta unidade de oferta.')) {
+        if ($negado = $this->negarSeNaoPodeConsultar($request, 'Você não tem permissão para consultar esta estrutura institucional.')) {
             return $negado;
         }
 
@@ -157,11 +160,11 @@ class UnidadeOfertaController extends Controller
 
     public function update(UnidadeOfertaRequest $request, UnidadeOferta $unidadeOferta): JsonResponse
     {
-        $unidadeOferta->fill($request->validated());
+        $unidadeOferta->fill(collect($request->validated())->except('localidade')->all());
         $unidadeOferta->save();
 
         return response()->json([
-            'message' => 'Unidade de oferta atualizada com sucesso.',
+            'message' => 'Estrutura institucional atualizada com sucesso.',
             'unidade_oferta' => $unidadeOferta->fresh()->load('regiaoAdministrativa:id,nome,ativo'),
         ]);
     }

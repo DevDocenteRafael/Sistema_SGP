@@ -1,9 +1,16 @@
 <?php
 
 return [
+    /*
+    |--------------------------------------------------------------------------
+    | Tipos de Estrutura Institucional
+    |--------------------------------------------------------------------------
+    | Conceito unificado: Faculdade | Polo | Unidade
+    | (legado "cep" foi migrado para "unidade")
+    */
     'tipos' => [
-        'cep' => 'CEP — Centro de Educação Profissional',
-        'polo' => 'Polo',
         'faculdade' => 'Faculdade',
+        'polo' => 'Polo',
+        'unidade' => 'Unidade',
     ],
 ];

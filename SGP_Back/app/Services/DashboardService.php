@@ -8,6 +8,7 @@ use App\Models\Evento;
 use App\Models\HoraPedagogica;
 use App\Models\Resolucao;
 use App\Models\TermoReferencia;
+use App\Models\UnidadeOferta;
 use App\Models\VisitaTecnica;
 
 class DashboardService
@@ -120,6 +121,14 @@ class DashboardService
             ->values()
             ->all();
 
+        $estruturasAtivas = UnidadeOferta::query()->where('ativo', true)->count();
+        $estruturasPorTipo = UnidadeOferta::query()
+            ->where('ativo', true)
+            ->selectRaw('tipo, COUNT(*) as total')
+            ->groupBy('tipo')
+            ->pluck('total', 'tipo')
+            ->all();
+
         return [
             'cursos' => $cursos,
             'visitas' => $visitas,
@@ -131,12 +140,17 @@ class DashboardService
                 'eventos' => Evento::query()->count(),
                 'resolucoes' => $resolucoesLeves->count(),
                 'termos' => $termosLeves->count(),
+                'estruturas' => $estruturasAtivas,
+                'estruturas_faculdade' => (int) ($estruturasPorTipo['faculdade'] ?? 0),
+                'estruturas_polo' => (int) ($estruturasPorTipo['polo'] ?? 0),
+                'estruturas_unidade' => (int) (($estruturasPorTipo['unidade'] ?? 0) + ($estruturasPorTipo['cep'] ?? 0)),
             ],
             'resolucoes_contagens' => ResolucaoVigenciaService::contarPorSemaforo($resolucoesLeves),
             'termos_contagens' => TermoReferenciaPrazoService::contarPorPrazo($termosLeves),
             'meta' => [
                 'eixos' => $eixos,
                 'status' => $status,
+                'unidades' => UnidadeOferta::nomesAtivos(),
             ],
         ];
     }

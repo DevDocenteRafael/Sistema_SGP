@@ -11,16 +11,19 @@ class UnidadeOferta extends Model
 {
     use AuditaCadastro;
 
-    public const TIPO_CEP = 'cep';
+    /** @deprecated Use TIPO_UNIDADE — mantido para compatibilidade de código legado */
+    public const TIPO_CEP = 'unidade';
+
+    public const TIPO_UNIDADE = 'unidade';
 
     public const TIPO_POLO = 'polo';
 
     public const TIPO_FACULDADE = 'faculdade';
 
     public const TIPOS = [
-        self::TIPO_CEP,
-        self::TIPO_POLO,
         self::TIPO_FACULDADE,
+        self::TIPO_POLO,
+        self::TIPO_UNIDADE,
     ];
 
     protected $table = 'unidades_oferta';
@@ -29,7 +32,11 @@ class UnidadeOferta extends Model
         'regiao_administrativa_id',
         'nome',
         'tipo',
+        'codigo',
+        'endereco',
+        'responsavel',
         'ativo',
+        'motivo_inativacao',
         'criado_por',
         'atualizado_por',
     ];
@@ -47,9 +54,13 @@ class UnidadeOferta extends Model
         return $this->belongsTo(RegiaoAdministrativa::class, 'regiao_administrativa_id');
     }
 
+    public function labelTipo(): string
+    {
+        return config('unidades_oferta.tipos.'.$this->tipo, $this->tipo ?? '—');
+    }
+
     /**
-     * Nomes de unidades ativas para validação e selects flat.
-     * Fallback para config('unidades') se a tabela ainda não existir.
+     * Nomes ativos das estruturas institucionais (selects flat / validação).
      *
      * @return list<string>
      */
