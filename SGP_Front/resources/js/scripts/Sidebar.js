@@ -1,6 +1,5 @@
 import logoSenac from '../../images/Logo-Senac-branco.png';
 import { clearSessao, getUsuario, podeAcessarMenu } from './auth';
-import AcessibilidadeControles from '../components/ui/AcessibilidadeControles.vue';
 
 const ICONS = {
   home: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
@@ -25,6 +24,7 @@ const ICONS = {
   jornada: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>',
   sistemasApoio: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>',
   unidades: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+  estruturas: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>',
 };
 
 const MENU_SECOES = [
@@ -41,7 +41,6 @@ const MENU_SECOES = [
     titulo: 'PORTFÓLIO',
     itens: [
       { rota: 'cursos', label: 'Cursos', path: '/app/cursos', icon: 'cursos' },
-      { rota: 'ciclos-portfolio', label: 'Ciclos de Portfólio', path: '/app/ciclos-portfolio', icon: 'ciclos' },
       { rota: 'plano-de-metas', label: 'Plano de Metas', path: '/app/plano-de-metas', icon: 'metas' },
       { rota: 'pca', label: 'PCA', path: '/app/pca', icon: 'pca' },
       { rota: 'eixos', label: 'Eixos', path: '/app/eixos', icon: 'eixos' },
@@ -68,7 +67,7 @@ const MENU_SECOES = [
     titulo: 'INSTITUCIONAL',
     itens: [
       { rota: 'sistemas-apoio', label: 'Sistemas de Apoio', path: '/app/sistemas-apoio', icon: 'sistemasApoio' },
-      { rota: 'unidades', label: 'Unidades', path: '/app/unidades', icon: 'unidades' },
+      { rota: 'estruturas-institucionais', label: 'Estruturas Institucionais', path: '/app/estruturas-institucionais', icon: 'estruturas' },
       { rota: 'ferramentas', label: 'Ferramentas', path: '/app/ferramentas', icon: 'ferramentas' },
       { rota: 'cped', label: 'CPED', path: '/app/cped', icon: 'cped' },
       { rota: 'auditoria', label: 'Auditoria', path: '/app/auditoria', icon: 'auditoria' },
@@ -79,7 +78,6 @@ const MENU_SECOES = [
 
 export default {
   name: 'Sidebar',
-  components: { AcessibilidadeControles },
   props: {
     aberto: {
       type: Boolean,

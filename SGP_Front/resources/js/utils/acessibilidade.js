@@ -1,8 +1,10 @@
 /**
  * Preferências de acessibilidade globais do SGP.
- * Persistidas em localStorage e aplicadas em <html> via --sgp-font-scale.
+ * Persistidas em localStorage e aplicadas em <html>.
  *
- * Escala tipográfica em rem (WCAG 1.4.4 → até ~200%).
+ * - Tema claro/escuro (data-theme)
+ * - Alto contraste (data-contrast)
+ * - Escala tipográfica em rem via font-size do root (NÃO zoom/scale)
  */
 
 const STORAGE_KEY = 'sgp_acessibilidade';
@@ -11,9 +13,10 @@ const FONT_MAX = 2;
 const FONT_STEP = 0.25;
 const FONT_DEFAULT = 1;
 
-/** @type {{ theme: 'light'|'dark', fontScale: number }} */
+/** @type {{ theme: 'light'|'dark', highContrast: boolean, fontScale: number }} */
 let estado = {
   theme: 'light',
+  highContrast: false,
   fontScale: FONT_DEFAULT,
 };
 
@@ -67,12 +70,14 @@ function aplicarNoDom() {
 
   const root = document.documentElement;
   root.setAttribute('data-theme', estado.theme);
+  root.setAttribute('data-contrast', estado.highContrast ? 'high' : 'normal');
   root.style.setProperty('--sgp-font-scale', String(estado.fontScale));
   root.style.fontSize = `${16 * estado.fontScale}px`;
   root.style.colorScheme = estado.theme === 'dark' ? 'dark' : 'light';
   root.classList.toggle('sgp-font-large', estado.fontScale >= 1.25);
   root.classList.toggle('sgp-font-xlarge', estado.fontScale >= 1.5);
   root.classList.toggle('sgp-font-xxlarge', estado.fontScale >= 1.75);
+  root.classList.toggle('sgp-high-contrast', estado.highContrast);
 }
 
 export function obterAcessibilidade() {
@@ -84,6 +89,11 @@ export function initAcessibilidade() {
   if (salvo && typeof salvo === 'object') {
     if (salvo.theme === 'dark' || salvo.theme === 'light') {
       estado.theme = salvo.theme;
+    }
+    if (typeof salvo.highContrast === 'boolean') {
+      estado.highContrast = salvo.highContrast;
+    } else if (salvo.contrast === 'high') {
+      estado.highContrast = true;
     }
     const escala = Number(salvo.fontScale);
     if (Number.isFinite(escala)) {
@@ -103,6 +113,17 @@ export function definirTema(theme) {
 
 export function alternarTema() {
   definirTema(estado.theme === 'dark' ? 'light' : 'dark');
+}
+
+export function definirAltoContraste(ativo) {
+  estado.highContrast = Boolean(ativo);
+  salvarStorage();
+  aplicarNoDom();
+  notificar();
+}
+
+export function alternarAltoContraste() {
+  definirAltoContraste(!estado.highContrast);
 }
 
 export function definirEscalaFonte(escala) {

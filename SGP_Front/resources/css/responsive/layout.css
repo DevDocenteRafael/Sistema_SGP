@@ -54,6 +54,11 @@
     letter-spacing: 0.02em;
   }
 
+  .app-content-column {
+    width: 100%;
+    min-width: 0;
+  }
+
   .app-main {
     padding: 1rem;
     width: 100%;

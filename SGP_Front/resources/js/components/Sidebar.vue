@@ -54,31 +54,25 @@
     </div>
 
     <div class="sidebar-footer">
-      <div class="sidebar-footer-a11y">
-        <AcessibilidadeControles />
-      </div>
-
-      <div class="sidebar-footer-account">
-        <div v-if="usuario" class="sidebar-user-card">
-          <span class="sidebar-avatar" aria-hidden="true">
-            <img v-if="usuario.foto" :src="usuario.foto" :alt="usuario.nome" />
-            <template v-else>{{ iniciais }}</template>
-          </span>
-          <div class="sidebar-user-info">
-            <p class="sidebar-user-nome">{{ usuario.nome }}</p>
-            <p v-if="usuario.unidade" class="sidebar-user-unidade">{{ usuario.unidade }}</p>
-          </div>
+      <div v-if="usuario" class="sidebar-user-card">
+        <span class="sidebar-avatar" aria-hidden="true">
+          <img v-if="usuario.foto" :src="usuario.foto" :alt="usuario.nome" />
+          <template v-else>{{ iniciais }}</template>
+        </span>
+        <div class="sidebar-user-info">
+          <p class="sidebar-user-nome">{{ usuario.nome }}</p>
+          <p v-if="usuario.unidade" class="sidebar-user-unidade">{{ usuario.unidade }}</p>
         </div>
-
-        <button type="button" class="sidebar-logout" @click="logout" title="Sair da conta">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" x2="9" y1="12" y2="12" />
-          </svg>
-          <span class="sidebar-logout-label">Sair</span>
-        </button>
       </div>
+
+      <button type="button" class="sidebar-logout" @click="logout" title="Sair da conta">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" x2="9" y1="12" y2="12" />
+        </svg>
+        <span class="sidebar-logout-label">Sair</span>
+      </button>
     </div>
   </nav>
 </template>
