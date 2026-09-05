@@ -1,4 +1,4 @@
-import { UNIDADES } from './unidades';
+import { hidratarUnidadesSelect } from './unidadesApi';
 import { podeConsultarDados } from './auth';
 import TabelaContador from '../components/crud/TabelaContador.vue';
 import { mixinHistoricoCatalogo } from './formularioHistorico';
@@ -60,7 +60,7 @@ export default {
       registros: [],
       metaApi: {},
       filtros: filtrosVazios(),
-      unidadesBase: UNIDADES,
+      unidadesBase: [],
       eixosBase: EIXOS_PADRAO,
       buscaTimer: null,
       _trocandoRelatorio: false,
@@ -217,6 +217,7 @@ export default {
       return;
     }
     this.carregarCatalogo();
+    hidratarUnidadesSelect(this, ['unidadesBase'], { forcar: true });
   },
 
   methods: {
@@ -245,9 +246,6 @@ export default {
         this.catalogo = data.data || [];
         if (Array.isArray(data.meta?.eixos) && data.meta.eixos.length) {
           this.eixosBase = data.meta.eixos;
-        }
-        if (Array.isArray(data.meta?.unidades) && data.meta.unidades.length) {
-          this.unidadesBase = data.meta.unidades;
         }
 
         const viewKey = this.$route?.query?.view;

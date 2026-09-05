@@ -27,7 +27,7 @@
 
           <SearchableSelect
             v-model="filtros.unidade"
-            aria-label="Unidade"
+            aria-label="Estrutura Institucional"
             empty-option="Todos"
             :options="unidadesDisponiveis"
           />
@@ -344,8 +344,8 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3>Por Unidade</h3>
-              <p class="dashboard-chart-subtitle">Unidades que mais solicitaram</p>
+              <h3>Por Estrutura</h3>
+              <p class="dashboard-chart-subtitle">Estruturas que mais solicitaram</p>
             </div>
           </div>
           <div v-if="indicadoresVisitas.porUnidade.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>

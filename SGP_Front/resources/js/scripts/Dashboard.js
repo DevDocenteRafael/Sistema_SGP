@@ -1,4 +1,3 @@
-import { UNIDADES } from './unidades';
 import { carregarUnidadesNomes } from './unidadesApi';
 
 const EIXOS_PADRAO = [
@@ -31,6 +30,10 @@ export default {
         eventos: 0,
         resolucoes: 0,
         termos: 0,
+        estruturas: 0,
+        estruturas_faculdade: 0,
+        estruturas_polo: 0,
+        estruturas_unidade: 0,
       },
       resolucoesContagens: {
         no_prazo: 0,
@@ -55,7 +58,7 @@ export default {
         eixos: EIXOS_PADRAO,
         status: ['ATIVO', 'INATIVO', 'EM REVISÃO'],
       },
-      unidadesBase: UNIDADES,
+      unidadesBase: [],
     };
   },
 
@@ -159,21 +162,23 @@ export default {
     },
 
     metricCards() {
-      const filtrados = this.cursosFiltrados;
-      const unidades = this.filtros.unidade
+      const estruturasValor = this.filtros.unidade
         ? 1
-        : new Set(
-          filtrados.flatMap((curso) => [
-            curso.unidade,
-            ...(Array.isArray(curso.unidades_oferta) ? curso.unidades_oferta : []),
-          ]).filter(Boolean),
-        ).size;
+        : Number(this.contagens.estruturas || 0);
+
+      const estruturasSub = this.filtros.unidade
+        ? 'filtrada'
+        : [
+          this.contagens.estruturas_faculdade ? `${this.contagens.estruturas_faculdade} fac.` : null,
+          this.contagens.estruturas_polo ? `${this.contagens.estruturas_polo} polo` : null,
+          this.contagens.estruturas_unidade ? `${this.contagens.estruturas_unidade} unid.` : null,
+        ].filter(Boolean).join(' · ') || 'cadastradas';
 
       return [
         {
-          label: 'Unidades',
-          value: unidades,
-          sub: 'unidades',
+          label: 'Estruturas',
+          value: estruturasValor,
+          sub: estruturasSub,
           icon: this.iconUnidades,
         },
         {
@@ -366,9 +371,18 @@ export default {
 
   created() {
     this.carregarDashboard();
-    carregarUnidadesNomes().then((nomes) => {
-      this.unidadesBase = nomes;
-    });
+  },
+
+  activated() {
+    this.carregarDashboard();
+  },
+
+  watch: {
+    '$route'(para, de) {
+      if (para?.name === 'dashboard' && de?.name !== 'dashboard') {
+        this.carregarDashboard();
+      }
+    },
   },
 
   methods: {
@@ -397,6 +411,8 @@ export default {
           status: status.length ? status : ['ATIVO', 'INATIVO', 'EM REVISÃO'],
         };
 
+        this.unidadesBase = await carregarUnidadesNomes({ forcar: true });
+
         this.contagens = {
           visitas: 0,
           horas: 0,
@@ -404,6 +420,10 @@ export default {
           eventos: 0,
           resolucoes: 0,
           termos: 0,
+          estruturas: 0,
+          estruturas_faculdade: 0,
+          estruturas_polo: 0,
+          estruturas_unidade: 0,
           ...(payload.contagens || {}),
         };
         this.resolucoesContagens = {

@@ -1,6 +1,5 @@
 import { atualizarUsuarioSessao, getUsuario, podeGerenciarUsuarios } from './auth';
-import { UNIDADES } from './unidades';
-import { carregarUnidadesNomes } from './unidadesApi';
+import { hidratarUnidadesSelect } from './unidadesApi';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
@@ -39,7 +38,7 @@ export default {
       },
       form: this.formVazio(),
       buscaTimeout: null,
-      unidades: UNIDADES,
+      unidades: [],
     };
   },
   computed: {
@@ -52,9 +51,7 @@ export default {
   },
   mounted() {
     this.carregarUsuarios();
-    carregarUnidadesNomes().then((nomes) => {
-      this.unidades = nomes;
-    });
+    hidratarUnidadesSelect(this, ['unidades'], { forcar: true });
   },
   beforeUnmount() {
     this.revogarPreviewFoto();

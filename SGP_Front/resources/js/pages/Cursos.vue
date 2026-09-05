@@ -11,9 +11,6 @@
         @limpar-filtros="limparFiltros"
         @novo="abrirNovo"
       >
-        <template #actions>
-          <CicloContextoBanner modulo="cursos" :ciclo="cicloAberto" />
-        </template>
         <template #filters>
 <section class="filtros-bar">
         <div class="filtro-busca">
@@ -87,7 +84,7 @@
                 <th>Tipo</th>
                 <th>Status</th>
                 <th>Ano/Revisão</th>
-                <th>Unidade</th>
+                <th>Estrutura</th>
                 <th>Observação</th>
                 <th class="text-center">Ações</th>
               </tr>
@@ -215,7 +212,7 @@
                   <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.instrutor) }}</span>
                 </div>
                 <div class="detalhe-campo detalhe-campo-full">
-                  <span class="detalhe-label">Unidades de oferta</span>
+                  <span class="detalhe-label">Estruturas de oferta</span>
                   <span class="detalhe-valor">{{ textoUnidades(cursoDetalhe) }}</span>
                 </div>
                 <div class="detalhe-campo detalhe-campo-full">
@@ -455,11 +452,11 @@
             </div>
 
             <div class="form-card">
-              <h2>Unidades de oferta</h2>
-              <p class="form-card-hint">Escolha a região administrativa e marque CEP, Polo ou Faculdade onde o curso será oferecido.</p>
+              <h2>Estruturas de oferta</h2>
+              <p class="form-card-hint">Escolha a localidade/região e marque Faculdade, Polo ou Unidade onde o curso será oferecido.</p>
 
               <div class="form-group">
-                <label for="regiao-oferta">Região administrativa</label>
+                <label for="regiao-oferta">Localidade / Região</label>
                 <SearchableSelect
                   id="regiao-oferta"
                   input-id="regiao-oferta"

@@ -1,10 +1,8 @@
 import { podeEditarDados } from './auth';
-import { lerCicloContexto, salvarCicloContexto } from './cicloContexto';
-import { UNIDADES } from './unidades';
+import { CICLO_CONTEXTO_EVENTO, lerCicloContexto, salvarCicloContexto } from './cicloContexto';
 import { carregarUnidadesNomes, carregarUnidadesOpcoes } from './unidadesApi';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
-import CicloContextoBanner from '../components/crud/CicloContextoBanner.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 import {
   combinarValidacoes,
@@ -24,7 +22,7 @@ import {
 export default {
   name: 'Cursos',
   mixins: [mixinHistoricoFormulario],
-  components: { PageTableCard, CrudPageHeader, CicloContextoBanner },
+  components: { PageTableCard, CrudPageHeader },
   data() {
     return {
       modo: 'lista',
@@ -57,7 +55,7 @@ export default {
       form: this.formVazio(),
       buscaTimeout: null,
       anosDisponiveis: ['2026', '2025', '2024', '2023'],
-      unidades: UNIDADES,
+      unidades: [],
       unidadesOpcoes: [],
       regiaoOfertaSelecionada: '',
       detalheAberto: false,
@@ -87,10 +85,10 @@ export default {
 
       if (this.filtros.ciclo_id) {
         return this.ciclos.find((ciclo) => String(ciclo.id) === String(this.filtros.ciclo_id))
-          || lerCicloContexto('cursos');
+          || lerCicloContexto();
       }
 
-      return lerCicloContexto('cursos');
+      return lerCicloContexto();
     },
     abasForm() {
       return [
@@ -126,10 +124,14 @@ export default {
   },
   async mounted() {
     this.aplicarCicloInicial();
+    window.addEventListener(CICLO_CONTEXTO_EVENTO, this.aoMudarCicloGlobal);
     await Promise.all([
       this.carregarCursos(),
       this.carregarUnidadesOferta(),
     ]);
+  },
+  beforeUnmount() {
+    window.removeEventListener(CICLO_CONTEXTO_EVENTO, this.aoMudarCicloGlobal);
   },
   watch: {
     '$route.query.ciclo_id'(id) {
@@ -568,7 +570,7 @@ export default {
 
     aplicarCicloInicial() {
       const cicloQuery = this.$route.query.ciclo_id;
-      const contexto = lerCicloContexto('cursos');
+      const contexto = lerCicloContexto();
       const cicloId = cicloQuery && cicloQuery !== 'todos'
         ? String(cicloQuery)
         : (contexto?.id ? String(contexto.id) : '');
@@ -585,6 +587,22 @@ export default {
       }
     },
 
+    aoMudarCicloGlobal(evento) {
+      const ciclo = evento?.detail?.ciclo || lerCicloContexto();
+      if (!ciclo?.id) {
+        return;
+      }
+
+      if (String(this.filtros.ciclo_id) === String(ciclo.id)) {
+        return;
+      }
+
+      this.cicloInicializado = true;
+      this.filtros.ciclo_id = String(ciclo.id);
+      this.lembrarCicloSelecionado();
+      this.carregarCursos();
+    },
+
     lembrarCicloSelecionado() {
       if (!this.filtros.ciclo_id || this.filtros.ciclo_id === 'todos') {
         return;
@@ -593,7 +611,7 @@ export default {
       const ciclo = this.ciclos.find((item) => String(item.id) === String(this.filtros.ciclo_id));
 
       if (ciclo) {
-        salvarCicloContexto(ciclo, 'cursos');
+        salvarCicloContexto(ciclo);
       }
     },
 
@@ -607,7 +625,7 @@ export default {
         return String(this.filtros.ciclo_id);
       }
 
-      const contexto = lerCicloContexto('cursos');
+      const contexto = lerCicloContexto();
       if (contexto?.id) {
         return String(contexto.id);
       }
