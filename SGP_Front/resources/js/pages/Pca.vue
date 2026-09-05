@@ -10,9 +10,6 @@
         @limpar-filtros="limparFiltros"
         @novo="abrirNovo"
       >
-        <template #actions>
-          <CicloContextoBanner modulo="pca" :ciclo="cicloContexto" />
-        </template>
         <template #filters>
 <section class="filtros-panel" aria-label="Filtros de PCA">
         <div class="filtros-row">
@@ -54,7 +51,7 @@
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-unidade">Unidade</label>
+            <label for="filtro-unidade">Estrutura Institucional</label>
             <SearchableSelect
               id="filtro-unidade"
               input-id="filtro-unidade"
@@ -116,7 +113,7 @@
                 <th>Semestre</th>
                 <th>Titulo / Curso</th>
                 <th>Eixo</th>
-                <th>Unidade</th>
+                <th>Estrutura</th>
                 <th>CH</th>
                 <th>Status</th>
                 <th>Observacao</th>
@@ -200,7 +197,7 @@
                 <div class="detalhe-valor-box">{{ registroDetalhe.eixo || '—' }}</div>
               </div>
               <div class="detalhe-form-campo">
-                <span>Unidade</span>
+                <span>Estrutura</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.unidade || '—' }}</div>
               </div>
               <div class="detalhe-form-campo">
@@ -332,7 +329,7 @@
               </div>
 
               <div class="form-group">
-                <label for="unidade">Unidade</label>
+                <label for="unidade">Estrutura Institucional</label>
                 <SearchableSelect
                   id="unidade"
                   input-id="unidade"

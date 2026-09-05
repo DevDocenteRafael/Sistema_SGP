@@ -75,7 +75,7 @@
                 v-model="filtros.unidade"
                 class="imp-filtro-select"
                 :options="opcoesFiltro('unidade')"
-                empty-option="Todas as unidades"
+                empty-option="Todas as estruturas"
                 :disabled="etapa !== 'previa'"
               />
 

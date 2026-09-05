@@ -10,9 +10,6 @@
         @limpar-filtros="limparFiltros"
         @novo="abrirNovo"
       >
-        <template #actions>
-          <CicloContextoBanner modulo="eixos" :ciclo="cicloContexto" />
-        </template>
         <template #filters>
 <section class="filtros-panel">
         <div class="filtros-row">
@@ -54,7 +51,7 @@
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-unidade">Unidade</label>
+            <label for="filtro-unidade">Estrutura Institucional</label>
             <SearchableSelect
               id="filtro-unidade"
               input-id="filtro-unidade"
@@ -107,7 +104,7 @@
               <tr>
                 <th>Nome do curso</th>
                 <th>Eixo tecnológico</th>
-                <th>Unidade</th>
+                <th>Estrutura</th>
                 <th>Ano</th>
                 <th>CH</th>
                 <th>Turmas</th>
@@ -205,7 +202,7 @@
                 <div class="detalhe-valor-box">{{ registroDetalhe.status || '—' }}</div>
               </div>
               <div class="detalhe-form-campo">
-                <span>Unidade</span>
+                <span>Estrutura</span>
                 <div class="detalhe-valor-box">{{ valorCampo(registroDetalhe.unidade) }}</div>
               </div>
               <div class="detalhe-form-campo">
@@ -283,7 +280,7 @@
               </div>
 
               <div class="form-group">
-                <label for="form-unidade">Unidade</label>
+                <label for="form-unidade">Estrutura Institucional</label>
                 <SearchableSelect
                   id="form-unidade"
                   input-id="form-unidade"

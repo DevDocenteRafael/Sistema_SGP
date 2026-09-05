@@ -74,7 +74,7 @@
             </div>
 
             <div v-if="temFiltro('unidade')" class="rel-filtro-campo">
-              <label class="rel-filtro-label">Unidade</label>
+              <label class="rel-filtro-label">Estrutura Institucional</label>
               <SearchableSelect
                 v-model="filtros.unidade"
                 class="rel-filtro-select rel-filtro-select-wide"

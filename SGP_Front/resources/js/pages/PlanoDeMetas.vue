@@ -11,9 +11,6 @@
         @limpar-filtros="limparFiltros"
         @novo="abrirNovo"
       >
-        <template #actions>
-          <CicloContextoBanner modulo="metas" :ciclo="cicloContexto" />
-        </template>
         <template #filters>
 <section class="filtros-bar" aria-label="Filtros de Plano de Metas">
         <div class="filtro-busca">

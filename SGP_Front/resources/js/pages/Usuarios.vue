@@ -19,7 +19,7 @@
               <input
                 v-model="filtros.busca"
                 type="search"
-                placeholder="Buscar por nome, e-mail, telefone ou unidade..."
+                placeholder="Buscar por nome, e-mail, telefone ou estrutura..."
                 aria-label="Buscar usuários"
                 @input="carregarUsuarios"
               />
@@ -63,7 +63,7 @@
                 <th>Usuário</th>
                 <th>Telefone</th>
                 <th>Perfil</th>
-                <th>Unidade</th>
+                <th>Estrutura</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Ações</th>
               </tr>
@@ -188,7 +188,7 @@
                 <div class="detalhe-valor-box">{{ usuarioDetalhe.cpf || '—' }}</div>
               </div>
               <div class="detalhe-form-campo">
-                <span>Unidade</span>
+                <span>Estrutura</span>
                 <div class="detalhe-valor-box">{{ usuarioDetalhe.unidade || '—' }}</div>
               </div>
               <div class="detalhe-form-campo">
@@ -296,13 +296,13 @@
                 />
               </div>
               <div class="form-group">
-                <label for="unidade">Unidade <span>*</span></label>
+                <label for="unidade">Estrutura Institucional <span>*</span></label>
                 <SearchableSelect
                   id="unidade"
                   input-id="unidade"
                   v-model="form.unidade"
                   :options="unidades"
-                  empty-option="Selecione a unidade"
+                  empty-option="Selecione a estrutura institucional"
                   :required="true"
                 />
               </div>

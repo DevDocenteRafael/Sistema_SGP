@@ -54,14 +54,14 @@
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-unidade">Unidade</label>
+            <label for="filtro-unidade">Estrutura Institucional</label>
             <SearchableSelect
               id="filtro-unidade"
               input-id="filtro-unidade"
               v-model="filtros.unidade"
               :options="unidades"
               empty-option="Todas"
-              aria-label="Unidade"
+              aria-label="Estrutura Institucional"
               @change="aplicarFiltros"
             />
           </div>
@@ -117,7 +117,7 @@
               <tr>
                 <th>Evento</th>
                 <th>Data</th>
-                <th>Unidade</th>
+                <th>Estrutura</th>
                 <th>Eixo</th>
                 <th>Qtd. Pessoas</th>
                 <th>Equipe</th>
@@ -193,7 +193,7 @@
                 <div class="detalhe-valor-box">{{ formatarData(registroDetalhe.data) }}</div>
               </div>
               <div class="detalhe-form-campo">
-                <span>Unidade</span>
+                <span>Estrutura</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.unidade || '—' }}</div>
               </div>
               <div class="detalhe-form-campo">
@@ -276,14 +276,14 @@
                 />
               </div>
               <div class="form-group">
-                <label for="unidade">Unidade <span>*</span></label>
+                <label for="unidade">Estrutura Institucional <span>*</span></label>
                 <SearchableSelect
                   id="unidade"
                   input-id="unidade"
                   v-model="form.unidade"
                   :options="unidades"
                   empty-option="Selecione..."
-                  aria-label="Unidade"
+                  aria-label="Estrutura Institucional"
                   :required="true"
                 />
               </div>

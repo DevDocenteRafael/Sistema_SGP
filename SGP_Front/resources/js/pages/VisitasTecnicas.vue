@@ -40,7 +40,7 @@
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-unidade-visita">Unidade</label>
+            <label for="filtro-unidade-visita">Estrutura Institucional</label>
             <SearchableSelect
               id="filtro-unidade-visita"
               input-id="filtro-unidade-visita"
@@ -111,7 +111,7 @@
             <thead>
               <tr>
                 <th>Processo SEI</th>
-                <th>Unidade</th>
+                <th>Estrutura</th>
                 <th>Eixo</th>
                 <th>Responsável</th>
                 <th>Solicitação</th>
@@ -178,7 +178,7 @@
                 <div class="detalhe-valor-box">{{ visitaDetalhe.status || '—' }}</div>
               </div>
               <div class="detalhe-form-campo">
-                <span>Unidade</span>
+                <span>Estrutura</span>
                 <div class="detalhe-valor-box">{{ visitaDetalhe.unidade || '—' }}</div>
               </div>
               <div class="detalhe-form-campo">
@@ -258,13 +258,13 @@
                 />
               </div>
               <div class="form-group">
-                <label for="unidade">Unidade <span>*</span></label>
+                <label for="unidade">Estrutura Institucional <span>*</span></label>
                 <SearchableSelect
                   id="unidade"
                   input-id="unidade"
                   v-model="form.unidade"
                   :options="unidades"
-                  empty-option="Selecione a unidade"
+                  empty-option="Selecione a estrutura institucional"
                   :required="true"
                 />
               </div>
