@@ -1,14 +1,14 @@
 <template>
-  <div class="unidades-page crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
+  <div class="estruturas-page crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
       <CrudPageHeader
-        title="Unidades"
-        subtitle="Regiões administrativas e unidades de oferta (CEP, Polo, Faculdade)"
-        info="Cadastre e inative unidades. Não há exclusão — o histórico permanece no SGP."
+        title="Estruturas Institucionais"
+        subtitle="Gerencie faculdades, polos e unidades vinculadas ao sistema."
+        info="Cadastre e inative estruturas. Não há exclusão — o histórico permanece no SGP."
         :show-novo="podeEditar"
-        :novo-label="abaLista === 'regioes' ? 'Nova Região' : 'Nova Unidade'"
+        novo-label="Nova Estrutura"
         :show-clear-filters="temFiltro"
-        filters-aria-label="Filtros de unidades"
+        filters-aria-label="Filtros de estruturas institucionais"
         @novo="abrirNovo"
         @limpar-filtros="limparFiltros"
       >
@@ -18,11 +18,18 @@
               <input
                 v-model="filtros.busca"
                 type="search"
-                placeholder="Buscar..."
-                aria-label="Buscar"
+                placeholder="Buscar por nome..."
+                aria-label="Buscar estrutura institucional"
                 @input="recarregarLista"
               />
             </div>
+            <SearchableSelect
+              v-model="filtros.tipo"
+              :options="opcoesTipo"
+              empty-option="Todos os tipos"
+              aria-label="Filtrar por tipo de estrutura"
+              @change="recarregarLista"
+            />
             <SearchableSelect
               v-model="filtros.ativo"
               :options="[
@@ -33,114 +40,127 @@
               aria-label="Filtrar por status"
               @change="recarregarLista"
             />
-            <SearchableSelect
-              v-if="abaLista === 'unidades'"
-              v-model="filtros.tipo"
-              :options="opcoesTipo"
-              empty-option="Todos os tipos"
-              aria-label="Filtrar por tipo"
-              @change="recarregarLista"
-            />
           </section>
         </template>
       </CrudPageHeader>
 
-      <div class="form-tabs lista-tabs" role="tablist">
-        <button
-          type="button"
-          class="form-tab"
-          :class="{ active: abaLista === 'regioes' }"
-          @click="trocarAbaLista('regioes')"
-        >
-          Regiões Administrativas
-        </button>
-        <button
-          type="button"
-          class="form-tab"
-          :class="{ active: abaLista === 'unidades' }"
-          @click="trocarAbaLista('unidades')"
-        >
-          Unidades de Oferta
-        </button>
-      </div>
-
       <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
       <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
 
-      <PageTableCard :total="registros.length" aria-label="Tabela">
+      <PageTableCard :total="registros.length" aria-label="Tabela de estruturas institucionais">
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
         <div v-else class="tabela-wrap">
           <table class="crud-table">
             <thead>
-              <tr v-if="abaLista === 'regioes'">
-                <th>Nome</th>
-                <th>Unidades</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Ações</th>
-              </tr>
-              <tr v-else>
-                <th>Nome</th>
+              <tr>
+                <th>Estrutura</th>
                 <th>Tipo</th>
-                <th>Região</th>
+                <th>Localidade</th>
                 <th class="text-center">Status</th>
+                <th>Motivo da inativação</th>
                 <th class="text-center">Ações</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="registros.length === 0">
-                <td :colspan="abaLista === 'regioes' ? 4 : 5" class="tabela-vazia">
-                  Nenhum registro encontrado.
-                </td>
+                <td colspan="6" class="tabela-vazia">Nenhuma estrutura institucional encontrada.</td>
               </tr>
               <tr v-for="item in registros" :key="item.id">
-                <template v-if="abaLista === 'regioes'">
-                  <td>{{ item.nome }}</td>
-                  <td>{{ item.unidades_ativas ?? 0 }} ativas / {{ item.unidades_total ?? 0 }}</td>
-                  <td class="text-center">
-                    <span class="badge" :class="item.ativo ? 'badge-ativo' : 'badge-inativo'">
-                      {{ item.ativo ? 'Ativo' : 'Inativo' }}
-                    </span>
-                  </td>
-                  <td class="text-center acoes">
-                    <button v-if="podeEditar" type="button" class="btn-icon btn-edit" title="Editar" @click="abrirEdicao(item)">✎</button>
-                    <button
-                      v-if="podeEditar"
-                      type="button"
-                      class="btn-icon"
-                      :title="item.ativo ? 'Inativar' : 'Reativar'"
-                      @click="alternarAtivo(item)"
-                    >
-                      {{ item.ativo ? '⏸' : '▶' }}
-                    </button>
-                  </td>
-                </template>
-                <template v-else>
-                  <td>{{ item.nome }}</td>
-                  <td>{{ labelTipo(item.tipo) }}</td>
-                  <td>{{ item.regiao_administrativa?.nome || '—' }}</td>
-                  <td class="text-center">
-                    <span class="badge" :class="item.ativo ? 'badge-ativo' : 'badge-inativo'">
-                      {{ item.ativo ? 'Ativo' : 'Inativo' }}
-                    </span>
-                  </td>
-                  <td class="text-center acoes">
-                    <button v-if="podeEditar" type="button" class="btn-icon btn-edit" title="Editar" @click="abrirEdicao(item)">✎</button>
-                    <button
-                      v-if="podeEditar"
-                      type="button"
-                      class="btn-icon"
-                      :title="item.ativo ? 'Inativar' : 'Reativar'"
-                      @click="alternarAtivo(item)"
-                    >
-                      {{ item.ativo ? '⏸' : '▶' }}
-                    </button>
-                  </td>
-                </template>
+                <td>{{ item.nome }}</td>
+                <td>
+                  <span class="badge" :class="classeBadgeTipo(item.tipo)">{{ labelTipo(item.tipo) }}</span>
+                </td>
+                <td>{{ item.regiao_administrativa?.nome || '—' }}</td>
+                <td class="text-center">
+                  <span class="badge" :class="item.ativo ? 'badge-ativo' : 'badge-inativo'">
+                    {{ item.ativo ? 'Ativo' : 'Inativo' }}
+                  </span>
+                </td>
+                <td class="col-motivo" :title="item.motivo_inativacao || ''">
+                  {{ item.ativo ? '—' : (item.motivo_inativacao || '—') }}
+                </td>
+                <td class="text-center acoes">
+                  <button
+                    v-if="podeEditar"
+                    type="button"
+                    class="btn-icon btn-edit"
+                    title="Editar"
+                    aria-label="Editar"
+                    @click="abrirEdicao(item)"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                  </button>
+                  <button
+                    v-if="podeEditar && item.ativo"
+                    type="button"
+                    class="btn-icon btn-delete"
+                    title="Inativar"
+                    aria-label="Inativar"
+                    @click="pedirInativacao(item)"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>
+                  </button>
+                  <button
+                    v-if="podeEditar && !item.ativo"
+                    type="button"
+                    class="btn-icon btn-reactivar"
+                    title="Reativar"
+                    aria-label="Reativar"
+                    @click="reativar(item)"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </PageTableCard>
+
+      <div
+        v-if="modalInativacao.aberto"
+        class="modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-inativacao-titulo"
+        @click.self="fecharModalInativacao"
+      >
+        <div class="modal-detalhes modal-inativacao">
+          <header class="modal-detalhes-header">
+            <div>
+              <h2 id="modal-inativacao-titulo">Inativar estrutura</h2>
+              <p class="modal-detalhes-subtitle">
+                Informe o motivo. A estrutura deixará de aparecer nas listas de seleção.
+              </p>
+            </div>
+            <button type="button" class="btn-fechar-x" aria-label="Fechar" @click="fecharModalInativacao">×</button>
+          </header>
+
+          <div class="modal-detalhes-body">
+            <p class="modal-inativacao-nome">{{ modalInativacao.item?.nome }}</p>
+            <div class="form-group">
+              <label for="motivo-inativacao">Motivo da inativação <span>*</span></label>
+              <textarea
+                id="motivo-inativacao"
+                v-model="modalInativacao.motivo"
+                rows="4"
+                maxlength="2000"
+                placeholder="Ex.: Unidade encerrada, migração de oferta, duplicidade..."
+              />
+            </div>
+            <p v-if="modalInativacao.erro" class="alert alert-error">{{ modalInativacao.erro }}</p>
+          </div>
+
+          <div class="modal-detalhes-actions">
+            <button type="button" class="btn-secondary" :disabled="modalInativacao.salvando" @click="fecharModalInativacao">
+              Cancelar
+            </button>
+            <button type="button" class="btn-salvar btn-inativar" :disabled="modalInativacao.salvando" @click="confirmarInativacao">
+              {{ modalInativacao.salvando ? 'Inativando...' : 'Confirmar inativação' }}
+            </button>
+          </div>
+        </div>
+      </div>
     </template>
 
     <template v-else>
@@ -149,7 +169,7 @@
           <button type="button" class="btn-voltar" @click="voltarLista">←</button>
           <div>
             <h1>{{ tituloForm }}</h1>
-            <p>{{ abaLista === 'regioes' ? 'Região administrativa do DF' : 'CEP, Polo ou Faculdade vinculada a uma RA' }}</p>
+            <p>Faculdade, polo ou unidade vinculada a uma localidade/região.</p>
           </div>
         </header>
 
@@ -160,39 +180,50 @@
             <div class="form-grid">
               <div class="form-group full">
                 <label for="nome">Nome <span>*</span></label>
-                <input id="nome" v-model="form.nome" type="text" maxlength="100" required />
+                <input id="nome" v-model="form.nome" type="text" maxlength="180" required />
               </div>
 
-              <template v-if="abaLista === 'unidades'">
-                <div class="form-group">
-                  <label for="tipo">Tipo <span>*</span></label>
-                  <SearchableSelect
-                    id="tipo"
-                    input-id="tipo"
-                    v-model="form.tipo"
-                    :options="opcoesTipo"
-                    empty-option="Selecione..."
-                    :required="true"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="regiao">Região administrativa <span>*</span></label>
-                  <SearchableSelect
-                    id="regiao"
-                    input-id="regiao"
-                    v-model="form.regiao_administrativa_id"
-                    :options="opcoesRegiao"
-                    empty-option="Selecione..."
-                    :required="true"
-                  />
-                </div>
-              </template>
+              <div class="form-group">
+                <label for="tipo">Tipo de Estrutura <span>*</span></label>
+                <SearchableSelect
+                  id="tipo"
+                  input-id="tipo"
+                  v-model="form.tipo"
+                  :options="opcoesTipo"
+                  empty-option="Selecione..."
+                  :required="true"
+                />
+              </div>
 
               <div class="form-group">
-                <label class="check-field">
-                  <input v-model="form.ativo" type="checkbox" />
-                  Ativo
+                <label for="localidade">Localidade / Região <span>*</span></label>
+                <input
+                  id="localidade"
+                  v-model="form.localidade"
+                  type="text"
+                  maxlength="100"
+                  required
+                  placeholder="Ex.: Asa Norte, Taguatinga, Setor Comercial Sul"
+                  autocomplete="off"
+                />
+              </div>
+
+              <div class="form-group full">
+                <label class="form-check">
+                  <input id="ativo" v-model="form.ativo" type="checkbox" />
+                  <span>Ativo</span>
                 </label>
+              </div>
+
+              <div v-if="!form.ativo" class="form-group full">
+                <label for="motivo_inativacao">Motivo da inativação <span>*</span></label>
+                <textarea
+                  id="motivo_inativacao"
+                  v-model="form.motivo_inativacao"
+                  rows="3"
+                  maxlength="2000"
+                  placeholder="Informe o motivo da inativação..."
+                />
               </div>
             </div>
           </section>

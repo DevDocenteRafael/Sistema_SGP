@@ -1,5 +1,4 @@
 import { createCrudPage } from './createCrudPage';
-import { UNIDADES } from './unidades';
 import {
   combinarValidacoes,
   formatarDecimalInput,
@@ -32,6 +31,7 @@ const EIXOS = [
 
 export default createCrudPage({
   name: 'Pca',
+  carregarUnidadesApi: true,
   endpoint: '/api/pcas',
   showKey: 'pca',
   carregandoInicial: false,
@@ -196,14 +196,13 @@ export default createCrudPage({
   aplicarMeta(meta) {
     if (Array.isArray(meta.anos) && meta.anos.length) this.anos = meta.anos.map(String);
     if (Array.isArray(meta.semestres) && meta.semestres.length) this.semestres = meta.semestres;
-    if (Array.isArray(meta.unidades) && meta.unidades.length) this.unidades = meta.unidades;
     if (Array.isArray(meta.eixos) && meta.eixos.length) this.eixos = meta.eixos;
     if (Array.isArray(meta.status) && meta.status.length) this.statusLista = meta.status;
   },
   extraData: () => ({
     anos: ANOS,
     semestres: SEMESTRES,
-    unidades: [...UNIDADES],
+    unidades: [],
     eixos: EIXOS,
     statusLista: STATUS_LISTA,
   }),

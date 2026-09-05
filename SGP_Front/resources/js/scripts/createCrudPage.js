@@ -1,6 +1,10 @@
-import CicloContextoBanner from '../components/crud/CicloContextoBanner.vue';
 import { getPerfil, podeEditarDados, podeConsultarDados } from './auth';
-import { anoPrincipalDoCiclo, garantirCicloContexto, lerCicloContexto } from './cicloContexto';
+import {
+  CICLO_CONTEXTO_EVENTO,
+  anoPrincipalDoCiclo,
+  garantirCicloContexto,
+  lerCicloContexto,
+} from './cicloContexto';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
@@ -8,6 +12,7 @@ import TabelaContador from '../components/crud/TabelaContador.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 import { extrairErroApi } from '../utils/validacao';
+import { hidratarUnidadesSelect } from './unidadesApi';
 
 /**
  * Factory de páginas CRUD (Vue Options API).
@@ -43,6 +48,8 @@ export function createCrudPage(config) {
     methodAliases = {},
     computedAliases = {},
     components = {},
+    /** Carrega nomes de estruturas institucionais só da API (selects). */
+    carregarUnidadesApi = false,
   } = config;
 
   const msg = {
@@ -154,7 +161,7 @@ export function createCrudPage(config) {
         });
 
         if (usarCicloContexto) {
-          const ciclo = this.cicloContexto || lerCicloContexto(cicloModulo);
+          const ciclo = this.cicloContexto || lerCicloContexto();
           if (ciclo?.id) {
             params.ciclo_id = ciclo.id;
           }
@@ -171,6 +178,13 @@ export function createCrudPage(config) {
 
           if (typeof aplicarMeta === 'function') {
             aplicarMeta.call(this, data.meta, this);
+          }
+
+          if (carregarUnidadesApi && Array.isArray(this._unidadesApiNomes)) {
+            this.unidades = this._unidadesApiNomes;
+            if (this.meta && typeof this.meta === 'object') {
+              this.meta.unidades = this._unidadesApiNomes;
+            }
           }
         }
 
@@ -332,7 +346,7 @@ export function createCrudPage(config) {
       const payload = montarPayload.call(this, this.form, this);
 
       if (usarCicloContexto) {
-        const ciclo = this.cicloContexto || lerCicloContexto(cicloModulo);
+        const ciclo = this.cicloContexto || lerCicloContexto();
         if (ciclo?.id && (payload.ciclo_id == null || payload.ciclo_id === '')) {
           payload.ciclo_id = ciclo.id;
         }
@@ -433,7 +447,7 @@ export function createCrudPage(config) {
 
     async aplicarCicloContexto() {
       const queryId = this.$route?.query?.ciclo_id || null;
-      const ciclo = await garantirCicloContexto(cicloModulo, queryId);
+      const ciclo = await garantirCicloContexto(null, queryId);
 
       this.cicloContexto = ciclo?.id ? ciclo : null;
       this.fundirAnosDoCiclo(this.cicloContexto?.anos || []);
@@ -462,15 +476,45 @@ export function createCrudPage(config) {
     },
 
     aplicarAnoDoCicloNoForm() {
-      const ano = anoPrincipalDoCiclo(this.cicloContexto || lerCicloContexto(cicloModulo));
+      const ano = anoPrincipalDoCiclo(this.cicloContexto || lerCicloContexto());
 
       if (ano && this.form && Object.prototype.hasOwnProperty.call(this.form, 'ano')) {
         this.form.ano = ano;
       }
     },
 
+    aoMudarCicloGlobal() {
+      if (!usarCicloContexto) {
+        return;
+      }
+
+      const ciclo = lerCicloContexto();
+      const mesmoId = String(ciclo?.id || '') === String(this.cicloContexto?.id || '');
+      this.cicloContexto = ciclo;
+      this.fundirAnosDoCiclo(this.cicloContexto?.anos || []);
+
+      if (!mesmoId) {
+        this.carregarRegistros();
+      }
+    },
+
     extrairErro(error, fallback) {
       return extrairErroApi(error, fallback);
+    },
+
+    async hidratarUnidadesApi() {
+      if (!carregarUnidadesApi) {
+        return;
+      }
+      try {
+        const nomes = await hidratarUnidadesSelect(this, ['unidades'], { forcar: true });
+        this._unidadesApiNomes = nomes;
+      } catch (_) {
+        this._unidadesApiNomes = [];
+        if (Array.isArray(this.unidades)) {
+          this.unidades = [];
+        }
+      }
     },
 
     ...extraMethods,
@@ -543,7 +587,6 @@ export function createCrudPage(config) {
       CrudFormShell,
       TabelaContador,
       PageTableCard,
-      CicloContextoBanner,
       ...components,
     },
 
@@ -564,7 +607,7 @@ export function createCrudPage(config) {
       };
 
       if (usarCicloContexto) {
-        base.cicloContexto = lerCicloContexto(cicloModulo);
+        base.cicloContexto = lerCicloContexto();
       }
 
       if (formErrorKey !== errorKey) {
@@ -583,7 +626,19 @@ export function createCrudPage(config) {
     watch: watchers,
 
     mounted() {
+      if (usarCicloContexto) {
+        window.addEventListener(CICLO_CONTEXTO_EVENTO, this.aoMudarCicloGlobal);
+      }
       this.iniciarComCiclo();
+      if (carregarUnidadesApi) {
+        this.hidratarUnidadesApi();
+      }
+    },
+
+    beforeUnmount() {
+      if (usarCicloContexto) {
+        window.removeEventListener(CICLO_CONTEXTO_EVENTO, this.aoMudarCicloGlobal);
+      }
     },
 
     methods,

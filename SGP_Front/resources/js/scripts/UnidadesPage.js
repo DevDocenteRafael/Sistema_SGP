@@ -9,31 +9,40 @@ import {
   textoObrigatorio,
 } from '../utils/validacao';
 
-const ENDPOINT_REGIOES = '/api/regioes-administrativas';
-const ENDPOINT_UNIDADES = '/api/unidades-oferta';
+const ENDPOINT_ESTRUTURAS = '/api/unidades-oferta';
 
 const TIPOS_PADRAO = [
-  { value: 'cep', label: 'CEP — Centro de Educação Profissional' },
-  { value: 'polo', label: 'Polo' },
   { value: 'faculdade', label: 'Faculdade' },
+  { value: 'polo', label: 'Polo' },
+  { value: 'unidade', label: 'Unidade' },
 ];
 
 function formVazio() {
   return {
     nome: '',
     tipo: '',
-    regiao_administrativa_id: '',
+    localidade: '',
     ativo: true,
+    motivo_inativacao: '',
+  };
+}
+
+function modalInativacaoVazio() {
+  return {
+    aberto: false,
+    item: null,
+    motivo: '',
+    erro: '',
+    salvando: false,
   };
 }
 
 export default {
-  name: 'Unidades',
+  name: 'EstruturasInstitucionais',
   components: { PageTableCard, CrudPageHeader },
   data() {
     return {
       modo: 'lista',
-      abaLista: 'regioes',
       carregando: false,
       salvando: false,
       mensagemSucesso: '',
@@ -41,7 +50,6 @@ export default {
       erroFormulario: '',
       editandoId: null,
       registros: [],
-      regioesSelect: [],
       tiposMeta: { ...Object.fromEntries(TIPOS_PADRAO.map((t) => [t.value, t.label])) },
       filtros: {
         busca: '',
@@ -49,6 +57,7 @@ export default {
         tipo: '',
       },
       form: formVazio(),
+      modalInativacao: modalInativacaoVazio(),
       buscaTimeout: null,
     };
   },
@@ -62,20 +71,8 @@ export default {
     opcoesTipo() {
       return Object.entries(this.tiposMeta).map(([value, label]) => ({ value, label }));
     },
-    opcoesRegiao() {
-      return this.regioesSelect
-        .filter((r) => r.ativo || String(r.id) === String(this.form.regiao_administrativa_id))
-        .map((r) => ({
-          value: String(r.id),
-          label: r.ativo ? r.nome : `${r.nome} (inativa)`,
-        }));
-    },
     tituloForm() {
-      const entidade = this.abaLista === 'regioes' ? 'Região' : 'Unidade';
-      if (this.modo === 'novo') {
-        return `Nova ${entidade}`;
-      }
-      return `Editar ${entidade}`;
+      return this.modo === 'novo' ? 'Nova Estrutura Institucional' : 'Editar Estrutura Institucional';
     },
   },
   mounted() {
@@ -88,22 +85,17 @@ export default {
   },
   methods: {
     labelTipo(tipo) {
+      if (tipo === 'cep') return 'Unidade';
       return this.tiposMeta[tipo] || tipo || '—';
+    },
+
+    classeBadgeTipo(tipo) {
+      const chave = tipo === 'cep' ? 'unidade' : tipo;
+      return `badge-tipo-${chave || 'padrao'}`;
     },
 
     limparFiltros() {
       this.filtros = { busca: '', ativo: '', tipo: '' };
-      this.recarregarLista();
-    },
-
-    trocarAbaLista(aba) {
-      if (this.abaLista === aba) {
-        return;
-      }
-      this.abaLista = aba;
-      this.filtros = { busca: '', ativo: '', tipo: '' };
-      this.mensagemSucesso = '';
-      this.mensagemErro = '';
       this.recarregarLista();
     },
 
@@ -116,88 +108,51 @@ export default {
       }, 250);
     },
 
-    endpointAtual() {
-      return this.abaLista === 'regioes' ? ENDPOINT_REGIOES : ENDPOINT_UNIDADES;
-    },
-
     async carregarLista() {
       this.carregando = true;
       this.mensagemErro = '';
       try {
         const params = {};
-        if (this.filtros.busca) {
-          params.busca = this.filtros.busca;
-        }
-        if (this.filtros.ativo !== '') {
-          params.ativo = this.filtros.ativo;
-        }
-        if (this.abaLista === 'unidades' && this.filtros.tipo) {
-          params.tipo = this.filtros.tipo;
-        }
+        if (this.filtros.busca) params.busca = this.filtros.busca;
+        if (this.filtros.ativo !== '') params.ativo = this.filtros.ativo;
+        if (this.filtros.tipo) params.tipo = this.filtros.tipo;
 
-        const { data } = await window.axios.get(this.endpointAtual(), { params });
+        const { data } = await window.axios.get(ENDPOINT_ESTRUTURAS, { params });
         this.registros = Array.isArray(data.data) ? data.data : [];
 
-        if (this.abaLista === 'unidades' && data.meta) {
-          if (data.meta.tipos && typeof data.meta.tipos === 'object') {
-            this.tiposMeta = { ...data.meta.tipos };
-          }
-          if (Array.isArray(data.meta.regioes)) {
-            this.regioesSelect = data.meta.regioes;
-          }
+        if (data.meta?.tipos && typeof data.meta.tipos === 'object') {
+          this.tiposMeta = { ...data.meta.tipos };
         }
       } catch (erro) {
-        this.mensagemErro = extrairErroApi(erro, 'Não foi possível carregar os registros.');
+        this.mensagemErro = extrairErroApi(erro, 'Não foi possível carregar as estruturas institucionais.');
         this.registros = [];
       } finally {
         this.carregando = false;
       }
     },
 
-    async carregarRegioesSelect() {
-      try {
-        const { data } = await window.axios.get(ENDPOINT_REGIOES);
-        this.regioesSelect = Array.isArray(data.data) ? data.data : [];
-      } catch {
-        this.regioesSelect = [];
-      }
-    },
-
     abrirNovo() {
-      if (!this.podeEditar) {
-        return;
-      }
+      if (!this.podeEditar) return;
       this.modo = 'novo';
       this.editandoId = null;
       this.erroFormulario = '';
       this.mensagemSucesso = '';
       this.form = formVazio();
-      if (this.abaLista === 'unidades') {
-        this.carregarRegioesSelect();
-      }
     },
 
     abrirEdicao(item) {
-      if (!this.podeEditar) {
-        return;
-      }
+      if (!this.podeEditar) return;
       this.modo = 'edicao';
       this.editandoId = item.id;
       this.erroFormulario = '';
       this.mensagemSucesso = '';
       this.form = {
         nome: item.nome ?? '',
-        tipo: item.tipo ?? '',
-        regiao_administrativa_id: item.regiao_administrativa_id
-          ? String(item.regiao_administrativa_id)
-          : item.regiao_administrativa?.id
-            ? String(item.regiao_administrativa.id)
-            : '',
-        ativo: item.ativo !== false,
+        tipo: item.tipo === 'cep' ? 'unidade' : (item.tipo ?? ''),
+        localidade: item.regiao_administrativa?.nome ?? '',
+        ativo: item.ativo !== false && item.ativo !== 0 && item.ativo !== '0',
+        motivo_inativacao: item.motivo_inativacao ?? '',
       };
-      if (this.abaLista === 'unidades') {
-        this.carregarRegioesSelect();
-      }
     },
 
     voltarLista() {
@@ -209,101 +164,132 @@ export default {
     },
 
     validarForm() {
-      const erros = [
+      return combinarValidacoes(
         textoObrigatorio(this.form.nome, 'Informe o nome.'),
-        tamanhoMaximo(this.form.nome, 100, 'O nome deve ter no máximo 100 caracteres.'),
-      ];
-      if (this.abaLista === 'unidades') {
-        erros.push(textoObrigatorio(this.form.tipo, 'Selecione o tipo.'));
-        erros.push(textoObrigatorio(this.form.regiao_administrativa_id, 'Selecione a região administrativa.'));
-      }
-      return combinarValidacoes(...erros);
+        tamanhoMaximo(this.form.nome, 180, 'O nome deve ter no máximo 180 caracteres.'),
+        textoObrigatorio(this.form.tipo, 'Selecione o tipo de estrutura.'),
+        textoObrigatorio(this.form.localidade, 'Informe a localidade/região.'),
+        tamanhoMaximo(this.form.localidade, 100, 'A localidade deve ter no máximo 100 caracteres.'),
+        !this.form.ativo
+          ? textoObrigatorio(this.form.motivo_inativacao, 'Informe o motivo da inativação.')
+          : '',
+        !this.form.ativo
+          ? tamanhoMaximo(this.form.motivo_inativacao, 2000, 'O motivo deve ter no máximo 2000 caracteres.')
+          : '',
+      );
     },
 
     montarPayload() {
-      if (this.abaLista === 'regioes') {
-        return {
-          nome: this.form.nome.trim(),
-          ativo: Boolean(this.form.ativo),
-        };
-      }
+      const ativo = Boolean(this.form.ativo);
       return {
         nome: this.form.nome.trim(),
         tipo: this.form.tipo,
-        regiao_administrativa_id: Number(this.form.regiao_administrativa_id),
-        ativo: Boolean(this.form.ativo),
+        localidade: this.form.localidade.trim(),
+        ativo,
+        motivo_inativacao: ativo ? null : (this.form.motivo_inativacao.trim() || null),
       };
     },
 
     async salvar() {
-      if (!this.podeEditar) {
-        return;
-      }
+      if (!this.podeEditar) return;
       this.erroFormulario = this.validarForm();
-      if (this.erroFormulario) {
-        return;
-      }
+      if (this.erroFormulario) return;
 
       this.salvando = true;
       try {
         const payload = this.montarPayload();
-        const endpoint = this.endpointAtual();
         if (this.modo === 'novo') {
-          await window.axios.post(endpoint, payload);
-          this.mensagemSucesso = this.abaLista === 'regioes'
-            ? 'Região cadastrada com sucesso.'
-            : 'Unidade cadastrada com sucesso.';
+          await window.axios.post(ENDPOINT_ESTRUTURAS, payload);
+          this.mensagemSucesso = 'Estrutura institucional cadastrada com sucesso.';
         } else {
-          await window.axios.put(`${endpoint}/${this.editandoId}`, payload);
-          this.mensagemSucesso = this.abaLista === 'regioes'
-            ? 'Região atualizada com sucesso.'
-            : 'Unidade atualizada com sucesso.';
+          await window.axios.put(`${ENDPOINT_ESTRUTURAS}/${this.editandoId}`, payload);
+          this.mensagemSucesso = 'Estrutura institucional atualizada com sucesso.';
         }
         limparCacheUnidadesNomes();
         this.voltarLista();
       } catch (erro) {
-        this.erroFormulario = extrairErroApi(erro, 'Não foi possível salvar.');
+        this.erroFormulario = extrairErroApi(erro, 'Não foi possível salvar a estrutura institucional.');
       } finally {
         this.salvando = false;
       }
     },
 
-    async alternarAtivo(item) {
-      if (!this.podeEditar) {
+    payloadStatus(item, { ativo, motivo_inativacao = null }) {
+      return {
+        nome: item.nome,
+        tipo: item.tipo === 'cep' ? 'unidade' : item.tipo,
+        localidade: item.regiao_administrativa?.nome || undefined,
+        regiao_administrativa_id: item.regiao_administrativa_id || item.regiao_administrativa?.id,
+        ativo,
+        motivo_inativacao,
+      };
+    },
+
+    pedirInativacao(item) {
+      if (!this.podeEditar || !item?.ativo) return;
+      this.modalInativacao = {
+        aberto: true,
+        item,
+        motivo: '',
+        erro: '',
+        salvando: false,
+      };
+    },
+
+    fecharModalInativacao() {
+      if (this.modalInativacao.salvando) return;
+      this.modalInativacao = modalInativacaoVazio();
+    },
+
+    async confirmarInativacao() {
+      const item = this.modalInativacao.item;
+      if (!item) return;
+
+      const motivo = String(this.modalInativacao.motivo || '').trim();
+      if (!motivo) {
+        this.modalInativacao.erro = 'Informe o motivo da inativação.';
         return;
       }
-      const ativar = !item.ativo;
-      const rotulo = this.abaLista === 'regioes' ? 'região' : 'unidade';
-      const ok = window.confirm(
-        ativar
-          ? `Reativar a ${rotulo} "${item.nome}"?`
-          : `Inativar a ${rotulo} "${item.nome}"? Ela deixará de aparecer nas listas de seleção.`,
-      );
-      if (!ok) {
+      if (motivo.length > 2000) {
+        this.modalInativacao.erro = 'O motivo deve ter no máximo 2000 caracteres.';
         return;
       }
+
+      this.modalInativacao.erro = '';
+      this.modalInativacao.salvando = true;
+      this.mensagemErro = '';
+
+      try {
+        await window.axios.put(
+          `${ENDPOINT_ESTRUTURAS}/${item.id}`,
+          this.payloadStatus(item, { ativo: false, motivo_inativacao: motivo }),
+        );
+        limparCacheUnidadesNomes();
+        this.mensagemSucesso = 'Estrutura institucional inativada.';
+        this.modalInativacao = modalInativacaoVazio();
+        await this.carregarLista();
+      } catch (erro) {
+        this.modalInativacao.erro = extrairErroApi(erro, 'Não foi possível inativar a estrutura.');
+        this.modalInativacao.salvando = false;
+      }
+    },
+
+    async reativar(item) {
+      if (!this.podeEditar || item?.ativo) return;
+      const ok = window.confirm(`Reativar a estrutura "${item.nome}"?`);
+      if (!ok) return;
 
       this.mensagemErro = '';
       try {
-        const endpoint = this.endpointAtual();
-        const payload = this.abaLista === 'regioes'
-          ? { nome: item.nome, ativo: ativar }
-          : {
-            nome: item.nome,
-            tipo: item.tipo,
-            regiao_administrativa_id: item.regiao_administrativa_id
-              || item.regiao_administrativa?.id,
-            ativo: ativar,
-          };
-
-        await window.axios.put(`${endpoint}/${item.id}`, payload);
+        await window.axios.put(
+          `${ENDPOINT_ESTRUTURAS}/${item.id}`,
+          this.payloadStatus(item, { ativo: true, motivo_inativacao: null }),
+        );
         limparCacheUnidadesNomes();
-        this.mensagemSucesso = ativar
-          ? `${rotulo.charAt(0).toUpperCase() + rotulo.slice(1)} reativada.`
-          : `${rotulo.charAt(0).toUpperCase() + rotulo.slice(1)} inativada.`;
+        this.mensagemSucesso = 'Estrutura institucional reativada.';
         await this.carregarLista();
       } catch (erro) {
-        this.mensagemErro = extrairErroApi(erro, 'Não foi possível alterar o status.');
+        this.mensagemErro = extrairErroApi(erro, 'Não foi possível reativar a estrutura.');
       }
     },
   },

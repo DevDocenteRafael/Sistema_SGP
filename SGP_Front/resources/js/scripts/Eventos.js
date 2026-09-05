@@ -1,5 +1,4 @@
 import { createCrudPage } from './createCrudPage';
-import { UNIDADES } from './unidades';
 import {
   combinarValidacoes,
   formatarInteiroInput,
@@ -25,6 +24,7 @@ const OPCOES_ACAO = ['Sim', 'Não'];
 
 export default createCrudPage({
   name: 'Eventos',
+  carregarUnidadesApi: true,
   endpoint: '/api/eventos',
   showKey: 'evento',
   filtrosIniciais: {
@@ -136,7 +136,6 @@ export default createCrudPage({
     if (Array.isArray(meta.status) && meta.status.length) this.statusLista = meta.status;
     if (Array.isArray(meta.anos) && meta.anos.length) this.anos = meta.anos.map(String);
     if (Array.isArray(meta.eixos) && meta.eixos.length) this.eixos = meta.eixos;
-    if (Array.isArray(meta.unidades) && meta.unidades.length) this.unidades = meta.unidades;
     if (Array.isArray(meta.possui_acao_extensiva) && meta.possui_acao_extensiva.length) {
       this.opcoesAcao = meta.possui_acao_extensiva;
     }
@@ -148,7 +147,7 @@ export default createCrudPage({
     statusLista: STATUS_LISTA,
     anos: ANOS,
     eixos: EIXOS,
-    unidades: [...UNIDADES],
+    unidades: [],
     opcoesAcao: OPCOES_ACAO,
     acoesVinculaveis: [],
   }),

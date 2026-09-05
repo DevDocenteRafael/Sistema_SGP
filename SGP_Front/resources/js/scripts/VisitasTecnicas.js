@@ -1,5 +1,4 @@
 import { createCrudPage } from './createCrudPage';
-import { UNIDADES } from './unidades';
 import {
   combinarValidacoes,
   formatarProcessoSeiInput,
@@ -31,6 +30,7 @@ const PRAZO_LISTA = [
 
 export default createCrudPage({
   name: 'VisitasTecnicas',
+  carregarUnidadesApi: true,
   endpoint: '/api/visitas-tecnicas',
   listKey: 'visitas',
   detailKey: 'visitaDetalhe',
@@ -138,11 +138,10 @@ export default createCrudPage({
     if (Array.isArray(meta.anos) && meta.anos.length) this.anosDisponiveis = meta.anos;
     if (Array.isArray(meta.eixos) && meta.eixos.length) this.eixos = meta.eixos;
     if (Array.isArray(meta.status) && meta.status.length) this.statusLista = meta.status;
-    if (Array.isArray(meta.unidades) && meta.unidades.length) this.unidades = meta.unidades;
     if (Array.isArray(meta.prazos) && meta.prazos.length) this.prazoLista = meta.prazos;
   },
   extraData: () => ({
-    unidades: [...UNIDADES],
+    unidades: [],
     eixos: EIXOS,
     statusLista: STATUS_LISTA,
     anosDisponiveis: ANOS,

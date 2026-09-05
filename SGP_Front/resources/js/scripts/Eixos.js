@@ -1,5 +1,4 @@
 import { createCrudPage } from './createCrudPage';
-import { UNIDADES } from './unidades';
 import {
   combinarValidacoes,
   formatarInteiroInput,
@@ -10,6 +9,7 @@ import {
 
 export default createCrudPage({
   name: 'Eixos',
+  carregarUnidadesApi: true,
   endpoint: '/api/curso-por-eixos',
   showKey: 'cursoPorEixo',
   errorKey: 'mensagemErro',
@@ -103,19 +103,14 @@ export default createCrudPage({
     falhaDetalhe: 'Não foi possível carregar os detalhes.',
     confirmarExclusao: (r) => `Excluir o curso "${r.curso}" (${r.ano})? Esta ação não pode ser desfeita.`,
   },
-  aplicarMeta(meta) {
-    if (Array.isArray(meta.unidades) && meta.unidades.length) {
-      this.unidades = meta.unidades;
-    }
-  },
   extraData: () => ({
     meta: {
       eixos: [],
       status: ['Ativo', 'Suspenso', 'Inativo'],
       anos: ['2026', '2025', '2024', '2023'],
-      unidades: [...UNIDADES],
+      unidades: [],
     },
-    unidades: [...UNIDADES],
+    unidades: [],
   }),
   computedAliases: {
     totalFiltrado: 'totalRegistros',
