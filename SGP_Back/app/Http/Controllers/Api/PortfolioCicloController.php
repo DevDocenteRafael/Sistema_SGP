@@ -118,20 +118,53 @@ class PortfolioCicloController extends Controller
             ], 422);
         }
 
-        if ($portfolioCiclo->cursos()->exists()
-            || $portfolioCiclo->planoDeMetas()->exists()
-            || $portfolioCiclo->pcas()->exists()
-            || $portfolioCiclo->cursosPorEixo()->exists()) {
+        $portfolioCiclo->loadCount(['cursos', 'planoDeMetas', 'pcas', 'cursosPorEixo']);
+        $temRegistros = $portfolioCiclo->cursos_count > 0
+            || $portfolioCiclo->plano_de_metas_count > 0
+            || $portfolioCiclo->pcas_count > 0
+            || $portfolioCiclo->cursos_por_eixo_count > 0;
+
+        $limparRegistros = $request->boolean('limpar_registros');
+
+        if ($temRegistros && ! $limparRegistros) {
             return response()->json([
-                'message' => 'Não é possível excluir um ciclo que ainda possui cursos, metas, PCA ou eixos. Mova ou exclua os registros primeiro.',
+                'message' => 'Não é possível excluir um ciclo que ainda possui cursos, metas, PCA ou eixos. Confirme a exclusão com limpeza ou mova os registros antes.',
+                'exige_limpeza' => true,
+                'composicao' => [
+                    'cursos' => (int) $portfolioCiclo->cursos_count,
+                    'plano_de_metas' => (int) $portfolioCiclo->plano_de_metas_count,
+                    'pca' => (int) $portfolioCiclo->pcas_count,
+                    'eixos' => (int) $portfolioCiclo->cursos_por_eixo_count,
+                ],
             ], 422);
         }
 
         $nome = $portfolioCiclo->nome;
-        $portfolioCiclo->delete();
+        $resumo = [
+            'cursos' => (int) $portfolioCiclo->cursos_count,
+            'plano_de_metas' => (int) $portfolioCiclo->plano_de_metas_count,
+            'pca' => (int) $portfolioCiclo->pcas_count,
+            'eixos' => (int) $portfolioCiclo->cursos_por_eixo_count,
+        ];
+
+        DB::transaction(function () use ($portfolioCiclo, $limparRegistros) {
+            if ($limparRegistros) {
+                $portfolioCiclo->cursos()->delete();
+                $portfolioCiclo->planoDeMetas()->delete();
+                $portfolioCiclo->pcas()->delete();
+                $portfolioCiclo->cursosPorEixo()->delete();
+            }
+
+            $portfolioCiclo->delete();
+        });
+
+        $sufixo = $limparRegistros && $temRegistros
+            ? ' Os registros vinculados a este ciclo também foram removidos.'
+            : '';
 
         return response()->json([
-            'message' => "Ciclo de portfólio \"{$nome}\" excluído com sucesso.",
+            'message' => "Ciclo de portfólio \"{$nome}\" excluído com sucesso.{$sufixo}",
+            'limpeza' => $limparRegistros ? $resumo : null,
         ]);
     }
 
@@ -156,21 +189,29 @@ class PortfolioCicloController extends Controller
     {
         $origem = $request->origem();
         $marcarAtual = $request->boolean('marcar_atual', true);
+        $copiarCursos = $request->deveCopiarCursos();
+        $cursosOrigem = $copiarCursos
+            ? Curso::query()->where('ciclo_id', $origem->id)->orderBy('id')->get()
+            : collect();
 
-        $novo = DB::transaction(function () use ($request, $origem, $marcarAtual) {
+        $novo = DB::transaction(function () use ($request, $origem, $marcarAtual, $copiarCursos, $cursosOrigem) {
+            $observacao = $request->validated('observacao');
+            if ($observacao === null) {
+                $observacao = $copiarCursos
+                    ? 'Gerado a partir do ciclo '.$origem->nome
+                    : 'Gerado a partir do ciclo '.$origem->nome.' (sem copiar cursos)';
+            }
+
             $ciclo = PortfolioCiclo::create([
                 'nome' => $request->validated('nome'),
                 'origem_id' => $origem->id,
                 'atual' => false,
-                'observacao' => $request->validated('observacao')
-                    ?? 'Gerado a partir do ciclo '.$origem->nome,
+                'observacao' => $observacao,
             ]);
 
-            Curso::query()
-                ->where('ciclo_id', $origem->id)
-                ->orderBy('id')
-                ->get()
-                ->each(fn (Curso $curso) => $curso->replicarParaCiclo($ciclo));
+            if ($copiarCursos) {
+                $cursosOrigem->each(fn (Curso $curso) => $curso->replicarParaCiclo($ciclo));
+            }
 
             if ($marcarAtual) {
                 $ciclo->marcarComoAtual();
@@ -179,9 +220,17 @@ class PortfolioCicloController extends Controller
             return $ciclo->fresh()->load('origem:id,nome')->loadCount(['cursos', 'planoDeMetas', 'pcas', 'cursosPorEixo']);
         });
 
+        $copiados = $copiarCursos ? $cursosOrigem->count() : 0;
+        $mensagem = $copiarCursos
+            ? ($copiados === 1
+                ? 'Próximo ciclo gerado com sucesso. 1 curso foi copiado.'
+                : "Próximo ciclo gerado com sucesso. {$copiados} cursos foram copiados.")
+            : 'Próximo ciclo gerado com sucesso, sem copiar cursos.';
+
         return response()->json([
-            'message' => 'Próximo portfólio gerado com sucesso.',
+            'message' => $mensagem,
             'ciclo' => $this->serializar($novo),
+            'cursos_copiados' => $copiados,
         ], 201);
     }
 

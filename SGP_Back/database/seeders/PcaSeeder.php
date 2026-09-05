@@ -60,7 +60,7 @@ class PcaSeeder extends Seeder
                 'numero_sei' => 'SEI-PCA-003',
                 'codigo_sig' => 'SIG-PCA-003',
                 'eixo' => 'Gastronomia',
-                'unidade' => 'Jessé Freire',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus Taguatinga',
                 'carga_horaria' => '360',
                 'precificacao' => 'R$ 2.400,00',
                 'valor_primeiro_modulo' => 'R$ 400,00',

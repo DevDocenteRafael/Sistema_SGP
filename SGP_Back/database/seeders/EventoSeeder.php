@@ -40,7 +40,7 @@ class EventoSeeder extends Seeder
                 'nome' => 'Mostra Gastronômica de Fim de Ano',
                 'ano' => '2025',
                 'data' => '2025-12-05',
-                'unidade' => 'Jessé Freire',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus Taguatinga',
                 'eixo' => 'Gastronomia',
                 'quantidade_pessoas' => 120,
                 'equipe' => 'Gastronomia e Turismo',

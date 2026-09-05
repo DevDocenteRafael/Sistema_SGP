@@ -11,7 +11,7 @@ class VisitaTecnicaSeeder extends Seeder
     {
         $registros = [
             [
-                'unidade' => 'Asa Norte',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
                 'eixo' => 'Tecnologia e Economia Criativa',
                 'processo_sei' => '00001.000123/2026-01',
                 'data_solicitacao' => '2026-06-10',

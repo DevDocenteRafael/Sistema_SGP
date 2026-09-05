@@ -16,7 +16,7 @@ class UsuarioSeeder extends Seeder
                 'nome' => 'Administrador do Sistema',
                 'senha' => 'senac2025',
                 'perfil' => Usuario::PERFIL_ADMINISTRADOR,
-                'unidade' => 'Asa Norte',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
                 'area' => 'Coordenação Pedagógica',
             ],
             [
@@ -24,7 +24,7 @@ class UsuarioSeeder extends Seeder
                 'nome' => 'Editor de Portfólio',
                 'senha' => 'editor2025',
                 'perfil' => Usuario::PERFIL_EDITOR,
-                'unidade' => 'Asa Norte',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
                 'area' => 'Equipe Pedagógica',
             ],
             [
@@ -32,7 +32,7 @@ class UsuarioSeeder extends Seeder
                 'nome' => 'Consultor de Portfólio',
                 'senha' => 'consultor2025',
                 'perfil' => Usuario::PERFIL_CONSULTOR,
-                'unidade' => 'Asa Norte',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
                 'area' => 'Gestão',
             ],
         ];

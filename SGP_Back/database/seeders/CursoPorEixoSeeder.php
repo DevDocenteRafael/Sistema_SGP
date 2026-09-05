@@ -15,7 +15,7 @@ class CursoPorEixoSeeder extends Seeder
             [
                 'curso' => 'Açougueiro',
                 'eixo' => 'Gastronomia',
-                'unidade' => 'Asa Norte',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
                 'ano' => '2025',
                 'ch' => '160',
                 'turmas' => '1',
@@ -29,7 +29,7 @@ class CursoPorEixoSeeder extends Seeder
             [
                 'curso' => 'Práticas Operacionais em Cozinha',
                 'eixo' => 'Gastronomia',
-                'unidade' => 'Asa Sul',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 913 Sul',
                 'ano' => '2025',
                 'ch' => '360',
                 'turmas' => '1',
@@ -99,7 +99,7 @@ class CursoPorEixoSeeder extends Seeder
             [
                 'curso' => 'Recepcionista em Meios de Hospedagem',
                 'eixo' => 'Hospitalidade',
-                'unidade' => 'Jessé Freire',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus Taguatinga',
                 'ano' => '2025',
                 'ch' => '160',
                 'turmas' => '1',
@@ -141,7 +141,7 @@ class CursoPorEixoSeeder extends Seeder
             [
                 'curso' => 'ChatGPT na Prática',
                 'eixo' => 'Tecnologia da Informação - Inovação',
-                'unidade' => 'Asa Sul',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 913 Sul',
                 'ano' => '2025',
                 'ch' => '36',
                 'turmas' => '3',
@@ -155,7 +155,7 @@ class CursoPorEixoSeeder extends Seeder
             [
                 'curso' => 'Técnico em Programação de Jogos Digitais',
                 'eixo' => 'Tecnologia da informação - Games',
-                'unidade' => 'Asa Norte',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
                 'ano' => '2025',
                 'ch' => '1000',
                 'turmas' => '1',
@@ -267,7 +267,7 @@ class CursoPorEixoSeeder extends Seeder
             [
                 'curso' => 'Especialização em Enfermagem em Saúde Mental',
                 'eixo' => 'Enfermagem',
-                'unidade' => 'Asa Norte',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
                 'ano' => '2025',
                 'ch' => '300',
                 'turmas' => '1',
@@ -281,7 +281,7 @@ class CursoPorEixoSeeder extends Seeder
             [
                 'curso' => 'Técnico em Nutrição e Dietética',
                 'eixo' => 'Nutrição',
-                'unidade' => 'Asa Sul',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 913 Sul',
                 'ano' => '2025',
                 'ch' => '1200',
                 'turmas' => '2',
@@ -323,7 +323,7 @@ class CursoPorEixoSeeder extends Seeder
             [
                 'curso' => 'Técnico em Radiologia',
                 'eixo' => 'Radiologia',
-                'unidade' => 'Jessé Freire',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus Taguatinga',
                 'ano' => '2025',
                 'ch' => '1200',
                 'turmas' => '1',
@@ -351,7 +351,7 @@ class CursoPorEixoSeeder extends Seeder
             [
                 'curso' => 'Açougueiro',
                 'eixo' => 'Gastronomia',
-                'unidade' => 'Asa Norte',
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
                 'ano' => '2024',
                 'ch' => '160',
                 'turmas' => '1',

@@ -93,6 +93,7 @@ class PortfolioCicloEJornadaApiTest extends TestCase
 
         $response->assertCreated();
         $response->assertJsonPath('ciclo.nome', '2028');
+        $response->assertJsonPath('cursos_copiados', 1);
         $this->assertSame(1, (int) $response->json('ciclo.cursos_count'));
 
         $novoId = $response->json('ciclo.id');
@@ -110,6 +111,74 @@ class PortfolioCicloEJornadaApiTest extends TestCase
         $filtrado->assertOk();
         $filtrado->assertJsonPath('meta.total', 1);
         $filtrado->assertJsonPath('data.0.titulo', 'Curso origem');
+    }
+
+    public function test_gerar_proximo_sem_copiar_cursos(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $origem = PortfolioCiclo::atual();
+        $this->assertNotNull($origem);
+
+        Curso::create([
+            'titulo' => 'Curso origem sem copia',
+            'eixo' => 'Saúde',
+            'status' => 'ATIVO',
+            'codigo_sig' => 'SIG-CICLO-SEM',
+            'ciclo_id' => $origem->id,
+        ]);
+
+        $response = $this->postJson('/api/portfolio-ciclos/gerar-proximo', [
+            'origem_id' => $origem->id,
+            'nome' => '2031',
+            'copiar_cursos' => false,
+            'marcar_atual' => false,
+        ]);
+
+        $response->assertCreated();
+        $response->assertJsonPath('ciclo.nome', '2031');
+        $response->assertJsonPath('cursos_copiados', 0);
+        $this->assertSame(0, (int) $response->json('ciclo.cursos_count'));
+
+        $novoId = $response->json('ciclo.id');
+        $this->assertDatabaseMissing('cursos', [
+            'titulo' => 'Curso origem sem copia',
+            'ciclo_id' => $novoId,
+        ]);
+    }
+
+    public function test_excluir_ciclo_com_registros_exige_limpeza(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $origem = PortfolioCiclo::atual();
+        $this->assertNotNull($origem);
+
+        $ciclo = PortfolioCiclo::create([
+            'nome' => '2032-teste',
+            'origem_id' => $origem->id,
+            'atual' => false,
+            'observacao' => 'Ciclo para exclusão',
+        ]);
+
+        Curso::create([
+            'titulo' => 'Curso do ciclo teste',
+            'eixo' => 'Saúde',
+            'status' => 'ATIVO',
+            'codigo_sig' => 'SIG-DEL-1',
+            'ciclo_id' => $ciclo->id,
+        ]);
+
+        $bloqueado = $this->deleteJson("/api/portfolio-ciclos/{$ciclo->id}");
+        $bloqueado->assertStatus(422);
+        $bloqueado->assertJsonPath('exige_limpeza', true);
+        $this->assertDatabaseHas('portfolio_ciclos', ['id' => $ciclo->id]);
+        $this->assertDatabaseHas('cursos', ['codigo_sig' => 'SIG-DEL-1', 'ciclo_id' => $ciclo->id]);
+
+        $limpo = $this->deleteJson("/api/portfolio-ciclos/{$ciclo->id}?limpar_registros=1");
+        $limpo->assertOk();
+        $this->assertDatabaseMissing('portfolio_ciclos', ['id' => $ciclo->id]);
+        $this->assertDatabaseMissing('cursos', ['codigo_sig' => 'SIG-DEL-1']);
     }
 
     public function test_ciclo_novo_nao_herda_cursos_nem_metas_de_outro_ano(): void
