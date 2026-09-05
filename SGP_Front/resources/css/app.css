@@ -2,12 +2,38 @@
 @import './crud-page.css';
 @import './responsive/index.css';
 
+html {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
-    margin: 0;
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 #app {
-    min-height: 100vh;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+/* Login precisa rolar a página */
+html:has(.login-page),
+body:has(.login-page) {
+  height: auto;
+  min-height: 100%;
+  overflow: auto;
+  overscroll-behavior: auto;
+}
+
+#app:has(.login-page) {
+  height: auto;
+  min-height: 100%;
+  overflow: visible;
 }
 
 .app-main h1 {

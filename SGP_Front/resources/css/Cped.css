@@ -1,6 +1,6 @@
 .cped-page {
-  margin: -1.5rem;
-  min-height: calc(100vh - 0px);
+  margin: 0;
+  min-height: 100%;
   background: var(--sgp-bg, #f8fafc);
 }
 
@@ -8,6 +8,8 @@
   background: linear-gradient(135deg, #003f7d 0%, #0a4f96 55%, #0d5cab 100%);
   color: #fff;
   padding: 1.75rem 2rem 1.5rem;
+  margin: 0;
+  border-radius: 0;
 }
 
 .cped-hero-inner {

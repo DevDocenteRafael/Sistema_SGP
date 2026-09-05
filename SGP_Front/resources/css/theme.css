@@ -275,6 +275,13 @@ body {
   color: var(--sgp-text);
 }
 
+/* Full-bleed (Início/CPED): sem padding e fundo da marca no overscroll */
+.app-main.app-main--flush {
+  padding: 0 !important;
+  overscroll-behavior-y: none;
+  background: var(--sgp-sidebar-bg, #003f7d) !important;
+}
+
 .sidebar,
 .app-sidebar,
 #sgp-sidebar {
@@ -814,6 +821,10 @@ html[data-theme='dark'] .kanban-page,
 html[data-theme='dark'] [class$='-page']:not(.login-page) {
   background: var(--sgp-bg) !important;
   color: var(--sgp-text) !important;
+}
+
+html[data-theme='dark'] .app-main.app-main--flush {
+  background: var(--sgp-sidebar-bg, #003f7d) !important;
 }
 
 html[data-theme='dark'] .crud-top,

@@ -1,9 +1,9 @@
 /* Tooltip e rótulos de ajuda — padrão global SGP */
 
 .sgp-skip-link {
-  position: absolute;
+  position: fixed;
   left: 0.75rem;
-  top: -3rem;
+  top: -3.5rem;
   z-index: 200;
   padding: 0.55rem 0.85rem;
   border-radius: 0.45rem;

@@ -17,6 +17,11 @@ export default {
       const rota = this.$route?.name || this.$route?.meta?.menu || '';
       return rota === 'inicio' || rota === 'cped';
     },
+    /** Páginas full-bleed (hero colado na barra de ciclo) — sem padding do main. */
+    paginaFlush() {
+      const rota = this.$route?.name || this.$route?.meta?.menu || '';
+      return rota === 'inicio' || rota === 'cped';
+    },
   },
   watch: {
     $route() {

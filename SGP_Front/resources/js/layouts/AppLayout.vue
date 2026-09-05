@@ -39,7 +39,12 @@
         <CicloSeletor />
       </div>
 
-      <main id="conteudo-principal" class="app-main" tabindex="-1">
+      <main
+        id="conteudo-principal"
+        class="app-main"
+        :class="{ 'app-main--flush': paginaFlush }"
+        tabindex="-1"
+      >
         <router-view />
       </main>
     </div>
