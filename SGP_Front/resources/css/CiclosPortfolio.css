@@ -25,6 +25,14 @@
   font-size: 0.8rem;
 }
 
+.ciclo-aviso-copia {
+  margin-top: 0.45rem !important;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, #f59e0b 14%, transparent);
+  color: #92400e;
+}
+
 .ciclos-grid {
   display: flex;
   flex-direction: column;
@@ -168,14 +176,28 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  width: fit-content;
+  max-width: 100%;
   font-weight: 600;
   color: #374151;
   cursor: pointer;
 }
 
-.campo-check input {
-  width: 1rem;
-  height: 1rem;
+.campo-check input[type='checkbox'] {
+  width: 1rem !important;
+  height: 1rem !important;
+  min-width: 1rem;
+  max-width: 1rem;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  appearance: auto;
+  -webkit-appearance: checkbox;
+  accent-color: var(--sgp-brand, #003f7d);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
 }
 
 .campo-ajuda {

@@ -6,6 +6,59 @@
   background: var(--sgp-bg, #f8f9fa);
 }
 
+.app-content-column {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-ciclo-bar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.55rem 1.5rem;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  background: var(--sgp-surface, #fff);
+  color: var(--sgp-text, #111827);
+}
+
+.app-ciclo-bar--brand {
+  padding: 0.45rem 1.5rem;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  background: var(--sgp-sidebar-bg, #003f7d);
+  color: #fff;
+}
+
+.app-ciclo-bar--brand :deep(.ciclo-seletor__trigger) {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.app-ciclo-bar--brand :deep(.ciclo-seletor__trigger:hover) {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.app-ciclo-bar--brand :deep(.ciclo-seletor__kicker),
+.app-ciclo-bar--brand :deep(.ciclo-seletor__chevron) {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.app-ciclo-bar--brand :deep(.ciclo-seletor__nome) {
+  color: #fff;
+}
+
+.app-ciclo-bar--brand :deep(.ciclo-seletor__badge) {
+  background: rgba(16, 185, 129, 0.28);
+  color: #d1fae5;
+}
+
 .app-main {
   flex: 1;
   min-width: 0;
@@ -24,5 +77,29 @@
 @media (max-width: 768px) {
   .app-layout.menu-collapsed .sidebar {
     width: min(var(--sidebar-width, 260px), 86vw);
+  }
+
+  .app-ciclo-bar {
+    justify-content: stretch;
+    padding: 0.45rem 0.85rem;
+  }
+
+  .app-ciclo-bar :deep(.ciclo-seletor) {
+    width: 100%;
+  }
+
+  .app-ciclo-bar :deep(.ciclo-seletor__trigger) {
+    width: 100%;
+    max-width: none;
+  }
+
+  .app-main {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-main {
+    padding: 0.75rem;
   }
 }

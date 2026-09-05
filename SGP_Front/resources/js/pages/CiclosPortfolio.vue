@@ -2,9 +2,9 @@
   <div class="crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
       <CrudPageHeader
-        title="Ciclos de Portfólio"
-        subtitle="Cada ciclo é o portfólio de um período — SENAC DF"
-        info="Clique no ciclo para abri-lo. Se você veio de Trocar ciclo, a escolha volta para a página de origem."
+        title="Gerenciar ciclos"
+        subtitle="Administração dos ciclos do portfólio — SENAC DF"
+        info="O ciclo ativo fica no seletor do topo. Use ← Voltar para sair desta tela."
         :show-novo="podeEditar"
         novo-label="Novo ciclo"
         :show-clear-filters="temFiltro"
@@ -13,18 +13,26 @@
       >
         <template #actions>
           <button
+            type="button"
+            class="btn-acao-secundaria"
+            aria-label="Sair de gerenciar ciclos e voltar"
+            @click="sairGerenciar"
+          >
+            ← Voltar
+          </button>
+          <button
             v-if="podeEditar"
             type="button"
             class="btn-acao-secundaria"
             :disabled="registros.length === 0"
             @click="abrirGerar"
           >
-            Gerar próximo portfólio
+            Gerar próximo ciclo
           </button>
         </template>
       
         <template #filters>
-<section class="filtros-panel" aria-label="Filtros de ciclos de portfólio">
+<section class="filtros-panel" aria-label="Filtros de ciclos">
         <div class="filtros-row">
           <div class="filtro-busca">
             <span class="filtro-busca-icon" aria-hidden="true">
@@ -34,7 +42,7 @@
               v-model="filtros.busca"
               type="search"
               placeholder="Buscar por nome ou observação..."
-              aria-label="Buscar ciclo de portfólio"
+              aria-label="Buscar ciclo"
               @input="aplicarFiltros"
             />
           </div>
@@ -45,20 +53,13 @@
 
       <CrudAlerts :sucesso="mensagemSucesso" :erro="mensagemErro" />
 
-      <div v-if="destinoTroca" class="ciclo-volta-banner" role="status">
-        <div>
-          <strong>Escolha o ciclo de {{ rotuloDestinoTroca }}</strong>
-          <p>O clique no card volta para {{ rotuloDestinoTroca }} com esse ciclo. Os outros módulos não mudam.</p>
-        </div>
-      </div>
-
-      <PageTableCard :total="totalRegistros" aria-label="Ciclos de portfólio">
+      <PageTableCard :total="totalRegistros" aria-label="Ciclos">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
         <div v-else-if="totalRegistros === 0 && !temFiltro" class="tabela-vazia estado-vazio">
           <p class="estado-vazio-titulo">Nenhum ciclo cadastrado ainda.</p>
-          <p class="estado-vazio-texto">Gere o próximo portfólio ou cadastre um ciclo para começar.</p>
+          <p class="estado-vazio-texto">Gere o próximo ciclo ou cadastre um ciclo para começar.</p>
         </div>
 
         <div v-else-if="totalRegistros === 0" class="tabela-vazia">
@@ -91,9 +92,10 @@
             </ul>
 
             <div class="ciclo-card-modulos" @click.stop>
-              <button type="button" class="ciclo-card-abrir" @click.stop="abrirPortfolio(item)">
-                Abrir portfólio
+              <button type="button" class="ciclo-card-abrir" @click.stop="escolherCiclo(item)">
+                Usar este ciclo
               </button>
+              <button type="button" class="ciclo-card-link" @click.stop="abrirPortfolio(item)">Cursos</button>
               <button type="button" class="ciclo-card-link" @click.stop="abrirModulo(item, 'plano-de-metas')">Metas</button>
               <button type="button" class="ciclo-card-link" @click.stop="abrirModulo(item, 'pca')">PCA</button>
               <button type="button" class="ciclo-card-link" @click.stop="abrirModulo(item, 'eixos')">Eixos</button>
@@ -127,7 +129,7 @@
       <div v-if="registroDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-ciclo-titulo">
           <div class="modal-detalhes-header">
-            <h2 id="detalhe-ciclo-titulo">Detalhes do ciclo de portfólio</h2>
+            <h2 id="detalhe-ciclo-titulo">Detalhes do ciclo</h2>
             <button type="button" class="btn-fechar-x" title="Fechar" aria-label="Fechar" @click="fecharDetalhes">×</button>
           </div>
           <div class="detalhe-grid detalhe-grid-2">
@@ -161,7 +163,7 @@
             </div>
           </div>
           <div class="modal-detalhes-actions">
-            <button type="button" class="btn-secondary" @click="escolherCiclo(registroDetalhe)">Abrir ciclo</button>
+            <button type="button" class="btn-secondary" @click="escolherCiclo(registroDetalhe)">Usar este ciclo</button>
             <button v-if="podeEditar && !registroDetalhe.atual" type="button" class="btn-editar-modal" @click="marcarComoAtual(registroDetalhe)">
               Definir como atual
             </button>
@@ -211,10 +213,16 @@
                 <textarea id="ciclo-obs" v-model="form.observacao" rows="3" maxlength="2000" />
               </div>
               <div v-if="modo === 'gerar'" class="form-group full">
-                <p class="campo-ajuda">A geração copia os cursos do ciclo de origem. Metas, PCA e Eixos não são duplicados — entram pelos anos do nome novo.</p>
+                <label class="campo-check">
+                  <input v-model="form.copiar_cursos" type="checkbox" />
+                  Copiar cursos do ciclo de origem
+                </label>
+                <p class="campo-ajuda" :class="{ 'ciclo-aviso-copia': form.copiar_cursos && cursosOrigemCount > 0 }">
+                  {{ avisoCopiaCursos }}
+                </p>
                 <label class="campo-check">
                   <input v-model="form.marcar_atual" type="checkbox" />
-                  Definir o ciclo gerado como portfólio atual
+                  Definir o ciclo gerado como atual
                 </label>
               </div>
               <div v-else class="form-group full">

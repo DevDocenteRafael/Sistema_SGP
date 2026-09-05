@@ -1,7 +1,8 @@
 const STORAGE_GLOBAL = 'sgp_ciclo_contexto';
 export const CICLO_CONTEXTO_EVENTO = 'sgp-ciclo-contexto';
 
-const STORAGE_MODULO = {
+/** Chaves antigas por módulo — migradas para o storage global na primeira leitura. */
+const STORAGE_MODULO_LEGADO = {
   cursos: 'sgp_ciclo_contexto_cursos',
   metas: 'sgp_ciclo_contexto_metas',
   pca: 'sgp_ciclo_contexto_pca',
@@ -15,10 +16,6 @@ const PATH_MODULO = {
   '/app/eixos': 'eixos',
 };
 
-function chaveDoModulo(modulo) {
-  return modulo && STORAGE_MODULO[modulo] ? STORAGE_MODULO[modulo] : null;
-}
-
 function lerChave(chave) {
   try {
     const raw = localStorage.getItem(chave);
@@ -27,6 +24,30 @@ function lerChave(chave) {
   } catch {
     return null;
   }
+}
+
+function limparChavesLegadas() {
+  Object.values(STORAGE_MODULO_LEGADO).forEach((chave) => {
+    localStorage.removeItem(chave);
+  });
+}
+
+function migrarLegadoSeNecessario() {
+  const global = lerChave(STORAGE_GLOBAL);
+  if (global?.id) {
+    return global;
+  }
+
+  for (const chave of Object.values(STORAGE_MODULO_LEGADO)) {
+    const legado = lerChave(chave);
+    if (legado?.id) {
+      localStorage.setItem(STORAGE_GLOBAL, JSON.stringify(legado));
+      limparChavesLegadas();
+      return legado;
+    }
+  }
+
+  return null;
 }
 
 export function moduloDoPath(path) {
@@ -60,9 +81,12 @@ export async function buscarCiclosPortfolio() {
   return ciclosPromise;
 }
 
-export async function garantirCicloContexto(modulo, cicloId = null) {
+/**
+ * Garante um ciclo global. O parâmetro `modulo` é ignorado (compatibilidade).
+ */
+export async function garantirCicloContexto(_modulo = null, cicloId = null) {
   const ciclos = await buscarCiclosPortfolio();
-  const existente = lerCicloContexto(modulo);
+  const existente = lerCicloContexto();
   const alvoId = cicloId || existente?.id;
   const ciclo = (alvoId
     ? ciclos.find((item) => String(item.id) === String(alvoId))
@@ -71,26 +95,25 @@ export async function garantirCicloContexto(modulo, cicloId = null) {
     || ciclos[0]
     || null;
 
-  if (ciclo && modulo) {
-    salvarCicloContexto(ciclo, modulo);
+  if (ciclo) {
+    salvarCicloContexto(ciclo);
   }
 
   return ciclo;
 }
 
-export function lerCicloContexto(modulo = null) {
-  const chave = chaveDoModulo(modulo);
-
-  if (chave) {
-    return lerChave(chave);
-  }
-
-  return lerChave(STORAGE_GLOBAL);
+/** Lê o ciclo global. O parâmetro `modulo` é ignorado (compatibilidade). */
+export function lerCicloContexto(_modulo = null) {
+  return migrarLegadoSeNecessario() || lerChave(STORAGE_GLOBAL);
 }
 
-export function salvarCicloContexto(ciclo, modulo = null) {
+/**
+ * Define o ciclo global único (Cursos, Metas, PCA e Eixos).
+ * O parâmetro `modulo` é ignorado (compatibilidade).
+ */
+export function salvarCicloContexto(ciclo, _modulo = null) {
   if (!ciclo?.id) {
-    limparCicloContexto(modulo);
+    limparCicloContexto();
     return;
   }
 
@@ -102,25 +125,19 @@ export function salvarCicloContexto(ciclo, modulo = null) {
     origem_nome: ciclo.origem_nome || null,
   };
 
-  const chave = chaveDoModulo(modulo);
-  localStorage.setItem(chave || STORAGE_GLOBAL, JSON.stringify(contexto));
-  emitirCicloContexto({ modulo: modulo || null, ciclo: contexto });
+  localStorage.setItem(STORAGE_GLOBAL, JSON.stringify(contexto));
+  limparChavesLegadas();
+  emitirCicloContexto({ ciclo: contexto });
 }
 
-export function limparCicloContexto(modulo = null) {
-  const chave = chaveDoModulo(modulo);
-  if (chave) {
-    localStorage.removeItem(chave);
-  } else {
-    localStorage.removeItem(STORAGE_GLOBAL);
-    Object.values(STORAGE_MODULO).forEach((item) => localStorage.removeItem(item));
-  }
-
-  emitirCicloContexto({ modulo: modulo || null, ciclo: null });
+export function limparCicloContexto(_modulo = null) {
+  localStorage.removeItem(STORAGE_GLOBAL);
+  limparChavesLegadas();
+  emitirCicloContexto({ ciclo: null });
 }
 
-export function idCicloContexto(modulo = null) {
-  const contexto = lerCicloContexto(modulo);
+export function idCicloContexto(_modulo = null) {
+  const contexto = lerCicloContexto();
 
   return contexto?.id ? String(contexto.id) : '';
 }

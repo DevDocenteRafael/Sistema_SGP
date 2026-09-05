@@ -25,6 +25,7 @@ class PortfolioCicloGerarRequest extends FormRequest
             'nome' => ['required', 'string', 'max:80', Rule::unique('portfolio_ciclos', 'nome')],
             'observacao' => ['nullable', 'string', 'max:2000'],
             'marcar_atual' => ['nullable', 'boolean'],
+            'copiar_cursos' => ['nullable', 'boolean'],
         ];
     }
 
@@ -37,6 +38,15 @@ class PortfolioCicloGerarRequest extends FormRequest
             'origem_id.exists' => 'Ciclo de origem inválido.',
             'observacao.max' => 'A observação deve ter no máximo 2000 caracteres.',
         ];
+    }
+
+    public function deveCopiarCursos(): bool
+    {
+        if (! $this->exists('copiar_cursos')) {
+            return true;
+        }
+
+        return $this->boolean('copiar_cursos');
     }
 
     public function origem(): PortfolioCiclo
