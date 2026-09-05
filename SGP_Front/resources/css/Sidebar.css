@@ -17,18 +17,20 @@
 
 .sidebar-header {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   flex-shrink: 0;
-  padding: 1.25rem 1.25rem 0.85rem;
+  padding: 1rem 0.85rem 0.85rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .sidebar-toggle {
-  position: absolute;
-  top: 1rem;
-  right: 0.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: 2rem;
   height: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -47,7 +49,10 @@
 
 .sidebar-logo-link {
   display: flex;
+  align-items: center;
   justify-content: flex-start;
+  min-width: 0;
+  flex: 1;
   text-decoration: none;
 }
 
@@ -55,8 +60,9 @@
   display: block;
   height: 32px;
   width: auto;
-  max-width: 130px;
+  max-width: 100%;
   object-fit: contain;
+  object-position: left center;
 }
 
 .sidebar-logo-link:hover .sidebar-logo {
@@ -257,23 +263,30 @@
 }
 
 .sidebar--collapsed .sidebar-header {
-  padding-inline: 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.85rem 0.45rem;
 }
 
 .sidebar--collapsed .sidebar-logo-link {
+  flex: 0 0 auto;
+  width: 100%;
   justify-content: center;
 }
 
 .sidebar--collapsed .sidebar-logo {
-  width: 2rem;
-  height: 2rem;
-  object-fit: cover;
-  object-position: left;
+  width: 2.35rem;
+  height: 2.35rem;
+  max-width: 2.35rem;
+  object-fit: contain;
+  object-position: center;
 }
 
 .sidebar--collapsed .sidebar-toggle {
-  right: 0.35rem;
-  top: 3.35rem;
+  position: static;
+  margin: 0;
 }
 
 .sidebar--collapsed .sidebar-nav {
@@ -320,6 +333,24 @@
 
   .sidebar--collapsed {
     width: min(var(--sidebar-width, 260px), 86vw);
+  }
+
+  .sidebar--collapsed .sidebar-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0.85rem 0.85rem;
+  }
+
+  .sidebar--collapsed .sidebar-logo-link {
+    flex: 1;
+    justify-content: flex-start;
+  }
+
+  .sidebar--collapsed .sidebar-logo {
+    width: auto;
+    height: 32px;
+    max-width: 130px;
   }
 
   .sidebar--collapsed .sidebar-section-title {

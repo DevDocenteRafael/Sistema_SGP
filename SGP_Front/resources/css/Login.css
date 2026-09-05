@@ -195,37 +195,47 @@
 .input-icon {
   position: absolute;
   left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--login-input-icon);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 
-.input-wrapper input {
+/* Sobrescreve .form-group input do crud-page/theme (maior especificidade / !important) */
+.login-page .form-group .input-wrapper input {
   width: 100%;
-  padding: 0.7rem 2.75rem 0.7rem 2.5rem;
-  border: 1px solid var(--login-input-border);
+  height: auto !important;
+  min-height: 2.75rem;
+  padding: 0.7rem 2.85rem 0.7rem 2.85rem !important;
+  border: 1px solid var(--login-input-border) !important;
   border-radius: 8px;
   font-size: 0.95rem;
-  color: var(--login-input-text);
-  background: var(--login-input-bg);
+  color: var(--login-input-text) !important;
+  background: var(--login-input-bg) !important;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  box-sizing: border-box;
 }
 
-.input-wrapper input::placeholder {
+.login-page .form-group .input-wrapper input::placeholder {
   color: var(--login-input-placeholder);
   opacity: 1;
 }
 
-.input-wrapper input:focus {
-  border-color: var(--login-input-focus);
+.login-page .form-group .input-wrapper input:focus {
+  border-color: var(--login-input-focus) !important;
   box-shadow: 0 0 0 3px var(--login-input-focus-ring);
 }
 
-.input-wrapper input:-webkit-autofill,
-.input-wrapper input:-webkit-autofill:hover,
-.input-wrapper input:-webkit-autofill:focus {
+.login-page .form-group .input-wrapper input:-webkit-autofill,
+.login-page .form-group .input-wrapper input:-webkit-autofill:hover,
+.login-page .form-group .input-wrapper input:-webkit-autofill:focus {
   -webkit-text-fill-color: var(--login-input-text);
   caret-color: var(--login-input-text);
   box-shadow: 0 0 0 1000px var(--login-input-bg) inset;
@@ -234,14 +244,18 @@
 
 .toggle-password {
   position: absolute;
-  right: 0.75rem;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: var(--login-input-icon);
   cursor: pointer;
   display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.25rem;
-  z-index: 1;
+  z-index: 2;
 }
 
 .toggle-password:hover {
@@ -349,7 +363,7 @@ html[data-theme='dark'] .login-page::before {
 }
 
 /* Blindagem contra overrides globais de tema em inputs do login */
-html[data-theme='dark'] .login-page .input-wrapper input {
+html[data-theme='dark'] .login-page .form-group .input-wrapper input {
   background: var(--login-input-bg) !important;
   color: var(--login-input-text) !important;
   border-color: var(--login-input-border) !important;
