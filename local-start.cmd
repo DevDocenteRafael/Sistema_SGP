@@ -3,16 +3,16 @@ setlocal EnableExtensions
 cd /d "%~dp0"
 
 echo.
-echo === SGP - desenvolvimento local - MySQL ===
+echo === SIPED - desenvolvimento local - MySQL ===
 echo.
-echo Antes: XAMPP aberto, Start no MySQL, banco SGP criado.
+echo Antes: XAMPP aberto, Start no MySQL, banco SIPED criado.
 echo Nao clone o projeto dentro do OneDrive.
 echo.
 
 echo --- Espaco em disco (pre-check) ---
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\windows\check-disk.ps1" > "%TEMP%\sgp-disk-check.txt" 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\windows\check-disk.ps1" > "%TEMP%\siped-disk-check.txt" 2>&1
 set "DISK_EXIT=%ERRORLEVEL%"
-type "%TEMP%\sgp-disk-check.txt"
+type "%TEMP%\siped-disk-check.txt"
 if "%DISK_EXIT%"=="2" (
   echo.
   echo [CRITICO] Pouco espaco livre. Login/API/MySQL podem falhar de novo.
@@ -58,8 +58,8 @@ echo --- Liberando portas 8000 e 5173 ---
 call :matarPorta 8000
 call :matarPorta 5173
 
-echo --- BACK: SGP_Back ---
-cd /d "%~dp0SGP_Back"
+echo --- BACK: Back_SIPED ---
+cd /d "%~dp0Back_SIPED"
 
 echo [0/9] Pastas do Laravel
 call :garantirPasta "bootstrap\cache"
@@ -79,12 +79,12 @@ if not exist ".env" (
   set "ENV_NOVO=1"
   echo        Criado a partir do .env.example
   echo.
-  echo        Abriu o Bloco de Notas no SGP_Back\.env
+  echo        Abriu o Bloco de Notas no Back_SIPED\.env
   echo        Ajuste nesta maquina e SALVE:
   echo          DB_PORT       - porta do MySQL no XAMPP desta maquina
   echo          DB_USERNAME   - em geral root
   echo          DB_PASSWORD   - senha do MySQL, ou vazio
-  echo          DB_DATABASE   - SGP
+  echo          DB_DATABASE   - SIPED
   echo        Feche o Bloco de Notas para o script continuar.
   echo.
   start /wait notepad.exe ".env"
@@ -96,7 +96,7 @@ echo        --- banco deste .env ---
 findstr /B "DB_HOST= DB_PORT= DB_DATABASE= DB_USERNAME= DB_PASSWORD=" ".env"
 echo        -------------------------
 if "%ENV_NOVO%"=="0" (
-  echo        Se a porta ou senha desta maquina forem outras, edite SGP_Back\.env agora.
+  echo        Se a porta ou senha desta maquina forem outras, edite Back_SIPED\.env agora.
   set /p EDITAR="        Abrir o .env para ajustar? [s/N]: "
 )
 if /i "%EDITAR%"=="s" start /wait notepad.exe ".env"
@@ -131,17 +131,17 @@ if errorlevel 1 (
 echo        Cache limpo - evita back antigo em memoria
 
 echo [5/9] Banco - php artisan migrate
-echo        Usa HOST/PORTA/USUARIO/SENHA do SGP_Back\.env desta maquina.
+echo        Usa HOST/PORTA/USUARIO/SENHA do Back_SIPED\.env desta maquina.
 php artisan migrate --force
 if errorlevel 1 (
   echo.
-  echo [ERRO] Migrate falhou. O Laravel leu o SGP_Back\.env.
+  echo [ERRO] Migrate falhou. O Laravel leu o Back_SIPED\.env.
   echo   1. XAMPP: Start no MySQL, luz verde
-  echo   2. Banco criado: CREATE DATABASE SGP;
+  echo   2. Banco criado: CREATE DATABASE SIPED;
   echo   3. No .env desta maquina, confira:
   echo        DB_HOST=127.0.0.1
   echo        DB_PORT=     porta que o XAMPP mostra nesta maquina
-  echo        DB_DATABASE=SGP
+  echo        DB_DATABASE=SIPED
   echo        DB_USERNAME=root
   echo        DB_PASSWORD= senha desta maquina, ou vazio
   echo   Depois rode local-start.cmd de novo.
@@ -164,8 +164,8 @@ echo        Usuarios demo e exemplos ok
 echo        Login: administrador@df.senac.br / senac2025
 
 echo.
-echo --- FRONT: SGP_Front ---
-cd /d "%~dp0SGP_Front"
+echo --- FRONT: Front_SIPED ---
+cd /d "%~dp0Front_SIPED"
 
 echo [8/9] Arquivo .env do front
 if not exist ".env" (
@@ -190,7 +190,7 @@ echo.
 echo === Setup concluido ===
 echo Login: http://127.0.0.1:5173/login
 echo Admin: administrador@df.senac.br / senac2025
-echo Pasta do back usada: %~dp0SGP_Back
+echo Pasta do back usada: %~dp0Back_SIPED
 echo.
 
 set /p SUBIR="Subir back e front agora? [S/n]: "
@@ -198,13 +198,13 @@ if /i "%SUBIR%"=="n" goto fim
 if /i "%SUBIR%"=="nao" goto fim
 
 echo Abrindo duas janelas a partir destas pastas...
-start "SGP - Backend" /D "%~dp0SGP_Back" cmd /k "php artisan optimize:clear && php artisan serve --host=127.0.0.1 --port=8000"
-start "SGP - Frontend" /D "%~dp0SGP_Front" cmd /k npm run dev
+start "SIPED - Backend" /D "%~dp0Back_SIPED" cmd /k "php artisan optimize:clear && php artisan serve --host=127.0.0.1 --port=8000"
+start "SIPED - Frontend" /D "%~dp0Front_SIPED" cmd /k npm run dev
 
 echo.
 echo Nao feche essas duas janelas.
 echo Aguarde o Vite subir e abra http://127.0.0.1:5173/login
-echo A porta 8000 e so a API deste SGP_Back.
+echo A porta 8000 e so a API deste Back_SIPED.
 echo Se o login falhar com mensagem estranha, feche tudo e rode local-start.cmd de novo.
 
 :fim

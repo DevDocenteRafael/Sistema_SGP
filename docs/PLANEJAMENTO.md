@@ -1,4 +1,4 @@
-# Planejamento do Projeto SGP
+# Planejamento do Projeto SIPED
 
 ## Objetivo
 

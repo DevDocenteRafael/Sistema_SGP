@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Monitor externo de espaço em disco para o SGP (Windows).
+  Monitor externo de espaço em disco para o SIPED (Windows).
 
 .DESCRIPTION
   Não apaga arquivos. Apenas mede espaço livre e retorna exit code:

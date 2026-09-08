@@ -1,8 +1,9 @@
-# Sistema de Gerenciamento de Portfólio (SGP)
+# SIPED — Sistema Integrado da DEP
 
-Sistema interno do SENAC DF para gerenciar o portfólio de cursos da CPED: cadastro, consulta e apoio à decisão sobre a oferta de cursos por unidade.
+Sistema interno do SENAC DF (CPED/DEP) para gestão pedagógica, portfólio de cursos,
+processos educacionais e integração com sistemas de apoio.
 
-**Arquitetura:** backend Laravel (API REST, `SGP_Back`) + frontend SPA Vue.js (`SGP_Front`, servido pelo Vite) + banco MySQL, cada parte em sua própria origem/porta.
+**Arquitetura:** backend Laravel (API REST, `Back_SIPED`) + frontend SPA Vue.js (`Front_SIPED`, servido pelo Vite) + banco MySQL, cada parte em sua própria origem/porta.
 
 ## Equipe
 
@@ -77,8 +78,8 @@ Em uso interno pela CPED / SENAC DF (testes internos). Pronto para homologação
 
 ## Estrutura do projeto
 
-- `SGP_Back/` — API Laravel 12 (PHP), porta **8000**
-- `SGP_Front/` — SPA Vue 3 + Vite, porta **5173**
+- `Back_SIPED/` — API Laravel 12 (PHP), porta **8000**
+- `Front_SIPED/` — SPA Vue 3 + Vite, porta **5173**
 - `local-start.cmd` — instala, migra, seeda e sobe os dois
 
 ## Como rodar
@@ -93,25 +94,25 @@ cd Sistema_SGP
 
 2. Crie o banco no MySQL:
 ```sql
-CREATE DATABASE SGP;
+CREATE DATABASE SIPED;
 ```
 
 3. Configure o `.env` desta máquina:
 ```cmd
-copy SGP_Back\.env.example SGP_Back\.env
-copy SGP_Front\.env.example SGP_Front\.env
+copy Back_SIPED\.env.example Back_SIPED\.env
+copy Front_SIPED\.env.example Front_SIPED\.env
 ```
-Abra `SGP_Back\.env` e ajuste:
+Abra `Back_SIPED\.env` e ajuste:
 - `DB_PORT` — porta do MySQL neste XAMPP (3306, 3307, 3308…)
 - `DB_USERNAME` — em geral `root`
 - `DB_PASSWORD` — senha deste MySQL, ou vazio
-- `DB_DATABASE` — `SGP`
+- `DB_DATABASE` — `SIPED`
 
 4. Rode:
 ```cmd
 local-start.cmd
 ```
-O script valida espaço em disco, limpa cache do Laravel, garante o seed e sobe **só** o `SGP_Back` na porta 8000 e o `SGP_Front` na 5173. Se já houver outro `php artisan serve` antigo aberto, ele encerra a porta antes. Quando perguntar se sobe back e front, digite **s**. Não feche as duas janelas.
+O script valida espaço em disco, limpa cache do Laravel, garante o seed e sobe **só** o `Back_SIPED` na porta 8000 e o `Front_SIPED` na 5173. Se já houver outro `php artisan serve` antigo aberto, ele encerra a porta antes. Quando perguntar se sobe back e front, digite **s**. Não feche as duas janelas.
 
 Operação, health check (`/up`), logs e monitoramento de disco: ver [README_OPERACAO.md](README_OPERACAO.md).
 

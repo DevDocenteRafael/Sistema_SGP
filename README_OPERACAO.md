@@ -1,4 +1,4 @@
-# Operação do SGP (estabilidade e disco)
+# Operação do SIPED (estabilidade e disco)
 
 Documento operacional alinhado à especificação de estabilidade Laravel + MySQL (sem Docker).
 
@@ -12,7 +12,7 @@ Documento operacional alinhado à especificação de estabilidade Laravel + MySQ
 
 ## Desenvolvimento local
 
-1. XAMPP: MySQL iniciado, banco `SGP` criado.
+1. XAMPP: MySQL iniciado, banco `SIPED` criado.
 2. Na raiz do repositório: `local-start.cmd`
 3. Front: http://127.0.0.1:5173/login  
    API: http://127.0.0.1:8000
@@ -25,7 +25,7 @@ Ver mensagens do `local-start.cmd` após o seed (ex.: administrador demo).
 
 ## Configurações recomendadas (`.env`)
 
-Espelhe o [`.env.example`](SGP_Back/.env.example):
+Espelhe o [`.env.example`](Back_SIPED/.env.example):
 
 ```env
 LOG_CHANNEL=stack
@@ -42,7 +42,7 @@ CACHE_STORE=database
 Após alterar o `.env`:
 
 ```bat
-cd SGP_Back
+cd Back_SIPED
 php artisan config:clear
 ```
 
@@ -60,7 +60,7 @@ Não expõe host de banco, `.env`, caminhos ou stack trace.
 Complemento (local/interno):
 
 ```bat
-cd SGP_Back
+cd Back_SIPED
 php artisan sgp:check-disk
 php artisan sgp:check-disk --json
 php artisan sgp:check-disk --warn-gb=100 --crit-gb=50
@@ -90,8 +90,8 @@ Agendar no Agendador de Tarefas do Windows é recomendado (ação humana ao falh
 ## Homologação / produção
 
 - Não dependa de `npm run dev` nem de `php artisan serve` como servidor definitivo.
-- Front: `cd SGP_Front && npm run build` e servir os estáticos pelo servidor web.
-- API: IIS/Apache/Nginx + PHP-FPM (ou equivalente Windows), apontando para `SGP_Back/public`.
+- Front: `cd Front_SIPED && npm run build` e servir os estáticos pelo servidor web.
+- API: IIS/Apache/Nginx + PHP-FPM (ou equivalente Windows), apontando para `Back_SIPED/public`.
 
 ## MySQL e disco
 
