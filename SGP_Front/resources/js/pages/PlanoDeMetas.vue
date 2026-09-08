@@ -227,7 +227,11 @@
 
               <label class="campo">
                 <span>Tipo <em>*</em></span>
-                <input v-model="form.tipo" type="text" maxlength="100" placeholder="Ex.: QUALIFICAÇÃO" />
+                <SearchableSelect
+                  v-model="form.tipo"
+                  :options="tiposFormularioDisponiveis"
+                  empty-option="Selecione a Tipo"
+                />
               </label>
 
               <label class="campo">

@@ -17,9 +17,17 @@ return [
     ],
 
     'modalidades' => [
-        'Presencial',
-        'EAD',
-        'Híbrido',
+        'Ação extensiva',
+        'Aperfeiçoamento',
+        'Aprendizagem Profissional de Qualificação',
+        'Atualização',
+        'Especialização',
+        'Habilitação Profissional Técnica de Nível Médio',
+        'Oficina',
+        'Programa Sociocultural',
+        'Programa Socioprofissional',
+        'Programas Instrumentais',
+        'Qualificação Profissional',
     ],
 
     'sim_nao' => [

@@ -537,7 +537,7 @@
                     input-id="modalidade"
                     v-model="form.modalidade"
                     :options="meta.modalidades"
-                    empty-option="Selecione..."
+                    empty-option="Selecione a modalidade"
                   />
                 </div>
                 <div class="form-group">
