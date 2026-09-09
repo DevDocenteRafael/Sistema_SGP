@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Http\Requests\Concerns\CanonicalizaCatalogoOficial;
 use App\Models\UnidadeOferta;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,12 +11,25 @@ use Illuminate\Validation\Rule;
 class CursoPorEixoRequest extends FormRequest
 {
     use AutorizaEdicaoDados;
+    use CanonicalizaCatalogoOficial;
+
+    protected function prepareForValidation(): void
+    {
+        $this->canonicalizarEixoInput();
+        $this->canonicalizarSegmentoInput();
+        $this->canonicalizarProgramaInput();
+    }
 
     public function rules(): array
     {
         return [
             'curso' => ['required', 'string', 'max:255'],
-            'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos_tecnologicos'))],
+            'curso_id' => ['nullable', 'integer', Rule::exists('cursos', 'id')],
+            'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
+            'segmento' => ['nullable', 'string', 'max:150', Rule::in(config('eixos_tecnologicos'))],
+            'programa' => ['nullable', 'string', 'max:80', Rule::in(config('programas'))],
+            'eixo_id' => ['nullable', 'integer', Rule::exists('eixos', 'id')],
+            'segmento_id' => ['nullable', 'integer', Rule::exists('segmentos', 'id')],
             'unidade' => ['nullable', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
             'ano' => ['required', 'string', 'max:4', Rule::in(config('curso_por_eixos.anos'))],
             'ch' => ['nullable', 'string', 'max:50'],
@@ -34,7 +48,7 @@ class CursoPorEixoRequest extends FormRequest
     {
         return [
             'curso.required' => 'O nome do curso é obrigatório.',
-            'eixo.required' => 'Selecione o eixo tecnológico.',
+            'eixo.required' => 'Selecione o eixo.',
             'eixo.in' => 'Selecione um eixo válido.',
             'ano.required' => 'Selecione o ano.',
             'ano.in' => 'Ano inválido.',

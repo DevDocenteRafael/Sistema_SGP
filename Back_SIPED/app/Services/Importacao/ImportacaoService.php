@@ -2,7 +2,13 @@
 
 namespace App\Services\Importacao;
 
+use App\Exceptions\ImportacaoInvalidaException;
+use App\Models\Curso;
+use App\Models\CursoPorEixo;
+use App\Models\PortfolioCiclo;
 use App\Services\CadastroAuditoriaService;
+use App\Support\CatalogoInstitucional;
+use App\Support\CatalogoOficial;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -69,6 +75,16 @@ class ImportacaoService
         $resultado['colunas_preview'] = $def['preview_columns'] ?? [];
         $resultado['label'] = $def['label'];
 
+        if (($def['key'] ?? $modulo) === 'cursos') {
+            $resultado = $this->validarCatalogoCursos($resultado);
+        } elseif (($def['key'] ?? $modulo) === 'eixos') {
+            $resultado = $this->validarOfertasEixos($resultado);
+        } else {
+            $resultado = $this->canonicalizarEixosNasLinhas($resultado);
+        }
+
+        $resultado = $this->classificarAcoesUpsert($modulo, $def, $resultado);
+
         return $resultado;
     }
 
@@ -76,6 +92,13 @@ class ImportacaoService
     {
         $def = $this->definicao($modulo);
         $resultado = $this->parse($modulo, $arquivo);
+
+        if ($this->temErrosBloqueantes($resultado)) {
+            throw new ImportacaoInvalidaException(
+                'A importação foi bloqueada: existem valores inválidos na planilha. Corrija-os e envie novamente. Nenhum registro existente foi alterado.',
+                $resultado['erros'],
+            );
+        }
 
         if ($resultado['total'] === 0) {
             throw new InvalidArgumentException(
@@ -86,107 +109,72 @@ class ImportacaoService
         /** @var class-string<Model> $modelClass */
         $modelClass = $def['model'];
         $campos = $def['db_fields'];
-        $agora = now();
 
         $camposUnicos = $def['unique_fields'] ?? [];
         $defaults = $def['defaults'] ?? [];
 
         $usuarioId = Auth::id();
         $backup = null;
+        $resumo = ['novo' => 0, 'atualizar' => 0, 'sem_alteracao' => 0];
 
         $cicloAtualId = in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)
-            ? \App\Models\PortfolioCiclo::atual()?->id
+            ? PortfolioCiclo::atual()?->id
             : null;
 
-        DB::transaction(function () use ($modelClass, $campos, $resultado, $agora, $modulo, $camposUnicos, $defaults, $usuarioId, $def, $cicloAtualId, &$backup) {
+        DB::transaction(function () use ($modelClass, $campos, $resultado, $modulo, $camposUnicos, $defaults, $usuarioId, $def, $cicloAtualId, &$backup, &$resumo) {
             $backup = $this->backupService->backupAntesDeSubstituir($modulo, $modelClass);
 
-            $modelClass::query()->delete();
-
-            $lote = [];
-            $vistos = [];
             foreach ($resultado['linhas'] as $linha) {
-                $row = [];
-                foreach ($campos as $campo) {
-                    $valor = $linha[$campo] ?? null;
-                    if ($campo === 'ano' && $valor !== null && $valor !== '') {
-                        $valor = (int) preg_replace('/\D+/', '', (string) $valor) ?: null;
-                    }
-                    if ($campo === 'quantidade_pessoas' && $valor !== null && $valor !== '') {
-                        $valor = (int) preg_replace('/\D+/', '', (string) $valor) ?: null;
-                    }
-                    if ($campo === 'ativo' && ($valor === null || $valor === '') && $modulo === 'horas-pedagogicas') {
-                        $valor = true;
-                    }
-                    if (is_string($valor)) {
-                        $valor = trim($valor);
-                        if ($valor === '') {
-                            $valor = null;
-                        }
-                    }
-                    // Campos UNIQUE: placeholders da planilha (-, em criação…) viram null
-                    if (in_array($campo, $camposUnicos, true)) {
-                        $valor = $this->normalizarValorUnico($valor);
-                    }
-                    // Defaults (ex.: cursos.status → ATIVO quando a aba não tem Status SIG)
-                    if (($valor === null || $valor === '') && array_key_exists($campo, $defaults)) {
-                        $valor = $defaults[$campo];
-                    }
-                    $row[$campo] = $valor;
+                if (($linha['status_importacao'] ?? '') === 'erro') {
+                    continue;
                 }
 
-                if (in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)) {
-                    if ($modulo === 'cursos') {
-                        $row = $this->normalizarCamposCurso($row);
+                $row = $this->montarLinhaCommit($linha, $campos, $camposUnicos, $defaults, $modulo, $cicloAtualId);
+                $existente = $this->encontrarExistente($modulo, $modelClass, $row, $cicloAtualId);
+
+                if (! $existente) {
+                    if ($usuarioId) {
+                        $row['criado_por'] = $usuarioId;
+                        $row['atualizado_por'] = $usuarioId;
                     }
-                    if ($cicloAtualId && empty($row['ciclo_id'])) {
-                        $row['ciclo_id'] = $cicloAtualId;
-                    }
+                    $modelClass::query()->create($row);
+                    $resumo['novo']++;
+                    continue;
                 }
 
-                // Se o valor UNIQUE já apareceu, zera o campo (mantém a linha)
-                foreach ($camposUnicos as $campoUnico) {
-                    $val = $row[$campoUnico] ?? null;
-                    if ($val === null || $val === '') {
-                        $row[$campoUnico] = null;
-                        continue;
-                    }
-                    $chave = $campoUnico.'|'.mb_strtolower((string) $val);
-                    if (isset($vistos[$chave])) {
-                        $row[$campoUnico] = null;
-                        continue;
-                    }
-                    $vistos[$chave] = true;
+                if (($linha['status_importacao'] ?? '') === 'sem_alteracao') {
+                    $resumo['sem_alteracao']++;
+                    continue;
                 }
 
-                $row['created_at'] = $agora;
-                $row['updated_at'] = $agora;
+                unset($row['ciclo_id']);
                 if ($usuarioId) {
-                    $row['criado_por'] = $usuarioId;
                     $row['atualizado_por'] = $usuarioId;
                 }
-                $lote[] = $row;
-            }
-
-            foreach (array_chunk($lote, 200) as $chunk) {
-                $modelClass::query()->insert($chunk);
+                $existente->fill($row);
+                $existente->save();
+                $resumo['atualizar']++;
             }
 
             app(CadastroAuditoriaService::class)->registrar(
                 CadastroAuditoriaService::ACAO_IMPORTAR,
                 $modulo,
                 null,
-                'Importou '.count($lote).' registro(s) em '.($def['label'] ?? $modulo),
+                'Importou '.($resumo['novo'] + $resumo['atualizar']).' registro(s) em '.($def['label'] ?? $modulo).' (upsert)',
                 [
-                    'total' => count($lote),
+                    'novo' => $resumo['novo'],
+                    'atualizar' => $resumo['atualizar'],
+                    'sem_alteracao' => $resumo['sem_alteracao'],
                     'ignoradas' => $resultado['ignoradas'] ?? 0,
                     'aba' => $resultado['aba'] ?? null,
                     'backup' => $backup,
+                    'ciclo_id' => $cicloAtualId,
                 ],
             );
         });
 
-        $resultado['total'] = $modelClass::query()->count();
+        $resultado['total'] = $resumo['novo'] + $resumo['atualizar'] + $resumo['sem_alteracao'];
+        $resultado['resumo_acoes'] = $resumo;
         $resultado['backup'] = $backup;
 
         return $resultado;
@@ -343,9 +331,12 @@ class ImportacaoService
             $abasUsadas[] = $sheet->getTitle();
 
             foreach ($parcial['linhas'] as &$linha) {
-                // Cursos: o filtro da UI usa o nome da aba do portfólio
-                // (ex.: "Gastronomia e Turismo"), não o Segmento interno (ex.: "GASTRONOMIA").
                 if (($def['key'] ?? '') === 'cursos') {
+                    $linha['_aba'] = $sheet->getTitle();
+                    $linha['_linha'] = $linha['_linha'] ?? null;
+                    if ($this->valorVazio($linha['segmento'] ?? null) && ! $this->valorVazio($linha['eixo'] ?? null)) {
+                        $linha['segmento'] = $linha['eixo'];
+                    }
                     $linha['eixo'] = $sheet->getTitle();
                 } elseif ($this->valorVazio($linha['eixo'] ?? null)) {
                     $linha['eixo'] = $sheet->getTitle();
@@ -408,13 +399,13 @@ class ImportacaoService
         $linhas = [];
         $erros = [];
         $ignoradas = 0;
-        $carry = ['eixo' => null, 'curso' => null, 'ch' => null];
+        $carry = ['segmento' => null, 'eixo' => null, 'curso' => null, 'ch' => null];
         $highestRow = (int) $sheet->getHighestDataRow();
 
         for ($row = $headerRow + 1; $row <= $highestRow; $row++) {
             $registro = $this->lerRegistro($sheet, $row, $mapa, $def['date_fields'] ?? [], array_keys($def['columns'] ?? []));
 
-            foreach (['eixo', 'curso', 'ch'] as $campo) {
+            foreach (['segmento', 'eixo', 'curso', 'ch'] as $campo) {
                 if (! $this->valorVazio($registro[$campo] ?? null)) {
                     $carry[$campo] = $registro[$campo];
                 } else {
@@ -439,6 +430,7 @@ class ImportacaoService
                 continue;
             }
 
+            $registro['_linha'] = $row;
             $linhas[] = $registro;
         }
 
@@ -509,6 +501,8 @@ class ImportacaoService
 
             if (($def['key'] ?? '') === 'cursos') {
                 $registro = $this->normalizarCamposCurso($registro);
+                $registro['_aba'] = $abaLabel;
+                $registro['_linha'] = $row;
             }
 
             $linhas[] = $registro;
@@ -582,6 +576,462 @@ class ImportacaoService
         }
 
         return false;
+    }
+
+    /**
+     * @param  array{linhas: list<array<string, mixed>>, erros: list<array<string, mixed>>, total: int, ignoradas: int, aba: string}  $resultado
+     * @return array{linhas: list<array<string, mixed>>, erros: list<array<string, mixed>>, total: int, ignoradas: int, aba: string}
+     */
+    private function validarCatalogoCursos(array $resultado): array
+    {
+        $erros = $resultado['erros'];
+        $linhas = [];
+
+        foreach ($resultado['linhas'] as $linha) {
+            $aba = (string) ($linha['_aba'] ?? $resultado['aba'] ?? '');
+            $numeroLinha = (int) ($linha['_linha'] ?? 0);
+
+            $eixoBruto = is_scalar($linha['eixo'] ?? null) ? trim((string) $linha['eixo']) : '';
+            $segmentoBruto = is_scalar($linha['segmento'] ?? null) ? trim((string) $linha['segmento']) : '';
+            $resolvido = CatalogoOficial::resolverEixoESegmento(
+                $eixoBruto !== '' ? $eixoBruto : null,
+                $segmentoBruto !== '' ? $segmentoBruto : null,
+            );
+
+            if ($resolvido['erro'] !== null) {
+                $valor = $resolvido['segmento'] ?? $segmentoBruto ?: $eixoBruto;
+                $erros[] = $this->erroImportacao(
+                    $aba,
+                    $numeroLinha,
+                    str_contains((string) $resolvido['erro'], 'Segmento') ? 'Segmento' : 'Eixo',
+                    (string) $valor,
+                    $resolvido['erro'],
+                );
+                $linha['status_importacao'] = 'erro';
+            } else {
+                $linha['eixo'] = $resolvido['eixo'];
+                $linha['segmento'] = $resolvido['segmento'];
+                $linha['programa'] = $resolvido['programa'] ?? null;
+                $ids = CatalogoInstitucional::ids($resolvido['eixo'], $resolvido['segmento']);
+                $linha['eixo_id'] = $ids['eixo_id'];
+                $linha['segmento_id'] = $ids['segmento_id'];
+            }
+
+            $resolucao = CatalogoOficial::resolverModalidadeImportacao(
+                $linha['modalidade'] ?? null,
+                $linha['tipo'] ?? null,
+            );
+            $linha['modalidade'] = $resolucao['modalidade'];
+            $linha['tipo'] = $resolucao['tipo'];
+            if ($resolucao['erro'] !== null) {
+                $valorModalidade = is_scalar($linha['modalidade'] ?? null)
+                    ? (string) ($linha['modalidade'] ?? '')
+                    : '';
+                $erros[] = $this->erroImportacao(
+                    $aba,
+                    $numeroLinha,
+                    'Modalidade',
+                    $valorModalidade !== '' ? $valorModalidade : (string) ($linha['tipo'] ?? ''),
+                    $resolucao['erro'],
+                );
+                $linha['status_importacao'] = 'erro';
+            }
+
+            unset($linha['_aba'], $linha['_linha']);
+            $linhas[] = $linha;
+        }
+
+        $resultado['linhas'] = $linhas;
+        $resultado['erros'] = $erros;
+        $resultado['total'] = count($linhas);
+
+        return $resultado;
+    }
+
+    /**
+     * @param  array{linhas: list<array<string, mixed>>, erros: list<array<string, mixed>>, total: int, ignoradas: int, aba: string}  $resultado
+     * @return array{linhas: list<array<string, mixed>>, erros: list<array<string, mixed>>, total: int, ignoradas: int, aba: string}
+     */
+    private function canonicalizarEixosNasLinhas(array $resultado): array
+    {
+        foreach ($resultado['linhas'] as &$linha) {
+            foreach (['eixo', 'segmento'] as $campo) {
+                if (! array_key_exists($campo, $linha) || $this->valorVazio($linha[$campo] ?? null)) {
+                    continue;
+                }
+
+                $canon = CatalogoOficial::canonicalizarEixo((string) $linha[$campo]);
+                if ($canon !== null) {
+                    $linha[$campo] = $canon;
+                }
+            }
+        }
+        unset($linha);
+
+        return $resultado;
+    }
+
+    /**
+     * @param  array{erros?: list<array<string, mixed>>}  $resultado
+     */
+    private function temErrosBloqueantes(array $resultado): bool
+    {
+        foreach ($resultado['erros'] ?? [] as $erro) {
+            if (($erro['bloqueante'] ?? false) === true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array{aba: string, linha: int, coluna: string, valor: string, mensagem: string, bloqueante: bool}
+     */
+    private function erroImportacao(string $aba, int $linha, string $coluna, string $valor, string $mensagem): array
+    {
+        $local = [];
+        if ($aba !== '') {
+            $local[] = 'aba "'.$aba.'"';
+        }
+        if ($linha > 0) {
+            $local[] = 'linha '.$linha;
+        }
+        if ($coluna !== '') {
+            $local[] = 'coluna '.$coluna;
+        }
+
+        $prefixo = $local !== [] ? implode(', ', $local).': ' : '';
+
+        return [
+            'aba' => $aba,
+            'linha' => $linha,
+            'coluna' => $coluna,
+            'valor' => $valor,
+            'mensagem' => $prefixo.$mensagem,
+            'bloqueante' => true,
+        ];
+    }
+
+    /**
+     * Oferta operacional: resolve segmento/eixo e exige curso já existente no ciclo.
+     *
+     * @param  array{linhas: list<array<string, mixed>>, erros: list<array<string, mixed>>, total: int, ignoradas: int, aba: string}  $resultado
+     * @return array{linhas: list<array<string, mixed>>, erros: list<array<string, mixed>>, total: int, ignoradas: int, aba: string}
+     */
+    private function validarOfertasEixos(array $resultado): array
+    {
+        $erros = $resultado['erros'];
+        $cicloId = PortfolioCiclo::atual()?->id;
+        $linhas = [];
+
+        foreach ($resultado['linhas'] as $linha) {
+            $numeroLinha = (int) ($linha['_linha'] ?? 0);
+            $aba = (string) ($resultado['aba'] ?? '');
+            $segmentoBruto = is_scalar($linha['segmento'] ?? null) ? trim((string) $linha['segmento']) : '';
+            $eixoBruto = is_scalar($linha['eixo'] ?? null) ? trim((string) $linha['eixo']) : '';
+            if ($segmentoBruto === '' && $eixoBruto !== '') {
+                $segmentoBruto = $eixoBruto;
+                $eixoBruto = '';
+            }
+
+            $resolvido = CatalogoOficial::resolverEixoESegmento(
+                $eixoBruto !== '' ? $eixoBruto : null,
+                $segmentoBruto !== '' ? $segmentoBruto : null,
+            );
+
+            if ($resolvido['erro'] !== null) {
+                $erros[] = $this->erroImportacao(
+                    $aba,
+                    $numeroLinha,
+                    'Segmento',
+                    $segmentoBruto !== '' ? $segmentoBruto : $eixoBruto,
+                    $resolvido['erro'],
+                );
+                $linha['status_importacao'] = 'erro';
+            } else {
+                $linha['eixo'] = $resolvido['eixo'];
+                $linha['segmento'] = $resolvido['segmento'];
+                $linha['programa'] = $resolvido['programa'] ?? null;
+                $ids = CatalogoInstitucional::ids($resolvido['eixo'], $resolvido['segmento']);
+                $linha['eixo_id'] = $ids['eixo_id'];
+                $linha['segmento_id'] = $ids['segmento_id'];
+            }
+
+            $titulo = is_scalar($linha['curso'] ?? null) ? trim((string) $linha['curso']) : '';
+            $curso = $this->localizarCursoDoCiclo($titulo, $cicloId);
+            if (! $curso) {
+                $erros[] = $this->erroImportacao(
+                    $aba,
+                    $numeroLinha,
+                    'Curso',
+                    $titulo,
+                    'Curso não encontrado no ciclo atual: "'.$titulo.'". Importe o catálogo de Cursos antes da oferta por eixo.',
+                );
+                $linha['status_importacao'] = 'erro';
+                $linha['curso_id'] = null;
+            } else {
+                $linha['curso_id'] = $curso->id;
+                $linha['curso'] = $curso->titulo;
+            }
+
+            unset($linha['_aba'], $linha['_linha']);
+            $linhas[] = $linha;
+        }
+
+        $resultado['linhas'] = $linhas;
+        $resultado['erros'] = $erros;
+        $resultado['total'] = count($linhas);
+
+        return $resultado;
+    }
+
+    /**
+     * @param  array<string, mixed>  $def
+     * @param  array{linhas: list<array<string, mixed>>, erros?: list<array<string, mixed>>, total?: int}  $resultado
+     * @return array<string, mixed>
+     */
+    private function classificarAcoesUpsert(string $modulo, array $def, array $resultado): array
+    {
+        $modelClass = $def['model'];
+        $campos = $def['db_fields'] ?? [];
+        $camposUnicos = $def['unique_fields'] ?? [];
+        $defaults = $def['defaults'] ?? [];
+        $cicloId = in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)
+            ? PortfolioCiclo::atual()?->id
+            : null;
+
+        $resumo = ['novo' => 0, 'atualizar' => 0, 'sem_alteracao' => 0, 'erro' => 0];
+
+        foreach ($resultado['linhas'] as &$linha) {
+            if (($linha['status_importacao'] ?? '') === 'erro') {
+                $resumo['erro']++;
+                continue;
+            }
+
+            $row = $this->montarLinhaCommit($linha, $campos, $camposUnicos, $defaults, $modulo, $cicloId);
+            $existente = $this->encontrarExistente($modulo, $modelClass, $row, $cicloId);
+
+            if (! $existente) {
+                $linha['status_importacao'] = 'novo';
+                $resumo['novo']++;
+                continue;
+            }
+
+            if ($this->linhaSemAlteracao($existente, $row, $campos)) {
+                $linha['status_importacao'] = 'sem_alteracao';
+                $resumo['sem_alteracao']++;
+                continue;
+            }
+
+            $linha['status_importacao'] = 'atualizar';
+            $resumo['atualizar']++;
+        }
+        unset($linha);
+
+        $resultado['resumo_acoes'] = $resumo;
+
+        return $resultado;
+    }
+
+    /**
+     * @param  array<string, mixed>  $linha
+     * @param  list<string>  $campos
+     * @param  list<string>  $camposUnicos
+     * @param  array<string, mixed>  $defaults
+     * @return array<string, mixed>
+     */
+    private function montarLinhaCommit(
+        array $linha,
+        array $campos,
+        array $camposUnicos,
+        array $defaults,
+        string $modulo,
+        ?int $cicloAtualId,
+    ): array {
+        $row = [];
+        foreach ($campos as $campo) {
+            $valor = $linha[$campo] ?? null;
+            if ($campo === 'ano' && $valor !== null && $valor !== '') {
+                $valor = (int) preg_replace('/\D+/', '', (string) $valor) ?: null;
+            }
+            if ($campo === 'quantidade_pessoas' && $valor !== null && $valor !== '') {
+                $valor = (int) preg_replace('/\D+/', '', (string) $valor) ?: null;
+            }
+            if ($campo === 'ativo' && ($valor === null || $valor === '') && $modulo === 'horas-pedagogicas') {
+                $valor = true;
+            }
+            if (is_string($valor)) {
+                $valor = trim($valor);
+                if ($valor === '') {
+                    $valor = null;
+                }
+            }
+            if (in_array($campo, $camposUnicos, true)) {
+                $valor = $this->normalizarValorUnico($valor);
+            }
+            if (($valor === null || $valor === '') && array_key_exists($campo, $defaults)) {
+                $valor = $defaults[$campo];
+            }
+            $row[$campo] = $valor;
+        }
+
+        if (in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)) {
+            if ($modulo === 'cursos') {
+                $row = $this->normalizarCamposCurso($row);
+            }
+            if ($cicloAtualId && empty($row['ciclo_id'])) {
+                $row['ciclo_id'] = $cicloAtualId;
+            }
+        }
+
+        return $row;
+    }
+
+    /**
+     * @param  class-string<Model>  $modelClass
+     * @param  array<string, mixed>  $row
+     */
+    private function encontrarExistente(string $modulo, string $modelClass, array $row, ?int $cicloId): ?Model
+    {
+        $query = $modelClass::query();
+        if ($cicloId && in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)) {
+            $query->where('ciclo_id', $cicloId);
+        }
+
+        if ($modulo === 'cursos') {
+            return $this->encontrarCursoExistente($query, $row);
+        }
+
+        if ($modulo === 'eixos') {
+            return $this->encontrarOfertaExistente($query, $row);
+        }
+
+        foreach ($this->chavesUpsert($modulo) as $campo) {
+            $valor = $this->normalizarValorUnico($row[$campo] ?? null);
+            if ($valor === null || $valor === '') {
+                continue;
+            }
+            $encontrado = (clone $query)->whereRaw('LOWER('.$campo.') = ?', [mb_strtolower((string) $valor)])->first();
+            if ($encontrado) {
+                return $encontrado;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<Curso>  $query
+     * @param  array<string, mixed>  $row
+     */
+    private function encontrarCursoExistente($query, array $row): ?Curso
+    {
+        $sig = $this->normalizarValorUnico($row['codigo_sig'] ?? null);
+        if ($sig) {
+            $encontrado = (clone $query)->whereRaw('LOWER(codigo_sig) = ?', [mb_strtolower((string) $sig)])->first();
+            if ($encontrado instanceof Curso) {
+                return $encontrado;
+            }
+        }
+
+        $sei = $this->normalizarValorUnico($row['processo_sei'] ?? null);
+        if ($sei) {
+            $encontrado = (clone $query)->whereRaw('LOWER(processo_sei) = ?', [mb_strtolower((string) $sei)])->first();
+            if ($encontrado instanceof Curso) {
+                return $encontrado;
+            }
+        }
+
+        $titulo = mb_strtolower(trim((string) ($row['titulo'] ?? '')));
+        if ($titulo === '') {
+            return null;
+        }
+
+        $encontrado = (clone $query)->whereRaw('LOWER(titulo) = ?', [$titulo])->first();
+
+        return $encontrado instanceof Curso ? $encontrado : null;
+    }
+
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<CursoPorEixo>  $query
+     * @param  array<string, mixed>  $row
+     */
+    private function encontrarOfertaExistente($query, array $row): ?CursoPorEixo
+    {
+        if (! empty($row['curso_id'])) {
+            $query->where('curso_id', $row['curso_id']);
+        } else {
+            $titulo = mb_strtolower(trim((string) ($row['curso'] ?? '')));
+            if ($titulo === '') {
+                return null;
+            }
+            $query->whereRaw('LOWER(curso) = ?', [$titulo]);
+        }
+
+        $codigo = trim((string) ($row['codigo'] ?? ''));
+        if ($codigo !== '') {
+            $query->where('codigo', $codigo);
+        }
+
+        $encontrado = $query->first();
+
+        return $encontrado instanceof CursoPorEixo ? $encontrado : null;
+    }
+
+    private function localizarCursoDoCiclo(string $titulo, ?int $cicloId): ?Curso
+    {
+        $titulo = mb_strtolower(trim($titulo));
+        if ($titulo === '') {
+            return null;
+        }
+
+        $query = Curso::query()->whereRaw('LOWER(titulo) = ?', [$titulo]);
+        if ($cicloId) {
+            $query->where('ciclo_id', $cicloId);
+        }
+
+        return $query->first();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function chavesUpsert(string $modulo): array
+    {
+        return match ($modulo) {
+            'plano-de-metas', 'pcas' => ['numero_sei', 'codigo_sig'],
+            'visitas-tecnicas', 'horas-pedagogicas' => ['processo_sei'],
+            'acoes-extensivas' => ['numero_processo_sei'],
+            'eventos' => ['nome'],
+            default => [],
+        };
+    }
+
+    /**
+     * @param  list<string>  $campos
+     * @param  array<string, mixed>  $row
+     */
+    private function linhaSemAlteracao(Model $existente, array $row, array $campos): bool
+    {
+        foreach ($campos as $campo) {
+            if (in_array($campo, ['eixo_id', 'segmento_id', 'curso_id', 'ciclo_id'], true)) {
+                $atual = $existente->getAttribute($campo);
+                $novo = $row[$campo] ?? null;
+                if ((string) ($atual ?? '') !== (string) ($novo ?? '')) {
+                    return false;
+                }
+                continue;
+            }
+
+            $atual = trim((string) ($existente->getAttribute($campo) ?? ''));
+            $novo = trim((string) ($row[$campo] ?? ''));
+            if ($atual !== $novo) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

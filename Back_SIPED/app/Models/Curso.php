@@ -3,17 +3,24 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\SyncsEixoSegmento;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Curso extends Model
 {
     use AuditaCadastro;
+    use SyncsEixoSegmento;
 
     protected $fillable = [
         'ciclo_id',
         'titulo',
         'eixo',
+        'eixo_id',
+        'segmento',
+        'segmento_id',
+        'programa',
         'modalidade',
         'carga_horaria',
         'turmas',
@@ -64,6 +71,21 @@ class Curso extends Model
     public function ciclo(): BelongsTo
     {
         return $this->belongsTo(PortfolioCiclo::class, 'ciclo_id');
+    }
+
+    public function eixoRef(): BelongsTo
+    {
+        return $this->belongsTo(Eixo::class, 'eixo_id');
+    }
+
+    public function segmentoRef(): BelongsTo
+    {
+        return $this->belongsTo(Segmento::class, 'segmento_id');
+    }
+
+    public function ofertas(): HasMany
+    {
+        return $this->hasMany(CursoPorEixo::class, 'curso_id');
     }
 
     public function replicarParaCiclo(PortfolioCiclo $ciclo): self

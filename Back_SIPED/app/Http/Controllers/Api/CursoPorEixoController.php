@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CursoPorEixoRequest;
 use App\Models\CursoPorEixo;
 use App\Models\PortfolioCiclo;
+use App\Support\CatalogoOficial;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -43,7 +44,7 @@ class CursoPorEixoController extends Controller
         PortfolioCiclo::aplicarFiltroNaConsulta($query, $request->input('ciclo_id'));
 
         if ($request->filled('eixo')) {
-            $query->where('eixo', $request->eixo);
+            CatalogoOficial::aplicarFiltroEixo($query, $request->eixo);
         }
 
         if ($request->filled('unidade')) {
@@ -62,7 +63,9 @@ class CursoPorEixoController extends Controller
             'meta' => [
                 'total' => $registros->count(),
                 'total_geral' => $totalGeral,
-                'eixos' => config('eixos_tecnologicos'),
+                'eixos' => CatalogoOficial::eixos(),
+                'segmentos' => CatalogoOficial::segmentos(),
+                'programas' => CatalogoOficial::programas(),
                 'status' => config('curso_por_eixos.status'),
                 'anos' => config('curso_por_eixos.anos'),
                 'unidades' => UnidadeOferta::nomesAtivos(),

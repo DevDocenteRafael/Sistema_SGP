@@ -8,6 +8,7 @@ use App\Http\Requests\CursoRequest;
 use App\Models\Curso;
 use App\Models\PortfolioCiclo;
 use App\Services\CursoDuplicidadeService;
+use App\Support\CatalogoOficial;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -43,7 +44,7 @@ class CursoController extends Controller
         }
 
         if ($request->filled('eixo')) {
-            $query->where('eixo', $request->eixo);
+            CatalogoOficial::aplicarFiltroEixo($query, $request->eixo);
         }
 
         if ($request->filled('status')) {
@@ -75,11 +76,6 @@ class CursoController extends Controller
 
         $cursos = $query->get();
 
-        $eixosConfig = config('eixos', []);
-        $eixosDb = $cursos->pluck('eixo')->filter()->unique()->values()->all();
-        $eixos = array_values(array_unique(array_merge($eixosConfig, $eixosDb)));
-        sort($eixos, SORT_STRING);
-
         $ciclos = PortfolioCiclo::query()
             ->withCount('cursos')
             ->orderByDesc('atual')
@@ -100,10 +96,12 @@ class CursoController extends Controller
             'data' => $cursos,
             'meta' => [
                 'total' => $cursos->count(),
-                'eixos' => $eixos,
+                'eixos' => CatalogoOficial::eixos(),
+                'segmentos' => CatalogoOficial::segmentos(),
+                'segmentos_por_eixo' => CatalogoOficial::segmentosPorEixo(),
+                'programas' => CatalogoOficial::programas(),
                 'status' => config('cursos.status'),
-                'tipos' => config('cursos.tipos'),
-                'modalidades' => config('cursos.modalidades'),
+                'modalidades' => CatalogoOficial::modalidades(),
                 'sim_nao' => config('cursos.sim_nao'),
                 'ciclos' => $ciclos,
                 'ciclo_atual_id' => $cicloAtualId,

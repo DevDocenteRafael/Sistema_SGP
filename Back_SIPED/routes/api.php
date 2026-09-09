@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\CursoController;
 use App\Http\Controllers\Api\CursoPorEixoController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EventoController;
+use App\Http\Controllers\Api\EixoController;
 use App\Http\Controllers\Api\FerramentaController;
 use App\Http\Controllers\Api\FluxogramaController;
 use App\Http\Controllers\Api\HoraPedagogicaController;
@@ -54,6 +55,9 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::apiResource('termos-referencia', TermoReferenciaController::class)
         ->parameters(['termos-referencia' => 'termoReferencia']);
     Route::apiResource('pcas', PcaController::class);
+    Route::get('eixos/resumo', [EixoController::class, 'resumo']);
+    Route::get('eixos/pendentes', [EixoController::class, 'pendentes']);
+    Route::get('eixos/{eixo}/detalhes', [EixoController::class, 'detalhes']);
     Route::apiResource('curso-por-eixos', CursoPorEixoController::class);
     Route::apiResource('horas-pedagogicas', HoraPedagogicaController::class)
         ->parameters(['horas-pedagogicas' => 'horaPedagogica']);
