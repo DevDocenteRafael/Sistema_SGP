@@ -7,6 +7,7 @@ use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VisitaTecnicaRequest;
 use App\Models\VisitaTecnica;
+use App\Support\CatalogoOficial;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -48,7 +49,7 @@ class VisitaTecnicaController extends Controller
         }
 
         if ($request->filled('eixo')) {
-            $query->where('eixo', $request->eixo);
+            CatalogoOficial::aplicarFiltroEixo($query, $request->eixo);
         }
 
         if ($request->filled('status')) {
@@ -66,7 +67,7 @@ class VisitaTecnicaController extends Controller
             'meta' => [
                 'total' => $registros->count(),
                 'total_geral' => VisitaTecnica::query()->count(),
-                'eixos' => config('visitas_tecnicas.eixos'),
+                'eixos' => CatalogoOficial::eixos(),
                 'status' => config('visitas_tecnicas.status'),
                 'anos' => config('visitas_tecnicas.anos'),
                 'unidades' => UnidadeOferta::nomesAtivos(),

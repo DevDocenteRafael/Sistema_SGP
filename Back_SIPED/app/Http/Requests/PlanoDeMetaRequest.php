@@ -34,6 +34,15 @@ class PlanoDeMetaRequest extends FormRequest
                 'numero_sei' => ProcessoSeiValido::sanitizar($this->input('numero_sei')),
             ]);
         }
+
+        foreach (['status', 'status_final', 'tipo', 'mes_entrega', 'origem'] as $campo) {
+            if (! $this->filled($campo)) {
+                continue;
+            }
+            $this->merge([
+                $campo => trim((string) $this->input($campo)),
+            ]);
+        }
     }
 
     public function rules(): array

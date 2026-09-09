@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Http\Requests\Concerns\CanonicalizaCatalogoOficial;
 use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,7 @@ use Illuminate\Validation\Rule;
 class TermoReferenciaRequest extends FormRequest
 {
     use AutorizaEdicaoDados;
+    use CanonicalizaCatalogoOficial;
 
     protected function prepareForValidation(): void
     {
@@ -18,6 +20,8 @@ class TermoReferenciaRequest extends FormRequest
                 'processo_sei' => ProcessoSeiValido::sanitizar($this->input('processo_sei')),
             ]);
         }
+
+        $this->canonicalizarEixoInput();
     }
 
     public function rules(): array

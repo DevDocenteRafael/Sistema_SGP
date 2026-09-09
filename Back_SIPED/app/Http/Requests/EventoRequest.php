@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Http\Requests\Concerns\CanonicalizaCatalogoOficial;
 use App\Models\UnidadeOferta;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,12 @@ use Illuminate\Validation\Rule;
 class EventoRequest extends FormRequest
 {
     use AutorizaEdicaoDados;
+    use CanonicalizaCatalogoOficial;
+
+    protected function prepareForValidation(): void
+    {
+        $this->canonicalizarEixoInput();
+    }
 
     public function rules(): array
     {

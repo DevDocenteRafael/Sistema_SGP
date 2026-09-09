@@ -3,12 +3,15 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Http\Requests\Concerns\CanonicalizaCatalogoOficial;
+use App\Support\CatalogoOficial;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class CpedEquipeRequest extends FormRequest
 {
     use AutorizaEdicaoDados;
+    use CanonicalizaCatalogoOficial;
 
     protected function prepareForValidation(): void
     {
@@ -30,6 +33,15 @@ class CpedEquipeRequest extends FormRequest
 
         if ($merge !== []) {
             $this->merge($merge);
+        }
+
+        $this->canonicalizarEixoInput('eixo_vinculado');
+
+        if ($this->filled('setor')) {
+            $setorCanon = CatalogoOficial::canonicalizarEixo((string) $this->input('setor'));
+            if ($setorCanon !== null) {
+                $this->merge(['setor' => $setorCanon]);
+            }
         }
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Http\Requests\Concerns\CanonicalizaCatalogoOficial;
 use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,7 @@ use Illuminate\Validation\Rule;
 class HoraPedagogicaRequest extends FormRequest
 {
     use AutorizaEdicaoDados;
+    use CanonicalizaCatalogoOficial;
 
     protected function prepareForValidation(): void
     {
@@ -34,6 +36,9 @@ class HoraPedagogicaRequest extends FormRequest
                 'matricula' => preg_replace('/\D/', '', (string) $this->input('matricula')),
             ]);
         }
+
+        $this->canonicalizarEixoInput();
+        $this->canonicalizarEixoInput('segmento');
     }
 
     public function rules(): array
@@ -41,8 +46,8 @@ class HoraPedagogicaRequest extends FormRequest
         return [
             'matricula' => ['required', 'string', 'max:50', 'regex:/^\d+$/'],
             'pessoa' => ['required', 'string', 'max:150'],
-            'segmento' => ['required', 'string', 'max:150', Rule::in(config('horas_pedagogicas.segmentos'))],
-            'eixo' => ['required', 'string', 'max:150', Rule::in(config('horas_pedagogicas.eixos'))],
+            'segmento' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
+            'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
             'processo_sei' => ['required', 'string', 'max:100', new ProcessoSeiValido(obrigatorio: true)],
             'ano' => ['required', 'integer', Rule::in(array_map('intval', config('horas_pedagogicas.anos')))],
             'motivo' => ['required', 'string', 'max:255'],

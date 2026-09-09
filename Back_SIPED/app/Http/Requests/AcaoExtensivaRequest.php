@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Http\Requests\Concerns\CanonicalizaCatalogoOficial;
 use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,7 @@ use Illuminate\Validation\Rule;
 class AcaoExtensivaRequest extends FormRequest
 {
     use AutorizaEdicaoDados;
+    use CanonicalizaCatalogoOficial;
 
     protected function prepareForValidation(): void
     {
@@ -18,6 +20,8 @@ class AcaoExtensivaRequest extends FormRequest
                 'numero_processo_sei' => ProcessoSeiValido::sanitizar($this->input('numero_processo_sei')),
             ]);
         }
+
+        $this->canonicalizarEixoInput();
     }
 
     public function rules(): array
@@ -25,7 +29,7 @@ class AcaoExtensivaRequest extends FormRequest
         return [
             'priorizacao' => ['required', 'string', 'max:20', Rule::in(config('acoes_extensivas.priorizacoes'))],
             'atribuido' => ['required', 'string', 'max:100'],
-            'eixo' => ['required', 'string', 'max:150', Rule::in(config('acoes_extensivas.eixos'))],
+            'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
             'numero_processo_sei' => ['required', 'string', 'max:100', new ProcessoSeiValido(obrigatorio: true, rotulo: 'Número do processo SEI')],
             'tipo' => ['required', 'string', 'max:100', Rule::in(config('acoes_extensivas.tipos'))],
             'assunto' => ['required', 'string', 'max:500'],

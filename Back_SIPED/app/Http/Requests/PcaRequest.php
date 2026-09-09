@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Http\Requests\Concerns\CanonicalizaCatalogoOficial;
 use App\Models\Pca;
 use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,6 +12,7 @@ use Illuminate\Validation\Rule;
 class PcaRequest extends FormRequest
 {
     use AutorizaEdicaoDados;
+    use CanonicalizaCatalogoOficial;
 
     protected function prepareForValidation(): void
     {
@@ -35,6 +37,8 @@ class PcaRequest extends FormRequest
                 'numero_sei' => ProcessoSeiValido::sanitizar($this->input('numero_sei')),
             ]);
         }
+
+        $this->canonicalizarEixoInput();
     }
 
     public function rules(): array

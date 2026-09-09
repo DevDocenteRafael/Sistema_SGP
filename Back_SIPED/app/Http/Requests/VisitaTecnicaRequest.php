@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\AutorizaEdicaoDados;
+use App\Http\Requests\Concerns\CanonicalizaCatalogoOficial;
 use App\Models\UnidadeOferta;
 use App\Rules\ProcessoSeiValido;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,6 +12,7 @@ use Illuminate\Validation\Rule;
 class VisitaTecnicaRequest extends FormRequest
 {
     use AutorizaEdicaoDados;
+    use CanonicalizaCatalogoOficial;
 
     protected function prepareForValidation(): void
     {
@@ -19,13 +21,15 @@ class VisitaTecnicaRequest extends FormRequest
                 'processo_sei' => ProcessoSeiValido::sanitizar($this->input('processo_sei')),
             ]);
         }
+
+        $this->canonicalizarEixoInput();
     }
 
     public function rules(): array
     {
         return [
             'unidade' => ['required', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
-            'eixo' => ['required', 'string', 'max:150', Rule::in(config('visitas_tecnicas.eixos'))],
+            'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
             'processo_sei' => ['required', 'string', 'max:100', new ProcessoSeiValido(obrigatorio: true)],
             'data_solicitacao' => ['required', 'date'],
             'data_visita_prevista' => ['required', 'date', 'after_or_equal:data_solicitacao'],
