@@ -77,7 +77,17 @@
 }
 
 .filtro-busca input,
-.filtros-bar select,
+.filtros-bar select {
+  width: 100%;
+  height: 2.4rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--sgp-border, #e5e7eb);
+  border-radius: 0.5rem;
+  background: var(--sgp-input-bg, #fff);
+  color: var(--sgp-text, #374151);
+  font-size: 0.875rem;
+}
+
 .form-group input,
 .form-group select {
   width: 100%;
@@ -650,7 +660,7 @@
   font-weight: 600;
 }
 
-.form-group label span {
+.form-group label .required-mark {
   color: #ef4444;
 }
 

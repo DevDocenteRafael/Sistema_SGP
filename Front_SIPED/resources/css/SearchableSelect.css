@@ -9,7 +9,8 @@
   justify-content: space-between;
   gap: 0.5rem;
   width: 100%;
-  min-height: 2.25rem;
+  min-height: 2.4rem;
+  height: 2.4rem;
   padding: 0.35rem 0.75rem;
   border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.5rem;
@@ -138,5 +139,7 @@
 
 .filtros-bar .sgp-select__trigger,
 .filtro-campo .sgp-select__trigger {
+  height: 2.4rem;
+  min-height: 2.4rem;
   background: var(--sgp-input-bg, #f9fafb);
 }

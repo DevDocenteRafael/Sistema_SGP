@@ -696,7 +696,7 @@
   font-weight: 600;
 }
 
-.form-group label span {
+.form-group label .required-mark {
   color: #ef4444;
 }
 
