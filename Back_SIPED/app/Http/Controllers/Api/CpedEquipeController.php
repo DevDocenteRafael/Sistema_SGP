@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CpedEquipeRequest;
 use App\Models\CpedEquipe;
 use App\Services\CpedEquipeFotoService;
+use App\Support\CatalogoOficial;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -52,9 +53,10 @@ class CpedEquipeController extends Controller
         }
 
         if ($request->filled('eixo')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('eixo_vinculado', $request->eixo)
-                    ->orWhere('setor', $request->eixo);
+            $equivalentes = CatalogoOficial::valoresEquivalentes($request->eixo);
+            $query->where(function ($q) use ($equivalentes) {
+                $q->whereIn('eixo_vinculado', $equivalentes)
+                    ->orWhereIn('setor', $equivalentes);
             });
         }
 
@@ -91,7 +93,7 @@ class CpedEquipeController extends Controller
                 'tipos_labels' => config('cped_equipes.tipos_labels'),
                 'tipos_grupos' => config('cped_equipes.tipos_grupos'),
                 'cores_tipo' => config('cped_equipes.cores_tipo'),
-                'eixos' => config('cped_equipes.eixos'),
+                'eixos' => CatalogoOficial::eixos(),
                 'cores_eixo' => config('cped_equipes.cores_eixo'),
                 'setores' => config('cped_equipes.setores'),
             ],

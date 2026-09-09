@@ -8,6 +8,7 @@ use App\Http\Requests\TermoReferenciaRequest;
 use App\Models\TermoReferencia;
 use App\Models\TermoReferenciaHistorico;
 use App\Services\TermoReferenciaPrazoService;
+use App\Support\CatalogoOficial;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -34,7 +35,7 @@ class TermoReferenciaController extends Controller
         }
 
         if ($request->filled('eixo')) {
-            $query->where('eixo', $request->eixo);
+            CatalogoOficial::aplicarFiltroEixo($query, $request->eixo);
         }
 
         if ($request->filled('status')) {
@@ -58,22 +59,12 @@ class TermoReferenciaController extends Controller
         ]);
         $termos = $query->get()->map(fn (TermoReferencia $termo) => $this->serializarTermo($termo));
 
-        $eixosConfig = config('eixos', []);
-        $eixosDb = TermoReferencia::query()
-            ->whereNotNull('eixo')
-            ->where('eixo', '!=', '')
-            ->distinct()
-            ->orderBy('eixo')
-            ->pluck('eixo')
-            ->all();
-        $eixos = array_values(array_unique(array_merge($eixosConfig, $eixosDb)));
-
         return response()->json([
             'data' => $termos,
             'meta' => [
                 'total' => $termos->count(),
                 'total_geral' => $todosLeves->count(),
-                'eixos' => $eixos,
+                'eixos' => CatalogoOficial::eixos(),
                 'status' => config('termos_referencia.status', ['Planejamento', 'Em Andamento', 'Em tramitação (fora da CPED)', 'Concluído', 'Arquivado']),
                 'contagens' => TermoReferenciaPrazoService::contarPorPrazo($todosLeves),
             ],

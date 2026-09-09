@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PcaRequest;
 use App\Models\Pca;
 use App\Models\PortfolioCiclo;
+use App\Support\CatalogoOficial;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -53,7 +54,7 @@ class PcaController extends Controller
         }
 
         if ($request->filled('eixo')) {
-            $query->where('eixo', $request->eixo);
+            CatalogoOficial::aplicarFiltroEixo($query, $request->eixo);
         }
 
         if ($request->filled('status')) {
@@ -61,19 +62,6 @@ class PcaController extends Controller
         }
 
         $registros = $query->get();
-
-        $eixosBanco = Pca::query()
-            ->whereNotNull('eixo')
-            ->where('eixo', '!=', '')
-            ->distinct()
-            ->orderBy('eixo')
-            ->pluck('eixo')
-            ->values()
-            ->all();
-
-        $eixosConfig = config('pcas.eixos', []);
-        $eixos = array_values(array_unique(array_filter([...$eixosConfig, ...$eixosBanco])));
-        sort($eixos);
 
         $anosBanco = Pca::query()
             ->whereNotNull('ano')
@@ -122,7 +110,7 @@ class PcaController extends Controller
                 'status' => $status,
                 'anos' => $anos,
                 'semestres' => $semestres,
-                'eixos' => $eixos,
+                'eixos' => CatalogoOficial::eixos(),
                 'unidades' => UnidadeOferta::nomesAtivos(),
             ],
         ]);

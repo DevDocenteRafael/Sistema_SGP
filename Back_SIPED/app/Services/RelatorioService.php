@@ -13,6 +13,7 @@ use App\Models\PlanoDeMeta;
 use App\Models\Resolucao;
 use App\Models\TermoReferencia;
 use App\Models\VisitaTecnica;
+use App\Support\CatalogoOficial;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -92,21 +93,33 @@ class RelatorioService
     }
 
     /**
-     * Eixos distintos do cadastro + config (filtro do relatório).
+     * Eixos do filtro: oficiais nas telas de Eixo; eixos tecnológicos só no relatório de Cursos por Eixo.
      *
      * @return list<string>
      */
-    public function eixosDisponiveis(): array
+    public function eixosDisponiveis(?string $tipo = null): array
     {
-        return collect(config('eixos', []))
-            ->merge(Curso::query()->whereNotNull('eixo')->where('eixo', '!=', '')->distinct()->pluck('eixo'))
-            ->merge(CursoPorEixo::query()->whereNotNull('eixo')->where('eixo', '!=', '')->distinct()->pluck('eixo'))
-            ->map(fn ($eixo) => trim((string) $eixo))
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values()
-            ->all();
+        if ($tipo === 'eixos') {
+            return collect(config('eixos_tecnologicos', []))
+                ->merge(CursoPorEixo::query()->whereNotNull('eixo')->where('eixo', '!=', '')->distinct()->pluck('eixo'))
+                ->map(fn ($eixo) => trim((string) $eixo))
+                ->filter()
+                ->unique()
+                ->sort()
+                ->values()
+                ->all();
+        }
+
+        return CatalogoOficial::eixos();
+    }
+
+    private function aplicarFiltroEixoOficial(Builder $query, array $filtros, string $coluna = 'eixo'): void
+    {
+        if (empty($filtros['eixo'])) {
+            return;
+        }
+
+        CatalogoOficial::aplicarFiltroEixo($query, $filtros['eixo'], $coluna);
     }
 
     /**
@@ -241,9 +254,7 @@ class RelatorioService
             'nome', 'eixo', 'processo_sei', 'status', 'observacao',
         ]);
 
-        if (! empty($filtros['eixo'])) {
-            $query->where('eixo', $filtros['eixo']);
-        }
+        $this->aplicarFiltroEixoOficial($query, $filtros);
         if (! empty($filtros['status'])) {
             $query->where('status', $filtros['status']);
         }
@@ -265,9 +276,7 @@ class RelatorioService
         if (! empty($filtros['ano'])) {
             $query->where('ultima_revisao', 'like', "%{$filtros['ano']}%");
         }
-        if (! empty($filtros['eixo'])) {
-            $query->where('eixo', $filtros['eixo']);
-        }
+        $this->aplicarFiltroEixoOficial($query, $filtros);
         if (! empty($filtros['status'])) {
             $query->where('status', $filtros['status']);
         }
@@ -328,9 +337,7 @@ class RelatorioService
         if (! empty($filtros['unidade'])) {
             $query->where('unidade', $filtros['unidade']);
         }
-        if (! empty($filtros['eixo'])) {
-            $query->where('eixo', $filtros['eixo']);
-        }
+        $this->aplicarFiltroEixoOficial($query, $filtros);
         if (! empty($filtros['status'])) {
             $query->where('status', $filtros['status']);
         }
@@ -412,9 +419,7 @@ class RelatorioService
         if (! empty($filtros['unidade'])) {
             $query->where('unidade', $filtros['unidade']);
         }
-        if (! empty($filtros['eixo'])) {
-            $query->where('eixo', $filtros['eixo']);
-        }
+        $this->aplicarFiltroEixoOficial($query, $filtros);
         if (! empty($filtros['status'])) {
             $query->where('status', $filtros['status']);
         }
@@ -439,9 +444,7 @@ class RelatorioService
         if (! empty($filtros['ano'])) {
             $query->where('ano', $filtros['ano']);
         }
-        if (! empty($filtros['eixo'])) {
-            $query->where('eixo', $filtros['eixo']);
-        }
+        $this->aplicarFiltroEixoOficial($query, $filtros);
         if (! empty($filtros['status'])) {
             $query->where('status', $filtros['status']);
         }
@@ -460,9 +463,7 @@ class RelatorioService
             'atribuido', 'eixo', 'numero_processo_sei', 'assunto', 'objetivo', 'tipo', 'status',
         ]);
 
-        if (! empty($filtros['eixo'])) {
-            $query->where('eixo', $filtros['eixo']);
-        }
+        $this->aplicarFiltroEixoOficial($query, $filtros);
         if (! empty($filtros['status'])) {
             $query->where('status', $filtros['status']);
         }
@@ -487,9 +488,7 @@ class RelatorioService
         if (! empty($filtros['unidade'])) {
             $query->where('unidade', $filtros['unidade']);
         }
-        if (! empty($filtros['eixo'])) {
-            $query->where('eixo', $filtros['eixo']);
-        }
+        $this->aplicarFiltroEixoOficial($query, $filtros);
         if (! empty($filtros['status'])) {
             $query->where('status', $filtros['status']);
         }

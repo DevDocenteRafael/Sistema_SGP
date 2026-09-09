@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\HoraPedagogicaRequest;
 use App\Models\HoraPedagogica;
+use App\Support\CatalogoOficial;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -43,7 +44,7 @@ class HoraPedagogicaController extends Controller
         }
 
         if ($request->filled('eixo')) {
-            $query->where('eixo', $request->eixo);
+            CatalogoOficial::aplicarFiltroEixo($query, $request->eixo);
         }
 
         if ($request->filled('status')) {
@@ -66,8 +67,8 @@ class HoraPedagogicaController extends Controller
                 'total' => $registros->count(),
                 'total_geral' => HoraPedagogica::query()->count(),
                 'total_ativos' => HoraPedagogica::query()->where('ativo', true)->count(),
-                'eixos' => config('horas_pedagogicas.eixos'),
-                'segmentos' => config('horas_pedagogicas.segmentos'),
+                'eixos' => CatalogoOficial::eixos(),
+                'segmentos' => CatalogoOficial::eixos(),
                 'status' => config('horas_pedagogicas.status'),
                 'anos' => config('horas_pedagogicas.anos'),
             ],

@@ -103,7 +103,7 @@ class RelatorioController extends Controller
                 'total_exibido' => $payload['total_exibido'],
                 'truncado' => $payload['truncado'],
                 'limite' => $payload['limite'],
-                'eixos' => $this->relatorioService->eixosDisponiveis(),
+                'eixos' => $this->relatorioService->eixosDisponiveis($tipo),
                 'unidades' => UnidadeOferta::nomesAtivos(),
                 'status' => $registros->pluck('status')->filter()->unique()->sort()->values(),
                 'categorias' => $registros->pluck('categoria')->filter()->unique()->sort()->values(),

@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AcaoExtensivaRequest;
 use App\Models\AcaoExtensiva;
+use App\Support\CatalogoOficial;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -40,7 +41,7 @@ class AcaoExtensivaController extends Controller
         }
 
         if ($request->filled('eixo')) {
-            $query->where('eixo', $request->eixo);
+            CatalogoOficial::aplicarFiltroEixo($query, $request->eixo);
         }
 
         if ($request->filled('status')) {
@@ -53,18 +54,6 @@ class AcaoExtensivaController extends Controller
 
         $registros = $query->get();
 
-        $eixosBanco = AcaoExtensiva::query()
-            ->whereNotNull('eixo')
-            ->distinct()
-            ->orderBy('eixo')
-            ->pluck('eixo')
-            ->values()
-            ->all();
-
-        $eixosConfig = config('acoes_extensivas.eixos', []);
-        $eixos = array_values(array_unique(array_filter([...$eixosConfig, ...$eixosBanco])));
-        sort($eixos);
-
         return response()->json([
             'data' => $registros,
             'meta' => [
@@ -73,7 +62,7 @@ class AcaoExtensivaController extends Controller
                 'priorizacoes' => config('acoes_extensivas.priorizacoes'),
                 'status' => config('acoes_extensivas.status'),
                 'tipos' => config('acoes_extensivas.tipos'),
-                'eixos' => $eixos,
+                'eixos' => CatalogoOficial::eixos(),
             ],
         ]);
     }

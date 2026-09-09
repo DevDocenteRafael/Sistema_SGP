@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\EventoRequest;
 use App\Models\AcaoExtensiva;
 use App\Models\Evento;
+use App\Support\CatalogoOficial;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -44,7 +45,7 @@ class EventoController extends Controller
         }
 
         if ($request->filled('eixo')) {
-            $query->where('eixo', $request->eixo);
+            CatalogoOficial::aplicarFiltroEixo($query, $request->eixo);
         }
 
         if ($request->filled('unidade')) {
@@ -60,18 +61,6 @@ class EventoController extends Controller
         }
 
         $registros = $query->get();
-
-        $eixosBanco = Evento::query()
-            ->whereNotNull('eixo')
-            ->distinct()
-            ->orderBy('eixo')
-            ->pluck('eixo')
-            ->values()
-            ->all();
-
-        $eixosConfig = config('eventos.eixos', []);
-        $eixos = array_values(array_unique(array_filter([...$eixosConfig, ...$eixosBanco])));
-        sort($eixos);
 
         $anosBanco = Evento::query()
             ->whereNotNull('ano')
@@ -101,7 +90,7 @@ class EventoController extends Controller
                 'total_geral' => Evento::query()->count(),
                 'status' => config('eventos.status'),
                 'anos' => $anos,
-                'eixos' => $eixos,
+                'eixos' => CatalogoOficial::eixos(),
                 'unidades' => UnidadeOferta::nomesAtivos(),
                 'possui_acao_extensiva' => config('eventos.possui_acao_extensiva'),
                 'acoes_vinculaveis' => $acoesVinculaveis,

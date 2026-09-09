@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ImportacaoInvalidaException;
 use App\Http\Controllers\Controller;
 use App\Services\Importacao\ImportacaoService;
 use Illuminate\Http\JsonResponse;
@@ -84,7 +85,8 @@ class ImportacaoController extends Controller
             'erros' => $resultado['erros'],
             'linhas' => $resultado['linhas'],
             'colunas_preview' => $resultado['colunas_preview'],
-            'aviso' => 'A confirmação substituirá todos os registros atuais de '.$resultado['label'].'.',
+            'resumo_acoes' => $resultado['resumo_acoes'] ?? null,
+            'aviso' => 'A confirmação atualiza o ciclo atual por upsert. Nenhum registro de outro ciclo é apagado automaticamente.',
         ]);
     }
 
@@ -116,6 +118,11 @@ class ImportacaoController extends Controller
 
         try {
             $resultado = $this->importacaoService->commit($modulo, $request->file('arquivo'));
+        } catch (ImportacaoInvalidaException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'erros' => $e->erros,
+            ], 422);
         } catch (InvalidArgumentException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         } catch (Throwable $e) {
@@ -127,12 +134,13 @@ class ImportacaoController extends Controller
         Cache::forget('relatorios.contagens');
 
         return response()->json([
-            'message' => 'Importação concluída. Os dados de '.$resultado['label'].' foram substituídos.',
+            'message' => 'Importação concluída. Os dados de '.$resultado['label'].' foram atualizados (upsert).',
             'modulo' => $modulo,
             'aba' => $resultado['aba'],
             'importados' => $resultado['total'],
             'ignoradas' => $resultado['ignoradas'],
             'erros' => $resultado['erros'],
+            'resumo_acoes' => $resultado['resumo_acoes'] ?? null,
             'backup' => $resultado['backup'] ?? null,
         ]);
     }
