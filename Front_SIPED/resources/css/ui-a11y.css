@@ -131,8 +131,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
+  width: 3.5rem;
+  height: 3.5rem;
   border: 1px solid color-mix(in srgb, var(--sgp-brand, #003f7d) 55%, #fff);
   border-radius: 999px;
   background: var(--sgp-brand, #003f7d);
@@ -291,8 +291,8 @@ html[data-theme='dark'] .sgp-a11y-fab__label-icon {
   }
 
   .sgp-a11y-fab__toggle {
-    width: 2.85rem;
-    height: 2.85rem;
+    width: 3.25rem;
+    height: 3.25rem;
   }
 
   .sgp-a11y-fab__panel {

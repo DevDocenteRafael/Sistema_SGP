@@ -227,7 +227,7 @@
             <h2>Dados do processo</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="numero_processo_sei">Número do Processo SEI <span>*</span></label>
+                <label for="numero_processo_sei"><FormLabel label="Número do Processo SEI" required /></label>
                 <input
                   id="numero_processo_sei"
                   v-model="form.numero_processo_sei"
@@ -239,7 +239,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="priorizacao">Priorização <span>*</span></label>
+                <label for="priorizacao"><FormLabel label="Priorização" required /></label>
                 <SearchableSelect
                   id="priorizacao"
                   input-id="priorizacao"
@@ -250,7 +250,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="atribuido">Atribuído <span>*</span></label>
+                <label for="atribuido"><FormLabel label="Atribuído" required /></label>
                 <input
                   id="atribuido"
                   v-model="form.atribuido"
@@ -261,7 +261,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="eixo">Eixo <span>*</span></label>
+                <label for="eixo"><FormLabel label="Eixo" required /></label>
                 <SearchableSelect
                   id="eixo"
                   input-id="eixo"
@@ -272,7 +272,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="tipo">Tipo <span>*</span></label>
+                <label for="tipo"><FormLabel label="Tipo" required /></label>
                 <SearchableSelect
                   id="tipo"
                   input-id="tipo"
@@ -282,7 +282,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="status">Status <span>*</span></label>
+                <label for="status"><FormLabel label="Status" required /></label>
                 <SearchableSelect
                   id="status"
                   input-id="status"
@@ -297,7 +297,7 @@
                 <input id="ultima_atualizacao" v-model="form.ultima_atualizacao" type="date" />
               </div>
               <div class="form-group full">
-                <label for="assunto">Assunto <span>*</span></label>
+                <label for="assunto"><FormLabel label="Assunto" required /></label>
                 <input
                   id="assunto"
                   v-model="form.assunto"

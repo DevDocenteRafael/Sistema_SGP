@@ -277,7 +277,7 @@
             <h2>Dados da resolução</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="resolucao-numero">Número <span>*</span></label>
+                <label for="resolucao-numero"><FormLabel label="Número" required /></label>
                 <input id="resolucao-numero" v-model="form.numero" type="text" placeholder="Ex: MEC/2026/001" maxlength="100" required />
               </div>
               <div class="form-group">
@@ -291,7 +291,7 @@
                 />
               </div>
               <div class="form-group full">
-                <label for="resolucao-resumo">Resumo <span>*</span></label>
+                <label for="resolucao-resumo"><FormLabel label="Resumo" required /></label>
                 <input id="resolucao-resumo" v-model="form.resumo" type="text" placeholder="Resumo da resolução" maxlength="1000" required />
               </div>
               <div class="form-group">
@@ -329,7 +329,7 @@
             <h2>Vigência</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="resolucao-inicio">Início da vigência <span>*</span></label>
+                <label for="resolucao-inicio"><FormLabel label="Início da vigência" required /></label>
                 <input id="resolucao-inicio" v-model="form.data_inicio_vigencia" type="date" required />
               </div>
               <div class="form-group">

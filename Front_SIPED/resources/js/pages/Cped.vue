@@ -486,17 +486,17 @@
 
           <div class="modal-form-grid">
             <label>
-              Nome completo *
+              <FormLabel label="Nome completo" required />
               <input v-model="form.nome" type="text" required maxlength="100" @input="atualizarIniciais" />
             </label>
 
             <label>
-              Cargo / Função *
+              <FormLabel label="Cargo / Função" required />
               <input v-model="form.cargo" type="text" required maxlength="100" />
             </label>
 
             <label>
-              Tipo *
+              <FormLabel label="Tipo" required />
               <SearchableSelect
                 v-model="form.tipo"
                 :options="opcoesFormularioTipo"
@@ -506,7 +506,7 @@
             </label>
 
             <label>
-              Setor / Eixo *
+              <FormLabel label="Setor / Eixo" required />
               <SearchableSelect
                 v-model="form.setor"
                 :options="setoresDoFormulario"
@@ -516,7 +516,7 @@
             </label>
 
             <label v-if="precisaEixo">
-              Eixo vinculado *
+              <FormLabel label="Eixo vinculado" required />
               <SearchableSelect
                 v-model="form.eixo_vinculado"
                 :options="eixos"
@@ -526,7 +526,7 @@
             </label>
 
             <label>
-              E-mail de contato *
+              <FormLabel label="E-mail de contato" required />
               <input v-model="form.contato" type="email" required maxlength="100" />
             </label>
 

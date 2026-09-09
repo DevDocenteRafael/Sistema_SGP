@@ -108,7 +108,7 @@
           <p v-if="erroModal" class="alert alert-error">{{ erroModal }}</p>
 
           <div v-if="modal === 'gerar'" class="form-group">
-            <label for="ciclo-modal-origem">Ciclo de origem <span>*</span></label>
+            <label for="ciclo-modal-origem"><FormLabel label="Ciclo de origem" required /></label>
             <select id="ciclo-modal-origem" v-model="form.origem_id" required>
               <option value="" disabled>Selecione…</option>
               <option
@@ -122,7 +122,7 @@
           </div>
 
           <div class="form-group">
-            <label for="ciclo-modal-nome">Nome do ciclo <span>*</span></label>
+            <label for="ciclo-modal-nome"><FormLabel label="Nome do ciclo" required /></label>
             <input
               id="ciclo-modal-nome"
               v-model="form.nome"

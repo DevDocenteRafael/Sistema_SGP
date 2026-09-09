@@ -187,7 +187,7 @@
             <h2>{{ modo === 'gerar' ? 'Novo ciclo a partir de outro' : 'Dados do ciclo' }}</h2>
             <div class="form-grid">
               <div v-if="modo === 'gerar'" class="form-group">
-                <label for="ciclo-origem">Ciclo de origem <span>*</span></label>
+                <label for="ciclo-origem"><FormLabel label="Ciclo de origem" required /></label>
                 <SearchableSelect
                   id="ciclo-origem"
                   input-id="ciclo-origem"
@@ -197,7 +197,7 @@
                 />
               </div>
               <div class="form-group" :class="{ full: modo !== 'gerar' }">
-                <label for="ciclo-nome">Nome do ciclo <span>*</span></label>
+                <label for="ciclo-nome"><FormLabel label="Nome do ciclo" required /></label>
                 <input
                   id="ciclo-nome"
                   v-model="form.nome"

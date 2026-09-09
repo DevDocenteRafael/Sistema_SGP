@@ -48,7 +48,7 @@
   --sgp-shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.08);
   --sgp-sidebar-bg: #003f7d;
   --sgp-sidebar-text: #e8eef7;
-  --sgp-sidebar-muted: #9db4d1;
+  --sgp-sidebar-muted: #e8eef7;
   --sgp-sidebar-active: #f57c00;
   --sgp-input-bg: #ffffff;
   --sgp-overlay: rgba(15, 23, 42, 0.45);
@@ -266,6 +266,24 @@ html {
 body {
   background: var(--sgp-bg);
   color: var(--sgp-text);
+}
+
+.sgp-form-label {
+  display: inline;
+  color: inherit;
+  font-weight: inherit;
+}
+
+.sgp-form-label__text {
+  color: inherit;
+  font-weight: inherit;
+}
+
+.required-mark {
+  color: #ef4444;
+  font-weight: 700;
+  font-style: normal;
+  margin-left: 0.15em;
 }
 
 /* —— Shell / layout —— */
@@ -517,7 +535,7 @@ textarea::placeholder {
 }
 
 .sidebar-user-unidade {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 /* —— Alertas / estados —— */
@@ -768,7 +786,7 @@ html[data-theme='dark'] .login-page .login-page-footer {
 html[data-theme='light'] .login-page-footer,
 .login-page-footer {
   background: #004587 !important;
-  color: rgba(255, 255, 255, 0.55) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
   border: none !important;
 }
 

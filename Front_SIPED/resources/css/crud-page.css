@@ -59,6 +59,13 @@
   background: transparent;
 }
 
+.crud-page .required-mark {
+  color: #ef4444;
+  font-weight: 700;
+  font-style: normal;
+  margin-left: 0.15em;
+}
+
 .crud-toolbar .filtros-panel,
 .crud-toolbar .filtros-bar {
   display: flex;
@@ -548,7 +555,7 @@
   font-weight: 600;
 }
 
-.form-group label span {
+.form-group label .required-mark {
   color: #ef4444;
 }
 
