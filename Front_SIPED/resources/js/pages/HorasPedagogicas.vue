@@ -232,15 +232,15 @@
             <h2>Dados da pessoa</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="pessoa">Pessoa <span>*</span></label>
+                <label for="pessoa"><FormLabel label="Pessoa" required /></label>
                 <input id="pessoa" v-model="form.pessoa" type="text" maxlength="150" required placeholder="Nome completo" />
               </div>
               <div class="form-group">
-                <label for="matricula">Matrícula <span>*</span></label>
+                <label for="matricula"><FormLabel label="Matrícula" required /></label>
                 <input id="matricula" v-model="form.matricula" type="text" maxlength="50" required inputmode="numeric" placeholder="Ex: 2026001" @input="formatarMatricula" />
               </div>
               <div class="form-group">
-                <label for="segmento">Segmento <span>*</span></label>
+                <label for="segmento"><FormLabel label="Segmento" required /></label>
                 <SearchableSelect
                   id="segmento"
                   input-id="segmento"
@@ -251,7 +251,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="eixo">Eixo <span>*</span></label>
+                <label for="eixo"><FormLabel label="Eixo" required /></label>
                 <SearchableSelect
                   id="eixo"
                   input-id="eixo"
@@ -268,7 +268,7 @@
             <h2>Processo</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="processo_sei">Processo SEI <span>*</span></label>
+                <label for="processo_sei"><FormLabel label="Processo SEI" required /></label>
                 <input
                   id="processo_sei"
                   v-model="form.processo_sei"
@@ -280,7 +280,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="ano">Ano <span>*</span></label>
+                <label for="ano"><FormLabel label="Ano" required /></label>
                 <SearchableSelect
                   id="ano"
                   input-id="ano"
@@ -291,7 +291,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="status">Status <span>*</span></label>
+                <label for="status"><FormLabel label="Status" required /></label>
                 <SearchableSelect
                   id="status"
                   input-id="status"
@@ -314,7 +314,7 @@
                 />
               </div>
               <div class="form-group full">
-                <label for="motivo">Motivo <span>*</span></label>
+                <label for="motivo"><FormLabel label="Motivo" required /></label>
                 <input
                   id="motivo"
                   v-model="form.motivo"

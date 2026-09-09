@@ -306,7 +306,7 @@
               </div>
 
               <div class="form-group full">
-                <label for="titulo">Título / Curso <span>*</span></label>
+                <label for="titulo"><FormLabel label="Título / Curso" required /></label>
                 <input
                   id="titulo"
                   v-model="form.titulo"
@@ -392,7 +392,7 @@
             <h2>Status e observação</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="status">Status <span>*</span></label>
+                <label for="status"><FormLabel label="Status" required /></label>
                 <SearchableSelect
                   id="status"
                   input-id="status"

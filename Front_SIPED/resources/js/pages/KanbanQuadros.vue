@@ -85,7 +85,7 @@
           <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
 
           <label>
-            Nome do quadro *
+            <FormLabel label="Nome do quadro" required />
             <input v-model="form.nome" type="text" required maxlength="100" autofocus placeholder="Ex.: Eventos 2026" />
           </label>
 

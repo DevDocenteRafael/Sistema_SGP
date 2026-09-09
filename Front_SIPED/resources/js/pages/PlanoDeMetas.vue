@@ -221,12 +221,12 @@
             <h2>Dados do registro</h2>
             <div class="form-grid form-grid-page">
               <label class="campo">
-                <span>Segmento <em>*</em></span>
+                <FormLabel label="Segmento" required />
                 <input v-model="form.segmento" type="text" maxlength="100" placeholder="Ex.: Infraestrutura" />
               </label>
 
               <label class="campo">
-                <span>Tipo <em>*</em></span>
+                <FormLabel label="Tipo" required />
                 <SearchableSelect
                   v-model="form.tipo"
                   :options="tiposFormularioDisponiveis"
@@ -235,7 +235,7 @@
               </label>
 
               <label class="campo">
-                <span>Mês de Entrega <em>*</em></span>
+                <FormLabel label="Mês de Entrega" required />
                 <SearchableSelect
                   v-model="form.mes_entrega"
                   :options="mesesDisponiveis"
@@ -244,36 +244,38 @@
               </label>
 
               <label class="campo">
-                <span>Curso <em>*</em></span>
+                <FormLabel label="Curso" required />
                 <input v-model="form.curso" type="text" maxlength="255" placeholder="Nome do curso" />
               </label>
 
               <label class="campo">
-                <span>Número SEI <em>*</em></span>
+                <FormLabel label="Número SEI" required />
                 <input v-model="form.numero_sei" type="text" placeholder="Ex.: 0001234.567890/2026-01" maxlength="100" @input="formatarNumeroSei" />
               </label>
 
               <label class="campo">
-                <span>Código SIG <em>*</em></span>
+                <FormLabel label="Código SIG" required />
                 <input v-model="form.codigo_sig" type="text" placeholder="Ex.: SIG-001" maxlength="100" />
               </label>
 
               <label class="campo">
-                <span>Status do Registro <em>*</em></span>
-                <SearchableSelect
+                <FormLabel label="Status do Registro" required />
+                <input
                   v-model="form.status"
-                  :options="statusDisponiveis"
-                  empty-option="Selecione..."
+                  type="text"
+                  maxlength="50"
+                  placeholder="Ex.: Em andamento"
+                  aria-required="true"
                 />
               </label>
 
               <label class="campo">
-                <span>Origem</span>
+                <FormLabel label="Origem" />
                 <input v-model="form.origem" type="text" maxlength="100" placeholder="Ex.: Plano de Metas" />
               </label>
 
               <label class="campo">
-                <span>Situação Final <em>*</em></span>
+                <FormLabel label="Situação Final" required />
                 <SearchableSelect
                   v-model="form.status_final"
                   :options="situacoesDisponiveis"
@@ -282,7 +284,7 @@
               </label>
 
               <label class="campo campo-full">
-                <span>Observação / Justificativa</span>
+                <FormLabel label="Observação / Justificativa" />
                 <textarea
                   v-model="form.observacao"
                   rows="4"

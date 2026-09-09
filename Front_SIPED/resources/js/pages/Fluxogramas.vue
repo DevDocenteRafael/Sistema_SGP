@@ -92,7 +92,7 @@
           <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
 
           <label>
-            Título *
+            <FormLabel label="Título" required />
             <input v-model="form.titulo" type="text" required maxlength="100" autofocus placeholder="Ex.: Admissão de aluno" />
           </label>
 

@@ -15,7 +15,7 @@
 
         <div class="inicio-stats">
           <div class="inicio-stat">
-            <p class="inicio-stat-value">8</p>
+            <p class="inicio-stat-value">5</p>
             <p class="inicio-stat-label">Eixos</p>
           </div>
           <span class="inicio-stat-divider" aria-hidden="true" />

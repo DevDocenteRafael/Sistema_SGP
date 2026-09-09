@@ -155,7 +155,7 @@
           <div v-if="erroFormulario" class="alert alert-error">{{ erroFormulario }}</div>
 
           <label>
-            Título *
+            <FormLabel label="Título" required />
             <input v-model="form.titulo" type="text" required maxlength="150" autofocus />
           </label>
 
@@ -165,7 +165,7 @@
           </label>
 
           <label v-if="!cartaoEmEdicao">
-            Coluna *
+            <FormLabel label="Coluna" required />
             <input
               v-model="form.coluna_titulo"
               list="kanban-colunas-sugeridas"
@@ -207,7 +207,7 @@
           <div v-if="erroFormularioColuna" class="alert alert-error">{{ erroFormularioColuna }}</div>
 
           <label>
-            Nome da coluna *
+            <FormLabel label="Nome da coluna" required />
             <input
               v-model="formColuna.titulo"
               type="text"

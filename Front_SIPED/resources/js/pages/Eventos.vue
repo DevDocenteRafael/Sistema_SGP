@@ -261,11 +261,11 @@
                 />
               </div>
               <div class="form-group">
-                <label for="data">Data <span>*</span></label>
+                <label for="data"><FormLabel label="Data" required /></label>
                 <input id="data" v-model="form.data" type="date" required @change="preencherAnoDaData" />
               </div>
               <div class="form-group full">
-                <label for="nome">Nome do Evento <span>*</span></label>
+                <label for="nome"><FormLabel label="Nome do Evento" required /></label>
                 <input
                   id="nome"
                   v-model="form.nome"
@@ -276,7 +276,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="unidade">Estrutura Institucional <span>*</span></label>
+                <label for="unidade"><FormLabel label="Estrutura Institucional" required /></label>
                 <SearchableSelect
                   id="unidade"
                   input-id="unidade"
@@ -288,7 +288,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="eixo">Eixo <span>*</span></label>
+                <label for="eixo"><FormLabel label="Eixo" required /></label>
                 <SearchableSelect
                   id="eixo"
                   input-id="eixo"
@@ -312,7 +312,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="status">Status <span>*</span></label>
+                <label for="status"><FormLabel label="Status" required /></label>
                 <SearchableSelect
                   id="status"
                   input-id="status"
@@ -334,7 +334,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="possui_acao_extensiva">Possui Ação Extensiva? <span>*</span></label>
+                <label for="possui_acao_extensiva"><FormLabel label="Possui Ação Extensiva?" required /></label>
                 <SearchableSelect
                   id="possui_acao_extensiva"
                   input-id="possui_acao_extensiva"
@@ -346,7 +346,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="acao_vinculada">Ação Extensiva Vinculada</label>
+                <label for="acao_vinculada"><FormLabel label="Ação Extensiva Vinculada" :required="form.possui_acao_extensiva === 'Sim'" /></label>
                 <input
                   id="acao_vinculada"
                   v-model="form.acao_vinculada"

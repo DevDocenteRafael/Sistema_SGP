@@ -181,11 +181,11 @@
             <h2>Dados do plano</h2>
             <div class="form-grid">
               <div class="form-group full">
-                <label for="jornada-titulo">Título <span>*</span></label>
+                <label for="jornada-titulo"><FormLabel label="Título" required /></label>
                 <input id="jornada-titulo" v-model="form.titulo" type="text" maxlength="255" required />
               </div>
               <div class="form-group">
-                <label for="jornada-status">Status <span>*</span></label>
+                <label for="jornada-status"><FormLabel label="Status" required /></label>
                 <SearchableSelect
                   id="jornada-status"
                   input-id="jornada-status"
@@ -203,7 +203,7 @@
                 <input id="jornada-fim" v-model="form.data_fim" type="date" />
               </div>
               <div class="form-group">
-                <label for="jornada-pre">Há pré-jornada?</label>
+                <label for="jornada-pre"><FormLabel label="Há pré-jornada?" required /></label>
                 <SearchableSelect
                   id="jornada-pre"
                   input-id="jornada-pre"
@@ -212,7 +212,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="jornada-pre-data">Data da pré-jornada</label>
+                <label for="jornada-pre-data"><FormLabel label="Data da pré-jornada" :required="form.tem_pre_jornada === 'Sim'" /></label>
                 <input id="jornada-pre-data" v-model="form.data_pre_jornada" type="date" :disabled="form.tem_pre_jornada !== 'Sim'" />
               </div>
               <div class="form-group">
