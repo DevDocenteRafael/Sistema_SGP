@@ -69,7 +69,7 @@ class CpedEquipeApiTest extends TestCase
         $createResponse->assertCreated();
         $createResponse->assertJsonPath('cped_equipe.nome', 'Membro Teste API');
         $createResponse->assertJsonPath('cped_equipe.tipo', 'instrutor');
-        $createResponse->assertJsonPath('cped_equipe.eixo_vinculado', 'Gastronomia');
+        $createResponse->assertJsonPath('cped_equipe.eixo_vinculado', 'Gastronomia e Turismo');
         $this->assertNull($createResponse->json('cped_equipe.foto'));
 
         $id = $createResponse->json('cped_equipe.id');

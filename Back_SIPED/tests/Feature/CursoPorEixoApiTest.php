@@ -55,8 +55,8 @@ class CursoPorEixoApiTest extends TestCase
 
         $create = $this->postJson('/api/curso-por-eixos', $payload);
         $create->assertCreated();
-        $create->assertJsonPath('cursoPorEixo.curso', 'Curso Eixo Teste');
-        $create->assertJsonPath('cursoPorEixo.is_novo', true);
+        $create->assertJsonPath('cursoPorEixo.eixo', 'Gastronomia e Turismo');
+        $create->assertJsonPath('cursoPorEixo.segmento', 'Gastronomia');
 
         $id = $create->json('cursoPorEixo.id');
 

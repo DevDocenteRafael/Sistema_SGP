@@ -7,6 +7,9 @@ use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Tests\TestCase;
 
 class ImportacaoModulosTest extends TestCase
@@ -67,19 +70,19 @@ class ImportacaoModulosTest extends TestCase
         $preview->assertOk();
         $preview->assertJsonPath('total', 3);
         // eixo = nome da aba, não o Segmento interno
-        $preview->assertJsonPath('linhas.0.eixo', 'Saúde');
+        $preview->assertJsonPath('linhas.0.eixo', 'Ambiente e Saúde');
         $preview->assertJsonPath('linhas.2.eixo', 'Gestão e Moda');
 
         $commit = $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->uploadedFixture('cursos-sample.xlsx'),
         ]);
         $commit->assertOk();
-        $this->assertDatabaseCount('cursos', 3);
-        $this->assertDatabaseMissing('cursos', ['titulo' => 'Antigo']);
+        $this->assertDatabaseCount('cursos', 4);
+        $this->assertDatabaseHas('cursos', ['titulo' => 'Antigo']);
         $this->assertDatabaseHas('cursos', [
             'titulo' => 'Cuidador de Idosos',
             'codigo_sig' => 'SIG-001',
-            'eixo' => 'Saúde',
+            'eixo' => 'Ambiente e Saúde',
         ]);
     }
 
@@ -155,13 +158,15 @@ class ImportacaoModulosTest extends TestCase
     {
         $this->actingAs($this->editor(), 'sanctum');
 
+        Curso::create(['titulo' => 'Cuidador', 'status' => 'ATIVO', 'eixo' => 'Ambiente e Saúde']);
+        Curso::create(['titulo' => 'Primeiros Socorros', 'status' => 'ATIVO', 'eixo' => 'Ambiente e Saúde']);
+
         $preview = $this->post('/api/importacoes/eixos/preview', [
             'arquivo' => $this->uploadedFixture('eixos-sample.xlsx'),
         ]);
         $preview->assertOk();
         $preview->assertJsonPath('total', 2);
-        // forward-fill do eixo
-        $preview->assertJsonPath('linhas.1.eixo', 'Saúde');
+        $preview->assertJsonPath('linhas.1.eixo', 'Ambiente e Saúde');
 
         $this->post('/api/importacoes/eixos/commit', [
             'arquivo' => $this->uploadedFixture('eixos-sample.xlsx'),
@@ -170,7 +175,7 @@ class ImportacaoModulosTest extends TestCase
         $this->assertDatabaseCount('curso_por_eixos', 2);
         $this->assertDatabaseHas('curso_por_eixos', [
             'curso' => 'Primeiros Socorros',
-            'eixo' => 'Saúde',
+            'eixo' => 'Ambiente e Saúde',
             'codigo' => 'EIX-2',
         ]);
     }
@@ -214,7 +219,7 @@ class ImportacaoModulosTest extends TestCase
 
         $this->assertDatabaseHas('hora_pedagogicas', [
             'processo_sei' => '2026.501',
-            'eixo' => 'Saúde',
+            'eixo' => 'Ambiente e Saúde',
             'pessoa' => 'Carla',
         ]);
     }
@@ -248,5 +253,188 @@ class ImportacaoModulosTest extends TestCase
         $this->post('/api/importacoes/nao-existe/preview', [
             'arquivo' => $this->uploadedFixture('acoes-extensivas-sample.xlsx'),
         ])->assertNotFound();
+    }
+
+    public function test_import_cursos_canonicaliza_modalidade_em_caixa_alta(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        Curso::create(['titulo' => 'Antigo', 'status' => 'ATIVO']);
+
+        $arquivo = $this->xlsxCursosAba('Gastronomia e Turismo', '  APERFEIÇOAMENTO  ', 'Curso caixa alta');
+
+        $preview = $this->post('/api/importacoes/cursos/preview', ['arquivo' => $arquivo]);
+        $preview->assertOk();
+        $preview->assertJsonPath('linhas.0.modalidade', 'Aperfeiçoamento');
+        $this->assertTrue(collect($preview->json('erros'))->every(fn ($erro) => empty($erro['bloqueante'])));
+
+        $commit = $this->post('/api/importacoes/cursos/commit', [
+            'arquivo' => $this->xlsxCursosAba('Gastronomia e Turismo', '  APERFEIÇOAMENTO  ', 'Curso caixa alta'),
+        ]);
+        $commit->assertOk();
+        $this->assertDatabaseHas('cursos', ['titulo' => 'Antigo']);
+        $this->assertDatabaseHas('cursos', [
+            'titulo' => 'Curso caixa alta',
+            'modalidade' => 'Aperfeiçoamento',
+            'eixo' => 'Gastronomia e Turismo',
+        ]);
+    }
+
+    public function test_import_cursos_bloqueia_modalidade_invalida_sem_apagar_dados(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        Curso::create(['titulo' => 'Antigo', 'status' => 'ATIVO', 'eixo' => 'Gestão e Moda']);
+
+        $arquivo = $this->xlsxCursosAba('Gestão e Moda', 'PRESENCIAL', 'Curso inválido');
+
+        $preview = $this->post('/api/importacoes/cursos/preview', ['arquivo' => $arquivo]);
+        $preview->assertOk();
+        $this->assertNotEmpty($preview->json('erros'));
+        $this->assertTrue(collect($preview->json('erros'))->contains(fn ($erro) => ($erro['bloqueante'] ?? false) === true));
+
+        $commit = $this->post('/api/importacoes/cursos/commit', [
+            'arquivo' => $this->xlsxCursosAba('Gestão e Moda', 'PRESENCIAL', 'Curso inválido'),
+        ]);
+        $commit->assertStatus(422);
+        $this->assertDatabaseHas('cursos', ['titulo' => 'Antigo']);
+        $this->assertDatabaseMissing('cursos', ['titulo' => 'Curso inválido']);
+    }
+
+    public function test_import_cursos_e_idempotente_e_preserva_ciclo_anterior(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $cicloAnterior = \App\Models\PortfolioCiclo::create([
+            'nome' => '2023-2024',
+            'atual' => false,
+        ]);
+        Curso::create([
+            'titulo' => 'Curso do ciclo anterior',
+            'status' => 'ATIVO',
+            'eixo' => 'Gestão e Moda',
+            'ciclo_id' => $cicloAnterior->id,
+        ]);
+
+        $this->post('/api/importacoes/cursos/commit', [
+            'arquivo' => $this->uploadedFixture('cursos-sample.xlsx'),
+        ])->assertOk();
+
+        $this->post('/api/importacoes/cursos/commit', [
+            'arquivo' => $this->uploadedFixture('cursos-sample.xlsx'),
+        ])->assertOk()->assertJsonPath('resumo_acoes.sem_alteracao', 3);
+
+        $this->assertDatabaseCount('cursos', 4);
+        $this->assertDatabaseHas('cursos', [
+            'titulo' => 'Curso do ciclo anterior',
+            'ciclo_id' => $cicloAnterior->id,
+        ]);
+    }
+
+    public function test_import_cursos_bloqueia_segmento_desconhecido(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $arquivo = $this->xlsxCursosAba('Saúde', 'Qualificação Profissional', 'Curso segmento', 'Segmento Inventado');
+
+        $preview = $this->post('/api/importacoes/cursos/preview', ['arquivo' => $arquivo]);
+        $preview->assertOk();
+        $this->assertTrue(collect($preview->json('erros'))->contains(
+            fn ($erro) => ($erro['bloqueante'] ?? false) === true && str_contains((string) ($erro['mensagem'] ?? ''), 'Segmento desconhecido')
+        ));
+
+        $this->post('/api/importacoes/cursos/commit', [
+            'arquivo' => $this->xlsxCursosAba('Saúde', 'Qualificação Profissional', 'Curso segmento', 'Segmento Inventado'),
+        ])->assertStatus(422);
+
+        $this->assertDatabaseMissing('cursos', ['titulo' => 'Curso segmento']);
+    }
+
+    public function test_import_cursos_programa_sem_eixo_bloqueia_sem_criar_eixo(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $arquivo = $this->xlsxCursosAba('60+', 'Qualificação Profissional', 'Cozinheiro 60+', '60+');
+
+        $preview = $this->post('/api/importacoes/cursos/preview', ['arquivo' => $arquivo]);
+        $preview->assertOk();
+        $this->assertTrue(collect($preview->json('erros'))->contains(
+            fn ($erro) => ($erro['bloqueante'] ?? false) === true
+                && str_contains((string) ($erro['mensagem'] ?? ''), 'Não foi possível classificar o registro em um dos 5 Eixos.')
+        ));
+
+        $this->post('/api/importacoes/cursos/commit', [
+            'arquivo' => $this->xlsxCursosAba('60+', 'Qualificação Profissional', 'Cozinheiro 60+', '60+'),
+        ])->assertStatus(422);
+
+        $this->assertDatabaseMissing('cursos', ['titulo' => 'Cozinheiro 60+']);
+        $this->assertDatabaseMissing('eixos', ['nome' => '60+']);
+    }
+
+    public function test_import_cursos_programa_com_segmento_resolve_eixo_oficial(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $arquivo = $this->xlsxCursosAba('60+', 'Qualificação Profissional', 'Confeiteiro 60+', 'Confeitaria');
+
+        $preview = $this->post('/api/importacoes/cursos/preview', ['arquivo' => $arquivo]);
+        $preview->assertOk();
+        $preview->assertJsonPath('linhas.0.eixo', 'Gastronomia e Turismo');
+        $preview->assertJsonPath('linhas.0.segmento', 'Confeitaria');
+        $preview->assertJsonPath('linhas.0.programa', '60+');
+        $this->assertTrue(collect($preview->json('erros'))->every(fn ($erro) => empty($erro['bloqueante'])));
+
+        $this->post('/api/importacoes/cursos/commit', [
+            'arquivo' => $this->xlsxCursosAba('60+', 'Qualificação Profissional', 'Confeiteiro 60+', 'Confeitaria'),
+        ])->assertOk();
+
+        $this->assertDatabaseHas('cursos', [
+            'titulo' => 'Confeiteiro 60+',
+            'eixo' => 'Gastronomia e Turismo',
+            'segmento' => 'Confeitaria',
+            'programa' => '60+',
+        ]);
+        $this->assertDatabaseMissing('eixos', ['nome' => '60+']);
+    }
+
+    public function test_import_eixos_bloqueia_curso_inexistente(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $preview = $this->post('/api/importacoes/eixos/preview', [
+            'arquivo' => $this->uploadedFixture('eixos-sample.xlsx'),
+        ]);
+        $preview->assertOk();
+        $this->assertTrue(collect($preview->json('erros'))->contains(
+            fn ($erro) => str_contains((string) ($erro['mensagem'] ?? ''), 'Curso não encontrado')
+        ));
+
+        $this->post('/api/importacoes/eixos/commit', [
+            'arquivo' => $this->uploadedFixture('eixos-sample.xlsx'),
+        ])->assertStatus(422);
+
+        $this->assertDatabaseCount('curso_por_eixos', 0);
+    }
+
+    private function xlsxCursosAba(string $aba, string $modalidade, string $titulo, ?string $segmento = null): UploadedFile
+    {
+        $ss = new Spreadsheet;
+        $sheet = $ss->getActiveSheet();
+        $sheet->setTitle($aba);
+        $headers = ['Status SIG', 'Segmento', 'Modalidade', 'Título - Nome do Curso', 'CH', 'Cód. SIG'];
+        foreach ($headers as $i => $header) {
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($i + 1).'1', $header);
+        }
+        $sheet->setCellValue('A2', 'ATIVO');
+        $sheet->setCellValue('B2', $segmento ?? $aba);
+        $sheet->setCellValue('C2', $modalidade);
+        $sheet->setCellValue('D2', $titulo);
+        $sheet->setCellValue('E2', '40');
+        $sheet->setCellValue('F2', 'SIG-IMP-1');
+
+        $path = tempnam(sys_get_temp_dir(), 'siped-cursos-').'.xlsx';
+        (new Xlsx($ss))->save($path);
+
+        return new UploadedFile($path, 'cursos-teste.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
     }
 }

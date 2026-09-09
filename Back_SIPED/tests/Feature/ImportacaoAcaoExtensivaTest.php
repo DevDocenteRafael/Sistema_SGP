@@ -108,8 +108,8 @@ class ImportacaoAcaoExtensivaTest extends TestCase
             true
         );
         $this->assertSame('Registro antigo', $backupJson['registros'][0]['assunto'] ?? null);
-        $this->assertDatabaseCount('acao_extensivas', 2);
-        $this->assertDatabaseMissing('acao_extensivas', ['assunto' => 'Registro antigo']);
+        $this->assertDatabaseCount('acao_extensivas', 3);
+        $this->assertDatabaseHas('acao_extensivas', ['assunto' => 'Registro antigo']);
         $this->assertDatabaseHas('acao_extensivas', [
             'assunto' => 'Sabores Regionais',
             'atribuido' => 'ana.5041',

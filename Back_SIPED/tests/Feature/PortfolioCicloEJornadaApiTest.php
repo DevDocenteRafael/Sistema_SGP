@@ -51,9 +51,11 @@ class PortfolioCicloEJornadaApiTest extends TestCase
         $payload = [
             'titulo' => 'Curso duplicado',
             'eixo' => 'Saúde',
+            'modalidade' => 'Qualificação Profissional',
             'status' => 'ATIVO',
             'codigo_sig' => 'SIG-DUP-001',
             'processo_sei' => '2026.SEI.001',
+            'carga_horaria' => '40',
         ];
 
         $this->postJson('/api/cursos', $payload)->assertCreated();

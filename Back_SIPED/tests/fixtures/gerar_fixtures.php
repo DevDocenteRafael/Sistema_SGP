@@ -52,13 +52,13 @@ $ss = new Spreadsheet;
 sheetComCabecalho($ss, 'Saúde', [
     'Status SIG', 'Segmento', 'Modalidade', 'Título - Nome do Curso', 'CH', 'Cód. SIG', 'Tipo', 'Processo SEI', 'Unidade que pode ser rodado',
 ], [
-    ['ATIVO', 'Saúde', 'Presencial', 'Cuidador de Idosos', '160', 'SIG-001', 'FIC', '2026.111', 'Taguatinga'],
-    ['ATIVO', 'Saúde', 'Presencial', 'Primeiros Socorros', '40', 'SIG-002', 'FIC', '2026.112', 'Asa Norte'],
+    ['ATIVO', 'Saúde', 'Qualificação Profissional', 'Cuidador de Idosos', '160', 'SIG-001', 'FIC', '2026.111', 'Taguatinga'],
+    ['ATIVO', 'Saúde', 'Aperfeiçoamento', 'Primeiros Socorros', '40', 'SIG-002', 'FIC', '2026.112', 'Asa Norte'],
 ]);
 sheetComCabecalho($ss, 'Gestão e Moda', [
     'Status SIG', 'Segmento', 'Modalidade', 'Título - Nome do Curso', 'CH', 'Cód. SIG', 'Tipo', 'Processo SEI', 'Unidade que pode ser rodado',
 ], [
-    ['ATIVO', 'Gestão e Moda', 'EaD', 'Gestão de Pessoas', '200', 'SIG-010', 'Técnico', '2026.113', 'Ceilândia'],
+    ['ATIVO', 'Gestão e Moda', 'Oficina', 'Gestão de Pessoas', '200', 'SIG-010', 'Técnico', '2026.113', 'Ceilândia'],
 ], 1);
 salvar($ss, 'cursos-sample.xlsx');
 
@@ -67,7 +67,7 @@ $ss = new Spreadsheet;
 sheetComCabecalho($ss, 'Saúde', [
     'Segmento', 'Modalidade', 'Título - Nome do Curso', 'CH', 'Cód. SIG', 'Tipo', 'Processo SEI',
 ], [
-    ['Saúde', 'Presencial', 'Cuidador de Idoso', '160', '68007', 'FIC', '2023.000001667-89'],
+    ['Saúde', 'Qualificação Profissional', 'Cuidador de Idoso', '160', '68007', 'FIC', '2023.000001667-89'],
 ]);
 salvar($ss, 'cursos-sem-status.xlsx');
 

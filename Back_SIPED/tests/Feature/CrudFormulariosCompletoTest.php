@@ -176,13 +176,11 @@ class CrudFormulariosCompletoTest extends TestCase
         $curso = $this->postJson('/api/cursos', [
             'titulo' => 'Curso máscara SEI',
             'eixo' => 'Gastronomia e Turismo',
-            'modalidade' => 'Presencial',
-            'tipo' => 'Livre',
+            'modalidade' => 'Qualificação Profissional',
             'status' => 'ATIVO',
             'codigo_sig' => 'SIG-MASK-001',
             'processo_sei' => 'SEI#2026.00001-1',
             'carga_horaria' => '160',
-            'unidades_oferta' => ['Asa Norte'],
         ]);
         $curso->assertCreated();
         $curso->assertJsonPath('curso.processo_sei', '2026.00001-1');
