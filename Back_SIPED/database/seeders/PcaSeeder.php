@@ -59,7 +59,7 @@ class PcaSeeder extends Seeder
                 'semestre' => '2025/2',
                 'numero_sei' => 'SEI-PCA-003',
                 'codigo_sig' => 'SIG-PCA-003',
-                'eixo' => 'Gastronomia',
+                'eixo' => 'Gastronomia e Turismo',
                 'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus Taguatinga',
                 'carga_horaria' => '360',
                 'precificacao' => 'R$ 2.400,00',

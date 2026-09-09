@@ -12,7 +12,7 @@ class TermoReferenciaSeeder extends Seeder
         $registros = [
             [
                 'nome' => 'TR — Revisão curricular Técnico em Enfermagem',
-                'eixo' => 'Saúde',
+                'eixo' => 'Ambiente e Saúde',
                 'processo_sei' => '2026.01.00045-01',
                 'prazo_deadline' => '2026-10-15',
                 'status' => 'Em Andamento',

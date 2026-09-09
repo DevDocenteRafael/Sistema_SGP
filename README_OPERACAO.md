@@ -19,6 +19,20 @@ Documento operacional alinhado à especificação de estabilidade Laravel + MySQ
 
 O script valida espaço livre no disco da aplicação **antes** de subir os serviços. Em aviso/crítico ele informa e pergunta se deseja continuar; **não apaga arquivos**.
 
+### Ordem segura em máquina nova
+
+Com `CACHE_STORE=database`, a tabela `cache` precisa existir **antes** de `php artisan optimize:clear`. O `local-start.cmd` já segue esta ordem:
+
+1. configurar `.env` / conexão MySQL
+2. `composer install` / `key:generate`
+3. `php artisan migrate --force`
+4. `php artisan optimize:clear`
+5. iniciar backend
+
+Se a migration falhar, o script interrompe e **não** sobe o sistema. Não troque `CACHE_STORE` para `file` só para esconder a ausência da tabela.
+
+Em produção/deploy: `php artisan migrate --force` e só então `php artisan optimize:clear`.
+
 ### Login demo (seed)
 
 Ver mensagens do `local-start.cmd` após o seed (ex.: administrador demo).

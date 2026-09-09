@@ -18,6 +18,8 @@ auth.json
 
 # Dependências
 /node_modules
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitignore
 /vendor
 
 # Build / Vite

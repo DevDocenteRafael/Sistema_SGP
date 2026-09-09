@@ -122,16 +122,9 @@ if errorlevel 1 (
   echo        Ja tinha APP_KEY, nao gerei de novo
 )
 
-echo [4/9] Limpar cache do Laravel - php artisan optimize:clear
-php artisan optimize:clear
-if errorlevel 1 (
-  echo [ERRO] Nao consegui limpar o cache. Confira o .env e tente de novo.
-  exit /b 1
-)
-echo        Cache limpo - evita back antigo em memoria
-
-echo [5/9] Banco - php artisan migrate
+echo [4/9] Banco - php artisan migrate
 echo        Usa HOST/PORTA/USUARIO/SENHA do Back_SIPED\.env desta maquina.
+echo        As tabelas (inclusive cache) precisam existir ANTES de limpar o cache em banco.
 php artisan migrate --force
 if errorlevel 1 (
   echo.
@@ -145,9 +138,18 @@ if errorlevel 1 (
   echo        DB_USERNAME=root
   echo        DB_PASSWORD= senha desta maquina, ou vazio
   echo   Depois rode local-start.cmd de novo.
+  echo   Nao continue: o sistema ficaria inconsistente sem as tabelas.
   exit /b 1
 )
 echo        Tabelas ok
+
+echo [5/9] Limpar cache do Laravel - php artisan optimize:clear
+php artisan optimize:clear
+if errorlevel 1 (
+  echo [ERRO] Nao consegui limpar o cache. Confira o .env, as migrations e tente de novo.
+  exit /b 1
+)
+echo        Cache limpo - evita back antigo em memoria
 
 echo [6/9] Storage - php artisan storage:link
 php artisan storage:link

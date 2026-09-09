@@ -24,7 +24,7 @@ class VisitaTecnicaSeeder extends Seeder
             ],
             [
                 'unidade' => 'Taguatinga',
-                'eixo' => 'Gastronomia',
+                'eixo' => 'Gastronomia e Turismo',
                 'processo_sei' => '00001.000456/2026-02',
                 'data_solicitacao' => '2026-07-01',
                 'data_visita_prevista' => '2026-07-28',
