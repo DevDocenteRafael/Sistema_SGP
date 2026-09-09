@@ -1,177 +1,257 @@
-/* Específicos de Eixos — layout base em crud-page.css */
-
-.crud-table {
-  min-width: 1280px;
+.eixos-page {
+  margin: -1.5rem;
+  min-height: calc(100vh - 0px);
+  background: var(--sgp-bg, #f5f7fa);
+  color: var(--sgp-text, #0f172a);
 }
 
-.crud-table tbody tr:nth-child(even) {
-  background: var(--sgp-table-row-alt, #f8fafc);
+.eixos-header {
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  background: var(--sgp-surface, #fff);
+  padding: 1.5rem 2rem 1.25rem;
 }
 
-.tabela-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
+.eixos-header h1 {
+  margin: 0;
+  color: var(--sgp-brand, #003f7d);
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
-.col-curso {
-  max-width: 220px;
-  color: #111827;
-  font-weight: 600;
+.eixos-subtitle {
+  margin: 0.35rem 0 0;
+  max-width: 46rem;
+  color: var(--sgp-text-muted, #6b7280);
+  font-size: 0.875rem;
 }
 
-.col-codigo {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.75rem;
-  white-space: nowrap;
+.alert {
+  margin: 1rem 2rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
 }
 
-.col-instrutor,
-.col-obs {
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.alert-warning {
+  margin: 1rem 2rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 0.875rem;
 }
 
-.col-obs {
-  font-style: italic;
+.eixo-card-acao {
+  margin-top: 0.15rem;
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.eixos-vazio,
+.eixos-vazio-bloco {
+  margin: 1.25rem 2rem;
   color: #6b7280;
+  font-size: 0.9rem;
 }
 
-.eixo-tag {
-  display: inline-flex;
-  align-items: center;
-  max-width: 180px;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
+.eixos-vazio-bloco {
+  margin: 0.5rem 0 1.25rem;
+}
+
+.eixos-pendentes {
+  padding: 0 2rem 2rem;
+}
+
+.eixos-pendentes h2 {
+  margin: 0 0 0.35rem;
+  color: var(--sgp-brand, #003f7d);
+  font-size: 1.05rem;
+}
+
+.eixos-pendentes p {
+  margin: 0 0 0.85rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.eixos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16.5rem, 1fr));
+  gap: 1rem;
+  padding: 1.25rem 2rem 2rem;
+}
+
+.eixo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.1rem 1.15rem 1.2rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.9rem;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+}
+
+.eixo-card:hover,
+.eixo-card[aria-pressed="true"] {
+  border-color: #93c5fd;
+  box-shadow: 0 8px 18px rgb(15 23 42 / 0.08);
+}
+
+.eixo-card-kicker {
+  margin: 0;
+  color: #6b7280;
   font-size: 0.7rem;
   font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.eixo-card h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.05rem;
   line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.eixo-tag--laranja {
-  background: #ffedd5;
-  color: #c2410c;
+.eixo-card-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
 }
 
-.eixo-tag--azul {
-  background: #dbeafe;
-  color: #1d4ed8;
+.eixo-card-metrics div {
+  min-width: 0;
 }
 
-.eixo-tag--roxo {
-  background: #ede9fe;
-  color: #6d28d9;
-}
-
-.eixo-tag--verde {
-  background: #d1fae5;
-  color: #047857;
-}
-
-.eixo-tag--rosa {
-  background: #fce7f3;
-  color: #be185d;
-}
-
-.eixo-tag--cinza {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.eixo-tag--padrao {
-  background: #eff6ff;
-  color: #003f7d;
-}
-
-.ano-chip {
-  display: inline-flex;
-  padding: 0.15rem 0.45rem;
-  border-radius: 0.35rem;
-  background: #f3f4f6;
-  color: #374151;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.75rem;
+.eixo-card-metrics dt {
+  color: #6b7280;
+  font-size: 0.68rem;
   font-weight: 600;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.badge-ativo {
-  background: #ecfdf5;
-  color: #047857;
-}
-
-.badge-suspenso {
-  background: #fff7ed;
-  color: #c2410c;
-}
-
-.badge-inativo {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.badge-novo {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: #d1fae5;
-  color: #047857;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.texto-vazio {
-  color: #d1d5db;
-}
-
-.form-alert {
-  margin: 0 0 1rem;
-}
-
-.modal-detalhes-bar {
-  height: 3px;
-  background: #f57c00;
-}
-
-.detalhe-eixo-body {
-  padding: 1rem 1.15rem;
-}
-
-.detalhe-eixo-hero {
-  margin-bottom: 1rem;
-}
-
-.detalhe-curso-nome {
-  margin: 0 0 0.55rem;
+.eixo-card-metrics dd {
+  margin: 0.15rem 0 0;
   color: #111827;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 700;
 }
 
-.detalhe-badges {
+.eixo-card--laranja { border-top: 3px solid #ea580c; }
+.eixo-card--verde { border-top: 3px solid #047857; }
+.eixo-card--azul { border-top: 3px solid #1d4ed8; }
+.eixo-card--roxo { border-top: 3px solid #6d28d9; }
+.eixo-card--rosa { border-top: 3px solid #be185d; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: rgb(15 23 42 / 0.45);
+  overflow: auto;
 }
 
-.detalhe-campo {
-  padding: 0.7rem 0.8rem;
+.modal-detalhes {
+  width: min(920px, 100%);
+  margin-top: 1.5rem;
+  border-radius: 0.9rem;
+  background: #fff;
+  box-shadow: 0 20px 40px rgb(15 23 42 / 0.18);
+}
+
+.modal-detalhes-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem 0.5rem;
+}
+
+.modal-detalhes-header h2 {
+  margin: 0.2rem 0 0;
+  color: #003f7d;
+  font-size: 1.25rem;
+}
+
+.btn-fechar-x {
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal-form-wrap {
+  padding: 0.5rem 1.4rem 0.25rem;
+}
+
+.eixo-detalhe-kpis {
+  margin-bottom: 1.25rem;
+}
+
+.modal-form-wrap h3 {
+  margin: 0 0 0.5rem;
+  color: #111827;
+  font-size: 0.95rem;
+}
+
+.eixos-table {
+  width: 100%;
+  margin-bottom: 1.35rem;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.eixos-table th,
+.eixos-table td {
+  padding: 0.5rem 0.4rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.eixos-table th {
+  color: #6b7280;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.modal-detalhes-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 0.75rem 1.4rem 1.2rem;
+}
+
+.btn-secondary {
+  height: 2.3rem;
+  padding: 0 1rem;
   border: 1px solid #e5e7eb;
-  border-radius: 0.65rem;
-  background: #f9fafb;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .eixos-header,
+  .eixos-grid,
+  .eixos-pendentes {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .eixo-card-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

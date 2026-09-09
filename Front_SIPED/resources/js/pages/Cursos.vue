@@ -45,12 +45,6 @@
           @change="carregarCursos"
         />
         <SearchableSelect
-          v-model="filtros.tipo"
-          :options="meta.tipos"
-          empty-option="Todos os tipos"
-          @change="carregarCursos"
-        />
-        <SearchableSelect
           v-model="filtros.unidade"
           :options="unidades"
           empty-option="Todas as unidades"
@@ -78,10 +72,11 @@
               <tr>
                 <th>Curso</th>
                 <th>Eixo</th>
+                <th>Segmento</th>
+                <th>Programa</th>
                 <th>CH</th>
                 <th>SIG</th>
                 <th>SEI</th>
-                <th>Tipo</th>
                 <th>Status</th>
                 <th>Ano/Revisão</th>
                 <th>Estrutura</th>
@@ -91,17 +86,18 @@
             </thead>
             <tbody>
               <tr v-if="totalCursos === 0">
-                <td colspan="11" class="tabela-vazia">
+                <td colspan="12" class="tabela-vazia">
                   Nenhum curso encontrado para os filtros selecionados.
                 </td>
               </tr>
               <tr v-for="curso in cursos" :key="curso.id">
                 <td class="col-curso">{{ curso.titulo }}</td>
                 <td>{{ curso.eixo || '—' }}</td>
+                <td>{{ curso.segmento || '—' }}</td>
+                <td>{{ curso.programa || '—' }}</td>
                 <td>{{ curso.carga_horaria || '—' }}</td>
                 <td>{{ curso.codigo_sig || '—' }}</td>
                 <td class="col-sei">{{ curso.processo_sei || '—' }}</td>
-                <td>{{ curso.tipo || '—' }}</td>
                 <td>
                   <span class="badge" :class="badgeStatus(curso.status)">
                     {{ rotuloStatus(curso.status) }}
@@ -178,12 +174,15 @@
               </span>
               <div>
                 <p class="detalhe-curso-nome">{{ cursoDetalhe.titulo }}</p>
-                <p class="detalhe-curso-eixo">{{ valorCampo(cursoDetalhe.eixo) }}</p>
+                <p class="detalhe-curso-eixo">
+                  {{ valorCampo(cursoDetalhe.eixo) }}
+                  <template v-if="cursoDetalhe.segmento"> · {{ cursoDetalhe.segmento }}</template>
+                  <template v-if="cursoDetalhe.programa"> · {{ cursoDetalhe.programa }}</template>
+                </p>
                 <div class="detalhe-badges">
                   <span class="badge" :class="badgeStatus(cursoDetalhe.status)">
                     {{ rotuloStatus(cursoDetalhe.status) }}
                   </span>
-                  <span v-if="cursoDetalhe.tipo" class="badge badge-tipo">{{ cursoDetalhe.tipo }}</span>
                 </div>
               </div>
             </div>
@@ -194,6 +193,14 @@
                 <div class="detalhe-campo">
                   <span class="detalhe-label">Carga horária</span>
                   <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.carga_horaria) }}</span>
+                </div>
+                <div class="detalhe-campo">
+                  <span class="detalhe-label">Segmento</span>
+                  <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.segmento) }}</span>
+                </div>
+                <div class="detalhe-campo">
+                  <span class="detalhe-label">Programa / categoria</span>
+                  <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.programa) }}</span>
                 </div>
                 <div class="detalhe-campo">
                   <span class="detalhe-label">Turmas</span>
@@ -228,10 +235,6 @@
                 <div class="detalhe-campo">
                   <span class="detalhe-label">Modalidade</span>
                   <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.modalidade) }}</span>
-                </div>
-                <div class="detalhe-campo">
-                  <span class="detalhe-label">Tipo</span>
-                  <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.tipo) }}</span>
                 </div>
                 <div class="detalhe-campo">
                   <span class="detalhe-label">Ano / Revisão</span>
@@ -364,23 +367,45 @@
               <h2>Informações principais</h2>
               <div class="form-grid">
                 <div class="form-group full">
-                  <label for="eixo">Segmento / Área <span>*</span></label>
+                  <label for="eixo"><FormLabel label="Eixo" required /></label>
                   <SearchableSelect
                     id="eixo"
                     input-id="eixo"
                     v-model="form.eixo"
                     :options="meta.eixos"
+                    empty-option="Selecione o eixo..."
+                    aria-required="true"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="segmento">Segmento</label>
+                  <SearchableSelect
+                    id="segmento"
+                    input-id="segmento"
+                    v-model="form.segmento"
+                    :options="segmentosDoEixo"
                     empty-option="Selecione o segmento..."
                   />
                 </div>
+                <div class="form-group">
+                  <label for="programa">Programa / categoria</label>
+                  <SearchableSelect
+                    id="programa"
+                    input-id="programa"
+                    v-model="form.programa"
+                    :options="meta.programas"
+                    empty-option="Nenhum"
+                  />
+                </div>
                 <div class="form-group full">
-                  <label for="titulo">Título do curso <span>*</span></label>
+                  <label for="titulo"><FormLabel label="Título do curso" required /></label>
                   <input
                     id="titulo"
                     v-model="form.titulo"
                     type="text"
                     placeholder="Ex: Técnico em Gastronomia"
                     maxlength="255"
+                    aria-required="true"
                   />
                 </div>
                 <div class="form-group">
@@ -393,7 +418,7 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="carga_horaria">Carga horária (CH) <span>*</span></label>
+                  <label for="carga_horaria"><FormLabel label="Carga horária (CH)" required /></label>
                   <input
                     id="carga_horaria"
                     v-model="form.carga_horaria"
@@ -401,6 +426,7 @@
                     inputmode="numeric"
                     placeholder="Ex: 800"
                     maxlength="5"
+                    aria-required="true"
                     @input="formatarCargaHoraria"
                   />
                 </div>
@@ -522,22 +548,24 @@
               <h2>Dados técnicos e cadastrais</h2>
               <div class="form-grid">
                 <div class="form-group">
-                  <label for="status">Status <span>*</span></label>
+                  <label for="status"><FormLabel label="Status" required /></label>
                   <SearchableSelect
                     id="status"
                     input-id="status"
                     v-model="form.status"
                     :options="meta.status"
+                    aria-required="true"
                   />
                 </div>
                 <div class="form-group">
-                  <label for="modalidade">Modalidade <span>*</span></label>
+                  <label for="modalidade"><FormLabel label="Modalidade" required /></label>
                   <SearchableSelect
                     id="modalidade"
                     input-id="modalidade"
                     v-model="form.modalidade"
                     :options="meta.modalidades"
                     empty-option="Selecione a modalidade"
+                    aria-required="true"
                   />
                 </div>
                 <div class="form-group">
@@ -545,13 +573,14 @@
                   <input id="codigo_dn" v-model="form.codigo_dn" type="text" placeholder="Ex: 2437" maxlength="50" />
                 </div>
                 <div class="form-group">
-                  <label for="codigo_sig">Cód. SIG <span>*</span></label>
+                  <label for="codigo_sig"><FormLabel label="Cód. SIG" required /></label>
                   <input
                     id="codigo_sig"
                     v-model="form.codigo_sig"
                     type="text"
                     placeholder="Ex: 129820"
                     maxlength="100"
+                    aria-required="true"
                   />
                 </div>
                 <div class="form-group">
@@ -562,16 +591,6 @@
                     type="text"
                     placeholder="Ex: 2018"
                     maxlength="50"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="tipo">Tipo de curso <span>*</span></label>
-                  <SearchableSelect
-                    id="tipo"
-                    input-id="tipo"
-                    v-model="form.tipo"
-                    :options="meta.tipos"
-                    empty-option="Selecione..."
                   />
                 </div>
                 <div class="form-group">
@@ -720,7 +739,7 @@
           </li>
         </ul>
         <div class="form-group">
-          <label for="justificativa-duplicidade">Justificativa <span>*</span></label>
+          <label for="justificativa-duplicidade"><FormLabel label="Justificativa" required /></label>
           <textarea
             id="justificativa-duplicidade"
             v-model="justificativaDuplicidade"

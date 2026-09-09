@@ -4,7 +4,7 @@
       <div>
         <h1>Importações</h1>
         <p class="imp-subtitle">
-          Selecione o módulo, envie a planilha e confira a prévia antes de substituir os dados.
+          Selecione o módulo, envie a planilha e confira a prévia antes de confirmar a importação.
         </p>
       </div>
     </header>
@@ -116,7 +116,8 @@
                 <template v-if="etapa === 'previa'">
                   {{ previa.total }} registro(s) válidos
                   <template v-if="previa.ignoradas"> · {{ previa.ignoradas }} linha(s) ignorada(s)</template>
-                  . A confirmação <strong>substitui todos</strong> os dados atuais de {{ previa.label || moduloAtivo.label }}.
+                  . A confirmação faz upsert no ciclo atual e <strong>não apaga</strong> registros de outros ciclos.
+                  <template v-if="resumoAcoesTexto"> {{ resumoAcoesTexto }}</template>
                 </template>
                 <template v-else>
                   Aceita <code>.xlsx</code> / <code>.xls</code>.
@@ -159,10 +160,10 @@
 
             <template v-else>
               <div v-if="previa.erros?.length" class="imp-erros">
-                <h3>Avisos de linha</h3>
+                <h3>{{ temErroBloqueante ? 'Erros que bloqueiam a importação' : 'Avisos de linha' }}</h3>
                 <ul>
                   <li v-for="(item, idx) in previa.erros.slice(0, 20)" :key="idx">
-                    Linha {{ item.linha }}: {{ item.mensagem }}
+                    {{ item.mensagem }}
                   </li>
                 </ul>
                 <p v-if="previa.erros.length > 20">… e mais {{ previa.erros.length - 20 }} aviso(s).</p>
@@ -211,11 +212,11 @@
                 </button>
                 <button
                   type="button"
-                  class="btn-perigo"
-                  :disabled="processando || !previa.total"
+                  class="btn-primario"
+                  :disabled="processando || !previa.total || temErroBloqueante"
                   @click="confirmarImportacao"
                 >
-                  {{ processando ? 'Importando...' : 'Importar e substituir' }}
+                  {{ processando ? 'Importando...' : 'Confirmar importação' }}
                 </button>
               </div>
             </template>

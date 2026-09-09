@@ -102,7 +102,7 @@
 .filtro-busca input,
 .filtros-bar select {
   width: 100%;
-  height: 2.25rem;
+  height: 2.4rem;
   padding: 0 0.75rem;
   border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.5rem;
@@ -769,7 +769,7 @@
   font-weight: 600;
 }
 
-.form-group label span {
+.form-group label .required-mark {
   color: #ef4444;
 }
 

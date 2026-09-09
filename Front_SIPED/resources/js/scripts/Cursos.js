@@ -31,8 +31,10 @@ export default {
       cicloInicializado: false,
       meta: {
         eixos: [],
+        segmentos: [],
+        segmentos_por_eixo: {},
+        programas: [],
         status: [],
-        tipos: [],
         modalidades: [],
         sim_nao: ['SIM', 'NÃO'],
       },
@@ -49,7 +51,6 @@ export default {
         ano: '',
         eixo: '',
         status: '',
-        tipo: '',
         unidade: '',
       },
       form: this.formVazio(),
@@ -121,6 +122,13 @@ export default {
     unidadesSelecionadasResumo() {
       return [...this.form.unidades_oferta];
     },
+    segmentosDoEixo() {
+      const mapa = this.meta.segmentos_por_eixo || {};
+      if (this.form.eixo && Array.isArray(mapa[this.form.eixo])) {
+        return mapa[this.form.eixo];
+      }
+      return this.meta.segmentos || [];
+    },
   },
   async mounted() {
     this.aplicarCicloInicial();
@@ -134,6 +142,15 @@ export default {
     window.removeEventListener(CICLO_CONTEXTO_EVENTO, this.aoMudarCicloGlobal);
   },
   watch: {
+    'form.eixo'(novo, antigo) {
+      if (!antigo || novo === antigo) {
+        return;
+      }
+      const lista = this.segmentosDoEixo;
+      if (this.form.segmento && lista.length && !lista.includes(this.form.segmento)) {
+        this.form.segmento = '';
+      }
+    },
     '$route.query.ciclo_id'(id) {
       if (!id || String(id) === String(this.filtros.ciclo_id)) {
         return;
@@ -154,7 +171,6 @@ export default {
         ano: '',
         eixo: '',
         status: '',
-        tipo: '',
         unidade: '',
       };
       this.carregarCursos();
@@ -176,8 +192,9 @@ export default {
         ciclo_id: '',
         titulo: '',
         eixo: '',
+        segmento: '',
+        programa: '',
         modalidade: '',
-        tipo: '',
         status: 'ATIVO',
         unidade: '',
         unidades_oferta: [],
@@ -278,8 +295,9 @@ export default {
         ciclo_id: curso.ciclo_id ? String(curso.ciclo_id) : this.cicloFormPadrao(),
         titulo: curso.titulo ?? '',
         eixo: curso.eixo ?? '',
+        segmento: curso.segmento ?? '',
+        programa: curso.programa ?? '',
         modalidade: curso.modalidade ?? '',
-        tipo: curso.tipo ?? '',
         status: curso.status ?? 'ATIVO',
         unidade: curso.unidade ?? '',
         unidades_oferta: unidadesOferta,
@@ -362,7 +380,7 @@ export default {
     validarAba(abaId) {
       if (abaId === 'basico') {
         return combinarValidacoes(
-          textoObrigatorio(this.form.eixo, 'Selecione o segmento / área.'),
+          textoObrigatorio(this.form.eixo, 'Selecione o eixo.'),
           textoObrigatorio(this.form.titulo, 'O título do curso é obrigatório.'),
           tamanhoMaximo(this.form.titulo, 255, 'O título deve ter no máximo 255 caracteres.'),
           textoObrigatorio(this.form.carga_horaria, 'Informe a carga horária.'),
@@ -393,7 +411,6 @@ export default {
           this.form.identificacao
             ? tamanhoMaximo(this.form.identificacao, 50, 'A identificação deve ter no máximo 50 caracteres.')
             : '',
-          textoObrigatorio(this.form.tipo, 'Selecione o tipo de curso.'),
           this.form.processo_sei ? validarProcessoSei(this.form.processo_sei) : '',
           validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
           validarData(this.form.data_fim, { rotulo: 'Data de término' }),
@@ -505,8 +522,9 @@ export default {
         ciclo_id: this.form.ciclo_id || null,
         titulo: this.form.titulo,
         eixo: this.form.eixo,
+        segmento: this.form.segmento || null,
+        programa: this.form.programa || null,
         modalidade: this.form.modalidade || null,
-        tipo: this.form.tipo || null,
         status: this.form.status,
         unidade: this.form.unidades_oferta[0] || this.form.unidade || null,
         unidades_oferta: this.form.unidades_oferta.length ? this.form.unidades_oferta : null,
@@ -556,7 +574,7 @@ export default {
           return;
         }
 
-        const mensagem = extrairErroApi(error, 'Não foi possível salvar o curso.');
+        const mensagem = this.mensagemErroValidacao(error, 'Não foi possível salvar o curso.');
 
         if (this.duplicidadeAberta) {
           this.erroDuplicidade = mensagem;
@@ -566,6 +584,53 @@ export default {
       } finally {
         this.salvando = false;
       }
+    },
+
+    mensagemErroValidacao(error, fallback) {
+      const errors = error?.response?.data?.errors;
+      if (errors && typeof errors === 'object') {
+        const abaPorCampo = {
+          eixo: 'basico',
+          titulo: 'basico',
+          carga_horaria: 'basico',
+          turmas: 'basico',
+          alunos: 'basico',
+          codigo_processo: 'basico',
+          instrutor: 'basico',
+          descricao: 'basico',
+          unidade: 'basico',
+          unidades_oferta: 'basico',
+          status: 'tecnico',
+          modalidade: 'tecnico',
+          codigo_sig: 'tecnico',
+          codigo_dn: 'tecnico',
+          identificacao: 'tecnico',
+          processo_sei: 'tecnico',
+          data_inicio: 'tecnico',
+          data_fim: 'tecnico',
+          observacoes: 'comercial',
+          valores: 'comercial',
+          pcn: 'comercial',
+          pcr: 'comercial',
+          compativel_bolsa: 'comercial',
+          comercial: 'comercial',
+        };
+
+        const campo = Object.keys(errors)[0];
+        if (campo && abaPorCampo[campo]) {
+          this.abaForm = abaPorCampo[campo];
+        }
+
+        const primeiro = campo ? errors[campo] : null;
+        if (Array.isArray(primeiro) && primeiro[0]) {
+          return primeiro[0];
+        }
+        if (typeof primeiro === 'string' && primeiro) {
+          return primeiro;
+        }
+      }
+
+      return extrairErroApi(error, fallback);
     },
 
     aplicarCicloInicial() {

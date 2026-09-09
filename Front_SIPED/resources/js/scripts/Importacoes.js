@@ -38,8 +38,16 @@ function previaVazia(colunas = [], label = '') {
     linhas: [],
     colunas_preview: colunas,
     label,
+    resumo_acoes: null,
   };
 }
+
+const ROTULOS_ACAO = {
+  novo: 'Novo',
+  atualizar: 'Atualizar',
+  sem_alteracao: 'Sem alteração',
+  erro: 'Erro',
+};
 
 export default {
   name: 'Importacoes',
@@ -71,6 +79,25 @@ export default {
         value: item.key,
         label: item.label,
       }));
+    },
+
+    temErroBloqueante() {
+      return (this.previa.erros || []).some((item) => item.bloqueante);
+    },
+
+    resumoAcoesTexto() {
+      const resumo = this.previa.resumo_acoes;
+      if (!resumo) {
+        return '';
+      }
+
+      const partes = [];
+      if (resumo.novo) partes.push(`${resumo.novo} novo(s)`);
+      if (resumo.atualizar) partes.push(`${resumo.atualizar} atualizar`);
+      if (resumo.sem_alteracao) partes.push(`${resumo.sem_alteracao} sem alteração`);
+      if (resumo.erro) partes.push(`${resumo.erro} com erro`);
+
+      return partes.length ? `Resumo: ${partes.join(' · ')}.` : '';
     },
 
     linhasFiltradas() {
@@ -290,6 +317,9 @@ export default {
 
     celula(linha, key) {
       const valor = linha?.[key];
+      if (key === 'status_importacao') {
+        return ROTULOS_ACAO[valor] || valor || '—';
+      }
       return valor === null || valor === undefined || valor === '' ? '—' : valor;
     },
 
@@ -316,6 +346,7 @@ export default {
           linhas: data.linhas || [],
           colunas_preview: data.colunas_preview || this.moduloAtivo.preview_columns || [],
           label: data.label || this.moduloAtivo.label,
+          resumo_acoes: data.resumo_acoes || null,
         };
         this.etapa = 'previa';
 
@@ -330,10 +361,18 @@ export default {
     },
 
     async confirmarImportacao() {
-      if (!this.arquivo || this.processando || !this.previa.total || !this.moduloAtivo) return;
+      if (!this.arquivo || this.processando || !this.previa.total || !this.moduloAtivo || this.temErroBloqueante) return;
+
+      const resumo = this.previa.resumo_acoes || {};
+      const partes = [
+        resumo.novo ? `${resumo.novo} novo(s)` : null,
+        resumo.atualizar ? `${resumo.atualizar} atualizar` : null,
+        resumo.sem_alteracao ? `${resumo.sem_alteracao} sem alteração` : null,
+      ].filter(Boolean);
+      const detalhe = partes.length ? `\n\n${partes.join(' · ')}.` : '';
 
       const ok = window.confirm(
-        `Isso vai APAGAR todos os registros atuais de ${this.previa.label || this.moduloAtivo.label} e importar ${this.previa.total} linha(s).\n\nAntes da substituição, o sistema grava um backup automático dos dados atuais.\n\nDeseja continuar?`,
+        `A importação de ${this.previa.label || this.moduloAtivo.label} fará upsert no ciclo atual e não apagará registros de outros ciclos.${detalhe}\n\nDeseja continuar?`,
       );
       if (!ok) return;
 
