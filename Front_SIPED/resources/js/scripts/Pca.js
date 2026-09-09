@@ -14,20 +14,12 @@ import {
   validarProcessoSei,
   tamanhoMaximo,
 } from '../utils/validacao';
+import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 
 const STATUS_LISTA = ['Vigente', 'Em análise', 'Suspenso', 'Previsto', 'Publicado', 'Ativo', 'Aprovado'];
 const ANOS = ['2025', '2026'];
 const SEMESTRES = ['2025/1', '2025/2', '2026/1', '2026/2'];
-const EIXOS = [
-  'Gastronomia',
-  'Ambiente e Saúde',
-  'Gestão e Moda',
-  'Tecnologia e Economia Criativa',
-  'Beleza e Cuidado Pessoal',
-  'Turismo e Hospitalidade',
-  'Comunicação e Audiovisual',
-  'Artes e Design',
-];
+const EIXOS = [...EIXOS_OFICIAIS];
 
 export default createCrudPage({
   name: 'Pca',

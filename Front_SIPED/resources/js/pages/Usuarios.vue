@@ -255,11 +255,11 @@
             <h2>Dados Pessoais</h2>
             <div class="form-grid">
               <div class="form-group full">
-                <label for="nome">Nome Completo <span>*</span></label>
+                <label for="nome"><FormLabel label="Nome Completo" required /></label>
                 <input id="nome" v-model="form.nome" type="text" placeholder="Ex: Ana Paula Souza" required maxlength="100" />
               </div>
               <div class="form-group">
-                <label for="email">E-mail (login) <span>*</span></label>
+                <label for="email"><FormLabel label="E-mail (login)" required /></label>
                 <input id="email" v-model="form.email" type="email" placeholder="nome@df.senac.br" required maxlength="100" />
               </div>
               <div class="form-group">
@@ -281,7 +281,7 @@
             <h2>Nível de Acesso</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="perfil">Perfil <span>*</span></label>
+                <label for="perfil"><FormLabel label="Perfil" required /></label>
                 <SearchableSelect
                   id="perfil"
                   input-id="perfil"
@@ -296,7 +296,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="unidade">Estrutura Institucional <span>*</span></label>
+                <label for="unidade"><FormLabel label="Estrutura Institucional" /></label>
                 <SearchableSelect
                   id="unidade"
                   input-id="unidade"
@@ -307,7 +307,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="senha">Senha <span v-if="modo === 'novo'">*</span></label>
+                <label for="senha"><FormLabel label="Senha" :required="modo === 'novo'" /></label>
                 <input
                   id="senha"
                   v-model="form.senha"
@@ -319,7 +319,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="confirmarSenha">Confirmar senha <span v-if="modo === 'novo'">*</span></label>
+                <label for="confirmarSenha"><FormLabel label="Confirmar senha" :required="modo === 'novo' || !!form.senha" /></label>
                 <input
                   id="confirmarSenha"
                   v-model="form.confirmarSenha"

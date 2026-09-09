@@ -235,7 +235,7 @@
             <h2>Dados do processo</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="processo_sei">Processo SEI <span>*</span></label>
+                <label for="processo_sei"><FormLabel label="Processo SEI" required /></label>
                 <input
                   id="processo_sei"
                   v-model="form.processo_sei"
@@ -247,7 +247,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="status">Status <span>*</span></label>
+                <label for="status"><FormLabel label="Status" required /></label>
                 <SearchableSelect
                   id="status"
                   input-id="status"
@@ -258,7 +258,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="unidade">Estrutura Institucional <span>*</span></label>
+                <label for="unidade"><FormLabel label="Estrutura Institucional" required /></label>
                 <SearchableSelect
                   id="unidade"
                   input-id="unidade"
@@ -269,7 +269,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="eixo">Eixo <span>*</span></label>
+                <label for="eixo"><FormLabel label="Eixo" required /></label>
                 <SearchableSelect
                   id="eixo"
                   input-id="eixo"
@@ -280,7 +280,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="responsavel">Responsável <span>*</span></label>
+                <label for="responsavel"><FormLabel label="Responsável" required /></label>
                 <input
                   id="responsavel"
                   v-model="form.responsavel"
@@ -297,15 +297,15 @@
             <h2>Prazos</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="data_solicitacao">Data de solicitação <span>*</span></label>
+                <label for="data_solicitacao"><FormLabel label="Data de solicitação" required /></label>
                 <input id="data_solicitacao" v-model="form.data_solicitacao" type="date" required />
               </div>
               <div class="form-group">
-                <label for="data_visita_prevista">Data visita prevista <span>*</span></label>
+                <label for="data_visita_prevista"><FormLabel label="Data visita prevista" required /></label>
                 <input id="data_visita_prevista" v-model="form.data_visita_prevista" type="date" required />
               </div>
               <div class="form-group">
-                <label for="prazo_limite">Prazo limite <span>*</span></label>
+                <label for="prazo_limite"><FormLabel label="Prazo limite" required /></label>
                 <input id="prazo_limite" v-model="form.prazo_limite" type="date" required />
               </div>
             </div>

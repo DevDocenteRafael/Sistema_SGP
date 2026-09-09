@@ -231,7 +231,7 @@
               <h2>Informações principais</h2>
               <div class="form-grid">
                 <div class="form-group full">
-                  <label for="nome-tr">Nome do Termo de Referência <span>*</span></label>
+                  <label for="nome-tr"><FormLabel label="Nome do Termo de Referência" required /></label>
                   <input
                     id="nome-tr"
                     v-model="form.nome"
@@ -241,7 +241,7 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="eixo-tr">Eixo <span>*</span></label>
+                  <label for="eixo-tr"><FormLabel label="Eixo" required /></label>
                   <SearchableSelect
                     id="eixo-tr"
                     input-id="eixo-tr"
@@ -251,7 +251,7 @@
                   />
                 </div>
                 <div class="form-group full">
-                  <label for="processo-sei">Processo SEI <span>*</span></label>
+                  <label for="processo-sei"><FormLabel label="Processo SEI" required /></label>
                   <input
                     id="processo-sei"
                     v-model="form.processo_sei"
@@ -270,7 +270,7 @@
               <h2>Tramitação e prazos</h2>
               <div class="form-grid">
                 <div class="form-group">
-                  <label for="status-tr">Status <span>*</span></label>
+                  <label for="status-tr"><FormLabel label="Status" required /></label>
                   <SearchableSelect
                     id="status-tr"
                     input-id="status-tr"
@@ -280,7 +280,7 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="prazo-deadline">Prazo / Deadline <span>*</span></label>
+                  <label for="prazo-deadline"><FormLabel label="Prazo / Deadline" required /></label>
                   <input id="prazo-deadline" v-model="form.prazo_deadline" type="date" />
                 </div>
                 <div class="form-group">

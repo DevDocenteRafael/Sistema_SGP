@@ -9,17 +9,9 @@ import {
   validarInteiro,
   validarProcessoSei,
 } from '../utils/validacao';
+import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 
-const SEGMENTOS = [
-  'Gastronomia',
-  'Ambiente e Saúde',
-  'Gestão e Moda',
-  'Tecnologia e Economia Criativa',
-  'Beleza e Cuidado Pessoal',
-  'Turismo e Hospitalidade',
-  'Comunicação e Audiovisual',
-  'Artes e Design',
-];
+const SEGMENTOS = [...EIXOS_OFICIAIS];
 
 const EIXOS = [...SEGMENTOS];
 const STATUS_LISTA = ['Pendente', 'Em andamento', 'Concluída', 'Cancelada'];

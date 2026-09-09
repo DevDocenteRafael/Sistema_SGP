@@ -139,7 +139,7 @@
           <div class="modal-detalhes-body">
             <p class="modal-inativacao-nome">{{ modalInativacao.item?.nome }}</p>
             <div class="form-group">
-              <label for="motivo-inativacao">Motivo da inativação <span>*</span></label>
+              <label for="motivo-inativacao"><FormLabel label="Motivo da inativação" required /></label>
               <textarea
                 id="motivo-inativacao"
                 v-model="modalInativacao.motivo"
@@ -179,12 +179,12 @@
           <section class="form-section">
             <div class="form-grid">
               <div class="form-group full">
-                <label for="nome">Nome <span>*</span></label>
+                <label for="nome"><FormLabel label="Nome" required /></label>
                 <input id="nome" v-model="form.nome" type="text" maxlength="180" required />
               </div>
 
               <div class="form-group">
-                <label for="tipo">Tipo de Estrutura <span>*</span></label>
+                <label for="tipo"><FormLabel label="Tipo de Estrutura" required /></label>
                 <SearchableSelect
                   id="tipo"
                   input-id="tipo"
@@ -196,7 +196,7 @@
               </div>
 
               <div class="form-group">
-                <label for="localidade">Localidade / Região <span>*</span></label>
+                <label for="localidade"><FormLabel label="Localidade / Região" required /></label>
                 <input
                   id="localidade"
                   v-model="form.localidade"
@@ -216,7 +216,7 @@
               </div>
 
               <div v-if="!form.ativo" class="form-group full">
-                <label for="motivo_inativacao">Motivo da inativação <span>*</span></label>
+                <label for="motivo_inativacao"><FormLabel label="Motivo da inativação" required /></label>
                 <textarea
                   id="motivo_inativacao"
                   v-model="form.motivo_inativacao"

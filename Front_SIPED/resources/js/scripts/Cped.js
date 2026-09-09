@@ -6,6 +6,7 @@ import {
   textoObrigatorio,
   validarEmail,
 } from '../utils/validacao';
+import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 
 const TIPOS = ['ordenador', 'assistente', 'responsavel', 'instrutor', 'administrativo'];
 
@@ -38,14 +39,7 @@ const OPCOES_FILTRO_TIPO = TIPOS.map((tipo) => ({
   label: FILTRO_TIPO_LABELS[tipo] || tipo,
 }));
 
-const EIXOS = [
-  'Gastronomia',
-  'Beleza e Cuidado Pessoal',
-  'Gestão e Negócios',
-  'Tecnologia e Economia Criativa',
-  'Ambiente e Saúde',
-  'Gestão e Moda',
-];
+const EIXOS = [...EIXOS_OFICIAIS];
 
 const SETORES_POR_TIPO = {
   ordenador: ['CPED'],
@@ -56,12 +50,13 @@ const SETORES_POR_TIPO = {
 };
 
 const TEMAS_EIXO = {
+  'Gastronomia e Turismo': { bg: '#fff7ed', text: '#9a3412', ring: '#fed7aa' },
   Gastronomia: { bg: '#fff7ed', text: '#9a3412', ring: '#fed7aa' },
   'Beleza e Cuidado Pessoal': { bg: '#fdf2f8', text: '#9d174d', ring: '#fbcfe8' },
+  'Gestão e Moda': { bg: '#fff1f2', text: '#9f1239', ring: '#fecdd3' },
   'Gestão e Negócios': { bg: '#eff6ff', text: '#1e40af', ring: '#bfdbfe' },
   'Tecnologia e Economia Criativa': { bg: '#faf5ff', text: '#6b21a8', ring: '#e9d5ff' },
   'Ambiente e Saúde': { bg: '#f0fdf4', text: '#166534', ring: '#bbf7d0' },
-  'Gestão e Moda': { bg: '#fff1f2', text: '#9f1239', ring: '#fecdd3' },
 };
 
 const CORES_TIPO = {

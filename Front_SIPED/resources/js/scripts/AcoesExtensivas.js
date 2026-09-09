@@ -8,17 +8,12 @@ import {
   validarData,
   validarProcessoSei,
 } from '../utils/validacao';
+import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 
 const PRIORIZACOES = ['Baixa', 'Média', 'Alta', 'Resolvido'];
 const STATUS_LISTA = ['CPED', 'DEP', 'DIREG', 'NC'];
 const TIPOS = ['Ação Extensiva'];
-const EIXOS = [
-  'Gastronomia e Turismo',
-  'Gestão e Negócios',
-  'Gestão e Comércio',
-  'Saúde e Segurança',
-  'Segurança',
-];
+const EIXOS = [...EIXOS_OFICIAIS];
 
 export default createCrudPage({
   name: 'AcoesExtensivas',

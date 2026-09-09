@@ -1,15 +1,7 @@
 import { carregarUnidadesNomes } from './unidadesApi';
+import { EIXOS_OFICIAIS, eixosIguais } from '../utils/catalogoOficial';
 
-const EIXOS_PADRAO = [
-  'Gastronomia',
-  'Ambiente e Saúde',
-  'Gestão e Moda',
-  'Tecnologia e Economia Criativa',
-  'Beleza e Cuidado Pessoal',
-  'Turismo e Hospitalidade',
-  'Comunicação e Audiovisual',
-  'Artes e Design',
-];
+const EIXOS_PADRAO = [...EIXOS_OFICIAIS];
 
 const CORES_EIXO = ['#003F7D', '#F57C00', '#0d9488', '#7c3aed', '#db2777', '#2563eb', '#ca8a04', '#64748b'];
 
@@ -113,7 +105,7 @@ export default {
           }
         }
 
-        if (this.filtros.eixo && curso.eixo !== this.filtros.eixo) {
+        if (this.filtros.eixo && !eixosIguais(curso.eixo, this.filtros.eixo)) {
           return false;
         }
 
