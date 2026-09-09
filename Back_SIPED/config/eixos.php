@@ -1,15 +1,13 @@
 <?php
 
 /**
- * Abas / eixos do portfólio usados no cadastro e filtro de Cursos.
- * Alinhado às abas da planilha Portfólio (Grupo da Aprendizagem).
+ * Eixos oficiais do portfólio. Fonte única para cadastro, filtro, relatório e importação.
+ * Segmentos/subdivisões ficam em config/eixos_tecnologicos.php — não misturar com este catálogo.
  */
 return [
     'Gastronomia e Turismo',
-    'Saúde',
+    'Ambiente e Saúde',
     'Gestão e Moda',
     'Tecnologia e Economia Criativa',
     'Beleza e Cuidado Pessoal',
-    'Ensino Médio 2025',
-    '60+',
 ];

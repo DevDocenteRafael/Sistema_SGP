@@ -9,14 +9,15 @@ return [
         'cursos' => [
             'key' => 'cursos',
             'label' => 'Cursos',
-            'description' => 'Importa as abas de portfólio por eixo (título, CH, SIG, SEI, status…). Substitui o catálogo de cursos.',
-            'ajuda' => 'Usa as abas de portfólio por eixo (ex.: Gastronomia e Turismo, Saúde, Gestão e Moda…).',
+            'description' => 'Importa as abas de portfólio por eixo (título, CH, SIG, SEI, status…). Atualiza o ciclo atual sem apagar ciclos anteriores.',
+            'ajuda' => 'Usa as abas de portfólio por eixo. A coluna Segmento é preservada. A aba Saúde vira Ambiente e Saúde. 60+ e Ensino Médio são programas, não eixos: cada linha precisa de um segmento (ou outro dado) que resolva um dos 5 eixos oficiais. A confirmação faz upsert no ciclo atual.',
             'model' => App\Models\Curso::class,
             'table' => 'cursos',
             'mode' => 'multi_sheet',
             'sheet_names' => [
                 'Gastronomia e Turismo',
                 'Saúde',
+                'Ambiente e Saúde',
                 'Gestão e Moda',
                 'Tecnologia e Economia Criativa',
                 'Beleza e Cuidado Pessoal',
@@ -28,7 +29,8 @@ return [
             'date_fields' => [],
             'columns' => [
                 'status' => ['status sig', 'status'],
-                'eixo' => ['segmento'],
+                'segmento' => ['segmento'],
+                'eixo' => ['eixo'],
                 'modalidade' => ['modalidade'],
                 'titulo' => ['titulo - nome do curso', 'título - nome do curso', 'titulo', 'título'],
                 'carga_horaria' => ['ch'],
@@ -49,14 +51,15 @@ return [
             'preview_columns' => [
                 ['key' => 'titulo', 'label' => 'Curso'],
                 ['key' => 'eixo', 'label' => 'Eixo'],
-                ['key' => 'tipo', 'label' => 'Tipo'],
+                ['key' => 'segmento', 'label' => 'Segmento'],
+                ['key' => 'modalidade', 'label' => 'Modalidade'],
                 ['key' => 'status', 'label' => 'Status'],
                 ['key' => 'codigo_sig', 'label' => 'SIG'],
                 ['key' => 'processo_sei', 'label' => 'SEI'],
-                ['key' => 'unidade', 'label' => 'Unidade'],
+                ['key' => 'status_importacao', 'label' => 'Ação'],
             ],
             'db_fields' => [
-                'titulo', 'eixo', 'modalidade', 'carga_horaria', 'codigo_dn', 'codigo_sig',
+                'titulo', 'eixo', 'segmento', 'programa', 'eixo_id', 'segmento_id', 'modalidade', 'carga_horaria', 'codigo_dn', 'codigo_sig',
                 'identificacao', 'tipo', 'status', 'ultima_revisao', 'processo_sei',
                 'valores', 'observacoes', 'unidade', 'compativel_bolsa', 'comercial', 'pcn', 'pcr',
             ],
@@ -68,7 +71,7 @@ return [
         'plano-de-metas' => [
             'key' => 'plano-de-metas',
             'label' => 'Plano de Metas',
-            'description' => 'Importa a aba de Plano de Metas. Substitui todos os registros do módulo.',
+            'description' => 'Importa a aba de Plano de Metas. Faz upsert no ciclo atual, sem apagar o ciclo anterior.',
             'ajuda' => 'Procura a aba “PLANO DE METAS 2025” (ou nome semelhante).',
             'model' => App\Models\PlanoDeMeta::class,
             'table' => 'plano_de_metas',
@@ -108,7 +111,7 @@ return [
         'pcas' => [
             'key' => 'pcas',
             'label' => 'PCA',
-            'description' => 'Importa a aba de propostas/valores do PCA. Substitui os registros atuais.',
+            'description' => 'Importa a aba de propostas/valores do PCA. Faz upsert no ciclo atual, sem apagar o ciclo anterior.',
             'ajuda' => 'Prioriza a aba “PCA 2026 | Propostas” ou abas de Retificativos/Valores PCA.',
             'model' => App\Models\Pca::class,
             'table' => 'pcas',
@@ -167,8 +170,8 @@ return [
         'eixos' => [
             'key' => 'eixos',
             'label' => 'Eixos',
-            'description' => 'Importa a aba “Quantidade de cursos por eixo” (com turmas/alunos). Substitui os dados do módulo.',
-            'ajuda' => 'Usa a aba detalhada “Quantidade de cursos por eixo” (com Código, Turmas e Alunos), não o resumo.',
+            'description' => 'Importa a aba “Quantidade de cursos por eixo” (oferta/execução). Vincula cursos já cadastrados no ciclo; não cria curso novo.',
+            'ajuda' => 'Usa a aba detalhada “Quantidade de cursos por eixo” (com Código, Turmas e Alunos). Cada linha precisa corresponder a um curso já existente no ciclo atual. A confirmação faz upsert e não apaga o ciclo anterior.',
             'model' => App\Models\CursoPorEixo::class,
             'table' => 'curso_por_eixos',
             'mode' => 'eixos_forward_fill',
@@ -181,7 +184,8 @@ return [
             'required_any' => ['curso', 'codigo'],
             'date_fields' => [],
             'columns' => [
-                'eixo' => ['segmento', 'eixo'],
+                'eixo' => ['eixo'],
+                'segmento' => ['segmento', 'eixo'],
                 'curso' => ['cursos', 'curso'],
                 'ch' => ['ch do curso', 'ch'],
                 'turmas' => ['turmas (2o semestre)', 'turmas (2º semestre)', 'turmas'],
@@ -192,12 +196,13 @@ return [
             'preview_columns' => [
                 ['key' => 'curso', 'label' => 'Curso'],
                 ['key' => 'eixo', 'label' => 'Eixo'],
+                ['key' => 'segmento', 'label' => 'Segmento'],
                 ['key' => 'codigo', 'label' => 'Código'],
                 ['key' => 'turmas', 'label' => 'Turmas'],
                 ['key' => 'alunos', 'label' => 'Alunos'],
-                ['key' => 'instrutores', 'label' => 'Instrutores'],
+                ['key' => 'status_importacao', 'label' => 'Ação'],
             ],
-            'db_fields' => ['curso', 'eixo', 'ch', 'turmas', 'codigo', 'alunos', 'instrutores'],
+            'db_fields' => ['curso', 'curso_id', 'eixo', 'segmento', 'programa', 'eixo_id', 'segmento_id', 'ch', 'turmas', 'codigo', 'alunos', 'instrutores'],
         ],
 
         'visitas-tecnicas' => [
