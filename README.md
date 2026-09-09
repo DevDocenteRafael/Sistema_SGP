@@ -1,4 +1,4 @@
-# SIPED — Sistema Integrado da DEP
+# SIPED — Sistema Integrado da Coordenação Pedagógica
 
 Sistema interno do SENAC DF (CPED/DEP) para gestão pedagógica, portfólio de cursos,
 processos educacionais e integração com sistemas de apoio.

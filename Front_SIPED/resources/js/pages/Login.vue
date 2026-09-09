@@ -12,7 +12,7 @@
     <div class="login-body">
       <div class="login-content">
         <h1 class="login-title">SIPED</h1>
-        <p class="login-subtitle">SISTEMA INTEGRADO DA DEP — EDUCAÇÃO PROFISSIONAL</p>
+        <p class="login-subtitle">SISTEMA INTEGRADO DA COORDENAÇÃO PEDAGÓGICA</p>
 
         <div class="login-card">
           <p class="login-card-intro">Entre para iniciar uma nova sessão</p>

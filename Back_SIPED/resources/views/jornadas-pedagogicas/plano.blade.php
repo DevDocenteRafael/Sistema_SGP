@@ -150,7 +150,7 @@
     </div>
 
     <div class="footer">
-        Documento gerado automaticamente pelo SIPED — Sistema Integrado da DEP.
+        Documento gerado automaticamente pelo SIPED — Sistema Integrado da Coordenação Pedagógica.
     </div>
 </body>
 </html>

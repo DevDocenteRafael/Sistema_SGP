@@ -6,7 +6,7 @@
 
         <div class="inicio-hero-text">
           <p class="inicio-hero-tag">SENAC DF · CPED</p>
-          <h1 class="inicio-hero-title">SIPED — Sistema Integrado da DEP</h1>
+          <h1 class="inicio-hero-title">SIPED — Sistema Integrado da Coordenação Pedagógica</h1>
           <p class="inicio-hero-desc">
             Plataforma da Coordenação Pedagógica (CPED/DEP) para gestão educacional
             e integração dos sistemas de apoio do SENAC DF.
