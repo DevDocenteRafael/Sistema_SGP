@@ -16,11 +16,5 @@ return [
     'tipos' => [
         'Ação Extensiva',
     ],
-    'eixos' => [
-        'Gastronomia e Turismo',
-        'Gestão e Negócios',
-        'Gestão e Comércio',
-        'Saúde e Segurança',
-        'Segurança',
-    ],
+    'eixos' => require __DIR__.'/eixos.php',
 ];

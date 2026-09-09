@@ -21,20 +21,18 @@ return [
         'ordenador' => ['CPED'],
         'assistente' => ['CPED', 'Secretaria Geral', 'Secretaria'],
         'responsavel' => [
-            'Gastronomia',
-            'Beleza e Cuidado Pessoal',
-            'Gestão e Negócios',
-            'Tecnologia e Economia Criativa',
+            'Gastronomia e Turismo',
             'Ambiente e Saúde',
             'Gestão e Moda',
+            'Tecnologia e Economia Criativa',
+            'Beleza e Cuidado Pessoal',
         ],
         'instrutor' => [
-            'Gastronomia',
-            'Beleza e Cuidado Pessoal',
-            'Gestão e Negócios',
-            'Tecnologia e Economia Criativa',
+            'Gastronomia e Turismo',
             'Ambiente e Saúde',
             'Gestão e Moda',
+            'Tecnologia e Economia Criativa',
+            'Beleza e Cuidado Pessoal',
         ],
         'administrativo' => [
             'CPED',
@@ -70,36 +68,25 @@ return [
         'administrativo' => '#00796B',
     ],
 
-    'eixos' => [
-        'Gastronomia',
-        'Beleza e Cuidado Pessoal',
-        'Gestão e Negócios',
-        'Tecnologia e Economia Criativa',
-        'Ambiente e Saúde',
-        'Gestão e Moda',
-    ],
+    'eixos' => require __DIR__.'/eixos.php',
 
     'cores_eixo' => [
-        'Gastronomia' => '#E65100',
+        'Gastronomia e Turismo' => '#E65100',
         'Beleza e Cuidado Pessoal' => '#AD1457',
-        'Gestão e Negócios' => '#1565C0',
+        'Gestão e Moda' => '#B71C1C',
         'Tecnologia e Economia Criativa' => '#6A1B9A',
         'Ambiente e Saúde' => '#2E7D32',
-        'Gestão e Moda' => '#B71C1C',
     ],
 
-    'setores' => [
-        'Gastronomia',
-        'Beleza e Cuidado Pessoal',
-        'Gestão e Negócios',
-        'Tecnologia e Economia Criativa',
-        'Ambiente e Saúde',
-        'Gestão e Moda',
-        'CPED',
-        'Secretaria Geral',
-        'Secretaria',
-        'TI / Sistemas',
-        'Financeiro',
-        'Patrimônio',
-    ],
+    'setores' => array_values(array_unique(array_merge(
+        require __DIR__.'/eixos.php',
+        [
+            'CPED',
+            'Secretaria Geral',
+            'Secretaria',
+            'TI / Sistemas',
+            'Financeiro',
+            'Patrimônio',
+        ]
+    ))),
 ];

@@ -46,7 +46,7 @@ class AcaoExtensivaSeeder extends Seeder
             [
                 'priorizacao' => 'Baixa',
                 'atribuido' => 'barbara.6005',
-                'eixo' => 'Gestão e Negócios',
+                'eixo' => 'Gestão e Moda',
                 'numero_processo_sei' => '2026.000003011-52',
                 'tipo' => 'Ação Extensiva',
                 'assunto' => 'Coquetéis com café: Releitura da caipirinha e Orange Coffee',
@@ -57,7 +57,7 @@ class AcaoExtensivaSeeder extends Seeder
             [
                 'priorizacao' => 'Resolvido',
                 'atribuido' => 'barbara.6004',
-                'eixo' => 'Saúde e Segurança',
+                'eixo' => 'Ambiente e Saúde',
                 'numero_processo_sei' => '2026.000003013-14',
                 'tipo' => 'Ação Extensiva',
                 'assunto' => 'Coquetelaria com Cachaça: Releitura da caipirinha clássica',

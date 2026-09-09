@@ -13,14 +13,5 @@ return [
         ['value' => 'dentro', 'label' => 'Dentro do prazo'],
         ['value' => 'fora', 'label' => 'Fora do prazo'],
     ],
-    'eixos' => [
-        'Gastronomia',
-        'Ambiente e Saúde',
-        'Gestão e Moda',
-        'Tecnologia e Economia Criativa',
-        'Beleza e Cuidado Pessoal',
-        'Turismo e Hospitalidade',
-        'Comunicação e Audiovisual',
-        'Artes e Design',
-    ],
+    'eixos' => require __DIR__.'/eixos.php',
 ];

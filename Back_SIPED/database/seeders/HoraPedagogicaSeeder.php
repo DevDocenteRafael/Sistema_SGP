@@ -25,8 +25,8 @@ class HoraPedagogicaSeeder extends Seeder
             [
                 'matricula' => '2026002',
                 'pessoa' => 'Bruno Lima',
-                'segmento' => 'Gastronomia',
-                'eixo' => 'Gastronomia',
+                'segmento' => 'Gastronomia e Turismo',
+                'eixo' => 'Gastronomia e Turismo',
                 'processo_sei' => '00002.000222/2026-02',
                 'ano' => 2026,
                 'motivo' => 'Acompanhamento pedagógico de turma presencial',

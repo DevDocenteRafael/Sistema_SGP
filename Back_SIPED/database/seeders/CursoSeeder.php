@@ -14,8 +14,8 @@ class CursoSeeder extends Seeder
         $cursos = [
             [
                 'titulo' => 'Cozinha Contemporânea',
-                'eixo' => 'Gastronomia',
-                'modalidade' => 'Presencial',
+                'eixo' => 'Gastronomia e Turismo',
+                'modalidade' => 'Qualificação Profissional',
                 'carga_horaria' => '200',
                 'turmas' => '2',
                 'codigo_processo' => '2025.12.85',
@@ -43,7 +43,7 @@ class CursoSeeder extends Seeder
             [
                 'titulo' => 'Segurança do Trabalho',
                 'eixo' => 'Ambiente e Saúde',
-                'modalidade' => 'Híbrido',
+                'modalidade' => 'Atualização',
                 'carga_horaria' => '160h',
                 'codigo_dn' => '23456',
                 'codigo_sig' => 'SIG-2025-014',
@@ -60,7 +60,7 @@ class CursoSeeder extends Seeder
             [
                 'titulo' => 'Marketing Digital',
                 'eixo' => 'Gestão e Moda',
-                'modalidade' => 'EAD',
+                'modalidade' => 'Aperfeiçoamento',
                 'carga_horaria' => '120h',
                 'codigo_dn' => '34567',
                 'codigo_sig' => 'SIG-2025-028',
@@ -76,7 +76,7 @@ class CursoSeeder extends Seeder
             [
                 'titulo' => 'Desenvolvimento Web Full Stack',
                 'eixo' => 'Tecnologia e Economia Criativa',
-                'modalidade' => 'Presencial',
+                'modalidade' => 'Especialização',
                 'carga_horaria' => '360h',
                 'codigo_dn' => '45678',
                 'codigo_sig' => 'SIG-2025-042',
@@ -92,7 +92,7 @@ class CursoSeeder extends Seeder
             [
                 'titulo' => 'Design de Sobrancelhas',
                 'eixo' => 'Beleza e Cuidado Pessoal',
-                'modalidade' => 'Presencial',
+                'modalidade' => 'Especialização',
                 'carga_horaria' => '40h',
                 'codigo_dn' => '56789',
                 'codigo_sig' => 'SIG-2025-055',
@@ -107,8 +107,8 @@ class CursoSeeder extends Seeder
             ],
             [
                 'titulo' => 'Guia de Turismo',
-                'eixo' => 'Turismo e Hospitalidade',
-                'modalidade' => 'Presencial',
+                'eixo' => 'Gastronomia e Turismo',
+                'modalidade' => 'Especialização',
                 'carga_horaria' => '180h',
                 'codigo_dn' => '67890',
                 'codigo_sig' => 'SIG-2025-067',

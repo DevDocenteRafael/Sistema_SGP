@@ -41,7 +41,7 @@ class EventoSeeder extends Seeder
                 'ano' => '2025',
                 'data' => '2025-12-05',
                 'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus Taguatinga',
-                'eixo' => 'Gastronomia',
+                'eixo' => 'Gastronomia e Turismo',
                 'quantidade_pessoas' => 120,
                 'equipe' => 'Gastronomia e Turismo',
                 'possui_acao_extensiva' => 'Sim',
