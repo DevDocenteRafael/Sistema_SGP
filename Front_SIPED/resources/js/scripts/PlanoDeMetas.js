@@ -112,10 +112,10 @@ export default createCrudPage({
       numero_sei: somenteAlfanumericoProcesso(form.numero_sei).trim(),
       codigo_sig: form.codigo_sig.trim(),
       mes_entrega: form.mes_entrega,
-      status: form.status,
+      status: form.status?.trim() || '',
       origem: form.origem?.trim() || 'Plano de Metas',
       observacao: form.observacao?.trim() || null,
-      status_final: form.status_final,
+      status_final: form.status_final?.trim() || '',
       ano: Number(this.filtros.ano || new Date().getFullYear()),
     };
   },
@@ -164,13 +164,18 @@ export default createCrudPage({
   extraMethods: {
     formatarNumeroSei: formatarProcessoSeiInput('numero_sei'),
     statusClass(status) {
+      const chave = String(status || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase()
+        .trim();
       const mapa = {
         PUBLICADO: 'badge-ativo',
         ENTREGUE: 'badge-revisao',
         'EM ANALISE': 'badge-suspenso',
         PENDENTE: 'badge-inativo',
       };
-      return mapa[status] || 'badge-inativo';
+      return mapa[chave] || 'badge-inativo';
     },
   },
 });

@@ -94,7 +94,7 @@ export default {
       logoSenac,
       icons: ICONS,
       secoesAbertas: {
-        'PORTFÓLIO': true,
+        'PORTFÓLIO': false,
         'PRAZOS': false,
         'PROCESSOS': false,
         'INSTITUCIONAL': false,
@@ -138,6 +138,10 @@ export default {
         if (secaoAtual?.titulo) {
           this.secoesAbertas = Object.fromEntries(
             Object.keys(this.secoesAbertas).map((titulo) => [titulo, titulo === secaoAtual.titulo]),
+          );
+        } else {
+          this.secoesAbertas = Object.fromEntries(
+            Object.keys(this.secoesAbertas).map((titulo) => [titulo, false]),
           );
         }
       },

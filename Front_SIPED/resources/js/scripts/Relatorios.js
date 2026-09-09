@@ -2,18 +2,9 @@ import { hidratarUnidadesSelect } from './unidadesApi';
 import { podeConsultarDados } from './auth';
 import TabelaContador from '../components/crud/TabelaContador.vue';
 import { mixinHistoricoCatalogo } from './formularioHistorico';
+import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 
-const EIXOS_PADRAO = [
-  'Gastronomia',
-  'Ambiente e Saúde',
-  'Gestão e Moda',
-  'Tecnologia e Economia Criativa',
-  'Beleza e Cuidado Pessoal',
-  'Turismo e Hospitalidade',
-  'Comunicação e Audiovisual',
-  'Artes e Design',
-  'Gestão e Negócios',
-];
+const EIXOS_PADRAO = [...EIXOS_OFICIAIS];
 
 const ORDEM_RELATORIOS = [
   'resolucoes',
@@ -132,12 +123,10 @@ export default {
     },
 
     eixosDisponiveis() {
-      const set = new Set([
-        ...this.eixosBase,
-        ...(Array.isArray(this.metaApi.eixos) ? this.metaApi.eixos : []),
-        ...this.registros.map((r) => r.eixo).filter(Boolean),
-      ]);
-      return Array.from(set).sort();
+      if (Array.isArray(this.metaApi.eixos) && this.metaApi.eixos.length) {
+        return [...this.metaApi.eixos];
+      }
+      return [...this.eixosBase];
     },
 
     statusDisponiveis() {

@@ -9,17 +9,9 @@ import {
   validarOrdemDatas,
   validarProcessoSei,
 } from '../utils/validacao';
+import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 
-const EIXOS = [
-  'Gastronomia',
-  'Ambiente e Saúde',
-  'Gestão e Moda',
-  'Tecnologia e Economia Criativa',
-  'Beleza e Cuidado Pessoal',
-  'Turismo e Hospitalidade',
-  'Comunicação e Audiovisual',
-  'Artes e Design',
-];
+const EIXOS = [...EIXOS_OFICIAIS];
 
 const STATUS_LISTA = ['Pendente', 'Em andamento', 'Realizada', 'Cancelada', 'Atrasada'];
 const ANOS = ['2024', '2025', '2026', '2027'];
