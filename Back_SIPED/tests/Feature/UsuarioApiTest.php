@@ -135,9 +135,12 @@ class UsuarioApiTest extends TestCase
             'nome' => 'Admin Com Foto',
             'email' => 'admin.foto@teste.com',
             'senha' => 'senha123',
+            'cpf' => '12345678909',
             'perfil' => Usuario::PERFIL_ADMINISTRADOR,
             'status' => true,
             'unidade' => 'Asa Norte',
+            'area' => 'Portfólio',
+            'telefone' => '61999990005',
             'foto' => UploadedFile::fake()->createWithContent('admin.jpg', $jpegMinimo),
         ]);
 
@@ -150,9 +153,12 @@ class UsuarioApiTest extends TestCase
             '_method' => 'PUT',
             'nome' => 'Admin Com Foto',
             'email' => 'admin.foto@teste.com',
+            'cpf' => '12345678909',
             'perfil' => Usuario::PERFIL_ADMINISTRADOR,
             'status' => true,
             'unidade' => 'Asa Norte',
+            'area' => 'Portfólio',
+            'telefone' => '61999990005',
             'remover_foto' => '1',
         ]);
 

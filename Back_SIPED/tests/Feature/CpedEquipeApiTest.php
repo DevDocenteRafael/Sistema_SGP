@@ -209,6 +209,9 @@ class CpedEquipeApiTest extends TestCase
             'tipo' => 'assistente',
             'eixo_vinculado' => 'Gastronomia',
             'iniciais' => 'AS',
+            'cor' => '#F57C00',
+            'ativo' => true,
+            'observacao' => 'Cadastro de teste.',
         ]);
 
         $response->assertCreated();
