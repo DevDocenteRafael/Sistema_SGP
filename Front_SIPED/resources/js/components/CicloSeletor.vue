@@ -11,6 +11,7 @@
       <span class="ciclo-seletor__kicker">Ciclo</span>
       <strong class="ciclo-seletor__nome">{{ rotuloCiclo }}</strong>
       <span v-if="cicloAtivo?.atual" class="ciclo-seletor__badge">atual</span>
+      <span v-else-if="cicloAtivo?.id" class="ciclo-seletor__badge ciclo-seletor__badge--historico">histórico</span>
       <svg
         class="ciclo-seletor__chevron"
         :class="{ 'is-open': painelAberto }"
@@ -81,7 +82,7 @@
           class="ciclo-seletor__acao ciclo-seletor__acao--gerenciar"
           @click="irGerenciar"
         >
-          Gerenciar ciclos
+          Gerenciar Ciclos de Gestão
         </button>
       </div>
     </div>
@@ -196,7 +197,7 @@ import {
   textoObrigatorio,
 } from '../utils/validacao';
 
-const ENDPOINT = '/api/portfolio-ciclos';
+const ENDPOINT = '/api/ciclos';
 
 function formVazio() {
   return {
@@ -435,18 +436,18 @@ export default {
 
     irGerenciar() {
       this.painelAberto = false;
-      if (!podeAcessarMenu('ciclos-portfolio')) {
+      if (!podeAcessarMenu('ciclos') && !podeAcessarMenu('ciclos-portfolio')) {
         return;
       }
 
-      const rotaAtual = this.$route?.fullPath || '/app/cursos';
-      const query = rotaAtual.startsWith('/app/ciclos-portfolio')
+      const rotaAtual = this.$route?.fullPath || '/app/inicio';
+      const query = rotaAtual.startsWith('/app/ciclos')
         ? {}
         : { voltar: rotaAtual };
 
-      this.$router.push({ path: '/app/ciclos-portfolio', query }).catch(() => {
+      this.$router.push({ path: '/app/ciclos', query }).catch(() => {
         const qs = query.voltar ? `?voltar=${encodeURIComponent(query.voltar)}` : '';
-        window.location.assign(`/app/ciclos-portfolio${qs}`);
+        window.location.assign(`/app/ciclos${qs}`);
       });
     },
   },
@@ -512,6 +513,11 @@ export default {
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+}
+
+.ciclo-seletor__badge--historico {
+  background: color-mix(in srgb, #f59e0b 18%, transparent);
+  color: #b45309;
 }
 
 .ciclo-seletor__chevron {

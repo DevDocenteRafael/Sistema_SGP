@@ -1,5 +1,6 @@
 import logoSenac from '../../images/Logo-Senac-branco.png';
 import { podeAcessarMenu } from './auth';
+import { CICLO_CONTEXTO_EVENTO, lerCicloContexto } from './cicloContexto';
 import { SIPED_RODAPE } from './versao';
 
 const ICONS = {
@@ -176,11 +177,23 @@ export default {
       logoSenac,
       icons: ICONS,
       rodapeVersao: SIPED_RODAPE,
+      cicloNome: lerCicloContexto()?.nome || '',
     };
   },
   computed: {
     modulosDisponiveis() {
       return MODULOS.filter((modulo) => podeAcessarMenu(modulo.rota));
+    },
+  },
+  created() {
+    window.addEventListener(CICLO_CONTEXTO_EVENTO, this.aoTrocarCiclo);
+  },
+  beforeUnmount() {
+    window.removeEventListener(CICLO_CONTEXTO_EVENTO, this.aoTrocarCiclo);
+  },
+  methods: {
+    aoTrocarCiclo(evento) {
+      this.cicloNome = evento?.detail?.ciclo?.nome || lerCicloContexto()?.nome || '';
     },
   },
 };

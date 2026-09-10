@@ -1,7 +1,8 @@
-const STORAGE_GLOBAL = 'sgp_ciclo_contexto';
-export const CICLO_CONTEXTO_EVENTO = 'sgp-ciclo-contexto';
+const STORAGE_GLOBAL = 'siped_ciclo_contexto';
+const STORAGE_GLOBAL_LEGADO = 'sgp_ciclo_contexto';
+export const CICLO_CONTEXTO_EVENTO = 'siped-ciclo-contexto';
+export const CICLO_CONTEXTO_EVENTO_LEGADO = 'sgp-ciclo-contexto';
 
-/** Chaves antigas por módulo — migradas para o storage global na primeira leitura. */
 const STORAGE_MODULO_LEGADO = {
   cursos: 'sgp_ciclo_contexto_cursos',
   metas: 'sgp_ciclo_contexto_metas',
@@ -27,6 +28,7 @@ function lerChave(chave) {
 }
 
 function limparChavesLegadas() {
+  localStorage.removeItem(STORAGE_GLOBAL_LEGADO);
   Object.values(STORAGE_MODULO_LEGADO).forEach((chave) => {
     localStorage.removeItem(chave);
   });
@@ -36,6 +38,13 @@ function migrarLegadoSeNecessario() {
   const global = lerChave(STORAGE_GLOBAL);
   if (global?.id) {
     return global;
+  }
+
+  const legadoGlobal = lerChave(STORAGE_GLOBAL_LEGADO);
+  if (legadoGlobal?.id) {
+    localStorage.setItem(STORAGE_GLOBAL, JSON.stringify(legadoGlobal));
+    limparChavesLegadas();
+    return legadoGlobal;
   }
 
   for (const chave of Object.values(STORAGE_MODULO_LEGADO)) {
@@ -62,13 +71,13 @@ export function invalidarCacheCiclos() {
   ciclosPromise = null;
 }
 
-export async function buscarCiclosPortfolio() {
+export async function buscarCiclos() {
   if (ciclosCache) {
     return ciclosCache;
   }
 
   if (!ciclosPromise) {
-    ciclosPromise = window.axios.get('/api/portfolio-ciclos')
+    ciclosPromise = window.axios.get('/api/ciclos')
       .then((response) => {
         ciclosCache = response.data?.data ?? [];
         return ciclosCache;
@@ -81,11 +90,13 @@ export async function buscarCiclosPortfolio() {
   return ciclosPromise;
 }
 
-/**
- * Garante um ciclo global. O parâmetro `modulo` é ignorado (compatibilidade).
- */
+/** @deprecated Use buscarCiclos() */
+export async function buscarCiclosPortfolio() {
+  return buscarCiclos();
+}
+
 export async function garantirCicloContexto(_modulo = null, cicloId = null) {
-  const ciclos = await buscarCiclosPortfolio();
+  const ciclos = await buscarCiclos();
   const existente = lerCicloContexto();
   const alvoId = cicloId || existente?.id;
   const ciclo = (alvoId
@@ -97,20 +108,17 @@ export async function garantirCicloContexto(_modulo = null, cicloId = null) {
 
   if (ciclo) {
     salvarCicloContexto(ciclo);
+  } else if (existente?.id) {
+    limparCicloContexto();
   }
 
   return ciclo;
 }
 
-/** Lê o ciclo global. O parâmetro `modulo` é ignorado (compatibilidade). */
 export function lerCicloContexto(_modulo = null) {
   return migrarLegadoSeNecessario() || lerChave(STORAGE_GLOBAL);
 }
 
-/**
- * Define o ciclo global único (Cursos, Metas, PCA e Eixos).
- * O parâmetro `modulo` é ignorado (compatibilidade).
- */
 export function salvarCicloContexto(ciclo, _modulo = null) {
   if (!ciclo?.id) {
     limparCicloContexto();
@@ -154,4 +162,5 @@ function emitirCicloContexto(detalhe) {
   }
 
   window.dispatchEvent(new CustomEvent(CICLO_CONTEXTO_EVENTO, { detail: detalhe }));
+  window.dispatchEvent(new CustomEvent(CICLO_CONTEXTO_EVENTO_LEGADO, { detail: detalhe }));
 }

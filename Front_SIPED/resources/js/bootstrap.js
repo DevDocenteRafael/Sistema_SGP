@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { clearSessao } from './scripts/auth';
+import { lerCicloContexto } from './scripts/cicloContexto';
 
 window.axios = axios;
 
@@ -11,6 +12,15 @@ const token = localStorage.getItem('sgp_token');
 if (token) {
   window.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 }
+
+window.axios.interceptors.request.use((config) => {
+  const ciclo = lerCicloContexto();
+  if (ciclo?.id) {
+    config.headers = config.headers || {};
+    config.headers['X-SIPED-Ciclo-Id'] = String(ciclo.id);
+  }
+  return config;
+});
 
 window.axios.interceptors.response.use(
   (response) => response,
