@@ -19,7 +19,7 @@ export default {
         ciclo_id: null,
         ciclo_nome: '',
         eixos: [],
-        pendentes: { cursos: 0, ofertas: 0, amostra: [] },
+        pendentes: { cursos: 0, ofertas: 0, sem_correspondencia: 0, amostra: [], amostra_sem_correspondencia: [] },
       },
       detalhes: null,
       detalheAberto: false,
@@ -34,6 +34,9 @@ export default {
     totalPendentes() {
       const pendentes = this.resumo.pendentes || {};
       return (pendentes.cursos || 0) + (pendentes.ofertas || 0);
+    },
+    totalSemCorrespondencia() {
+      return this.resumo.pendentes?.sem_correspondencia || 0;
     },
   },
 
@@ -68,10 +71,10 @@ export default {
 
       try {
         const { data } = await window.axios.get('/api/eixos/resumo', { params: this.queryCiclo() });
-        this.resumo = data.data || { ciclo_id: null, ciclo_nome: '', eixos: [], pendentes: { cursos: 0, ofertas: 0, amostra: [] } };
+        this.resumo = data.data || { ciclo_id: null, ciclo_nome: '', eixos: [], pendentes: { cursos: 0, ofertas: 0, sem_correspondencia: 0, amostra: [], amostra_sem_correspondencia: [] } };
       } catch (error) {
         this.erro = error.response?.data?.message || 'Não foi possível carregar o resumo dos eixos.';
-        this.resumo = { ciclo_id: null, ciclo_nome: '', eixos: [], pendentes: { cursos: 0, ofertas: 0, amostra: [] } };
+        this.resumo = { ciclo_id: null, ciclo_nome: '', eixos: [], pendentes: { cursos: 0, ofertas: 0, sem_correspondencia: 0, amostra: [], amostra_sem_correspondencia: [] } };
       } finally {
         this.carregando = false;
       }

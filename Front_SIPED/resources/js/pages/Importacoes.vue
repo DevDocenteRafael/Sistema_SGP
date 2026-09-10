@@ -116,7 +116,9 @@
                 <template v-if="etapa === 'previa'">
                   {{ previa.total }} registro(s) válidos
                   <template v-if="previa.ignoradas"> · {{ previa.ignoradas }} linha(s) ignorada(s)</template>
-                  . A confirmação faz upsert no ciclo atual e <strong>não apaga</strong> registros de outros ciclos.
+                  . A confirmação faz upsert no ciclo
+                  <strong>{{ previa.ciclo?.nome || cicloSelecionadoNome || 'selecionado' }}</strong>
+                  e <strong>não apaga</strong> registros de outros ciclos.
                   <template v-if="resumoAcoesTexto"> {{ resumoAcoesTexto }}</template>
                 </template>
                 <template v-else>

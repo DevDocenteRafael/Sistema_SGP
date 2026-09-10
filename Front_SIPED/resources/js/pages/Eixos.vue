@@ -22,6 +22,14 @@
       Eles não aparecem nos cards e não foram excluídos — precisam de classificação.
     </div>
 
+    <div
+      v-if="!carregando && totalSemCorrespondencia > 0"
+      class="alert alert-warning"
+    >
+      {{ totalSemCorrespondencia }} oferta(s) classificada(s) em um eixo, porém sem correspondência no catálogo de Cursos.
+      Não viram curso novo — ficam como pendência até alguém cadastrar o curso ou ajustar o título.
+    </div>
+
     <div v-if="carregando" class="eixos-vazio">Carregando eixos...</div>
 
     <section v-else class="eixos-grid" aria-label="Eixos oficiais">
@@ -85,6 +93,41 @@
             <td>{{ item.eixo_original || '—' }}</td>
             <td>{{ item.segmento || '—' }}</td>
             <td>{{ item.programa || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section
+      v-if="!carregando && totalSemCorrespondencia > 0"
+      class="eixos-pendentes"
+      aria-label="Ofertas sem correspondência no catálogo"
+    >
+      <h2>Ofertas sem correspondência</h2>
+      <p>
+        Estas ofertas já têm eixo oficial, mas o título não bateu de forma inequívoca com um curso do catálogo.
+        Não foram excluídas e nenhum curso novo foi criado a partir delas.
+      </p>
+      <table class="eixos-table">
+        <thead>
+          <tr>
+            <th>Oferta</th>
+            <th>Eixo</th>
+            <th>Segmento</th>
+            <th>Programa</th>
+            <th>Código</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in (resumo.pendentes?.amostra_sem_correspondencia || [])"
+            :key="'sc-' + item.id"
+          >
+            <td>{{ item.nome || '—' }}</td>
+            <td>{{ item.eixo_original || '—' }}</td>
+            <td>{{ item.segmento || '—' }}</td>
+            <td>{{ item.programa || '—' }}</td>
+            <td>{{ item.codigo || '—' }}</td>
           </tr>
         </tbody>
       </table>

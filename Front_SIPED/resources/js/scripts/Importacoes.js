@@ -1,5 +1,6 @@
 import { podeImportarDados } from './auth';
 import { mixinHistoricoCatalogo } from './formularioHistorico';
+import { lerCicloContexto } from './cicloContexto';
 
 const FILTROS_POR_MODULO = {
   cursos: ['status', 'eixo', 'unidade', 'tipo'],
@@ -39,6 +40,7 @@ function previaVazia(colunas = [], label = '') {
     colunas_preview: colunas,
     label,
     resumo_acoes: null,
+    ciclo: null,
   };
 }
 
@@ -46,6 +48,7 @@ const ROTULOS_ACAO = {
   novo: 'Novo',
   atualizar: 'Atualizar',
   sem_alteracao: 'Sem alteração',
+  pendente: 'Pendente',
   erro: 'Erro',
 };
 
@@ -85,6 +88,10 @@ export default {
       return (this.previa.erros || []).some((item) => item.bloqueante);
     },
 
+    cicloSelecionadoNome() {
+      return lerCicloContexto()?.nome || '';
+    },
+
     resumoAcoesTexto() {
       const resumo = this.previa.resumo_acoes;
       if (!resumo) {
@@ -95,6 +102,7 @@ export default {
       if (resumo.novo) partes.push(`${resumo.novo} novo(s)`);
       if (resumo.atualizar) partes.push(`${resumo.atualizar} atualizar`);
       if (resumo.sem_alteracao) partes.push(`${resumo.sem_alteracao} sem alteração`);
+      if (resumo.pendente) partes.push(`${resumo.pendente} pendente(s)`);
       if (resumo.erro) partes.push(`${resumo.erro} com erro`);
 
       return partes.length ? `Resumo: ${partes.join(' · ')}.` : '';
@@ -309,9 +317,15 @@ export default {
       this.mensagem = '';
     },
 
-    formComArquivo() {
+    formComArquivo(congelarCiclo = false) {
       const form = new FormData();
       form.append('arquivo', this.arquivo);
+      const cicloId = congelarCiclo
+        ? (this.previa.ciclo?.id || lerCicloContexto()?.id)
+        : lerCicloContexto()?.id;
+      if (cicloId) {
+        form.append('ciclo_id', String(cicloId));
+      }
       return form;
     },
 
@@ -347,6 +361,7 @@ export default {
           colunas_preview: data.colunas_preview || this.moduloAtivo.preview_columns || [],
           label: data.label || this.moduloAtivo.label,
           resumo_acoes: data.resumo_acoes || null,
+          ciclo: data.ciclo || null,
         };
         this.etapa = 'previa';
 
@@ -368,11 +383,13 @@ export default {
         resumo.novo ? `${resumo.novo} novo(s)` : null,
         resumo.atualizar ? `${resumo.atualizar} atualizar` : null,
         resumo.sem_alteracao ? `${resumo.sem_alteracao} sem alteração` : null,
+        resumo.pendente ? `${resumo.pendente} pendente(s)` : null,
       ].filter(Boolean);
       const detalhe = partes.length ? `\n\n${partes.join(' · ')}.` : '';
 
+      const cicloNome = this.previa.ciclo?.nome || this.cicloSelecionadoNome;
       const ok = window.confirm(
-        `A importação de ${this.previa.label || this.moduloAtivo.label} fará upsert no ciclo atual e não apagará registros de outros ciclos.${detalhe}\n\nDeseja continuar?`,
+        `A importação de ${this.previa.label || this.moduloAtivo.label} fará upsert no ciclo ${cicloNome || 'selecionado'} e não apagará registros de outros ciclos.${detalhe}\n\nDeseja continuar?`,
       );
       if (!ok) return;
 
@@ -383,7 +400,7 @@ export default {
       try {
         const { data } = await window.axios.post(
           `/api/importacoes/${this.moduloAtivo.key}/commit`,
-          this.formComArquivo(),
+          this.formComArquivo(true),
           { headers: { 'Content-Type': 'multipart/form-data' } },
         );
 

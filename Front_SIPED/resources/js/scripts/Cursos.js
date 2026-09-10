@@ -74,16 +74,12 @@ export default {
       return podeEditarDados();
     },
     temFiltro() {
-      return Object.values(this.filtros).some(Boolean);
+      return Object.entries(this.filtros).some(([chave, valor]) => chave !== 'ciclo_id' && Boolean(valor));
     },
     totalCursos() {
       return this.cursos.length;
     },
     cicloAberto() {
-      if (this.filtros.ciclo_id === 'todos') {
-        return null;
-      }
-
       if (this.filtros.ciclo_id) {
         return this.ciclos.find((ciclo) => String(ciclo.id) === String(this.filtros.ciclo_id))
           || lerCicloContexto();
@@ -380,13 +376,21 @@ export default {
     validarAba(abaId) {
       if (abaId === 'basico') {
         return combinarValidacoes(
+          textoObrigatorio(this.regiaoOfertaSelecionada, 'Selecione a localidade / região.'),
+          textoObrigatorio(this.form.segmento, 'Preencha o campo Segmento.'),
+          textoObrigatorio(this.form.programa, 'Preencha o campo Programa / categoria.'),
+          textoObrigatorio(this.form.ciclo_id, 'Preencha o campo Ciclo de gestão.'),
+          textoObrigatorio(this.form.codigo_processo, 'Preencha o campo Código do processo.'),
+          textoObrigatorio(this.form.instrutor, 'Preencha o campo Instrutor(es).'),
+          textoObrigatorio(this.form.descricao, 'Preencha o campo Descrição.'),
+          this.form.unidades_oferta?.length ? '' : 'Selecione ao menos uma estrutura de oferta.',
           textoObrigatorio(this.form.eixo, 'Selecione o eixo.'),
           textoObrigatorio(this.form.titulo, 'O título do curso é obrigatório.'),
           tamanhoMaximo(this.form.titulo, 255, 'O título deve ter no máximo 255 caracteres.'),
           textoObrigatorio(this.form.carga_horaria, 'Informe a carga horária.'),
           validarInteiro(this.form.carga_horaria, { obrigatorio: true, rotulo: 'Carga horária', min: 1, max: 99999 }),
-          this.form.turmas ? validarInteiro(this.form.turmas, { rotulo: 'Turmas', min: 0, max: 9999 }) : '',
-          this.form.alunos ? validarInteiro(this.form.alunos, { rotulo: 'Alunos', min: 0, max: 99999 }) : '',
+          validarInteiro(this.form.turmas, { obrigatorio: true, rotulo: 'Turmas', min: 0, max: 9999 }),
+          validarInteiro(this.form.alunos, { obrigatorio: true, rotulo: 'Alunos', min: 0, max: 99999 }),
           this.form.codigo_processo
             ? tamanhoMaximo(this.form.codigo_processo, 100, 'O código do processo deve ter no máximo 100 caracteres.')
             : '',
@@ -401,6 +405,9 @@ export default {
 
       if (abaId === 'tecnico') {
         return combinarValidacoes(
+          textoObrigatorio(this.form.codigo_dn, 'Preencha o campo Cód. DN.'),
+          textoObrigatorio(this.form.identificacao, 'Preencha o campo Identificação.'),
+          textoObrigatorio(this.form.ultima_revisao, 'Preencha o campo Última revisão.'),
           textoObrigatorio(this.form.status, 'Selecione o status.'),
           textoObrigatorio(this.form.modalidade, 'Selecione a modalidade.'),
           textoObrigatorio(this.form.codigo_sig, 'Informe o código SIG.'),
@@ -411,9 +418,9 @@ export default {
           this.form.identificacao
             ? tamanhoMaximo(this.form.identificacao, 50, 'A identificação deve ter no máximo 50 caracteres.')
             : '',
-          this.form.processo_sei ? validarProcessoSei(this.form.processo_sei) : '',
-          validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
-          validarData(this.form.data_fim, { rotulo: 'Data de término' }),
+          validarProcessoSei(this.form.processo_sei, { obrigatorio: true }),
+          validarData(this.form.data_inicio, { obrigatorio: true, rotulo: 'Data de início' }),
+          validarData(this.form.data_fim, { obrigatorio: true, rotulo: 'Data de término' }),
           validarOrdemDatas(
             this.form.data_inicio,
             this.form.data_fim,
@@ -424,6 +431,12 @@ export default {
 
       if (abaId === 'comercial') {
         return combinarValidacoes(
+          textoObrigatorio(this.form.valores, 'Preencha o campo Valores.'),
+          textoObrigatorio(this.form.compativel_bolsa, 'Preencha o campo Compatível com bolsa.'),
+          textoObrigatorio(this.form.comercial, 'Preencha o campo Comercial.'),
+          textoObrigatorio(this.form.pcn, 'Preencha o campo PCN.'),
+          textoObrigatorio(this.form.pcr, 'Preencha o campo PCR.'),
+          textoObrigatorio(this.form.observacoes, 'Preencha o campo Observações.'),
           this.form.observacoes
             ? tamanhoMaximo(this.form.observacoes, 2000, 'As observações devem ter no máximo 2000 caracteres.')
             : '',
