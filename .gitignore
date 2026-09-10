@@ -58,3 +58,9 @@ dump.sql
 
 # Documentos locais da raiz (planos, PDFs, HTML gerado)
 docs/
+
+# Notas e saídas de agente / scripts pontuais de máquina
+.spec_eixos_from_transcript.txt
+/Claude outputs/
+/scripts/auditar-conciliacao.php
+/scripts/finish-conciliacao.cjs
