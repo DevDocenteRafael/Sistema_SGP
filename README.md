@@ -1,128 +1,141 @@
 # SIPED — Sistema Integrado da Coordenação Pedagógica
 
-Sistema interno do SENAC DF (CPED/DEP) para gestão pedagógica, portfólio de cursos,
-processos educacionais e integração com sistemas de apoio.
+Sistema interno do SENAC DF (CPED/DEP) para gestão pedagógica, portfólio de cursos e processos educacionais.
 
-**Arquitetura:** backend Laravel (API REST, `Back_SIPED`) + frontend SPA Vue.js (`Front_SIPED`, servido pelo Vite) + banco MySQL, cada parte em sua própria origem/porta.
+**Arquitetura:** API Laravel 12 (`Back_SIPED`, porta 8000) + SPA Vue 3 (`Front_SIPED`, porta 5173) + MySQL.
 
 ## Equipe
 
-- Lucas Leal
-- Pedro Comis
-- Hillary Oliveira
-- Paloma Leandro
-- Maria Stephanny
+Lucas Leal, Pedro Comis, Hillary Oliveira, Paloma Leandro e Maria Stephanny.
 
-## Objetivo do sistema
+## Quem usa
 
-Gerenciar os cursos do SENAC, centralizando informações acadêmicas e operacionais e apoiando a definição de:
-
-- quais cursos ofertar;
-- em quais unidades;
-- com base em critérios pedagógicos e estratégicos.
-
-## Problema que o sistema resolve
-
-- Falta de gerenciamento centralizado do portfólio
-- Desorganização das informações dos cursos
-- Erros causados por controles manuais
-- Falta de controle de acesso e segurança básica
-
-## Quem utiliza o sistema
-
-| Perfil no sistema | Papel |
+| Perfil | Papel |
 |---|---|
 | **Administrador** | Gestão do sistema, usuários e auditoria |
-| **Editor** | Cadastro, edição, exclusão e importação de dados |
-| **Consultor** | Consulta e acompanhamento (sem alterar/importar) |
+| **Editor** | Cadastro, edição, exclusão e importação |
+| **Consultor** | Consulta (sem alterar nem importar) |
 
-**Principais usuários:** Coordenação Pedagógica (CPED), equipe administrativa, gestores e responsáveis de eixo.
+## O que o sistema faz
 
-## Funcionalidades principais
+- Portfólio: cursos, plano de metas, PCA e eixos oficiais
+- Processos: visitas técnicas, horas pedagógicas, ações extensivas, eventos e jornada
+- Ciclos de gestão (um seletor no topo vale para as telas periódicas)
+- Dashboard, importação de Excel (prévia + upsert) e relatórios em PDF
+- Ferramentas da CPED: Kanban, fluxograma, organograma e carômetro
+- Controle de acesso por perfil; usuário inativo não entra
 
-- Cadastro e gestão do portfólio (cursos, plano de metas, PCA, eixos)
-- Processos pedagógicos (visitas técnicas, horas pedagógicas, ações extensivas, eventos)
-- Dashboard e filtros para apoio à decisão
-- Importação de planilhas Excel (prévia + backup antes de substituir)
-- Relatórios em PDF
-- Auditoria de alterações (quem, quando e o quê)
-- Ferramentas da CPED (Kanban, fluxograma, organograma e carômetro)
-- Controle de usuários com acesso por perfil (RBAC)
-- Usuário ativo/inativo (inativo não entra no sistema)
+## Como rodar em outra máquina
 
-## Protótipo
+Requisitos no PATH: **PHP 8.2+**, **Composer**, **Node 20.19+ ou 22.12+**. MySQL do XAMPP ligado. **Não clone dentro do OneDrive.**
 
-https://prototipo-sgp.vercel.app/
+### 1. Clone
 
-## Organização do projeto
-
-- Trello
-- Metodologia Scrum e Kanban
-- Figma
-- GitHub
-- Documentação de arquitetura de software (SENAC-DF)
-
-## Tecnologias
-
-- PHP / Laravel (API REST)
-- Vue 3 + Vite (SPA)
-- MySQL
-- Laravel Sanctum (autenticação)
-- GitHub / Figma
-
-## Status do projeto
-
-Em uso interno pela CPED / SENAC DF (testes internos). Pronto para homologação com ressalvas técnicas.
-
----
-
-## Estrutura do projeto
-
-- `Back_SIPED/` — API Laravel 12 (PHP), porta **8000**
-- `Front_SIPED/` — SPA Vue 3 + Vite, porta **5173**
-- `local-start.cmd` — instala, migra, seeda e sobe os dois
-
-## Como rodar
-
-PHP 8.2+, Composer, Node 20.19+ ou 22.12+ no PATH. MySQL do XAMPP ligado. Não clone dentro do OneDrive.
-
-1. Clone:
 ```cmd
 git clone https://github.com/DevDocenteRafael/Sistema_SGP.git
 cd Sistema_SGP
 ```
 
-2. Crie o banco no MySQL:
+### 2. Crie o banco
+
+No MySQL (phpMyAdmin ou cliente):
+
 ```sql
 CREATE DATABASE SIPED;
 ```
 
-3. Configure o `.env` desta máquina:
-```cmd
-copy Back_SIPED\.env.example Back_SIPED\.env
-copy Front_SIPED\.env.example Front_SIPED\.env
-```
-Abra `Back_SIPED\.env` e ajuste:
-- `DB_PORT` — porta do MySQL neste XAMPP (3306, 3307, 3308…)
-- `DB_USERNAME` — em geral `root`
-- `DB_PASSWORD` — senha deste MySQL, ou vazio
-- `DB_DATABASE` — `SIPED`
+### 3. Configure o `.env` desta máquina
 
-4. Rode:
+O `local-start.cmd` copia os exemplos se ainda não existirem. Confira principalmente o banco em `Back_SIPED\.env`:
+
+| Variável | Valor típico |
+|---|---|
+| `DB_HOST` | `127.0.0.1` |
+| `DB_PORT` | porta do MySQL neste XAMPP (`3306`, às vezes `3307`/`3308`) |
+| `DB_DATABASE` | `SIPED` |
+| `DB_USERNAME` | `root` |
+| `DB_PASSWORD` | senha deste MySQL, ou vazio |
+
+O front usa `Front_SIPED\.env` com `VITE_API_URL=http://127.0.0.1:8000`.
+
+### 4. Suba o projeto
+
+Na raiz do repositório:
+
 ```cmd
 local-start.cmd
 ```
-O script valida espaço em disco, limpa cache do Laravel, garante o seed e sobe **só** o `Back_SIPED` na porta 8000 e o `Front_SIPED` na 5173. Se já houver outro `php artisan serve` antigo aberto, ele encerra a porta antes. Quando perguntar se sobe back e front, digite **s**. Não feche as duas janelas.
 
-Operação, health check (`/up`), logs e monitoramento de disco: ver [README_OPERACAO.md](README_OPERACAO.md).
+O script instala dependências, gera a `APP_KEY`, roda migrations, limpa cache, cria o link de fotos (`php artisan storage:link`), faz o seed e pergunta se sobe back e front. Quando perguntar, digite **s**. Não feche as duas janelas.
 
-5. Abra **http://127.0.0.1:5173/login**  
-Se o login falhar, a tela agora mostra a mensagem real da API. Feche as janelas, rode `local-start.cmd` de novo e entre com as credenciais abaixo.
+Abra **http://127.0.0.1:5173/login**
 
-### Logins de teste
+Se o login falhar, a tela mostra a mensagem da API. Feche as janelas e rode `local-start.cmd` de novo.
+
+### Logins de teste (após o seed)
 
 | Perfil | E-mail | Senha |
 |---|---|---|
 | Administrador | `administrador@df.senac.br` | `senac2025` |
 | Editor | `editor@df.senac.br` | `editor2025` |
 | Consultor | `consultor@df.senac.br` | `consultor2025` |
+
+## Se preferir os comandos na mão
+
+```cmd
+copy Back_SIPED\.env.example Back_SIPED\.env
+copy Front_SIPED\.env.example Front_SIPED\.env
+```
+
+Ajuste o `Back_SIPED\.env` (banco desta máquina). Depois:
+
+```cmd
+cd Back_SIPED
+composer install
+php artisan key:generate
+php artisan migrate --force
+php artisan optimize:clear
+php artisan storage:link
+php artisan db:seed --force
+
+cd ..\Front_SIPED
+npm install
+```
+
+Em dois terminais:
+
+```cmd
+cd Back_SIPED
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+```cmd
+cd Front_SIPED
+npm run dev
+```
+
+A ordem importa: as tabelas (inclusive `cache`) precisam existir **antes** de `optimize:clear`. Se o migrate falhar, não suba o sistema.
+
+`storage:link` aponta `Back_SIPED/public/storage` para `Back_SIPED/storage/app/public`. Sem esse link as fotos da CPED e do carômetro não abrem. Se você mover ou renomear a pasta do projeto, rode `php artisan storage:link` de novo.
+
+## Problemas comuns
+
+- **MySQL recusou a conexão:** confira Start no XAMPP, porta, usuário e senha do `.env` desta máquina — não copie o `.env` de outro computador.
+- **Fotos da CPED quebradas depois de mover a pasta:** `cd Back_SIPED` e `php artisan storage:link`.
+- **Porta 8000 ou 5173 ocupada:** o `local-start.cmd` encerra o processo antigo nessas portas.
+- **Disco C: cheio:** o script avisa e não apaga arquivos. Libere Temp/Downloads antes de continuar.
+- **Health check da API:** `GET http://127.0.0.1:8000/up` deve responder 200.
+
+## Homologação
+
+Não use `php artisan serve` nem `npm run dev` como servidor definitivo.
+
+- Front: `cd Front_SIPED && npm run build` e sirva os estáticos pelo servidor web.
+- API: IIS/Apache/Nginx apontando para `Back_SIPED/public`.
+- Produção: `APP_DEBUG=false` e `LOG_LEVEL=warning`.
+
+## Estrutura
+
+- `Back_SIPED/` — API Laravel
+- `Front_SIPED/` — SPA Vue 3 + Vite
+- `local-start.cmd` — instala, migra, seeda e sobe os dois no Windows
