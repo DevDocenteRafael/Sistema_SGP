@@ -25,6 +25,7 @@ class EventoController extends Controller
         $query = Evento::query()
             ->orderByDesc('data')
             ->orderByDesc('id');
+        \App\Models\Ciclo::aplicarFiltroNaConsulta($query, $request->input('ciclo_id'));
 
         if ($request->filled('busca')) {
             $busca = $request->busca;

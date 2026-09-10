@@ -26,53 +26,7 @@ class CursoController extends Controller
             return $negado;
         }
 
-        $query = Curso::query()->with('ciclo')->orderBy('id');
-
-        if ($request->filled('busca')) {
-            $busca = $request->busca;
-            $query->where(function ($q) use ($busca) {
-                $q->where('titulo', 'like', "%{$busca}%")
-                    ->orWhere('codigo_sig', 'like', "%{$busca}%")
-                    ->orWhere('processo_sei', 'like', "%{$busca}%")
-                    ->orWhere('eixo', 'like', "%{$busca}%")
-                    ->orWhere('unidade', 'like', "%{$busca}%");
-            });
-        }
-
-        if ($request->filled('ano')) {
-            $query->where('ultima_revisao', 'like', "%{$request->ano}%");
-        }
-
-        if ($request->filled('eixo')) {
-            CatalogoOficial::aplicarFiltroEixo($query, $request->eixo);
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('tipo')) {
-            $query->where('tipo', $request->tipo);
-        }
-
-        if ($request->filled('unidade')) {
-            $unidade = $request->unidade;
-            $query->where(function ($q) use ($unidade) {
-                $q->where('unidade', $unidade)
-                    ->orWhereJsonContains('unidades_oferta', $unidade);
-            });
-        }
-
-        if ($request->input('ciclo_id') === 'todos') {
-            // sem filtro de ciclo
-        } elseif ($request->filled('ciclo_id')) {
-            $query->where('ciclo_id', $request->ciclo_id);
-        } else {
-            $cicloAtualId = PortfolioCiclo::atual()?->id;
-            if ($cicloAtualId) {
-                $query->where('ciclo_id', $cicloAtualId);
-            }
-        }
+        $query = \App\Support\ConsultaCatalogoCursos::query($request->all())->with('ciclo')->orderBy('id');
 
         $cursos = $query->get();
 
