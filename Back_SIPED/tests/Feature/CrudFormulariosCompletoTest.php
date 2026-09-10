@@ -59,6 +59,9 @@ class CrudFormulariosCompletoTest extends TestCase
             'processo_sei' => '2026.00.00010-0',
             'prazo_deadline' => '2026-12-01',
             'status' => 'Planejamento',
+            'observacao' => 'Observação de teste.',
+            'data_inicio' => '2026-03-01',
+            'data_fim' => '2026-11-01',
         ];
 
         $create = $this->postJson('/api/termos-referencia', $payload);
@@ -122,12 +125,21 @@ class CrudFormulariosCompletoTest extends TestCase
 
     public function test_jornada_pedagogica_show_por_id(): void
     {
+        \Illuminate\Support\Facades\Storage::fake('public');
         $this->actingAs($this->editor(), 'sanctum');
 
-        $create = $this->postJson('/api/jornadas-pedagogicas', [
+        $create = $this->post('/api/jornadas-pedagogicas', [
             'titulo' => 'Jornada show teste',
             'status' => 'Rascunho',
             'tem_pre_jornada' => 'Não',
+            'local' => 'Asa Norte',
+            'espaco' => 'Auditório',
+            'verba' => 'R$ 1.000,00',
+            'custos' => 'Material gráfico.',
+            'programacao' => 'Programação de teste.',
+            'setores' => 'CPED',
+            'observacoes' => 'Observações de teste.',
+            'anexo' => \Illuminate\Http\UploadedFile::fake()->create('programacao.pdf', 100, 'application/pdf'),
         ]);
         $create->assertCreated();
         $id = $create->json('jornada.id');
@@ -149,6 +161,7 @@ class CrudFormulariosCompletoTest extends TestCase
             'senha' => 'senha123',
             'cpf' => '390.533.447-05',
             'perfil' => Usuario::PERFIL_EDITOR,
+            'status' => true,
             'telefone' => '(61) 99999-0088',
             'unidade' => 'Asa Norte',
             'area' => 'Portfólio',
@@ -169,18 +182,48 @@ class CrudFormulariosCompletoTest extends TestCase
             'prazo_limite' => '2026-07-20',
             'status' => 'Pendente',
             'responsavel' => 'Equipe',
+            'relatorio' => 'Relatório de teste.',
+            'observacao' => 'Observação de teste.',
         ]);
         $visita->assertCreated();
         $visita->assertJsonPath('visitaTecnica.processo_sei', '2026.000011111-11');
 
+        $regiao = \App\Models\RegiaoAdministrativa::query()->firstOrCreate(['nome' => 'Asa Norte'], ['ativo' => true]);
+        \App\Models\UnidadeOferta::query()->firstOrCreate(
+            ['nome' => 'Asa Norte'],
+            ['tipo' => \App\Models\UnidadeOferta::TIPO_UNIDADE, 'ativo' => true, 'regiao_administrativa_id' => $regiao->id],
+        );
+        $ciclo = PortfolioCiclo::atual() ?? PortfolioCiclo::create(['nome' => '2025-2026', 'atual' => true]);
+
         $curso = $this->postJson('/api/cursos', [
+            'ciclo_id' => $ciclo->id,
             'titulo' => 'Curso máscara SEI',
             'eixo' => 'Gastronomia e Turismo',
+            'segmento' => 'Gastronomia',
+            'programa' => '60+',
             'modalidade' => 'Qualificação Profissional',
             'status' => 'ATIVO',
             'codigo_sig' => 'SIG-MASK-001',
+            'codigo_dn' => 'DN-MASK-001',
             'processo_sei' => 'SEI#2026.00001-1',
             'carga_horaria' => '160',
+            'turmas' => '1',
+            'codigo_processo' => 'PROC-MASK-001',
+            'alunos' => '10',
+            'instrutor' => 'Instrutor Teste',
+            'descricao' => 'Descrição de teste.',
+            'identificacao' => '2026',
+            'ultima_revisao' => '2026',
+            'data_inicio' => '2026-01-01',
+            'data_fim' => '2026-12-31',
+            'unidade' => 'Asa Norte',
+            'unidades_oferta' => ['Asa Norte'],
+            'observacoes' => 'Observações de teste.',
+            'valores' => '0',
+            'compativel_bolsa' => 'NÃO',
+            'comercial' => 'NÃO',
+            'pcn' => 'PCN de teste.',
+            'pcr' => 'PCR de teste.',
         ]);
         $curso->assertCreated();
         $curso->assertJsonPath('curso.processo_sei', '2026.00001-1');
