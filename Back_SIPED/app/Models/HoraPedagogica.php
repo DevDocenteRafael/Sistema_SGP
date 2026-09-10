@@ -3,15 +3,18 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\PertenceAoCiclo;
 use Illuminate\Database\Eloquent\Model;
 
 class HoraPedagogica extends Model
 {
     use AuditaCadastro;
+    use PertenceAoCiclo;
 
     protected $table = 'hora_pedagogicas';
 
     protected $fillable = [
+        'ciclo_id',
         'matricula',
         'pessoa',
         'segmento',
