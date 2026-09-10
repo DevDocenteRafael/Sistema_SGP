@@ -38,7 +38,7 @@ const MENU_SECOES = [
     ],
   },
   {
-    titulo: 'PORTFÓLIO',
+    titulo: 'Portfólio',
     itens: [
       { rota: 'cursos', label: 'Cursos', path: '/app/cursos', icon: 'cursos' },
       { rota: 'plano-de-metas', label: 'Plano de Metas', path: '/app/plano-de-metas', icon: 'metas' },
@@ -47,14 +47,14 @@ const MENU_SECOES = [
     ],
   },
   {
-    titulo: 'PRAZOS',
+    titulo: 'Prazos',
     itens: [
       { rota: 'controle-de-resolucoes', label: 'Controle de Resoluções', path: '/app/controle-de-resolucoes', icon: 'resolucoes' },
       { rota: 'termos-de-referencia', label: 'Termos de Referência', path: '/app/termos-de-referencia', icon: 'termosReferencia' },
     ],
   },
   {
-    titulo: 'PROCESSOS',
+    titulo: 'Processos',
     itens: [
       { rota: 'visitas-tecnicas', label: 'Visitas Técnicas', path: '/app/visitas-tecnicas', icon: 'visitas' },
       { rota: 'horas-pedagogicas', label: 'Horas Pedagógicas', path: '/app/horas-pedagogicas', icon: 'horas' },
@@ -64,7 +64,7 @@ const MENU_SECOES = [
     ],
   },
   {
-    titulo: 'INSTITUCIONAL',
+    titulo: 'Institucional',
     itens: [
       { rota: 'sistemas-apoio', label: 'Sistemas de Apoio', path: '/app/sistemas-apoio', icon: 'sistemasApoio' },
       { rota: 'estruturas-institucionais', label: 'Estruturas Institucionais', path: '/app/estruturas-institucionais', icon: 'estruturas' },
@@ -94,10 +94,10 @@ export default {
       logoSenac,
       icons: ICONS,
       secoesAbertas: {
-        'PORTFÓLIO': false,
-        'PRAZOS': false,
-        'PROCESSOS': false,
-        'INSTITUCIONAL': false,
+        'Portfólio': false,
+        'Prazos': false,
+        'Processos': false,
+        'Institucional': false,
       },
     };
   },

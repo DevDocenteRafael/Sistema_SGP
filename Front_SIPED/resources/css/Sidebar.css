@@ -30,14 +30,19 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 0.4rem;
+  border-radius: 0.35rem;
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
   cursor: pointer;
   transition: background 0.15s ease;
+}
+
+.sidebar-toggle svg {
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .sidebar-toggle:hover,
@@ -95,20 +100,32 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin: 0.65rem 0 0.35rem;
-  padding: 0 0.65rem;
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  margin: 0 0 0.1rem;
+  padding: 0.48rem 0.7rem;
   border: 0;
+  border-radius: 0.5rem;
   background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
   text-align: left;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-section-title:hover,
+.sidebar-section-title:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  outline: none;
 }
 
 .sidebar-section-title svg {
   transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .sidebar-section-title.is-open svg {
