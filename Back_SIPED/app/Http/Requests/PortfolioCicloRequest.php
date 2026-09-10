@@ -19,7 +19,7 @@ class PortfolioCicloRequest extends FormRequest
 
     public function rules(): array
     {
-        $ciclo = $this->route('portfolioCiclo');
+        $ciclo = $this->route('ciclo') ?? $this->route('portfolioCiclo');
 
         return [
             'nome' => [
@@ -36,7 +36,7 @@ class PortfolioCicloRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nome.required' => 'Informe o nome do ciclo de portfólio.',
+            'nome.required' => 'Informe o nome do ciclo de gestão.',
             'nome.max' => 'O nome deve ter no máximo 80 caracteres.',
             'nome.unique' => 'Já existe um ciclo com este nome.',
             'observacao.max' => 'A observação deve ter no máximo 2000 caracteres.',

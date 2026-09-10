@@ -44,6 +44,7 @@ class HoraPedagogicaRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'ciclo_id' => ['nullable', 'integer', Rule::exists('portfolio_ciclos', 'id')],
             'matricula' => ['required', 'string', 'max:50', 'regex:/^\d+$/'],
             'pessoa' => ['required', 'string', 'max:150'],
             'segmento' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
@@ -52,14 +53,16 @@ class HoraPedagogicaRequest extends FormRequest
             'ano' => ['required', 'integer', Rule::in(array_map('intval', config('horas_pedagogicas.anos')))],
             'motivo' => ['required', 'string', 'max:255'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('horas_pedagogicas.status'))],
-            'ativo' => ['nullable', 'boolean'],
-            'observacao' => ['nullable', 'string', 'max:2000'],
+            'ativo' => ['required', 'boolean'],
+            'observacao' => ['required', 'string', 'max:2000'],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'observacao.required' => 'Informe a observação.',
+            'ativo.required' => 'Informe se o registro está ativo.',
             'matricula.required' => 'A matrícula é obrigatória.',
             'matricula.regex' => 'A matrícula deve conter apenas números.',
             'pessoa.required' => 'O nome da pessoa é obrigatório.',

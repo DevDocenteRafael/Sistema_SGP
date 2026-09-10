@@ -32,7 +32,7 @@ class PortfolioCicloGerarRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nome.required' => 'Informe o nome do novo ciclo de portfólio.',
+            'nome.required' => 'Informe o nome do novo ciclo de gestão.',
             'nome.max' => 'O nome deve ter no máximo 80 caracteres.',
             'nome.unique' => 'Já existe um ciclo com este nome.',
             'origem_id.exists' => 'Ciclo de origem inválido.',
