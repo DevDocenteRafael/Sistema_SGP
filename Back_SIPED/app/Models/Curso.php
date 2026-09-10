@@ -63,14 +63,14 @@ class Curso extends Model
     {
         static::creating(function (Curso $curso) {
             if (empty($curso->ciclo_id)) {
-                $curso->ciclo_id = PortfolioCiclo::atual()?->id;
+                $curso->ciclo_id = \App\Models\Ciclo::atual()?->id;
             }
         });
     }
 
     public function ciclo(): BelongsTo
     {
-        return $this->belongsTo(PortfolioCiclo::class, 'ciclo_id');
+        return $this->belongsTo(Ciclo::class, 'ciclo_id');
     }
 
     public function eixoRef(): BelongsTo
@@ -88,7 +88,7 @@ class Curso extends Model
         return $this->hasMany(CursoPorEixo::class, 'curso_id');
     }
 
-    public function replicarParaCiclo(PortfolioCiclo $ciclo): self
+    public function replicarParaCiclo(Ciclo $ciclo): self
     {
         $copia = $this->replicate(['criado_por', 'atualizado_por', 'justificativa_duplicidade']);
         $copia->ciclo_id = $ciclo->id;

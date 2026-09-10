@@ -14,9 +14,9 @@ use App\Models\Resolucao;
 use App\Models\TermoReferencia;
 use App\Models\VisitaTecnica;
 use App\Support\CatalogoOficial;
+use App\Models\Ciclo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
 
 class RelatorioService
@@ -93,23 +93,12 @@ class RelatorioService
     }
 
     /**
-     * Eixos do filtro: oficiais nas telas de Eixo; eixos tecnológicos só no relatório de Cursos por Eixo.
+     * Filtro de eixo: sempre os 5 eixos oficiais, em qualquer tipo de relatório.
      *
      * @return list<string>
      */
     public function eixosDisponiveis(?string $tipo = null): array
     {
-        if ($tipo === 'eixos') {
-            return collect(config('eixos_tecnologicos', []))
-                ->merge(CursoPorEixo::query()->whereNotNull('eixo')->where('eixo', '!=', '')->distinct()->pluck('eixo'))
-                ->map(fn ($eixo) => trim((string) $eixo))
-                ->filter()
-                ->unique()
-                ->sort()
-                ->values()
-                ->all();
-        }
-
         return CatalogoOficial::eixos();
     }
 
@@ -120,6 +109,14 @@ class RelatorioService
         }
 
         CatalogoOficial::aplicarFiltroEixo($query, $filtros['eixo'], $coluna);
+    }
+
+    /**
+     * @param  array<string, mixed>  $filtros
+     */
+    private function aplicarFiltroCiclo(Builder $query, array $filtros): void
+    {
+        Ciclo::aplicarFiltroNaConsulta($query, $filtros['ciclo_id'] ?? null);
     }
 
     /**
@@ -143,23 +140,21 @@ class RelatorioService
         };
     }
 
-    public function contagens(): array
+    public function contagens(array $filtros = []): array
     {
-        return Cache::remember('relatorios.contagens', 60, function () {
-            return [
-                'resolucoes' => Resolucao::query()->count(),
-                'termos-referencia' => TermoReferencia::query()->count(),
-                'cursos' => Curso::query()->count(),
-                'plano-de-metas' => PlanoDeMeta::query()->count(),
-                'pcas' => Pca::query()->count(),
-                'eixos' => CursoPorEixo::query()->count(),
-                'jornadas-pedagogicas' => JornadaPedagogica::query()->count(),
-                'visitas-tecnicas' => VisitaTecnica::query()->count(),
-                'horas-pedagogicas' => HoraPedagogica::query()->count(),
-                'acoes-extensivas' => AcaoExtensiva::query()->count(),
-                'eventos' => Evento::query()->count(),
-            ];
-        });
+        return [
+            'resolucoes' => Resolucao::query()->count(),
+            'termos-referencia' => TermoReferencia::query()->count(),
+            'cursos' => $this->queryCursos($filtros)->count(),
+            'plano-de-metas' => $this->queryPlanoDeMetas($filtros)->count(),
+            'pcas' => $this->queryPcas($filtros)->count(),
+            'eixos' => $this->queryEixos($filtros)->count(),
+            'jornadas-pedagogicas' => $this->queryJornadas($filtros)->count(),
+            'visitas-tecnicas' => $this->queryVisitas($filtros)->count(),
+            'horas-pedagogicas' => $this->queryHoras($filtros)->count(),
+            'acoes-extensivas' => $this->queryAcoes($filtros)->count(),
+            'eventos' => $this->queryEventos($filtros)->count(),
+        ];
     }
 
     /**
@@ -170,7 +165,7 @@ class RelatorioService
     private function normalizarFiltros(array $filtros, array $permitidos): array
     {
         $saida = [];
-        $chaves = array_values(array_unique([...$permitidos, 'busca']));
+        $chaves = array_values(array_unique([...$permitidos, 'busca', 'ciclo_id']));
 
         foreach ($chaves as $chave) {
             $valor = $filtros[$chave] ?? null;
@@ -267,28 +262,7 @@ class RelatorioService
      */
     private function queryCursos(array $filtros): Builder
     {
-        $query = Curso::query()->orderBy('titulo');
-
-        $this->aplicarBusca($query, $filtros, [
-            'titulo', 'codigo_sig', 'processo_sei', 'eixo', 'unidade',
-        ]);
-
-        if (! empty($filtros['ano'])) {
-            $query->where('ultima_revisao', 'like', "%{$filtros['ano']}%");
-        }
-        $this->aplicarFiltroEixoOficial($query, $filtros);
-        if (! empty($filtros['status'])) {
-            $query->where('status', $filtros['status']);
-        }
-        if (! empty($filtros['unidade'])) {
-            $unidade = $filtros['unidade'];
-            $query->where(function ($q) use ($unidade) {
-                $q->where('unidade', $unidade)
-                    ->orWhereJsonContains('unidades_oferta', $unidade);
-            });
-        }
-
-        return $query;
+        return \App\Support\ConsultaCatalogoCursos::query($filtros)->orderBy('titulo');
     }
 
     /**
@@ -300,6 +274,8 @@ class RelatorioService
             ->orderByRaw('CASE WHEN ano IS NULL THEN 1 ELSE 0 END')
             ->orderByDesc('ano')
             ->orderBy('curso');
+
+        $this->aplicarFiltroCiclo($query, $filtros);
 
         $this->aplicarBusca($query, $filtros, [
             'segmento', 'curso', 'tipo', 'numero_sei', 'codigo_sig',
@@ -327,6 +303,8 @@ class RelatorioService
             ->orderByDesc('ano')
             ->orderBy('titulo');
 
+        $this->aplicarFiltroCiclo($query, $filtros);
+
         $this->aplicarBusca($query, $filtros, [
             'titulo', 'numero_sei', 'codigo_sig', 'eixo', 'unidade', 'semestre', 'status', 'observacao',
         ]);
@@ -350,30 +328,7 @@ class RelatorioService
      */
     private function queryEixos(array $filtros): Builder
     {
-        // Prioriza linhas com dados operacionais (importações-resumo costumam vir só com curso/eixo/CH).
-        $query = CursoPorEixo::query()
-            ->orderByRaw("CASE WHEN COALESCE(TRIM(unidade), '') = '' AND COALESCE(TRIM(ano), '') = '' THEN 1 ELSE 0 END")
-            ->orderBy('eixo')
-            ->orderBy('curso');
-
-        $this->aplicarBusca($query, $filtros, [
-            'curso', 'eixo', 'unidade', 'codigo', 'instrutores', 'observacao',
-        ]);
-
-        if (! empty($filtros['ano'])) {
-            $query->where('ano', $filtros['ano']);
-        }
-        if (! empty($filtros['unidade'])) {
-            $query->where('unidade', $filtros['unidade']);
-        }
-        if (! empty($filtros['eixo'])) {
-            $query->where('eixo', $filtros['eixo']);
-        }
-        if (! empty($filtros['status'])) {
-            $query->where('status', $filtros['status']);
-        }
-
-        return $query;
+        return $this->queryCursos($filtros);
     }
 
     /**
@@ -382,6 +337,8 @@ class RelatorioService
     private function queryJornadas(array $filtros): Builder
     {
         $query = JornadaPedagogica::query()->orderByDesc('data_inicio')->orderByDesc('id');
+
+        $this->aplicarFiltroCiclo($query, $filtros);
 
         $this->aplicarBusca($query, $filtros, [
             'titulo', 'local', 'espaco', 'verba', 'setores', 'programacao', 'observacoes', 'status',
@@ -412,6 +369,8 @@ class RelatorioService
             ->orderByRaw("CASE WHEN COALESCE(TRIM(status), '') = '' THEN 1 ELSE 0 END")
             ->orderByDesc('data_solicitacao');
 
+        $this->aplicarFiltroCiclo($query, $filtros);
+
         $this->aplicarBusca($query, $filtros, [
             'unidade', 'eixo', 'processo_sei', 'responsavel', 'status', 'relatorio', 'observacao',
         ]);
@@ -437,6 +396,8 @@ class RelatorioService
             ->orderByDesc('ano')
             ->orderBy('pessoa');
 
+        $this->aplicarFiltroCiclo($query, $filtros);
+
         $this->aplicarBusca($query, $filtros, [
             'matricula', 'pessoa', 'segmento', 'eixo', 'processo_sei', 'motivo', 'status', 'observacao',
         ]);
@@ -459,6 +420,8 @@ class RelatorioService
     {
         $query = AcaoExtensiva::query()->orderByDesc('ultima_atualizacao')->orderBy('assunto');
 
+        $this->aplicarFiltroCiclo($query, $filtros);
+
         $this->aplicarBusca($query, $filtros, [
             'atribuido', 'eixo', 'numero_processo_sei', 'assunto', 'objetivo', 'tipo', 'status',
         ]);
@@ -477,6 +440,8 @@ class RelatorioService
     private function queryEventos(array $filtros): Builder
     {
         $query = Evento::query()->orderByDesc('data')->orderBy('nome');
+
+        $this->aplicarFiltroCiclo($query, $filtros);
 
         $this->aplicarBusca($query, $filtros, [
             'nome', 'unidade', 'eixo', 'equipe', 'acao_vinculada', 'status', 'observacao',

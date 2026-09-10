@@ -250,11 +250,11 @@
             <h2>Dados do evento</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="ano">Ano</label>
+                <label for="ano"><FormLabel label="Ano" required /></label>
                 <SearchableSelect
                   id="ano"
                   input-id="ano"
-                  v-model="form.ano"
+                  v-model="form.ano" aria-required="true"
                   :options="anos"
                   empty-option="Selecione..."
                   aria-label="Ano"
@@ -300,10 +300,10 @@
                 />
               </div>
               <div class="form-group">
-                <label for="quantidade_pessoas">Quantidade de Pessoas</label>
+                <label for="quantidade_pessoas"><FormLabel label="Quantidade de Pessoas" required /></label>
                 <input
                   id="quantidade_pessoas"
-                  v-model="form.quantidade_pessoas"
+                  v-model="form.quantidade_pessoas" aria-required="true"
                   type="text"
                   inputmode="numeric"
                   maxlength="6"
@@ -324,10 +324,10 @@
                 />
               </div>
               <div class="form-group full">
-                <label for="equipe">Equipe / Responsáveis</label>
+                <label for="equipe"><FormLabel label="Equipe / Responsáveis" required /></label>
                 <input
                   id="equipe"
-                  v-model="form.equipe"
+                  v-model="form.equipe" aria-required="true"
                   type="text"
                   maxlength="255"
                   placeholder="Ex: Equipe CPED"
@@ -361,10 +361,10 @@
                 </datalist>
               </div>
               <div class="form-group full">
-                <label for="observacao">Observação</label>
+                <label for="observacao"><FormLabel label="Observação" required /></label>
                 <textarea
                   id="observacao"
-                  v-model="form.observacao"
+                  v-model="form.observacao" aria-required="true"
                   rows="4"
                   maxlength="2000"
                   placeholder="Observações do evento"

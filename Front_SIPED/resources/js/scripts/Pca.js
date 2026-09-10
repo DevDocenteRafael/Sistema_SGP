@@ -117,10 +117,16 @@ export default createCrudPage({
   },
   validarFormulario(form) {
     return combinarValidacoes(
+      textoObrigatorio(form.semestre, 'Preencha o campo Semestre.'),
+      textoObrigatorio(form.codigo_sig, 'Preencha o campo SIG.'),
+      textoObrigatorio(form.eixo, 'Preencha o campo Eixo.'),
+      textoObrigatorio(form.unidade, 'Preencha o campo Estrutura Institucional.'),
+      textoObrigatorio(form.precificacao, 'Preencha o campo Precificação.'),
+      textoObrigatorio(form.observacao, 'Preencha o campo Observação.'),
       textoObrigatorio(form.titulo, 'O título / curso é obrigatório.'),
       tamanhoMaximo(form.titulo, 255, 'O título / curso deve ter no máximo 255 caracteres.'),
       textoObrigatorio(form.status, 'O status é obrigatório.'),
-      form.numero_sei ? validarProcessoSei(form.numero_sei, { rotulo: 'Número SEI' }) : '',
+      validarProcessoSei(form.numero_sei, { obrigatorio: true, rotulo: 'Número SEI' }),
       form.codigo_sig
         ? tamanhoMaximo(form.codigo_sig, 100, 'O código SIG deve ter no máximo 100 caracteres.')
         : '',
@@ -130,16 +136,16 @@ export default createCrudPage({
       form.observacao
         ? tamanhoMaximo(form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
         : '',
-      form.ano ? validarInteiro(form.ano, { rotulo: 'Ano', min: 1900, max: 2100 }) : '',
-      form.carga_horaria ? validarInteiro(form.carga_horaria, { rotulo: 'Carga horária', min: 1, max: 99999 }) : '',
-      form.parcelas_boleto ? validarInteiro(form.parcelas_boleto, { rotulo: 'Parcelas boleto', min: 1, max: 999 }) : '',
-      form.parcelas_cartao ? validarInteiro(form.parcelas_cartao, { rotulo: 'Parcelas cartão', min: 1, max: 999 }) : '',
-      form.valor ? validarDecimal(form.valor, { rotulo: 'Valor' }) : '',
-      form.valor_primeiro_modulo ? validarDecimal(form.valor_primeiro_modulo, { rotulo: 'Valor do 1º módulo' }) : '',
-      form.valor_parcela_boleto ? validarDecimal(form.valor_parcela_boleto, { rotulo: 'Valor parcela boleto' }) : '',
-      form.valor_cartao ? validarDecimal(form.valor_cartao, { rotulo: 'Valor cartão' }) : '',
-      form.parcela_desc_20 ? validarDecimal(form.parcela_desc_20, { rotulo: 'Parcela com desconto 20%' }) : '',
-      form.parcela_desc_15 ? validarDecimal(form.parcela_desc_15, { rotulo: 'Parcela com desconto 15%' }) : '',
+      validarInteiro(form.ano, { obrigatorio: true, rotulo: 'Ano', min: 1900, max: 2100 }),
+      validarInteiro(form.carga_horaria, { obrigatorio: true, rotulo: 'Carga horária', min: 1, max: 99999 }),
+      validarInteiro(form.parcelas_boleto, { obrigatorio: true, rotulo: 'Parcelas boleto', min: 1, max: 999 }),
+      validarInteiro(form.parcelas_cartao, { obrigatorio: true, rotulo: 'Parcelas cartão', min: 1, max: 999 }),
+      validarDecimal(form.valor, { obrigatorio: true, rotulo: 'Valor' }),
+      validarDecimal(form.valor_primeiro_modulo, { obrigatorio: true, rotulo: 'Valor do 1º módulo' }),
+      validarDecimal(form.valor_parcela_boleto, { obrigatorio: true, rotulo: 'Valor parcela boleto' }),
+      validarDecimal(form.valor_cartao, { obrigatorio: true, rotulo: 'Valor cartão' }),
+      validarDecimal(form.parcela_desc_20, { obrigatorio: true, rotulo: 'Parcela com desconto 20%' }),
+      validarDecimal(form.parcela_desc_15, { obrigatorio: true, rotulo: 'Parcela com desconto 15%' }),
     );
   },
   montarPayload(form) {

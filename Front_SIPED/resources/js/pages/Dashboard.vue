@@ -3,7 +3,11 @@
     <header class="dashboard-header">
       <div>
         <h1>Dashboard</h1>
-        <p class="dashboard-description">Indicadores do portfólio de cursos — SENAC DF · CPED</p>
+        <p class="dashboard-description">
+          Indicadores do ciclo
+          <strong>{{ cicloNome || 'selecionado' }}</strong>
+          — SENAC DF · CPED
+        </p>
       </div>
 
       <div class="dashboard-toolbar">

@@ -21,6 +21,7 @@ class AcaoExtensivaController extends Controller
         }
 
         $query = AcaoExtensiva::query()->orderBy('id');
+        \App\Models\Ciclo::aplicarFiltroNaConsulta($query, $request->input('ciclo_id'));
 
         if ($request->filled('busca')) {
             $busca = $request->busca;

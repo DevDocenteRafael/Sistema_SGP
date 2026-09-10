@@ -12,7 +12,7 @@ import {
   textoObrigatorio,
 } from '../utils/validacao';
 
-const ENDPOINT = '/api/portfolio-ciclos';
+const ENDPOINT = '/api/ciclos';
 
 function formVazio() {
   return {
@@ -91,7 +91,7 @@ export default {
     },
     destinoVoltar() {
       const bruto = this.$route.query.voltar;
-      if (typeof bruto === 'string' && bruto.startsWith('/app/') && !bruto.startsWith('/app/ciclos-portfolio')) {
+      if (typeof bruto === 'string' && bruto.startsWith('/app/') && !bruto.startsWith('/app/ciclos')) {
         return bruto;
       }
 
@@ -411,76 +411,28 @@ export default {
       const metas = Number(item.composicao?.plano_de_metas ?? 0);
       const pca = Number(item.composicao?.pca ?? 0);
       const eixos = Number(item.composicao?.eixos ?? 0);
-      const temRegistros = cursos + metas + pca + eixos > 0;
-
-      let limparRegistros = false;
+      const visitas = Number(item.composicao?.visitas ?? 0);
+      const horas = Number(item.composicao?.horas_pedagogicas ?? 0);
+      const acoes = Number(item.composicao?.acoes ?? 0);
+      const eventos = Number(item.composicao?.eventos ?? 0);
+      const temRegistros = cursos + metas + pca + eixos + visitas + horas + acoes + eventos > 0;
 
       if (temRegistros) {
-        const resumo = [
-          this.textoQuantidade(cursos, 'curso', 'cursos'),
-          this.textoQuantidade(metas, 'meta', 'metas'),
-          this.textoQuantidade(pca, 'PCA', 'PCAs'),
-          this.textoQuantidade(eixos, 'eixo', 'eixos'),
-        ].join(', ');
+        this.mensagemErro = `Não é possível excluir o ciclo "${item.nome}" enquanto houver registros vinculados. Mova ou encerre os registros antes.`;
+        return;
+      }
 
-        const confirmar = window.confirm(
-          `O ciclo "${item.nome}" ainda tem registros (${resumo}).\n\n`
-          + 'OK = excluir o ciclo E apagar esses registros deste ciclo.\n'
-          + 'Cancelar = manter tudo.',
-        );
-
-        if (!confirmar) {
-          return;
-        }
-
-        limparRegistros = true;
-      } else if (!window.confirm(`Excluir o ciclo "${item.nome}"? Esta ação não pode ser desfeita.`)) {
+      if (!window.confirm(`Excluir o ciclo "${item.nome}"? Esta ação não pode ser desfeita.`)) {
         return;
       }
 
       try {
-        const { data } = await window.axios.delete(`${ENDPOINT}/${item.id}`, {
-          params: limparRegistros ? { limpar_registros: 1 } : undefined,
-        });
+        const { data } = await window.axios.delete(`${ENDPOINT}/${item.id}`);
         this.mensagemSucesso = data.message;
         invalidarCacheCiclos();
         this.fecharDetalhes();
         await this.carregarRegistros();
       } catch (error) {
-        const payload = error?.response?.data;
-        if (payload?.exige_limpeza && !limparRegistros) {
-          const comp = payload.composicao || {};
-          const resumo = [
-            this.textoQuantidade(comp.cursos, 'curso', 'cursos'),
-            this.textoQuantidade(comp.plano_de_metas, 'meta', 'metas'),
-            this.textoQuantidade(comp.pca, 'PCA', 'PCAs'),
-            this.textoQuantidade(comp.eixos, 'eixo', 'eixos'),
-          ].join(', ');
-
-          const forcar = window.confirm(
-            `${payload.message || 'Este ciclo ainda possui registros.'}\n\n`
-            + `Registros: ${resumo}.\n\n`
-            + 'OK = excluir com limpeza (apaga os registros deste ciclo).\n'
-            + 'Cancelar = manter.',
-          );
-
-          if (forcar) {
-            try {
-              const { data } = await window.axios.delete(`${ENDPOINT}/${item.id}`, {
-                params: { limpar_registros: 1 },
-              });
-              this.mensagemSucesso = data.message;
-              invalidarCacheCiclos();
-              this.fecharDetalhes();
-              await this.carregarRegistros();
-              return;
-            } catch (erroLimpeza) {
-              this.mensagemErro = extrairErroApi(erroLimpeza, 'Não foi possível excluir o ciclo com limpeza.');
-              return;
-            }
-          }
-        }
-
         this.mensagemErro = extrairErroApi(error, 'Não foi possível excluir o ciclo.');
       }
     },

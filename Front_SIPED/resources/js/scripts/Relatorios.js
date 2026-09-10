@@ -1,3 +1,4 @@
+import { lerCicloContexto, CICLO_CONTEXTO_EVENTO } from './cicloContexto';
 import { hidratarUnidadesSelect } from './unidadesApi';
 import { podeConsultarDados } from './auth';
 import TabelaContador from '../components/crud/TabelaContador.vue';
@@ -199,6 +200,12 @@ export default {
     },
   },
 
+  mounted() {
+    window.addEventListener(CICLO_CONTEXTO_EVENTO, this.carregarCatalogo);
+  },
+  beforeUnmount() {
+    window.removeEventListener(CICLO_CONTEXTO_EVENTO, this.carregarCatalogo);
+  },
   created() {
     if (!this.podeConsultar) {
       this.erro = 'Você não tem permissão para consultar relatórios.';
@@ -231,10 +238,11 @@ export default {
       this.erro = '';
 
       try {
-        const { data } = await window.axios.get('/api/relatorios');
+        const { data } = await window.axios.get('/api/relatorios', { params: { ciclo_id: lerCicloContexto()?.id } });
         this.catalogo = data.data || [];
         if (Array.isArray(data.meta?.eixos) && data.meta.eixos.length) {
-          this.eixosBase = data.meta.eixos;
+          const oficiais = data.meta.eixos.filter((eixo) => EIXOS_PADRAO.includes(eixo));
+          this.eixosBase = oficiais.length === EIXOS_PADRAO.length ? oficiais : [...EIXOS_PADRAO];
         }
 
         const viewKey = this.$route?.query?.view;
@@ -359,7 +367,7 @@ export default {
     },
 
     paramsFiltros() {
-      const params = {};
+      const params = { ciclo_id: lerCicloContexto()?.id };
       Object.entries(this.filtros).forEach(([chave, valor]) => {
         if (!valor) {
           return;

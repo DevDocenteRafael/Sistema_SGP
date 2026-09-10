@@ -319,6 +319,11 @@ export default {
 
     validarFormulario() {
       return combinarValidacoes(
+        textoObrigatorio(this.form.status, 'Informe o status.'),
+        textoObrigatorio(this.form.curso_relacionado, 'Informe o curso relacionado.'),
+        textoObrigatorio(this.form.categoria, 'Informe a categoria.'),
+        textoObrigatorio(this.form.relator, 'Informe o relator.'),
+        textoObrigatorio(this.form.setor, 'Informe o setor.'),
         textoObrigatorio(this.form.numero, 'O número da resolução é obrigatório.'),
         tamanhoMaximo(this.form.numero, 100, 'O número deve ter no máximo 100 caracteres.'),
         textoObrigatorio(this.form.resumo, 'O resumo da resolução é obrigatório.'),

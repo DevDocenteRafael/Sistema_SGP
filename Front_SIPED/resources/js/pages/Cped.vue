@@ -531,24 +531,24 @@
             </label>
 
             <label>
-              Iniciais (avatar sem foto)
-              <input v-model="form.iniciais" type="text" maxlength="20" />
+              <FormLabel label="Iniciais (avatar sem foto)" required />
+              <input v-model="form.iniciais" aria-required="true" type="text" maxlength="20" />
             </label>
 
             <label>
-              Cor do avatar
-              <input v-model="form.cor" type="color" />
+              <FormLabel label="Cor do avatar" required />
+              <input v-model="form.cor" aria-required="true" type="color" />
             </label>
           </div>
 
           <label class="check-field">
-            <input v-model="form.ativo" type="checkbox" />
-            Membro ativo
+            <input v-model="form.ativo" aria-required="true" type="checkbox" />
+            <FormLabel label="Membro ativo" required />
           </label>
 
           <label>
-            Observação
-            <textarea v-model="form.observacao" rows="3" maxlength="2000"></textarea>
+            <FormLabel label="Observação" required />
+            <textarea v-model="form.observacao" aria-required="true" rows="3" maxlength="2000"></textarea>
           </label>
 
           <div class="modal-actions">

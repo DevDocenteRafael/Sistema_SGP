@@ -22,7 +22,7 @@ class DashboardController extends Controller
             return $negado;
         }
 
-        $payload = $this->dashboardService->resumo();
+        $payload = $this->dashboardService->resumo($request->all());
 
         return response()->json([
             'data' => $payload,

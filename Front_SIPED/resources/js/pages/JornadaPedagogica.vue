@@ -216,36 +216,36 @@
                 <input id="jornada-pre-data" v-model="form.data_pre_jornada" type="date" :disabled="form.tem_pre_jornada !== 'Sim'" />
               </div>
               <div class="form-group">
-                <label for="jornada-local">Local</label>
-                <input id="jornada-local" v-model="form.local" type="text" maxlength="255" />
+                <label for="jornada-local"><FormLabel label="Local" required /></label>
+                <input id="jornada-local" v-model="form.local" aria-required="true" type="text" maxlength="255" />
               </div>
               <div class="form-group">
-                <label for="jornada-espaco">Espaço</label>
-                <input id="jornada-espaco" v-model="form.espaco" type="text" maxlength="255" />
+                <label for="jornada-espaco"><FormLabel label="Espaço" required /></label>
+                <input id="jornada-espaco" v-model="form.espaco" aria-required="true" type="text" maxlength="255" />
               </div>
               <div class="form-group">
-                <label for="jornada-verba">Verba</label>
-                <input id="jornada-verba" v-model="form.verba" type="text" maxlength="100" placeholder="Ex.: R$ 12.000,00" />
+                <label for="jornada-verba"><FormLabel label="Verba" required /></label>
+                <input id="jornada-verba" v-model="form.verba" aria-required="true" type="text" maxlength="100" placeholder="Ex.: R$ 12.000,00" />
               </div>
               <div class="form-group">
-                <label for="jornada-setores">Setores</label>
-                <input id="jornada-setores" v-model="form.setores" type="text" maxlength="255" placeholder="Ex.: CPED, Coordenação" />
+                <label for="jornada-setores"><FormLabel label="Setores" required /></label>
+                <input id="jornada-setores" v-model="form.setores" aria-required="true" type="text" maxlength="255" placeholder="Ex.: CPED, Coordenação" />
               </div>
               <div class="form-group full">
-                <label for="jornada-custos">Custos</label>
-                <textarea id="jornada-custos" v-model="form.custos" rows="3" maxlength="2000" />
+                <label for="jornada-custos"><FormLabel label="Custos" required /></label>
+                <textarea id="jornada-custos" v-model="form.custos" aria-required="true" rows="3" maxlength="2000" />
               </div>
               <div class="form-group full">
-                <label for="jornada-programacao">Programação</label>
-                <textarea id="jornada-programacao" v-model="form.programacao" rows="5" maxlength="2000" />
+                <label for="jornada-programacao"><FormLabel label="Programação" required /></label>
+                <textarea id="jornada-programacao" v-model="form.programacao" aria-required="true" rows="5" maxlength="2000" />
               </div>
               <div class="form-group full">
-                <label for="jornada-obs">Observações</label>
-                <textarea id="jornada-obs" v-model="form.observacoes" rows="3" maxlength="2000" />
+                <label for="jornada-obs"><FormLabel label="Observações" required /></label>
+                <textarea id="jornada-obs" v-model="form.observacoes" aria-required="true" rows="3" maxlength="2000" />
               </div>
               <div class="form-group full">
-                <label for="jornada-anexo">Anexo</label>
-                <input id="jornada-anexo" type="file" accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png" @change="aoEscolherAnexo" />
+                <label for="jornada-anexo"><FormLabel label="Anexo" required /></label>
+                <input id="jornada-anexo" aria-required="true" type="file" accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png" @change="aoEscolherAnexo" />
                 <small v-if="form.anexo_url && !form.anexoFile" class="campo-ajuda">
                   Anexo atual:
                   <a :href="form.anexo_url" target="_blank" rel="noopener noreferrer">abrir arquivo</a>

@@ -26,7 +26,7 @@ class RelatorioController extends Controller
             return $negado;
         }
 
-        $contagens = $this->relatorioService->contagens();
+        $contagens = $this->relatorioService->contagens($request->all());
         $catalogo = collect($this->relatorioService->catalogo())
             ->map(function (array $item) use ($contagens) {
                 return [
@@ -48,6 +48,7 @@ class RelatorioController extends Controller
             'meta' => [
                 'eixos' => $this->relatorioService->eixosDisponiveis(),
                 'unidades' => UnidadeOferta::nomesAtivos(),
+                'ciclo' => app(\App\Services\CicloContextoService::class)->meta($request),
             ],
         ]);
     }
@@ -67,6 +68,7 @@ class RelatorioController extends Controller
         $payload = $this->relatorioService->montar(
             $tipo,
             $request->only([
+                'ciclo_id',
                 'ano',
                 'unidade',
                 'eixo',
@@ -105,6 +107,7 @@ class RelatorioController extends Controller
                 'limite' => $payload['limite'],
                 'eixos' => $this->relatorioService->eixosDisponiveis($tipo),
                 'unidades' => UnidadeOferta::nomesAtivos(),
+                'ciclo' => app(\App\Services\CicloContextoService::class)->meta($request),
                 'status' => $registros->pluck('status')->filter()->unique()->sort()->values(),
                 'categorias' => $registros->pluck('categoria')->filter()->unique()->sort()->values(),
                 'setores' => $registros->pluck('setor')->filter()->unique()->sort()->values(),
@@ -128,6 +131,7 @@ class RelatorioController extends Controller
         }
 
         $payload = $this->relatorioService->montar($tipo, $request->only([
+            'ciclo_id',
             'ano',
             'unidade',
             'eixo',
@@ -138,6 +142,7 @@ class RelatorioController extends Controller
             'relator',
         ]), RelatorioService::LIMITE_PDF);
 
+        $cicloMeta = app(\App\Services\CicloContextoService::class)->meta($request);
         $pdf = Pdf::loadView('relatorios.tabela', [
             'titulo' => $payload['definicao']['label'],
             'descricao' => $payload['definicao']['description'],
@@ -149,9 +154,11 @@ class RelatorioController extends Controller
             'limite' => $payload['limite'],
             'emitidoEm' => now()->timezone(config('app.timezone'))->format('d/m/Y H:i'),
             'usuario' => $request->user()?->nome,
+            'ciclo' => $cicloMeta,
         ])->setPaper('a4', 'landscape');
 
-        $nome = 'relatorio-'.$tipo.'-'.now()->format('Ymd').'.pdf';
+        $cicloSlug = preg_replace('/[^0-9A-Za-z-]+/', '-', (string) ($cicloMeta['nome'] ?? 'ciclo')) ?: 'ciclo';
+        $nome = 'relatorio-'.$tipo.'-'.$cicloSlug.'-'.now()->format('Ymd').'.pdf';
 
         return $pdf->download($nome);
     }

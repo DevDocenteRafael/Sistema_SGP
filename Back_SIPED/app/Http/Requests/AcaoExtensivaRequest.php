@@ -27,21 +27,24 @@ class AcaoExtensivaRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'ciclo_id' => ['nullable', 'integer', Rule::exists('portfolio_ciclos', 'id')],
             'priorizacao' => ['required', 'string', 'max:20', Rule::in(config('acoes_extensivas.priorizacoes'))],
             'atribuido' => ['required', 'string', 'max:100'],
             'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
             'numero_processo_sei' => ['required', 'string', 'max:100', new ProcessoSeiValido(obrigatorio: true, rotulo: 'Número do processo SEI')],
             'tipo' => ['required', 'string', 'max:100', Rule::in(config('acoes_extensivas.tipos'))],
             'assunto' => ['required', 'string', 'max:500'],
-            'objetivo' => ['nullable', 'string', 'max:2000'],
+            'objetivo' => ['required', 'string', 'max:2000'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('acoes_extensivas.status'))],
-            'ultima_atualizacao' => ['nullable', 'date'],
+            'ultima_atualizacao' => ['required', 'date'],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'objetivo.required' => 'Informe o objetivo.',
+            'ultima_atualizacao.required' => 'Informe a última atualização.',
             'priorizacao.required' => 'A priorização é obrigatória.',
             'priorizacao.in' => 'Priorização inválida.',
             'atribuido.required' => 'Informe o responsável atribuído.',

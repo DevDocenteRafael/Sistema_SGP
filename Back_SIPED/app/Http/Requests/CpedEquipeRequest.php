@@ -62,18 +62,22 @@ class CpedEquipeRequest extends FormRequest
                 'max:100',
                 Rule::in(config('cped_equipes.eixos')),
             ],
-            'iniciais' => ['nullable', 'string', 'max:20'],
+            'iniciais' => ['required', 'string', 'max:20'],
             'foto' => ['nullable', 'image', 'max:2048'],
             'remover_foto' => ['nullable', 'boolean'],
-            'cor' => ['nullable', 'string', 'max:20'],
-            'ativo' => ['nullable', 'boolean'],
-            'observacao' => ['nullable', 'string', 'max:2000'],
+            'cor' => ['required', 'string', 'max:20'],
+            'ativo' => ['required', 'boolean'],
+            'observacao' => ['required', 'string', 'max:2000'],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'observacao.required' => 'Informe a observação.',
+            'ativo.required' => 'Informe se o membro está ativo.',
+            'cor.required' => 'Informe a cor do avatar.',
+            'iniciais.required' => 'Informe as iniciais do avatar.',
             'nome.required' => 'Informe o nome completo.',
             'cargo.required' => 'Informe o cargo / função.',
             'setor.required' => 'Selecione o setor / eixo.',

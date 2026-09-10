@@ -20,8 +20,8 @@
           </div>
           <span class="inicio-stat-divider" aria-hidden="true" />
           <div class="inicio-stat">
-            <p class="inicio-stat-value">2025-26</p>
-            <p class="inicio-stat-label">Portfólio</p>
+            <p class="inicio-stat-value">{{ cicloNome || '—' }}</p>
+            <p class="inicio-stat-label">Ciclo</p>
           </div>
           <span class="inicio-stat-divider" aria-hidden="true" />
           <div class="inicio-stat">

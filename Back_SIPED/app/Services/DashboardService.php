@@ -18,9 +18,9 @@ class DashboardService
      *
      * @return array<string, mixed>
      */
-    public function resumo(): array
+    public function resumo(array $filtros = []): array
     {
-        $cursos = Curso::query()
+        $cursos = \App\Support\ConsultaCatalogoCursos::query($filtros)
             ->select([
                 'id',
                 'titulo',
@@ -49,15 +49,12 @@ class DashboardService
             ->values()
             ->all();
 
-        $eixos = Curso::query()
-            ->whereNotNull('eixo')
-            ->where('eixo', '!=', '')
-            ->distinct()
-            ->orderBy('eixo')
-            ->pluck('eixo')
-            ->all();
+        $eixos = \App\Support\CatalogoOficial::eixos();
+
+        $cicloId = \App\Support\ConsultaCatalogoCursos::ciclo($filtros['ciclo_id'] ?? null);
 
         $status = Curso::query()
+            ->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))
             ->whereNotNull('status')
             ->where('status', '!=', '')
             ->distinct()
@@ -72,6 +69,7 @@ class DashboardService
             ->get(['id', 'prazo_deadline']);
 
         $visitas = VisitaTecnica::query()
+            ->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))
             ->select([
                 'id',
                 'status',
@@ -98,6 +96,7 @@ class DashboardService
             ->all();
 
         $horas = HoraPedagogica::query()
+            ->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))
             ->select([
                 'id',
                 'status',
@@ -136,8 +135,8 @@ class DashboardService
             'contagens' => [
                 'visitas' => count($visitas),
                 'horas' => count($horas),
-                'acoes' => AcaoExtensiva::query()->count(),
-                'eventos' => Evento::query()->count(),
+                'acoes' => AcaoExtensiva::query()->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))->count(),
+                'eventos' => Evento::query()->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))->count(),
                 'resolucoes' => $resolucoesLeves->count(),
                 'termos' => $termosLeves->count(),
                 'estruturas' => $estruturasAtivas,
@@ -149,6 +148,8 @@ class DashboardService
             'termos_contagens' => TermoReferenciaPrazoService::contarPorPrazo($termosLeves),
             'meta' => [
                 'eixos' => $eixos,
+                'ciclo_id' => $cicloId,
+                'ciclo' => $cicloId ? \App\Models\Ciclo::query()->find($cicloId)?->paraMeta() : null,
                 'status' => $status,
                 'unidades' => UnidadeOferta::nomesAtivos(),
             ],

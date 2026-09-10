@@ -2,8 +2,8 @@
   <div class="crud-page" :class="{ 'crud-page-form': modo !== 'lista' }">
     <template v-if="modo === 'lista'">
       <CrudPageHeader
-        title="Gerenciar ciclos"
-        subtitle="Administração dos ciclos do portfólio — SENAC DF"
+        title="Ciclos de Gestão"
+        subtitle="Períodos de trabalho do SIPED — SENAC DF"
         info="O ciclo ativo fica no seletor do topo. Use ← Voltar para sair desta tela."
         :show-novo="podeEditar"
         novo-label="Novo ciclo"
@@ -88,7 +88,11 @@
               <li>{{ textoQuantidade(item.composicao?.cursos, 'curso', 'cursos') }}</li>
               <li>{{ textoQuantidade(item.composicao?.plano_de_metas, 'meta', 'metas') }}</li>
               <li>{{ textoQuantidade(item.composicao?.pca, 'PCA', 'PCAs') }}</li>
-              <li>{{ textoQuantidade(item.composicao?.eixos, 'eixo', 'eixos') }}</li>
+              <li>{{ textoQuantidade(item.composicao?.eixos, 'oferta', 'ofertas') }}</li>
+              <li>{{ textoQuantidade(item.composicao?.visitas, 'visita', 'visitas') }}</li>
+              <li>{{ textoQuantidade(item.composicao?.horas_pedagogicas, 'hora', 'horas') }}</li>
+              <li>{{ textoQuantidade(item.composicao?.acoes, 'ação', 'ações') }}</li>
+              <li>{{ textoQuantidade(item.composicao?.eventos, 'evento', 'eventos') }}</li>
             </ul>
 
             <div class="ciclo-card-modulos" @click.stop>

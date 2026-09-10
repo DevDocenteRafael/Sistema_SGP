@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'perfil' => \App\Http\Middleware\CheckPerfil::class,
             'usuario.ativo' => \App\Http\Middleware\EnsureUsuarioAtivo::class,
         ]);
+        $middleware->api(append: [
+            \App\Http\Middleware\ResolveCicloContexto::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

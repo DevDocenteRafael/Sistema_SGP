@@ -3,15 +3,18 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\PertenceAoCiclo;
 use Illuminate\Database\Eloquent\Model;
 
 class AcaoExtensiva extends Model
 {
     use AuditaCadastro;
+    use PertenceAoCiclo;
 
     protected $table = 'acao_extensivas';
 
     protected $fillable = [
+        'ciclo_id',
         'priorizacao',
         'atribuido',
         'eixo',

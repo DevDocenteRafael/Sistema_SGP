@@ -1,3 +1,4 @@
+import { lerCicloContexto, CICLO_CONTEXTO_EVENTO } from './cicloContexto';
 import { carregarUnidadesNomes } from './unidadesApi';
 import { EIXOS_OFICIAIS, eixosIguais } from '../utils/catalogoOficial';
 
@@ -50,6 +51,7 @@ export default {
         eixos: EIXOS_PADRAO,
         status: ['ATIVO', 'INATIVO', 'EM REVISÃO'],
       },
+      cicloNome: lerCicloContexto()?.nome || '',
       unidadesBase: [],
     };
   },
@@ -149,8 +151,7 @@ export default {
     },
 
     totalEixos() {
-      if (this.filtros.eixo) return 1;
-      return new Set(this.cursosFiltrados.map((curso) => curso.eixo).filter(Boolean)).size;
+      return this.meta.eixos.length;
     },
 
     metricCards() {
@@ -202,16 +203,20 @@ export default {
     },
 
     chartEixos() {
-      const contagem = this.contarPor(this.cursosParaGraficos, 'eixo');
+      const cores = {
+        'Gastronomia e Turismo': '#F57C00',
+        'Ambiente e Saúde': '#0d9488',
+        'Gestão e Moda': '#003F7D',
+        'Tecnologia e Economia Criativa': '#7c3aed',
+        'Beleza e Cuidado Pessoal': '#db2777',
+      };
+
       return this.enriquecerBarras(
-        Object.entries(contagem)
-          .map(([label, value], index) => ({
-            label,
-            value,
-            color: CORES_EIXO[index % CORES_EIXO.length],
-          }))
-          .filter((item) => item.value > 0)
-          .sort((a, b) => b.value - a.value),
+        EIXOS_PADRAO.map((label) => ({
+          label,
+          value: this.cursosParaGraficos.filter((curso) => eixosIguais(curso.eixo, label)).length,
+          color: cores[label] || '#64748b',
+        })),
       );
     },
 
@@ -361,6 +366,12 @@ export default {
     },
   },
 
+  mounted() {
+    window.addEventListener(CICLO_CONTEXTO_EVENTO, this.carregarDashboard);
+  },
+  beforeUnmount() {
+    window.removeEventListener(CICLO_CONTEXTO_EVENTO, this.carregarDashboard);
+  },
   created() {
     this.carregarDashboard();
   },
@@ -383,16 +394,18 @@ export default {
       this.erro = '';
 
       try {
-        const { data } = await window.axios.get('/api/dashboard');
+        const { data } = await window.axios.get('/api/dashboard', { params: { ciclo_id: lerCicloContexto()?.id } });
         const payload = data.data || {};
 
+        this.cicloNome = payload.meta?.ciclo?.nome || lerCicloContexto()?.nome || '';
         this.courses = payload.cursos ?? [];
         this.visitas = payload.visitas ?? [];
         this.horas = payload.horas ?? [];
 
-        const eixosApi = payload.meta?.eixos ?? [];
-        const eixosBanco = this.courses.map((curso) => curso.eixo).filter(Boolean);
-        const eixos = Array.from(new Set([...eixosApi, ...eixosBanco, ...EIXOS_PADRAO])).sort();
+        const eixosApi = Array.isArray(payload.meta?.eixos) && payload.meta.eixos.length
+          ? payload.meta.eixos.filter((eixo) => EIXOS_PADRAO.includes(eixo))
+          : [];
+        const eixos = eixosApi.length === EIXOS_PADRAO.length ? eixosApi : [...EIXOS_PADRAO];
 
         const statusApi = payload.meta?.status ?? [];
         const statusBanco = this.courses.map((curso) => curso.status).filter(Boolean);

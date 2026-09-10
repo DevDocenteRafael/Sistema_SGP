@@ -315,20 +315,20 @@
             <h2>Relatório e observações</h2>
             <div class="form-grid">
               <div class="form-group full">
-                <label for="relatorio">Relatório</label>
+                <label for="relatorio"><FormLabel label="Relatório" required /></label>
                 <textarea
                   id="relatorio"
-                  v-model="form.relatorio"
+                  v-model="form.relatorio" aria-required="true"
                   rows="4"
                   maxlength="2000"
                   placeholder="Descreva o relatório da visita, quando houver"
                 ></textarea>
               </div>
               <div class="form-group full">
-                <label for="observacao">Observação</label>
+                <label for="observacao"><FormLabel label="Observação" required /></label>
                 <textarea
                   id="observacao"
-                  v-model="form.observacao"
+                  v-model="form.observacao" aria-required="true"
                   rows="3"
                   maxlength="2000"
                   placeholder="Informações adicionais ou pendências"

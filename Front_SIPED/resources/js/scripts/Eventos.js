@@ -17,6 +17,7 @@ const OPCOES_ACAO = ['Sim', 'Não'];
 export default createCrudPage({
   name: 'Eventos',
   carregarUnidadesApi: true,
+  usarCicloContexto: true,
   endpoint: '/api/eventos',
   showKey: 'evento',
   filtrosIniciais: {
@@ -73,6 +74,9 @@ export default createCrudPage({
   },
   validarFormulario(form) {
     return combinarValidacoes(
+      textoObrigatorio(form.ano, 'Informe o ano.'),
+      textoObrigatorio(form.equipe, 'Informe a equipe / responsáveis.'),
+      textoObrigatorio(form.observacao, 'Informe a observação.'),
       textoObrigatorio(form.nome, 'Preencha o nome do evento.'),
       tamanhoMaximo(form.nome, 200, 'O nome deve ter no máximo 200 caracteres.'),
       validarData(form.data, { obrigatorio: true, rotulo: 'Data do evento' }),
@@ -87,9 +91,7 @@ export default createCrudPage({
         ? tamanhoMaximo(form.acao_vinculada, 255, 'A ação vinculada deve ter no máximo 255 caracteres.')
         : '',
       form.equipe ? tamanhoMaximo(form.equipe, 255, 'A equipe deve ter no máximo 255 caracteres.') : '',
-      form.quantidade_pessoas !== '' && form.quantidade_pessoas != null
-        ? validarInteiro(form.quantidade_pessoas, { rotulo: 'Quantidade de pessoas', min: 0, max: 999999 })
-        : '',
+      validarInteiro(form.quantidade_pessoas, { obrigatorio: true, rotulo: 'Quantidade de pessoas', min: 0, max: 999999 }),
       form.observacao
         ? tamanhoMaximo(form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
         : '',

@@ -28,6 +28,7 @@ class VisitaTecnicaRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'ciclo_id' => ['nullable', 'integer', Rule::exists('portfolio_ciclos', 'id')],
             'unidade' => ['required', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
             'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
             'processo_sei' => ['required', 'string', 'max:100', new ProcessoSeiValido(obrigatorio: true)],
@@ -36,14 +37,16 @@ class VisitaTecnicaRequest extends FormRequest
             'prazo_limite' => ['required', 'date', 'after_or_equal:data_solicitacao'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('visitas_tecnicas.status'))],
             'responsavel' => ['required', 'string', 'max:150'],
-            'relatorio' => ['nullable', 'string', 'max:2000'],
-            'observacao' => ['nullable', 'string', 'max:2000'],
+            'relatorio' => ['required', 'string', 'max:2000'],
+            'observacao' => ['required', 'string', 'max:2000'],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'observacao.required' => 'Informe a observação.',
+            'relatorio.required' => 'Informe o relatório.',
             'unidade.required' => 'A unidade é obrigatória.',
             'unidade.in' => 'Selecione uma unidade válida.',
             'eixo.required' => 'O eixo é obrigatório.',

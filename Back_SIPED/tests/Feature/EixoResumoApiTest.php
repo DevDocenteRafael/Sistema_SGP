@@ -102,4 +102,66 @@ class EixoResumoApiTest extends TestCase
         $this->assertSame(1, $enfermagem['cursos']);
         $this->assertSame(1, $enfermagem['ofertas']);
     }
+
+    public function test_duas_ofertas_do_mesmo_curso_contam_um_curso_no_card(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $cicloAtual = PortfolioCiclo::atual();
+        $curso = Curso::create([
+            'titulo' => 'Cuidador de Idosos',
+            'status' => 'ATIVO',
+            'eixo' => 'Ambiente e Saúde',
+            'segmento' => 'Enfermagem',
+            'ciclo_id' => $cicloAtual?->id,
+        ]);
+
+        CursoPorEixo::create([
+            'curso' => 'Cuidador de Idosos',
+            'curso_id' => $curso->id,
+            'eixo' => 'Ambiente e Saúde',
+            'segmento' => 'Enfermagem',
+            'codigo' => 'EIX-A',
+            'turmas' => '1',
+            'alunos' => '20',
+            'ciclo_id' => $cicloAtual?->id,
+        ]);
+        CursoPorEixo::create([
+            'curso' => 'Cuidador de Idosos',
+            'curso_id' => $curso->id,
+            'eixo' => 'Ambiente e Saúde',
+            'segmento' => 'Enfermagem',
+            'codigo' => 'EIX-B',
+            'turmas' => '1',
+            'alunos' => '15',
+            'ciclo_id' => $cicloAtual?->id,
+        ]);
+
+        $resumo = $this->getJson('/api/eixos/resumo');
+        $resumo->assertOk();
+        $card = collect($resumo->json('data.eixos'))->firstWhere('nome', 'Ambiente e Saúde');
+        $this->assertSame(1, $card['cursos']);
+        $this->assertSame(2, $card['ofertas']);
+        $this->assertSame(2, $card['turmas']);
+        $this->assertSame(35, $card['alunos']);
+        $this->assertSame(0, $resumo->json('data.pendentes.sem_correspondencia'));
+    }
+
+    public function test_oferta_sem_curso_id_aparece_como_pendencia_de_correspondencia(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        CursoPorEixo::create([
+            'curso' => 'Açougueiro',
+            'curso_id' => null,
+            'eixo' => 'Gastronomia e Turismo',
+            'segmento' => 'Gastronomia',
+            'codigo' => 'EIX-PEND',
+        ]);
+
+        $resumo = $this->getJson('/api/eixos/resumo');
+        $resumo->assertOk();
+        $this->assertSame(1, $resumo->json('data.pendentes.sem_correspondencia'));
+        $this->assertSame('Açougueiro', $resumo->json('data.pendentes.amostra_sem_correspondencia.0.nome'));
+    }
 }

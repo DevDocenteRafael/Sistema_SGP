@@ -5,10 +5,11 @@ namespace App\Services\Importacao;
 use App\Exceptions\ImportacaoInvalidaException;
 use App\Models\Curso;
 use App\Models\CursoPorEixo;
-use App\Models\PortfolioCiclo;
 use App\Services\CadastroAuditoriaService;
+use App\Services\CicloContextoService;
 use App\Support\CatalogoInstitucional;
 use App\Support\CatalogoOficial;
+use App\Support\ConciliadorCursoOferta;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -84,6 +85,9 @@ class ImportacaoService
         }
 
         $resultado = $this->classificarAcoesUpsert($modulo, $def, $resultado);
+        if ($this->moduloTemCiclo($modulo)) {
+            $resultado['ciclo'] = app(CicloContextoService::class)->meta();
+        }
 
         return $resultado;
     }
@@ -117,9 +121,7 @@ class ImportacaoService
         $backup = null;
         $resumo = ['novo' => 0, 'atualizar' => 0, 'sem_alteracao' => 0];
 
-        $cicloAtualId = in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)
-            ? PortfolioCiclo::atual()?->id
-            : null;
+        $cicloAtualId = $this->cicloDestinoId($modulo);
 
         DB::transaction(function () use ($modelClass, $campos, $resultado, $modulo, $camposUnicos, $defaults, $usuarioId, $def, $cicloAtualId, &$backup, &$resumo) {
             $backup = $this->backupService->backupAntesDeSubstituir($modulo, $modelClass);
@@ -688,7 +690,7 @@ class ImportacaoService
     /**
      * @return array{aba: string, linha: int, coluna: string, valor: string, mensagem: string, bloqueante: bool}
      */
-    private function erroImportacao(string $aba, int $linha, string $coluna, string $valor, string $mensagem): array
+    private function erroImportacao(string $aba, int $linha, string $coluna, string $valor, string $mensagem, bool $bloqueante = true): array
     {
         $local = [];
         if ($aba !== '') {
@@ -709,12 +711,12 @@ class ImportacaoService
             'coluna' => $coluna,
             'valor' => $valor,
             'mensagem' => $prefixo.$mensagem,
-            'bloqueante' => true,
+            'bloqueante' => $bloqueante,
         ];
     }
 
     /**
-     * Oferta operacional: resolve segmento/eixo e exige curso já existente no ciclo.
+     * Oferta operacional: resolve segmento/eixo e tenta vincular a um curso do catálogo.
      *
      * @param  array{linhas: list<array<string, mixed>>, erros: list<array<string, mixed>>, total: int, ignoradas: int, aba: string}  $resultado
      * @return array{linhas: list<array<string, mixed>>, erros: list<array<string, mixed>>, total: int, ignoradas: int, aba: string}
@@ -722,7 +724,7 @@ class ImportacaoService
     private function validarOfertasEixos(array $resultado): array
     {
         $erros = $resultado['erros'];
-        $cicloId = PortfolioCiclo::atual()?->id;
+        $cicloId = $this->cicloDestinoId('eixos');
         $linhas = [];
 
         foreach ($resultado['linhas'] as $linha) {
@@ -759,16 +761,25 @@ class ImportacaoService
             }
 
             $titulo = is_scalar($linha['curso'] ?? null) ? trim((string) $linha['curso']) : '';
-            $curso = $this->localizarCursoDoCiclo($titulo, $cicloId);
+            $curso = ConciliadorCursoOferta::localizar([
+                'titulo' => $titulo,
+                'eixo' => $resolvido['eixo'] ?? $eixoBruto,
+                'segmento' => $resolvido['segmento'] ?? $segmentoBruto,
+                'ch' => is_scalar($linha['ch'] ?? null) ? (string) $linha['ch'] : null,
+                'codigo' => is_scalar($linha['codigo'] ?? null) ? (string) $linha['codigo'] : null,
+            ], $cicloId);
             if (! $curso) {
                 $erros[] = $this->erroImportacao(
                     $aba,
                     $numeroLinha,
                     'Curso',
                     $titulo,
-                    'Curso não encontrado no ciclo atual: "'.$titulo.'". Importe o catálogo de Cursos antes da oferta por eixo.',
+                    'Sem correspondência no catálogo de Cursos: "'.$titulo.'". A oferta será importada como pendência e nenhum curso novo será criado.',
+                    false,
                 );
-                $linha['status_importacao'] = 'erro';
+                if (($linha['status_importacao'] ?? '') !== 'erro') {
+                    $linha['status_importacao'] = 'pendente';
+                }
                 $linha['curso_id'] = null;
             } else {
                 $linha['curso_id'] = $curso->id;
@@ -797,11 +808,9 @@ class ImportacaoService
         $campos = $def['db_fields'] ?? [];
         $camposUnicos = $def['unique_fields'] ?? [];
         $defaults = $def['defaults'] ?? [];
-        $cicloId = in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)
-            ? PortfolioCiclo::atual()?->id
-            : null;
+        $cicloId = $this->cicloDestinoId($modulo);
 
-        $resumo = ['novo' => 0, 'atualizar' => 0, 'sem_alteracao' => 0, 'erro' => 0];
+        $resumo = ['novo' => 0, 'atualizar' => 0, 'sem_alteracao' => 0, 'erro' => 0, 'pendente' => 0];
 
         foreach ($resultado['linhas'] as &$linha) {
             if (($linha['status_importacao'] ?? '') === 'erro') {
@@ -809,23 +818,25 @@ class ImportacaoService
                 continue;
             }
 
+            $eraPendente = ($linha['status_importacao'] ?? '') === 'pendente';
+
             $row = $this->montarLinhaCommit($linha, $campos, $camposUnicos, $defaults, $modulo, $cicloId);
             $existente = $this->encontrarExistente($modulo, $modelClass, $row, $cicloId);
 
             if (! $existente) {
-                $linha['status_importacao'] = 'novo';
                 $resumo['novo']++;
-                continue;
-            }
-
-            if ($this->linhaSemAlteracao($existente, $row, $campos)) {
-                $linha['status_importacao'] = 'sem_alteracao';
+                $linha['status_importacao'] = $eraPendente ? 'pendente' : 'novo';
+            } elseif ($this->linhaSemAlteracao($existente, $row, $campos)) {
                 $resumo['sem_alteracao']++;
-                continue;
+                $linha['status_importacao'] = $eraPendente ? 'pendente' : 'sem_alteracao';
+            } else {
+                $resumo['atualizar']++;
+                $linha['status_importacao'] = $eraPendente ? 'pendente' : 'atualizar';
             }
 
-            $linha['status_importacao'] = 'atualizar';
-            $resumo['atualizar']++;
+            if ($eraPendente) {
+                $resumo['pendente']++;
+            }
         }
         unset($linha);
 
@@ -876,7 +887,7 @@ class ImportacaoService
             $row[$campo] = $valor;
         }
 
-        if (in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)) {
+        if ($this->moduloTemCiclo($modulo)) {
             if ($modulo === 'cursos') {
                 $row = $this->normalizarCamposCurso($row);
             }
@@ -895,7 +906,7 @@ class ImportacaoService
     private function encontrarExistente(string $modulo, string $modelClass, array $row, ?int $cicloId): ?Model
     {
         $query = $modelClass::query();
-        if ($cicloId && in_array($modulo, ['cursos', 'plano-de-metas', 'pcas', 'eixos'], true)) {
+        if ($cicloId && $this->moduloTemCiclo($modulo)) {
             $query->where('ciclo_id', $cicloId);
         }
 
@@ -979,21 +990,6 @@ class ImportacaoService
         return $encontrado instanceof CursoPorEixo ? $encontrado : null;
     }
 
-    private function localizarCursoDoCiclo(string $titulo, ?int $cicloId): ?Curso
-    {
-        $titulo = mb_strtolower(trim($titulo));
-        if ($titulo === '') {
-            return null;
-        }
-
-        $query = Curso::query()->whereRaw('LOWER(titulo) = ?', [$titulo]);
-        if ($cicloId) {
-            $query->where('ciclo_id', $cicloId);
-        }
-
-        return $query->first();
-    }
-
     /**
      * @return list<string>
      */
@@ -1032,6 +1028,36 @@ class ImportacaoService
         }
 
         return true;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function modulosComCiclo(): array
+    {
+        return [
+            'cursos', 'plano-de-metas', 'pcas', 'eixos',
+            'visitas-tecnicas', 'horas-pedagogicas', 'acoes-extensivas', 'eventos',
+        ];
+    }
+
+    private function moduloTemCiclo(string $modulo): bool
+    {
+        return in_array($modulo, $this->modulosComCiclo(), true);
+    }
+
+    private function cicloDestinoId(string $modulo): ?int
+    {
+        if (! $this->moduloTemCiclo($modulo)) {
+            return null;
+        }
+
+        $ciclo = app(CicloContextoService::class)->resolver();
+        if (! $ciclo) {
+            throw new InvalidArgumentException('Informe o ciclo de gestão de destino da importação.');
+        }
+
+        return $ciclo->id;
     }
 
     /**

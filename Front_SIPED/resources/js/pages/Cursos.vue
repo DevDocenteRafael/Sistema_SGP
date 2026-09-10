@@ -22,11 +22,6 @@
           />
         </div>
         <SearchableSelect
-          v-model="filtros.ciclo_id"
-          :options="[{ value: 'todos', label: 'Todos os ciclos' }, ...ciclos.map((ciclo) => ({ value: String(ciclo.id), label: ciclo.nome + (ciclo.atual ? ' (atual)' : '') }))]"
-          @change="onCicloFiltroChange"
-        />
-        <SearchableSelect
           v-model="filtros.ano"
           :options="anosDisponiveis"
           empty-option="Todos os anos"
@@ -378,23 +373,23 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="segmento">Segmento</label>
+                  <label for="segmento"><FormLabel label="Segmento" required /></label>
                   <SearchableSelect
                     id="segmento"
                     input-id="segmento"
-                    v-model="form.segmento"
+                    v-model="form.segmento" aria-required="true"
                     :options="segmentosDoEixo"
                     empty-option="Selecione o segmento..."
                   />
                 </div>
                 <div class="form-group">
-                  <label for="programa">Programa / categoria</label>
+                  <label for="programa"><FormLabel label="Programa / categoria" required /></label>
                   <SearchableSelect
                     id="programa"
                     input-id="programa"
-                    v-model="form.programa"
+                    v-model="form.programa" aria-required="true"
                     :options="meta.programas"
-                    empty-option="Nenhum"
+                    empty-option="Selecione o programa..."
                   />
                 </div>
                 <div class="form-group full">
@@ -409,11 +404,11 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="ciclo">Ciclo de portfólio</label>
+                  <label for="ciclo"><FormLabel label="Ciclo de gestão" required /></label>
                   <SearchableSelect
                     id="ciclo"
                     input-id="ciclo"
-                    v-model="form.ciclo_id"
+                    v-model="form.ciclo_id" aria-required="true"
                     :options="ciclos.map((ciclo) => ({ value: String(ciclo.id), label: ciclo.nome + (ciclo.atual ? ' (atual)' : '') }))"
                   />
                 </div>
@@ -431,10 +426,10 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="turmas">Quantidade de turmas</label>
+                  <label for="turmas"><FormLabel label="Quantidade de turmas" required /></label>
                   <input
                     id="turmas"
-                    v-model="form.turmas"
+                    v-model="form.turmas" aria-required="true"
                     type="text"
                     inputmode="numeric"
                     placeholder="Ex: 2"
@@ -443,20 +438,20 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="codigo_processo">Código do processo</label>
+                  <label for="codigo_processo"><FormLabel label="Código do processo" required /></label>
                   <input
                     id="codigo_processo"
-                    v-model="form.codigo_processo"
+                    v-model="form.codigo_processo" aria-required="true"
                     type="text"
                     placeholder="Ex: 2025.12.85"
                     maxlength="100"
                   />
                 </div>
                 <div class="form-group">
-                  <label for="alunos">Alunos (matrículas)</label>
+                  <label for="alunos"><FormLabel label="Alunos (matrículas)" required /></label>
                   <input
                     id="alunos"
-                    v-model="form.alunos"
+                    v-model="form.alunos" aria-required="true"
                     type="text"
                     inputmode="numeric"
                     placeholder="Ex: 22"
@@ -465,10 +460,10 @@
                   />
                 </div>
                 <div class="form-group full">
-                  <label for="instrutor">Instrutor(es)</label>
+                  <label for="instrutor"><FormLabel label="Instrutor(es)" required /></label>
                   <input
                     id="instrutor"
-                    v-model="form.instrutor"
+                    v-model="form.instrutor" aria-required="true"
                     type="text"
                     placeholder="Nome do(s) instrutor(es)"
                     maxlength="255"
@@ -478,15 +473,15 @@
             </div>
 
             <div class="form-card">
-              <h2>Estruturas de oferta</h2>
+              <h2 id="estruturas-oferta-label"><FormLabel label="Estruturas de oferta" required /></h2>
               <p class="form-card-hint">Escolha a localidade/região e marque Faculdade, Polo ou Unidade onde o curso será oferecido.</p>
 
               <div class="form-group">
-                <label for="regiao-oferta">Localidade / Região</label>
+                <label for="regiao-oferta"><FormLabel label="Localidade / Região" required /></label>
                 <SearchableSelect
                   id="regiao-oferta"
                   input-id="regiao-oferta"
-                  v-model="regiaoOfertaSelecionada"
+                  v-model="regiaoOfertaSelecionada" aria-required="true"
                   :options="opcoesRegiaoOferta"
                   empty-option="Selecione a região..."
                 />
@@ -506,7 +501,7 @@
                 </button>
               </div>
 
-              <div v-if="regiaoOfertaAtual" class="unidades-grupos">
+              <div v-if="regiaoOfertaAtual" class="unidades-grupos" role="group" aria-labelledby="estruturas-oferta-label">
                 <div v-for="grupo in regiaoOfertaAtual.grupos" :key="grupo.tipo" class="unidade-grupo">
                   <h3>{{ grupo.label }}</h3>
                   <div class="unidades-grid">
@@ -532,9 +527,10 @@
             <div class="form-card">
               <h2>Descrição do curso</h2>
               <div class="form-group">
+                <label for="descricao"><FormLabel label="Descrição" required /></label>
                 <textarea
                   id="descricao"
-                  v-model="form.descricao"
+                  v-model="form.descricao" aria-required="true"
                   rows="5"
                   maxlength="5000"
                   placeholder="Descreva os objetivos, conteúdo programático e público-alvo do curso..."
@@ -569,8 +565,8 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="codigo_dn">Cód. DN</label>
-                  <input id="codigo_dn" v-model="form.codigo_dn" type="text" placeholder="Ex: 2437" maxlength="50" />
+                  <label for="codigo_dn"><FormLabel label="Cód. DN" required /></label>
+                  <input id="codigo_dn" v-model="form.codigo_dn" aria-required="true" type="text" placeholder="Ex: 2437" maxlength="50" />
                 </div>
                 <div class="form-group">
                   <label for="codigo_sig"><FormLabel label="Cód. SIG" required /></label>
@@ -584,30 +580,30 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="identificacao">Ident.</label>
+                  <label for="identificacao"><FormLabel label="Ident." required /></label>
                   <input
                     id="identificacao"
-                    v-model="form.identificacao"
+                    v-model="form.identificacao" aria-required="true"
                     type="text"
                     placeholder="Ex: 2018"
                     maxlength="50"
                   />
                 </div>
                 <div class="form-group">
-                  <label for="ultima_revisao">Última revisão</label>
+                  <label for="ultima_revisao"><FormLabel label="Última revisão" required /></label>
                   <input
                     id="ultima_revisao"
-                    v-model="form.ultima_revisao"
+                    v-model="form.ultima_revisao" aria-required="true"
                     type="text"
                     placeholder="Ex: 2025"
                     maxlength="50"
                   />
                 </div>
                 <div class="form-group">
-                  <label for="processo_sei">Processo SEI</label>
+                  <label for="processo_sei"><FormLabel label="Processo SEI" required /></label>
                   <input
                     id="processo_sei"
-                    v-model="form.processo_sei"
+                    v-model="form.processo_sei" aria-required="true"
                     type="text"
                     placeholder="Ex: 2023.000001650-31"
                     maxlength="100"
@@ -615,12 +611,12 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="data_inicio">Data de início</label>
-                  <input id="data_inicio" v-model="form.data_inicio" type="date" />
+                  <label for="data_inicio"><FormLabel label="Data de início" required /></label>
+                  <input id="data_inicio" v-model="form.data_inicio" aria-required="true" type="date" />
                 </div>
                 <div class="form-group">
-                  <label for="data_fim">Data de término</label>
-                  <input id="data_fim" v-model="form.data_fim" type="date" />
+                  <label for="data_fim"><FormLabel label="Data de término" required /></label>
+                  <input id="data_fim" v-model="form.data_fim" aria-required="true" type="date" />
                 </div>
               </div>
             </div>
@@ -631,60 +627,60 @@
               <h2>Informações comerciais e financeiras</h2>
               <div class="form-grid">
                 <div class="form-group full">
-                  <label for="valores">Valores</label>
+                  <label for="valores"><FormLabel label="Valores" required /></label>
                   <input
                     id="valores"
-                    v-model="form.valores"
+                    v-model="form.valores" aria-required="true"
                     type="text"
                     placeholder="Ex: 2025 | R$ 2.405,00"
                     maxlength="255"
                   />
                 </div>
                 <div class="form-group">
-                  <label for="compativel_bolsa">Compatível com bolsa</label>
+                  <label for="compativel_bolsa"><FormLabel label="Compatível com bolsa" required /></label>
                   <SearchableSelect
                     id="compativel_bolsa"
                     input-id="compativel_bolsa"
-                    v-model="form.compativel_bolsa"
+                    v-model="form.compativel_bolsa" aria-required="true"
                     :options="meta.sim_nao"
                     empty-option="Selecione..."
                   />
                 </div>
                 <div class="form-group">
-                  <label for="comercial">Comercial</label>
+                  <label for="comercial"><FormLabel label="Comercial" required /></label>
                   <SearchableSelect
                     id="comercial"
                     input-id="comercial"
-                    v-model="form.comercial"
+                    v-model="form.comercial" aria-required="true"
                     :options="meta.sim_nao"
                     empty-option="Selecione..."
                   />
                 </div>
                 <div class="form-group">
-                  <label for="pcn">PCN</label>
+                  <label for="pcn"><FormLabel label="PCN" required /></label>
                   <input
                     id="pcn"
-                    v-model="form.pcn"
+                    v-model="form.pcn" aria-required="true"
                     type="text"
                     placeholder="Plano de Curso Nacional"
                     maxlength="255"
                   />
                 </div>
                 <div class="form-group">
-                  <label for="pcr">PCR</label>
+                  <label for="pcr"><FormLabel label="PCR" required /></label>
                   <input
                     id="pcr"
-                    v-model="form.pcr"
+                    v-model="form.pcr" aria-required="true"
                     type="text"
                     placeholder="Plano de Curso Regional"
                     maxlength="255"
                   />
                 </div>
                 <div class="form-group full">
-                  <label for="observacoes">Observações</label>
+                  <label for="observacoes"><FormLabel label="Observações" required /></label>
                   <textarea
                     id="observacoes"
-                    v-model="form.observacoes"
+                    v-model="form.observacoes" aria-required="true"
                     rows="4"
                     maxlength="2000"
                     placeholder="Observações adicionais sobre valores, condições comerciais, etc..."

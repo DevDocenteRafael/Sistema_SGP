@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\FluxogramaController;
 use App\Http\Controllers\Api\HoraPedagogicaController;
 use App\Http\Controllers\Api\ImportacaoController;
 use App\Http\Controllers\Api\JornadaPedagogicaController;
-use App\Http\Controllers\Api\PortfolioCicloController;
+use App\Http\Controllers\Api\CicloController;
 use App\Http\Controllers\Api\SistemaApoioController;
 use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\OrganogramaController;
@@ -45,9 +45,12 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     // Auditoria (tabela cadastros) — somente leitura para Administrador.
     Route::get('cadastros', [CadastroController::class, 'index']);
     Route::get('cadastros/{cadastro}', [CadastroController::class, 'show']);
-    Route::post('portfolio-ciclos/gerar-proximo', [PortfolioCicloController::class, 'gerarProximo']);
-    Route::post('portfolio-ciclos/{portfolioCiclo}/marcar-atual', [PortfolioCicloController::class, 'marcarAtual']);
-    Route::apiResource('portfolio-ciclos', PortfolioCicloController::class);
+    Route::post('ciclos/gerar-proximo', [CicloController::class, 'gerarProximo']);
+    Route::post('ciclos/{ciclo}/marcar-atual', [CicloController::class, 'marcarAtual']);
+    Route::apiResource('ciclos', CicloController::class);
+    Route::post('portfolio-ciclos/gerar-proximo', [CicloController::class, 'gerarProximo']);
+    Route::post('portfolio-ciclos/{ciclo}/marcar-atual', [CicloController::class, 'marcarAtual']);
+    Route::apiResource('portfolio-ciclos', CicloController::class)->parameters(['portfolio-ciclos' => 'ciclo']);
     Route::apiResource('cursos', CursoController::class);
     Route::apiResource('plano-de-metas', PlanoDeMetaController::class);
     Route::apiResource('resolucoes', ResolucaoController::class)

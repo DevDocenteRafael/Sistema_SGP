@@ -281,11 +281,11 @@
                 <input id="resolucao-numero" v-model="form.numero" type="text" placeholder="Ex: MEC/2026/001" maxlength="100" required />
               </div>
               <div class="form-group">
-                <label for="resolucao-status">Status</label>
+                <label for="resolucao-status"><FormLabel label="Status" required /></label>
                 <SearchableSelect
                   id="resolucao-status"
                   input-id="resolucao-status"
-                  v-model="form.status"
+                  v-model="form.status" aria-required="true"
                   :options="meta.status.map((status) => ({ value: status, label: labelStatus(status) }))"
                   empty-option="Automático (pela vigência)"
                 />
@@ -295,29 +295,29 @@
                 <input id="resolucao-resumo" v-model="form.resumo" type="text" placeholder="Resumo da resolução" maxlength="1000" required />
               </div>
               <div class="form-group">
-                <label for="resolucao-curso">Curso relacionado</label>
-                <input id="resolucao-curso" v-model="form.curso_relacionado" type="text" placeholder="Curso ou técnico relacionado" maxlength="255" />
+                <label for="resolucao-curso"><FormLabel label="Curso relacionado" required /></label>
+                <input id="resolucao-curso" v-model="form.curso_relacionado" aria-required="true" type="text" placeholder="Curso ou técnico relacionado" maxlength="255" />
               </div>
               <div class="form-group">
-                <label for="resolucao-categoria">Categoria</label>
+                <label for="resolucao-categoria"><FormLabel label="Categoria" required /></label>
                 <SearchableSelect
                   id="resolucao-categoria"
                   input-id="resolucao-categoria"
-                  v-model="form.categoria"
+                  v-model="form.categoria" aria-required="true"
                   :options="meta.categorias"
                   empty-option="Selecione..."
                 />
               </div>
               <div class="form-group">
-                <label for="resolucao-relator">Relator</label>
-                <input id="resolucao-relator" v-model="form.relator" type="text" placeholder="Nome do relator" maxlength="255" />
+                <label for="resolucao-relator"><FormLabel label="Relator" required /></label>
+                <input id="resolucao-relator" v-model="form.relator" aria-required="true" type="text" placeholder="Nome do relator" maxlength="255" />
               </div>
               <div class="form-group">
-                <label for="resolucao-setor">Setor</label>
+                <label for="resolucao-setor"><FormLabel label="Setor" required /></label>
                 <SearchableSelect
                   id="resolucao-setor"
                   input-id="resolucao-setor"
-                  v-model="form.setor"
+                  v-model="form.setor" aria-required="true"
                   :options="meta.setores"
                   empty-option="Selecione..."
                 />

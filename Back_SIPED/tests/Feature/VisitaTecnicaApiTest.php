@@ -47,7 +47,7 @@ class VisitaTecnicaApiTest extends TestCase
             'prazo_limite' => '2026-07-20',
             'status' => 'Pendente',
             'responsavel' => 'Equipe CPED',
-            'relatorio' => null,
+            'relatorio' => 'Relatório de teste.',
             'observacao' => 'Visita de teste',
         ];
 

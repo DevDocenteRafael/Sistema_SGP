@@ -43,6 +43,15 @@ class PcaApiTest extends TestCase
             'eixo' => 'Gestão e Moda',
             'unidade' => 'Taguatinga',
             'carga_horaria' => '1200',
+            'precificacao' => 'R$ 2.500,00',
+            'valor_primeiro_modulo' => 'R$ 400,00',
+            'valor' => 'R$ 2.500,00',
+            'parcelas_boleto' => 6,
+            'valor_parcela_boleto' => 'R$ 416,67',
+            'parcelas_cartao' => 6,
+            'valor_cartao' => 'R$ 416,67',
+            'parcela_desc_20' => 'R$ 333,33',
+            'parcela_desc_15' => 'R$ 354,17',
             'status' => 'Vigente',
             'ano' => 2026,
             'observacao' => 'Registro de teste para validação da API PCA.',
@@ -89,6 +98,7 @@ class PcaApiTest extends TestCase
             'parcela_desc_15' => 'R$ 425,00',
             'status' => 'Em análise',
             'ano' => 2026,
+            'observacao' => 'PCA com precificação completa para testes.',
         ];
 
         $response = $this->postJson('/api/pcas', $payload);
@@ -182,8 +192,18 @@ class PcaApiTest extends TestCase
             'eixo' => 'Gestão e Moda',
             'unidade' => 'Taguatinga',
             'carga_horaria' => '400',
+            'precificacao' => 'R$ 1.200,00',
+            'valor_primeiro_modulo' => 'R$ 200,00',
+            'valor' => 'R$ 1.200,00',
+            'parcelas_boleto' => 4,
+            'valor_parcela_boleto' => 'R$ 300,00',
+            'parcelas_cartao' => 4,
+            'valor_cartao' => 'R$ 300,00',
+            'parcela_desc_20' => 'R$ 160,00',
+            'parcela_desc_15' => 'R$ 170,00',
             'status' => 'Vigente',
             'ano' => 2026,
+            'observacao' => 'PCA criado para o teste de CRUD completo.',
         ];
 
         $id = $this->postJson('/api/pcas', $payload)->json('pca.id');

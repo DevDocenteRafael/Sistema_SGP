@@ -75,6 +75,7 @@ class RelatorioApiTest extends TestCase
             ]);
         }
 
+        // Ofertas/execuções não são cursos e não devem inflar a contagem do relatório "Cursos por Eixo".
         \App\Models\CursoPorEixo::create([
             'curso' => 'Curso Eixo A',
             'eixo' => 'Gastronomia',
@@ -95,9 +96,18 @@ class RelatorioApiTest extends TestCase
 
         $eixos = $this->getJson('/api/relatorios/eixos/preview');
         $eixos->assertOk();
-        $this->assertSame(2, $eixos->json('meta.total'));
-        $this->assertCount(2, $eixos->json('data'));
-        $this->assertContains('Bebidas', $eixos->json('meta.eixos'));
+        $this->assertSame(3, $eixos->json('meta.total'));
+        $this->assertCount(3, $eixos->json('data'));
+        $this->assertSame(
+            [
+                'Gastronomia e Turismo',
+                'Ambiente e Saúde',
+                'Gestão e Moda',
+                'Tecnologia e Economia Criativa',
+                'Beleza e Cuidado Pessoal',
+            ],
+            $eixos->json('meta.eixos')
+        );
     }
 
     public function test_pode_listar_relatorio_de_resolucoes_no_catalogo_e_exportar_pdf(): void

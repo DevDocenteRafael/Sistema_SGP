@@ -53,9 +53,11 @@ class ImportacaoController extends Controller
 
         $validator = Validator::make($request->all(), [
             'arquivo' => ['required', 'file', 'mimes:xlsx,xls', 'max:20480'],
+            'ciclo_id' => ['nullable', 'integer', 'exists:portfolio_ciclos,id'],
         ], [
             'arquivo.required' => 'Envie um arquivo Excel (.xlsx ou .xls).',
             'arquivo.mimes' => 'O arquivo deve ser .xlsx ou .xls.',
+            'ciclo_id.exists' => 'Ciclo de gestão de destino não encontrado.',
         ]);
 
         if ($validator->fails()) {
@@ -86,7 +88,10 @@ class ImportacaoController extends Controller
             'linhas' => $resultado['linhas'],
             'colunas_preview' => $resultado['colunas_preview'],
             'resumo_acoes' => $resultado['resumo_acoes'] ?? null,
-            'aviso' => 'A confirmação atualiza o ciclo atual por upsert. Nenhum registro de outro ciclo é apagado automaticamente.',
+            'ciclo' => $resultado['ciclo'] ?? null,
+            'aviso' => $resultado['ciclo']['nome'] ?? null
+                ? 'A confirmação fará upsert no ciclo '.$resultado['ciclo']['nome'].'. Nenhum registro de outro ciclo é apagado automaticamente.'
+                : 'A confirmação atualiza o ciclo selecionado por upsert. Nenhum registro de outro ciclo é apagado automaticamente.',
         ]);
     }
 
@@ -104,9 +109,11 @@ class ImportacaoController extends Controller
 
         $validator = Validator::make($request->all(), [
             'arquivo' => ['required', 'file', 'mimes:xlsx,xls', 'max:20480'],
+            'ciclo_id' => ['nullable', 'integer', 'exists:portfolio_ciclos,id'],
         ], [
             'arquivo.required' => 'Envie novamente o arquivo Excel para confirmar a importação.',
             'arquivo.mimes' => 'O arquivo deve ser .xlsx ou .xls.',
+            'ciclo_id.exists' => 'Ciclo de gestão de destino não encontrado.',
         ]);
 
         if ($validator->fails()) {
@@ -141,6 +148,7 @@ class ImportacaoController extends Controller
             'ignoradas' => $resultado['ignoradas'],
             'erros' => $resultado['erros'],
             'resumo_acoes' => $resultado['resumo_acoes'] ?? null,
+            'ciclo' => $resultado['ciclo'] ?? null,
             'backup' => $resultado['backup'] ?? null,
         ]);
     }

@@ -3,15 +3,18 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\PertenceAoCiclo;
 use Illuminate\Database\Eloquent\Model;
 
 class VisitaTecnica extends Model
 {
     use AuditaCadastro;
+    use PertenceAoCiclo;
 
     protected $table = 'visita_tecnicas';
 
     protected $fillable = [
+        'ciclo_id',
         'unidade',
         'eixo',
         'processo_sei',

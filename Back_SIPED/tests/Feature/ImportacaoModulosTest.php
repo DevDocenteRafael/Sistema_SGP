@@ -178,6 +178,9 @@ class ImportacaoModulosTest extends TestCase
             'eixo' => 'Ambiente e Saúde',
             'codigo' => 'EIX-2',
         ]);
+        $this->assertNotNull(
+            \App\Models\CursoPorEixo::query()->where('codigo', 'EIX-2')->value('curso_id')
+        );
     }
 
     public function test_import_eixos_prefere_aba_detalhada(): void
@@ -397,7 +400,7 @@ class ImportacaoModulosTest extends TestCase
         $this->assertDatabaseMissing('eixos', ['nome' => '60+']);
     }
 
-    public function test_import_eixos_bloqueia_curso_inexistente(): void
+    public function test_import_eixos_persiste_oferta_sem_curso_como_pendencia(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
@@ -406,14 +409,25 @@ class ImportacaoModulosTest extends TestCase
         ]);
         $preview->assertOk();
         $this->assertTrue(collect($preview->json('erros'))->contains(
-            fn ($erro) => str_contains((string) ($erro['mensagem'] ?? ''), 'Curso não encontrado')
+            fn ($erro) => ($erro['bloqueante'] ?? true) === false
+                && str_contains((string) ($erro['mensagem'] ?? ''), 'Sem correspondência no catálogo de Cursos')
         ));
+        $this->assertGreaterThan(0, (int) $preview->json('resumo_acoes.pendente'));
 
         $this->post('/api/importacoes/eixos/commit', [
             'arquivo' => $this->uploadedFixture('eixos-sample.xlsx'),
-        ])->assertStatus(422);
+        ])->assertOk();
 
-        $this->assertDatabaseCount('curso_por_eixos', 0);
+        $this->assertDatabaseCount('cursos', 0);
+        $this->assertDatabaseCount('curso_por_eixos', 2);
+        $this->assertDatabaseHas('curso_por_eixos', [
+            'curso' => 'Cuidador',
+            'curso_id' => null,
+        ]);
+        $this->assertDatabaseHas('curso_por_eixos', [
+            'curso' => 'Primeiros Socorros',
+            'curso_id' => null,
+        ]);
     }
 
     private function xlsxCursosAba(string $aba, string $modalidade, string $titulo, ?string $segmento = null): UploadedFile

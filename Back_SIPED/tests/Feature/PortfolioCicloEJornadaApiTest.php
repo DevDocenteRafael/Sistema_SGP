@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Curso;
 use App\Models\PlanoDeMeta;
 use App\Models\PortfolioCiclo;
+use App\Models\RegiaoAdministrativa;
+use App\Models\UnidadeOferta;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -48,14 +50,41 @@ class PortfolioCicloEJornadaApiTest extends TestCase
     {
         $this->actingAs($this->editor(), 'sanctum');
 
+        $regiao = RegiaoAdministrativa::query()->firstOrCreate(['nome' => 'Asa Norte'], ['ativo' => true]);
+        UnidadeOferta::query()->firstOrCreate(
+            ['nome' => 'Asa Norte'],
+            ['tipo' => UnidadeOferta::TIPO_UNIDADE, 'ativo' => true, 'regiao_administrativa_id' => $regiao->id],
+        );
+
         $payload = [
+            'ciclo_id' => PortfolioCiclo::atual()?->id,
             'titulo' => 'Curso duplicado',
             'eixo' => 'Saúde',
+            'segmento' => 'Enfermagem',
+            'programa' => '60+',
             'modalidade' => 'Qualificação Profissional',
             'status' => 'ATIVO',
             'codigo_sig' => 'SIG-DUP-001',
+            'codigo_dn' => 'DN-DUP-001',
             'processo_sei' => '2026.SEI.001',
             'carga_horaria' => '40',
+            'turmas' => '1',
+            'codigo_processo' => 'PROC-DUP-001',
+            'alunos' => '10',
+            'instrutor' => 'Instrutor Teste',
+            'descricao' => 'Descrição de teste.',
+            'identificacao' => '2026',
+            'ultima_revisao' => '2026',
+            'data_inicio' => '2026-01-01',
+            'data_fim' => '2026-12-31',
+            'unidade' => 'Asa Norte',
+            'unidades_oferta' => ['Asa Norte'],
+            'observacoes' => 'Observações de teste.',
+            'valores' => '0',
+            'compativel_bolsa' => 'NÃO',
+            'comercial' => 'NÃO',
+            'pcn' => 'PCN de teste.',
+            'pcr' => 'PCR de teste.',
         ];
 
         $this->postJson('/api/cursos', $payload)->assertCreated();
@@ -149,7 +178,7 @@ class PortfolioCicloEJornadaApiTest extends TestCase
         ]);
     }
 
-    public function test_excluir_ciclo_com_registros_exige_limpeza(): void
+    public function test_excluir_ciclo_com_registros_e_bloqueado(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
@@ -173,14 +202,13 @@ class PortfolioCicloEJornadaApiTest extends TestCase
 
         $bloqueado = $this->deleteJson("/api/portfolio-ciclos/{$ciclo->id}");
         $bloqueado->assertStatus(422);
-        $bloqueado->assertJsonPath('exige_limpeza', true);
         $this->assertDatabaseHas('portfolio_ciclos', ['id' => $ciclo->id]);
         $this->assertDatabaseHas('cursos', ['codigo_sig' => 'SIG-DEL-1', 'ciclo_id' => $ciclo->id]);
 
-        $limpo = $this->deleteJson("/api/portfolio-ciclos/{$ciclo->id}?limpar_registros=1");
-        $limpo->assertOk();
-        $this->assertDatabaseMissing('portfolio_ciclos', ['id' => $ciclo->id]);
-        $this->assertDatabaseMissing('cursos', ['codigo_sig' => 'SIG-DEL-1']);
+        $forcar = $this->deleteJson("/api/portfolio-ciclos/{$ciclo->id}?limpar_registros=1");
+        $forcar->assertStatus(422);
+        $this->assertDatabaseHas('portfolio_ciclos', ['id' => $ciclo->id]);
+        $this->assertDatabaseHas('cursos', ['codigo_sig' => 'SIG-DEL-1']);
     }
 
     public function test_ciclo_novo_nao_herda_cursos_nem_metas_de_outro_ano(): void
@@ -272,13 +300,14 @@ class PortfolioCicloEJornadaApiTest extends TestCase
 
     public function test_jornada_pedagogica_crud_e_pdf(): void
     {
+        \Illuminate\Support\Facades\Storage::fake('public');
         $this->actingAs($this->editor(), 'sanctum');
 
         $this->getJson('/api/jornadas-pedagogicas')
             ->assertOk()
             ->assertJsonStructure(['data', 'meta' => ['total', 'status']]);
 
-        $create = $this->postJson('/api/jornadas-pedagogicas', [
+        $create = $this->post('/api/jornadas-pedagogicas', [
             'titulo' => 'Jornada 2026',
             'status' => 'Rascunho',
             'tem_pre_jornada' => 'Sim',
@@ -288,20 +317,31 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             'local' => 'Asa Norte',
             'espaco' => 'Auditório',
             'verba' => 'R$ 5.000,00',
+            'custos' => 'Coffee break e material gráfico.',
             'programacao' => 'Abertura e oficinas',
+            'setores' => 'CPED, Secretaria Geral',
+            'observacoes' => 'Observações de teste.',
+            'anexo' => \Illuminate\Http\UploadedFile::fake()->create('programacao.pdf', 100, 'application/pdf'),
         ]);
         $create->assertCreated();
         $id = $create->json('jornada.id');
 
-        $this->putJson("/api/jornadas-pedagogicas/{$id}", [
+        $this->post("/api/jornadas-pedagogicas/{$id}", [
+            '_method' => 'PUT',
             'titulo' => 'Jornada 2026 consolidada',
             'status' => 'Consolidado',
             'tem_pre_jornada' => 'Sim',
             'data_inicio' => '2026-02-01',
             'data_fim' => '2026-02-03',
             'data_pre_jornada' => '2026-01-28',
-            'data_pre_jornada' => '2026-01-28',
             'local' => 'Asa Norte',
+            'espaco' => 'Auditório',
+            'verba' => 'R$ 5.000,00',
+            'custos' => 'Coffee break e material gráfico.',
+            'programacao' => 'Abertura e oficinas consolidadas',
+            'setores' => 'CPED, Secretaria Geral',
+            'observacoes' => 'Observações consolidadas.',
+            'anexo' => \Illuminate\Http\UploadedFile::fake()->create('programacao-final.pdf', 100, 'application/pdf'),
         ])->assertOk()->assertJsonPath('jornada.status', 'Consolidado');
 
         $pdf = $this->get("/api/jornadas-pedagogicas/{$id}/pdf");

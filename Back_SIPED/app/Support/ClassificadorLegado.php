@@ -86,6 +86,7 @@ class ClassificadorLegado
                 self::persistirClassificacao('cursos', (int) $linha->id, $resolvido, $linha->programa ?? null);
             }
         }
+
     }
 
     /**

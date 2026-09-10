@@ -17,6 +17,7 @@ const EIXOS = [...EIXOS_OFICIAIS];
 
 export default createCrudPage({
   name: 'AcoesExtensivas',
+  usarCicloContexto: true,
   endpoint: '/api/acoes-extensivas',
   showKey: 'acaoExtensiva',
   filtrosIniciais: {
@@ -66,6 +67,7 @@ export default createCrudPage({
   },
   validarFormulario(form) {
     return combinarValidacoes(
+      textoObrigatorio(form.objetivo, 'Informe o objetivo.'),
       textoObrigatorio(form.priorizacao, 'A priorização é obrigatória.'),
       textoObrigatorio(form.atribuido, 'Informe o responsável atribuído.'),
       tamanhoMaximo(form.atribuido, 100, 'O responsável atribuído deve ter no máximo 100 caracteres.'),
@@ -78,7 +80,7 @@ export default createCrudPage({
       form.objetivo
         ? tamanhoMaximo(form.objetivo, 2000, 'O objetivo deve ter no máximo 2000 caracteres.')
         : '',
-      validarData(form.ultima_atualizacao, { rotulo: 'Última atualização' }),
+      validarData(form.ultima_atualizacao, { obrigatorio: true, rotulo: 'Última atualização' }),
     );
   },
   montarPayload(form) {

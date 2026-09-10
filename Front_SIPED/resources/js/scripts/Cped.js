@@ -500,6 +500,10 @@ export default {
       const precisaEixo = this.form.tipo === 'responsavel' || this.form.tipo === 'instrutor';
 
       return combinarValidacoes(
+        textoObrigatorio(this.form.iniciais, 'Informe as iniciais do avatar.'),
+        textoObrigatorio(this.form.cor, 'Informe a cor do avatar.'),
+        textoObrigatorio(this.form.ativo, 'Informe se o membro está ativo.'),
+        textoObrigatorio(this.form.observacao, 'Informe a observação.'),
         textoObrigatorio(this.form.nome, 'Informe o nome completo.'),
         tamanhoMaximo(this.form.nome, 100, 'O nome deve ter no máximo 100 caracteres.'),
         textoObrigatorio(this.form.cargo, 'Informe o cargo / função.'),

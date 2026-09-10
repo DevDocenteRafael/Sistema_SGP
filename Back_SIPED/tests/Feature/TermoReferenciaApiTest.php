@@ -49,6 +49,9 @@ class TermoReferenciaApiTest extends TestCase
             'processo_sei' => '2026.00.00001-0',
             'prazo_deadline' => '2026-12-01',
             'status' => 'Planejamento',
+            'observacao' => 'Observação inicial.',
+            'data_inicio' => '2026-03-01',
+            'data_fim' => '2026-11-01',
         ];
 
         $create = $this->postJson('/api/termos-referencia', $payload);

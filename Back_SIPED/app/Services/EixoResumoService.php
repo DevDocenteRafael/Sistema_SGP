@@ -144,7 +144,7 @@ class EixoResumoService
     }
 
     /**
-     * @return array{cursos: int, ofertas: int, amostra: list<array<string, mixed>>}
+     * @return array{cursos: int, ofertas: int, sem_correspondencia: int, amostra: list<array<string, mixed>>, amostra_sem_correspondencia: list<array<string, mixed>>}
      */
     public function pendentes(?int $cicloId = null): array
     {
@@ -183,10 +183,35 @@ class EixoResumoService
                 'programa' => $oferta->programa,
             ])->all();
 
+        $semCorrespondenciaQuery = CursoPorEixo::query()
+            ->whereNull('curso_id')
+            ->whereNotNull('eixo_id');
+        if ($cicloId) {
+            $semCorrespondenciaQuery->where('ciclo_id', $cicloId);
+        }
+
+        $semCorrespondenciaCount = (clone $semCorrespondenciaQuery)->count();
+        $semCorrespondenciaAmostra = (clone $semCorrespondenciaQuery)
+            ->orderBy('id')
+            ->limit(40)
+            ->get(['id', 'curso', 'eixo', 'segmento', 'codigo', 'programa'])
+            ->map(fn (CursoPorEixo $oferta) => [
+                'tipo' => 'oferta',
+                'id' => $oferta->id,
+                'nome' => $oferta->curso,
+                'eixo_original' => $oferta->eixo,
+                'segmento' => $oferta->segmento,
+                'programa' => $oferta->programa,
+                'codigo' => $oferta->codigo,
+                'motivo' => 'Sem correspondência no catálogo de Cursos',
+            ])->all();
+
         return [
             'cursos' => $cursosCount,
             'ofertas' => $ofertasCount,
+            'sem_correspondencia' => $semCorrespondenciaCount,
             'amostra' => array_slice(array_merge($amostra, $ofertasAmostra), 0, 40),
+            'amostra_sem_correspondencia' => $semCorrespondenciaAmostra,
         ];
     }
 

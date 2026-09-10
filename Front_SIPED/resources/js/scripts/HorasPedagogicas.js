@@ -19,6 +19,7 @@ const ANOS = ['2024', '2025', '2026', '2027'];
 
 export default createCrudPage({
   name: 'HorasPedagogicas',
+  usarCicloContexto: true,
   endpoint: '/api/horas-pedagogicas',
   listKey: 'horas',
   detailKey: 'horaDetalhe',
@@ -68,6 +69,8 @@ export default createCrudPage({
   },
   validarFormulario(form) {
     return combinarValidacoes(
+      textoObrigatorio(form.ativo, 'Informe se o registro está ativo.'),
+      textoObrigatorio(form.observacao, 'Informe a observação.'),
       textoObrigatorio(form.matricula, 'A matrícula é obrigatória.'),
       validarInteiro(form.matricula, { rotulo: 'Matrícula', min: 1, maxDigitos: 50 }),
       textoObrigatorio(form.pessoa, 'O nome da pessoa é obrigatório.'),

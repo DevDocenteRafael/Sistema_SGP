@@ -274,42 +274,42 @@
             <h2>Dados do curso</h2>
             <div class="form-grid form-grid-3">
               <div class="form-group">
-                <label for="ano">Ano</label>
+                <label for="ano"><FormLabel label="Ano" required /></label>
                 <SearchableSelect
                   id="ano"
                   input-id="ano"
-                  v-model="form.ano"
+                  v-model="form.ano" aria-required="true"
                   :options="anos"
                   empty-option="Selecione..."
                 />
               </div>
 
               <div class="form-group">
-                <label for="semestre">Semestre</label>
+                <label for="semestre"><FormLabel label="Semestre" required /></label>
                 <SearchableSelect
                   id="semestre"
                   input-id="semestre"
-                  v-model="form.semestre"
+                  v-model="form.semestre" aria-required="true"
                   :options="semestres"
                   empty-option="Selecione..."
                 />
               </div>
 
               <div class="form-group">
-                <label for="numero_sei">SEI</label>
-                <input id="numero_sei" v-model="form.numero_sei" type="text" maxlength="100" placeholder="Ex.: 0001234.567890/2026-01" @input="formatarNumeroSei" />
+                <label for="numero_sei"><FormLabel label="SEI" required /></label>
+                <input id="numero_sei" v-model="form.numero_sei" aria-required="true" type="text" maxlength="100" placeholder="Ex.: 0001234.567890/2026-01" @input="formatarNumeroSei" />
               </div>
 
               <div class="form-group">
-                <label for="codigo_sig">SIG</label>
-                <input id="codigo_sig" v-model="form.codigo_sig" type="text" maxlength="100" placeholder="Ex.: SIG-001" />
+                <label for="codigo_sig"><FormLabel label="SIG" required /></label>
+                <input id="codigo_sig" v-model="form.codigo_sig" aria-required="true" type="text" maxlength="100" placeholder="Ex.: SIG-001" />
               </div>
 
               <div class="form-group full">
                 <label for="titulo"><FormLabel label="Título / Curso" required /></label>
                 <input
                   id="titulo"
-                  v-model="form.titulo"
+                  v-model="form.titulo" aria-required="true"
                   type="text"
                   maxlength="255"
                   required
@@ -318,30 +318,30 @@
               </div>
 
               <div class="form-group">
-                <label for="eixo">Eixo</label>
+                <label for="eixo"><FormLabel label="Eixo" required /></label>
                 <SearchableSelect
                   id="eixo"
                   input-id="eixo"
-                  v-model="form.eixo"
+                  v-model="form.eixo" aria-required="true"
                   :options="eixos"
                   empty-option="Selecione..."
                 />
               </div>
 
               <div class="form-group">
-                <label for="unidade">Estrutura Institucional</label>
+                <label for="unidade"><FormLabel label="Estrutura Institucional" required /></label>
                 <SearchableSelect
                   id="unidade"
                   input-id="unidade"
-                  v-model="form.unidade"
+                  v-model="form.unidade" aria-required="true"
                   :options="unidades"
                   empty-option="Selecione..."
                 />
               </div>
 
               <div class="form-group">
-                <label for="carga_horaria">CH</label>
-                <input id="carga_horaria" v-model="form.carga_horaria" type="text" inputmode="numeric" placeholder="Ex.: 1200" maxlength="5" @input="formatarCargaHoraria" />
+                <label for="carga_horaria"><FormLabel label="CH" required /></label>
+                <input id="carga_horaria" v-model="form.carga_horaria" aria-required="true" type="text" inputmode="numeric" placeholder="Ex.: 1200" maxlength="5" @input="formatarCargaHoraria" />
               </div>
             </div>
           </section>
@@ -350,40 +350,40 @@
             <h2>Precificação</h2>
             <div class="form-grid form-grid-3">
               <div class="form-group">
-                <label for="precificacao">Precificação</label>
-                <input id="precificacao" v-model="form.precificacao" type="text" maxlength="100" placeholder="Ex.: R$ 4.800,00" />
+                <label for="precificacao"><FormLabel label="Precificação" required /></label>
+                <input id="precificacao" v-model="form.precificacao" aria-required="true" type="text" maxlength="100" placeholder="Ex.: R$ 4.800,00" />
               </div>
               <div class="form-group">
-                <label for="valor_primeiro_modulo">Valor 1º Módulo</label>
-                <input id="valor_primeiro_modulo" v-model="form.valor_primeiro_modulo" type="text" maxlength="50" placeholder="Ex.: 800,00" @input="formatarValorPrimeiroModulo" />
+                <label for="valor_primeiro_modulo"><FormLabel label="Valor 1º Módulo" required /></label>
+                <input id="valor_primeiro_modulo" v-model="form.valor_primeiro_modulo" aria-required="true" type="text" maxlength="50" placeholder="Ex.: 800,00" @input="formatarValorPrimeiroModulo" />
               </div>
               <div class="form-group">
-                <label for="valor">Valor Principal</label>
-                <input id="valor" v-model="form.valor" type="text" maxlength="50" placeholder="Ex.: 4.800,00" @input="formatarValor" />
+                <label for="valor"><FormLabel label="Valor Principal" required /></label>
+                <input id="valor" v-model="form.valor" aria-required="true" type="text" maxlength="50" placeholder="Ex.: 4.800,00" @input="formatarValor" />
               </div>
               <div class="form-group">
-                <label for="parcelas_boleto">Parcelas Boleto</label>
-                <input id="parcelas_boleto" v-model="form.parcelas_boleto" type="text" inputmode="numeric" placeholder="Ex.: 12" maxlength="3" @input="formatarParcelasBoleto" />
+                <label for="parcelas_boleto"><FormLabel label="Parcelas Boleto" required /></label>
+                <input id="parcelas_boleto" v-model="form.parcelas_boleto" aria-required="true" type="text" inputmode="numeric" placeholder="Ex.: 12" maxlength="3" @input="formatarParcelasBoleto" />
               </div>
               <div class="form-group">
-                <label for="valor_parcela_boleto">Valor Parcela Boleto</label>
-                <input id="valor_parcela_boleto" v-model="form.valor_parcela_boleto" type="text" maxlength="50" placeholder="Ex.: 400,00" @input="formatarValorParcelaBoleto" />
+                <label for="valor_parcela_boleto"><FormLabel label="Valor Parcela Boleto" required /></label>
+                <input id="valor_parcela_boleto" v-model="form.valor_parcela_boleto" aria-required="true" type="text" maxlength="50" placeholder="Ex.: 400,00" @input="formatarValorParcelaBoleto" />
               </div>
               <div class="form-group">
-                <label for="parcelas_cartao">Parcelas Cartão</label>
-                <input id="parcelas_cartao" v-model="form.parcelas_cartao" type="text" inputmode="numeric" placeholder="Ex.: 10" maxlength="3" @input="formatarParcelasCartao" />
+                <label for="parcelas_cartao"><FormLabel label="Parcelas Cartão" required /></label>
+                <input id="parcelas_cartao" v-model="form.parcelas_cartao" aria-required="true" type="text" inputmode="numeric" placeholder="Ex.: 10" maxlength="3" @input="formatarParcelasCartao" />
               </div>
               <div class="form-group">
-                <label for="valor_cartao">Valor Cartão</label>
-                <input id="valor_cartao" v-model="form.valor_cartao" type="text" maxlength="50" placeholder="Ex.: 480,00" @input="formatarValorCartao" />
+                <label for="valor_cartao"><FormLabel label="Valor Cartão" required /></label>
+                <input id="valor_cartao" v-model="form.valor_cartao" aria-required="true" type="text" maxlength="50" placeholder="Ex.: 480,00" @input="formatarValorCartao" />
               </div>
               <div class="form-group">
-                <label for="parcela_desc_20">Parcela com desc. 20%</label>
-                <input id="parcela_desc_20" v-model="form.parcela_desc_20" type="text" maxlength="50" placeholder="Ex.: 320,00" @input="formatarParcelaDesc20" />
+                <label for="parcela_desc_20"><FormLabel label="Parcela com desc. 20%" required /></label>
+                <input id="parcela_desc_20" v-model="form.parcela_desc_20" aria-required="true" type="text" maxlength="50" placeholder="Ex.: 320,00" @input="formatarParcelaDesc20" />
               </div>
               <div class="form-group">
-                <label for="parcela_desc_15">Parcela com desc. 15%</label>
-                <input id="parcela_desc_15" v-model="form.parcela_desc_15" type="text" maxlength="50" placeholder="Ex.: 340,00" @input="formatarParcelaDesc15" />
+                <label for="parcela_desc_15"><FormLabel label="Parcela com desc. 15%" required /></label>
+                <input id="parcela_desc_15" v-model="form.parcela_desc_15" aria-required="true" type="text" maxlength="50" placeholder="Ex.: 340,00" @input="formatarParcelaDesc15" />
               </div>
             </div>
           </section>
@@ -396,17 +396,17 @@
                 <SearchableSelect
                   id="status"
                   input-id="status"
-                  v-model="form.status"
+                  v-model="form.status" aria-required="true"
                   :options="statusLista"
                   empty-option="Selecione..."
                   :required="true"
                 />
               </div>
               <div class="form-group full">
-                <label for="observacao">Observação</label>
+                <label for="observacao"><FormLabel label="Observação" required /></label>
                 <textarea
                   id="observacao"
-                  v-model="form.observacao"
+                  v-model="form.observacao" aria-required="true"
                   rows="4"
                   maxlength="2000"
                   placeholder="Observações sobre precificação, status ou validação..."

@@ -1,4 +1,5 @@
 import { podeEditarDados } from './auth';
+import { CICLO_CONTEXTO_EVENTO, lerCicloContexto } from './cicloContexto';
 import {
   combinarValidacoes,
   extrairErroApi,
@@ -79,9 +80,17 @@ export default {
     },
   },
   mounted() {
+    window.addEventListener(CICLO_CONTEXTO_EVENTO, this.aoTrocarCiclo);
     this.carregarRegistros();
   },
+  beforeUnmount() {
+    window.removeEventListener(CICLO_CONTEXTO_EVENTO, this.aoTrocarCiclo);
+  },
   methods: {
+    aoTrocarCiclo() {
+      this.carregarRegistros();
+    },
+
     limparFiltros() {
       this.filtros = { busca: '', status: '' };
       this.aplicarFiltros();
@@ -103,6 +112,11 @@ export default {
             params[chave] = valor;
           }
         });
+
+        const ciclo = lerCicloContexto();
+        if (ciclo?.id) {
+          params.ciclo_id = ciclo.id;
+        }
 
         const { data } = await window.axios.get(ENDPOINT, { params });
         this.registros = data.data ?? [];
@@ -227,6 +241,14 @@ export default {
 
     validarFormulario() {
       return combinarValidacoes(
+        textoObrigatorio(this.form.local, 'Informe o local.'),
+        textoObrigatorio(this.form.espaco, 'Informe o espaço.'),
+        textoObrigatorio(this.form.verba, 'Informe a verba.'),
+        textoObrigatorio(this.form.setores, 'Informe os setores.'),
+        textoObrigatorio(this.form.custos, 'Informe os custos.'),
+        textoObrigatorio(this.form.programacao, 'Informe a programação.'),
+        textoObrigatorio(this.form.observacoes, 'Informe as observações.'),
+        textoObrigatorio(this.form.anexoFile, 'Informe o anexo.'),
         textoObrigatorio(this.form.titulo, 'O título da jornada é obrigatório.'),
         tamanhoMaximo(this.form.titulo, 255, 'O título deve ter no máximo 255 caracteres.'),
         validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
@@ -290,6 +312,10 @@ export default {
       formData.append('programacao', this.form.programacao || '');
       formData.append('setores', this.form.setores || '');
       formData.append('observacoes', this.form.observacoes || '');
+      const ciclo = lerCicloContexto();
+      if (ciclo?.id) {
+        formData.append('ciclo_id', ciclo.id);
+      }
 
       if (this.form.anexoFile) {
         formData.append('anexo', this.form.anexoFile);

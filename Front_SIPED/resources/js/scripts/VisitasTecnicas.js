@@ -23,6 +23,7 @@ const PRAZO_LISTA = [
 export default createCrudPage({
   name: 'VisitasTecnicas',
   carregarUnidadesApi: true,
+  usarCicloContexto: true,
   endpoint: '/api/visitas-tecnicas',
   listKey: 'visitas',
   detailKey: 'visitaDetalhe',
@@ -74,6 +75,8 @@ export default createCrudPage({
   },
   validarFormulario(form) {
     return combinarValidacoes(
+      textoObrigatorio(form.relatorio, 'Informe o relatório.'),
+      textoObrigatorio(form.observacao, 'Informe a observação.'),
       textoObrigatorio(form.unidade, 'A unidade é obrigatória.'),
       textoObrigatorio(form.eixo, 'O eixo é obrigatório.'),
       validarProcessoSei(form.processo_sei, { obrigatorio: true }),
