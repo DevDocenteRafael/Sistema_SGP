@@ -9,8 +9,8 @@ return [
         'cursos' => [
             'key' => 'cursos',
             'label' => 'Cursos',
-            'description' => 'Importa as abas de portfólio por eixo (título, CH, SIG, SEI, status…). Atualiza o ciclo atual sem apagar ciclos anteriores.',
-            'ajuda' => 'Usa as abas de portfólio por eixo. A coluna Segmento é preservada. A aba Saúde vira Ambiente e Saúde. 60+ e Ensino Médio são programas, não eixos: cada linha precisa de um segmento (ou outro dado) que resolva um dos 5 eixos oficiais. A confirmação faz upsert no ciclo atual.',
+            'description' => 'Importa as abas de portfólio por eixo (título, CH, SIG, SEI, status…). Atualiza o ciclo selecionado sem apagar ciclos anteriores.',
+            'ajuda' => 'Usa as abas de portfólio por eixo. A coluna Segmento é preservada. A aba Saúde vira Ambiente e Saúde. 60+ e Ensino Médio são programas, não eixos: cada linha precisa de um segmento (ou outro dado) que resolva um dos 5 eixos oficiais. A confirmação faz upsert no ciclo selecionado no seletor.',
             'model' => App\Models\Curso::class,
             'table' => 'cursos',
             'mode' => 'multi_sheet',
@@ -71,7 +71,7 @@ return [
         'plano-de-metas' => [
             'key' => 'plano-de-metas',
             'label' => 'Plano de Metas',
-            'description' => 'Importa a aba de Plano de Metas. Faz upsert no ciclo atual, sem apagar o ciclo anterior.',
+            'description' => 'Importa a aba de Plano de Metas. Faz upsert no ciclo selecionado, sem apagar o ciclo anterior.',
             'ajuda' => 'Procura a aba “PLANO DE METAS 2025” (ou nome semelhante).',
             'model' => App\Models\PlanoDeMeta::class,
             'table' => 'plano_de_metas',
@@ -111,7 +111,7 @@ return [
         'pcas' => [
             'key' => 'pcas',
             'label' => 'PCA',
-            'description' => 'Importa a aba de propostas/valores do PCA. Faz upsert no ciclo atual, sem apagar o ciclo anterior.',
+            'description' => 'Importa a aba de propostas/valores do PCA. Faz upsert no ciclo selecionado, sem apagar o ciclo anterior.',
             'ajuda' => 'Prioriza a aba “PCA 2026 | Propostas” ou abas de Retificativos/Valores PCA.',
             'model' => App\Models\Pca::class,
             'table' => 'pcas',
@@ -171,7 +171,7 @@ return [
             'key' => 'eixos',
             'label' => 'Eixos',
             'description' => 'Importa a aba “Quantidade de cursos por eixo” (oferta/execução). Vincula cursos já cadastrados no ciclo; não cria curso novo.',
-            'ajuda' => 'Usa a aba detalhada “Quantidade de cursos por eixo” (com Código, Turmas e Alunos). Cada linha precisa corresponder a um curso já existente no ciclo atual. A confirmação faz upsert e não apaga o ciclo anterior.',
+            'ajuda' => 'Usa a aba detalhada “Quantidade de cursos por eixo” (com Código, Turmas e Alunos). Cada linha precisa corresponder a um curso já existente no ciclo selecionado. A confirmação faz upsert e não apaga o ciclo anterior.',
             'model' => App\Models\CursoPorEixo::class,
             'table' => 'curso_por_eixos',
             'mode' => 'eixos_forward_fill',

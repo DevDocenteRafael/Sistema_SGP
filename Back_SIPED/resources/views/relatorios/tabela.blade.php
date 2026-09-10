@@ -84,6 +84,9 @@
         <p class="header-kicker">SENAC DF · CPED · SIPED</p>
         <h1>{{ $titulo }}</h1>
         <p>{{ $descricao }}</p>
+        @if (!empty($ciclo['nome']))
+            <p>Ciclo de gestão: <strong>{{ $ciclo['nome'] }}</strong>@if (!empty($ciclo['atual'])) (atual)@endif</p>
+        @endif
     </div>
 
     <div class="meta">

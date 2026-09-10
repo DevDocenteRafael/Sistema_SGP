@@ -68,7 +68,7 @@ class UsuarioRequest extends FormRequest
                 'max:100',
             ],
             'cpf' => [
-                'nullable',
+                'required',
                 'string',
                 'size:11',
                 new CpfValido,
@@ -78,10 +78,10 @@ class UsuarioRequest extends FormRequest
                 'required',
                 Rule::in(config('permissoes.perfis')),
             ],
-            'status' => ['sometimes', 'boolean'],
-            'unidade' => ['nullable', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
-            'area' => ['nullable', 'string', 'max:100'],
-            'telefone' => ['nullable', 'string', 'max:20', 'regex:/^\d{10,11}$/'],
+            'status' => ['required', 'boolean'],
+            'unidade' => ['required', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
+            'area' => ['required', 'string', 'max:100'],
+            'telefone' => ['required', 'string', 'max:20', 'regex:/^\d{10,11}$/'],
             'foto' => ['nullable', 'image', 'max:2048'],
             'remover_foto' => ['nullable', 'boolean'],
         ];
@@ -90,6 +90,11 @@ class UsuarioRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'status.required' => 'Informe se o usuário está ativo.',
+            'unidade.required' => 'Informe a estrutura institucional.',
+            'area.required' => 'Informe a área de atuação.',
+            'cpf.required' => 'Informe o CPF.',
+            'telefone.required' => 'Informe o telefone.',
             'nome.required' => 'O nome é obrigatório.',
             'email.required' => 'O e-mail é obrigatório.',
             'email.email' => 'Informe um e-mail válido.',
