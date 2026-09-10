@@ -302,11 +302,11 @@
                 />
               </div>
               <div class="form-group">
-                <label for="ativo">Ativo</label>
+                <label for="ativo"><FormLabel label="Ativo" required /></label>
                 <SearchableSelect
                   id="ativo"
                   input-id="ativo"
-                  v-model="form.ativo"
+                  v-model="form.ativo" aria-required="true"
                   :options="[
                     { value: 'true', label: 'Sim' },
                     { value: 'false', label: 'Não' },
@@ -325,10 +325,10 @@
                 />
               </div>
               <div class="form-group full">
-                <label for="observacao">Observação</label>
+                <label for="observacao"><FormLabel label="Observação" required /></label>
                 <textarea
                   id="observacao"
-                  v-model="form.observacao"
+                  v-model="form.observacao" aria-required="true"
                   rows="3"
                   maxlength="2000"
                   placeholder="Informações adicionais ou pendências"

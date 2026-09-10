@@ -293,8 +293,8 @@
                 />
               </div>
               <div class="form-group">
-                <label for="ultima_atualizacao">Última atualização</label>
-                <input id="ultima_atualizacao" v-model="form.ultima_atualizacao" type="date" />
+                <label for="ultima_atualizacao"><FormLabel label="Última atualização" required /></label>
+                <input id="ultima_atualizacao" v-model="form.ultima_atualizacao" aria-required="true" type="date" />
               </div>
               <div class="form-group full">
                 <label for="assunto"><FormLabel label="Assunto" required /></label>
@@ -308,10 +308,10 @@
                 />
               </div>
               <div class="form-group full">
-                <label for="objetivo">Objetivo</label>
+                <label for="objetivo"><FormLabel label="Objetivo" required /></label>
                 <textarea
                   id="objetivo"
-                  v-model="form.objetivo"
+                  v-model="form.objetivo" aria-required="true"
                   rows="5"
                   maxlength="2000"
                   placeholder="Descreva o objetivo da ação"
