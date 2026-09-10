@@ -297,10 +297,11 @@ export default {
 
       if (abaId === 'acompanhamento') {
         return combinarValidacoes(
+          textoObrigatorio(this.form.observacao, 'Informe as observações.'),
           validarData(this.form.prazo_deadline, { obrigatorio: true, rotulo: 'Prazo/deadline' }),
           textoObrigatorio(this.form.status, 'O status é obrigatório.'),
-          validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
-          validarData(this.form.data_fim, { rotulo: 'Data de término' }),
+          validarData(this.form.data_inicio, { obrigatorio: true, rotulo: 'Data de início' }),
+          validarData(this.form.data_fim, { obrigatorio: true, rotulo: 'Data de término' }),
           validarOrdemDatas(
             this.form.data_inicio,
             this.form.data_fim,

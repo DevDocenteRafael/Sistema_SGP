@@ -284,18 +284,18 @@
                   <input id="prazo-deadline" v-model="form.prazo_deadline" type="date" />
                 </div>
                 <div class="form-group">
-                  <label for="data-inicio">Data de início</label>
-                  <input id="data-inicio" v-model="form.data_inicio" type="date" />
+                  <label for="data-inicio"><FormLabel label="Data de início" required /></label>
+                  <input id="data-inicio" v-model="form.data_inicio" aria-required="true" type="date" />
                 </div>
                 <div class="form-group">
-                  <label for="data-fim">Data de término prevista</label>
-                  <input id="data-fim" v-model="form.data_fim" type="date" />
+                  <label for="data-fim"><FormLabel label="Data de término prevista" required /></label>
+                  <input id="data-fim" v-model="form.data_fim" aria-required="true" type="date" />
                 </div>
                 <div class="form-group full">
-                  <label for="observacao-tr">Observações</label>
+                  <label for="observacao-tr"><FormLabel label="Observações" required /></label>
                   <textarea
                     id="observacao-tr"
-                    v-model="form.observacao"
+                    v-model="form.observacao" aria-required="true"
                     rows="4"
                     maxlength="2000"
                     placeholder="Adicione observações, justificativas ou informações adicionais sobre o TR..."

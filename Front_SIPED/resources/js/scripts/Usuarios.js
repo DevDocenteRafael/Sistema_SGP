@@ -291,12 +291,16 @@ export default {
 
     validarFormulario() {
       return combinarValidacoes(
+        textoObrigatorio(this.form.telefone, 'Informe o telefone.'),
+        textoObrigatorio(this.form.area, 'Informe a área de atuação.'),
+        textoObrigatorio(this.form.unidade, 'Informe a estrutura institucional.'),
+        textoObrigatorio(this.form.status, 'Informe se o usuário está ativo.'),
         textoObrigatorio(this.form.nome, 'O nome é obrigatório.'),
         tamanhoMaximo(this.form.nome, 100, 'O nome deve ter no máximo 100 caracteres.'),
         validarEmail(this.form.email, { obrigatorio: true }),
         tamanhoMaximo(this.form.email, 100, 'O e-mail deve ter no máximo 100 caracteres.'),
         textoObrigatorio(this.form.perfil, 'O perfil é obrigatório.'),
-        validarCpf(this.form.cpf),
+        validarCpf(this.form.cpf, { obrigatorio: true }),
         tamanhoMaximo(this.form.area, 100, 'A área deve ter no máximo 100 caracteres.'),
         this.modo === 'novo'
           ? validarSenha(this.form.senha, { obrigatorio: true })

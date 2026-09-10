@@ -263,16 +263,16 @@
                 <input id="email" v-model="form.email" type="email" placeholder="nome@df.senac.br" required maxlength="100" />
               </div>
               <div class="form-group">
-                <label for="telefone">Telefone</label>
-                <input id="telefone" v-model="form.telefone" type="text" placeholder="(61) 99999-9999" maxlength="20" @input="formatarTelefone" />
+                <label for="telefone"><FormLabel label="Telefone" required /></label>
+                <input id="telefone" v-model="form.telefone" aria-required="true" type="text" placeholder="(61) 99999-9999" maxlength="20" @input="formatarTelefone" />
               </div>
               <div class="form-group">
-                <label for="cpf">CPF</label>
-                <input id="cpf" v-model="form.cpf" type="text" placeholder="000.000.000-00" maxlength="14" @input="formatarCpf" />
+                <label for="cpf"><FormLabel label="CPF" required /></label>
+                <input id="cpf" v-model="form.cpf" aria-required="true" type="text" placeholder="000.000.000-00" maxlength="14" @input="formatarCpf" />
               </div>
               <div class="form-group">
-                <label for="area">Área de atuação</label>
-                <input id="area" v-model="form.area" type="text" placeholder="Ex: Coordenação Pedagógica" maxlength="100" />
+                <label for="area"><FormLabel label="Área de atuação" required /></label>
+                <input id="area" v-model="form.area" aria-required="true" type="text" placeholder="Ex: Coordenação Pedagógica" maxlength="100" />
               </div>
             </div>
           </section>
@@ -296,11 +296,11 @@
                 />
               </div>
               <div class="form-group">
-                <label for="unidade"><FormLabel label="Estrutura Institucional" /></label>
+                <label for="unidade"><FormLabel label="Estrutura Institucional" required /></label>
                 <SearchableSelect
                   id="unidade"
                   input-id="unidade"
-                  v-model="form.unidade"
+                  v-model="form.unidade" aria-required="true"
                   :options="unidades"
                   empty-option="Selecione a estrutura institucional"
                   :required="true"
@@ -333,8 +333,8 @@
             </div>
 
             <label class="form-check">
-              <input v-model="form.status" type="checkbox" />
-              Usuário ativo
+              <input v-model="form.status" aria-required="true" type="checkbox" />
+              <FormLabel label="Usuário ativo" required />
             </label>
           </section>
 
