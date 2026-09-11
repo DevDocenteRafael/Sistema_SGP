@@ -3,6 +3,8 @@
 return [
     'status' => [
         'Ativo',
+        'Em andamento',
+        'Concluído',
         'Suspenso',
         'Inativo',
     ],

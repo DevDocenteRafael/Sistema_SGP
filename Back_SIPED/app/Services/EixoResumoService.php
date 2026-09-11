@@ -2,17 +2,18 @@
 
 namespace App\Services;
 
+use App\Models\Ciclo;
 use App\Models\Curso;
-use App\Models\CursoPorEixo;
+use App\Models\CursoExecucao;
 use App\Models\Eixo;
-use App\Models\PortfolioCiclo;
 use App\Models\Segmento;
 use App\Support\CatalogoOficial;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class EixoResumoService
 {
     /**
-     * @return array{ciclo_id: ?int, ciclo_nome: ?string, eixos: list<array<string, mixed>>}
+     * @return array<string, mixed>
      */
     public function resumo(mixed $cicloId = null): array
     {
@@ -24,11 +25,24 @@ class EixoResumoService
             ->orderBy('nome')
             ->get();
 
+        $cards = $eixos->map(fn (Eixo $eixo) => $this->cardEixo($eixo, $cicloFiltro))->all();
+
+        $cursosClassificados = Curso::query()->whereNotNull('eixo_id');
+        if ($cicloFiltro) {
+            $cursosClassificados->where('ciclo_id', $cicloFiltro);
+        }
+
         return [
             'ciclo_id' => $cicloFiltro,
             'ciclo_nome' => $ciclo?->nome,
-            'eixos' => $eixos->map(fn (Eixo $eixo) => $this->cardEixo($eixo, $cicloFiltro))->all(),
-            'pendentes' => $this->pendentes($cicloFiltro),
+            'totais' => [
+                'eixos' => count($cards),
+                'cursos_classificados' => $cursosClassificados->count(),
+                'cursos' => $cursosClassificados->count(),
+                'turmas' => array_sum(array_column($cards, 'turmas')),
+                'alunos' => array_sum(array_column($cards, 'alunos')),
+            ],
+            'eixos' => $cards,
         ];
     }
 
@@ -38,56 +52,83 @@ class EixoResumoService
     public function detalhes(Eixo $eixo, mixed $cicloId = null): array
     {
         [$ciclo, $cicloFiltro] = $this->resolverCiclo($cicloId);
-        $ofertas = $this->ofertasDoEixo($eixo->id, $cicloFiltro);
+        $indicadores = $this->cardEixo($eixo, $cicloFiltro);
+        $dados = $this->queryDadosValidos($cicloFiltro, $eixo->id)->get();
 
         $segmentos = Segmento::query()
             ->where('eixo_id', $eixo->id)
             ->orderBy('ordem')
             ->orderBy('nome')
             ->get()
-            ->map(function (Segmento $segmento) use ($cicloFiltro, $ofertas) {
+            ->map(function (Segmento $segmento) use ($cicloFiltro, $dados) {
                 $cursos = Curso::query()->where('segmento_id', $segmento->id);
                 if ($cicloFiltro) {
                     $cursos->where('ciclo_id', $cicloFiltro);
                 }
 
-                $ofertasDoSegmento = $ofertas->where('segmento_id', $segmento->id);
+                $doSegmento = $dados->where('segmento_id', $segmento->id);
 
                 return [
                     'id' => $segmento->id,
                     'nome' => $segmento->nome,
                     'cursos' => $cursos->count(),
-                    'ofertas' => $ofertasDoSegmento->count(),
-                    'turmas' => $this->somarInteiros($ofertasDoSegmento->pluck('turmas')),
-                    'alunos' => $this->somarInteiros($ofertasDoSegmento->pluck('alunos')),
+                    'turmas' => $this->somarInteiros($doSegmento->pluck('turmas')),
+                    'alunos' => $this->somarInteiros($doSegmento->pluck('alunos')),
                 ];
             })
             ->all();
 
-        $cursos = Curso::query()->where('eixo_id', $eixo->id);
-        if ($cicloFiltro) {
-            $cursos->where('ciclo_id', $cicloFiltro);
-        }
-
         return [
             'ciclo_id' => $cicloFiltro,
             'ciclo_nome' => $ciclo?->nome,
-            'eixo' => $this->cardEixo($eixo, $cicloFiltro),
+            'eixo' => $indicadores,
+            'indicadores' => $indicadores,
             'segmentos' => $segmentos,
-            'cursos' => $cursos->orderBy('titulo')->get(['id', 'titulo', 'segmento', 'programa', 'status', 'codigo_sig'])->all(),
-            'ofertas' => $ofertas->map(fn (CursoPorEixo $oferta) => [
-                'id' => $oferta->id,
-                'curso_id' => $oferta->curso_id,
-                'curso' => $oferta->curso,
-                'segmento' => $oferta->segmento,
-                'programa' => $oferta->programa,
-                'codigo' => $oferta->codigo,
-                'ch' => $oferta->ch,
-                'turmas' => $oferta->turmas,
-                'alunos' => $oferta->alunos,
-                'instrutores' => $oferta->instrutores,
-                'status' => $oferta->status,
-            ])->values()->all(),
+        ];
+    }
+
+    /**
+     * @return array{data: list<array<string, mixed>>, meta: array<string, mixed>}
+     */
+    public function cursos(Eixo $eixo, mixed $cicloId = null, mixed $busca = null, int $perPage = 25): array
+    {
+        [, $cicloFiltro] = $this->resolverCiclo($cicloId);
+
+        $query = Curso::query()->where('eixo_id', $eixo->id)->orderBy('titulo');
+        if ($cicloFiltro) {
+            $query->where('ciclo_id', $cicloFiltro);
+        }
+        if (is_string($busca) && trim($busca) !== '') {
+            $termo = trim($busca);
+            $query->where(function ($q) use ($termo) {
+                $q->where('titulo', 'like', "%{$termo}%")
+                    ->orWhere('segmento', 'like', "%{$termo}%")
+                    ->orWhere('modalidade', 'like', "%{$termo}%")
+                    ->orWhere('codigo_sig', 'like', "%{$termo}%");
+            });
+        }
+
+        $paginator = $query->paginate(max(1, min(50, $perPage)));
+        $totais = $this->totaisPorCurso($paginator, $cicloFiltro);
+
+        $linhas = $paginator->getCollection()->map(function (Curso $curso) use ($totais) {
+            $dados = $totais[$curso->id] ?? ['turmas' => 0, 'alunos' => 0];
+
+            return [
+                'id' => $curso->id,
+                'titulo' => $curso->titulo,
+                'segmento' => $curso->segmento,
+                'modalidade' => $curso->modalidade,
+                'codigo_sig' => $curso->codigo_sig,
+                'status' => $curso->status,
+                'turmas' => $dados['turmas'],
+                'alunos' => $dados['alunos'],
+            ];
+        })->values()->all();
+
+        return [
+            'data' => $linhas,
+            'meta' => $this->metaPaginacao($paginator),
         ];
     }
 
@@ -101,118 +142,103 @@ class EixoResumoService
             $cursos->where('ciclo_id', $cicloId);
         }
 
-        $ofertas = $this->ofertasDoEixo($eixo->id, $cicloId);
+        $dados = $this->queryDadosValidos($cicloId, $eixo->id)->get(['turmas', 'alunos']);
 
         return [
             'id' => $eixo->id,
             'nome' => $eixo->nome,
             'ordem' => $eixo->ordem,
             'cursos' => $cursos->count(),
-            'ofertas' => $ofertas->count(),
-            'turmas' => $this->somarInteiros($ofertas->pluck('turmas')),
-            'alunos' => $this->somarInteiros($ofertas->pluck('alunos')),
+            'turmas' => $this->somarInteiros($dados->pluck('turmas')),
+            'alunos' => $this->somarInteiros($dados->pluck('alunos')),
+        ];
+    }
+
+    private function queryDadosValidos(?int $cicloId, ?int $eixoId = null)
+    {
+        $query = CursoExecucao::query()
+            ->whereNotNull('curso_id')
+            ->whereNotNull('eixo_id');
+
+        if ($eixoId) {
+            $query->where('eixo_id', $eixoId);
+        }
+
+        if ($cicloId) {
+            $query->where('ciclo_id', $cicloId)
+                ->whereHas('cursoRef', function ($cursos) use ($cicloId, $eixoId) {
+                    $cursos->where('ciclo_id', $cicloId);
+                    if ($eixoId) {
+                        $cursos->where('eixo_id', $eixoId);
+                    }
+                });
+        }
+
+        return $query;
+    }
+
+    /**
+     * @param  LengthAwarePaginator<int, Curso>  $paginator
+     * @return array<int, array{turmas: int, alunos: int}>
+     */
+    private function totaisPorCurso(LengthAwarePaginator $paginator, ?int $cicloId): array
+    {
+        $ids = $paginator->getCollection()->pluck('id')->filter()->all();
+        if ($ids === []) {
+            return [];
+        }
+
+        $linhas = CursoExecucao::query()
+            ->whereIn('curso_id', $ids)
+            ->whereNotNull('curso_id')
+            ->whereNotNull('eixo_id');
+        if ($cicloId) {
+            $linhas->where('ciclo_id', $cicloId);
+        }
+
+        $agrupado = [];
+        foreach ($linhas->get(['curso_id', 'turmas', 'alunos']) as $linha) {
+            $cursoId = (int) $linha->curso_id;
+            if (! isset($agrupado[$cursoId])) {
+                $agrupado[$cursoId] = ['turmas' => 0, 'alunos' => 0];
+            }
+            $agrupado[$cursoId]['turmas'] += $this->somarInteiros([$linha->turmas]);
+            $agrupado[$cursoId]['alunos'] += $this->somarInteiros([$linha->alunos]);
+        }
+
+        return $agrupado;
+    }
+
+    /**
+     * @param  LengthAwarePaginator<int, mixed>  $paginator
+     * @return array<string, mixed>
+     */
+    private function metaPaginacao(LengthAwarePaginator $paginator): array
+    {
+        return [
+            'total' => $paginator->total(),
+            'per_page' => $paginator->perPage(),
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+            'from' => $paginator->firstItem(),
+            'to' => $paginator->lastItem(),
         ];
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, CursoPorEixo>
-     */
-    private function ofertasDoEixo(int $eixoId, ?int $cicloId)
-    {
-        $query = CursoPorEixo::query()->where('eixo_id', $eixoId)->orderBy('curso');
-        if ($cicloId) {
-            $query->where('ciclo_id', $cicloId);
-        }
-
-        return $query->get();
-    }
-
-    /**
-     * @return array{0: ?PortfolioCiclo, 1: ?int}
+     * @return array{0: ?Ciclo, 1: ?int}
      */
     private function resolverCiclo(mixed $cicloId): array
     {
         if ($cicloId === null || $cicloId === '' || $cicloId === 'todos') {
-            $ciclo = PortfolioCiclo::atual();
+            $ciclo = app(CicloContextoService::class)->resolver();
 
             return [$ciclo, $ciclo?->id];
         }
 
-        $ciclo = PortfolioCiclo::query()->find($cicloId);
+        $ciclo = Ciclo::query()->find($cicloId);
 
         return [$ciclo, (int) $cicloId];
-    }
-
-    /**
-     * @return array{cursos: int, ofertas: int, sem_correspondencia: int, amostra: list<array<string, mixed>>, amostra_sem_correspondencia: list<array<string, mixed>>}
-     */
-    public function pendentes(?int $cicloId = null): array
-    {
-        if ($cicloId === null) {
-            [$ciclo, $cicloId] = $this->resolverCiclo(null);
-            unset($ciclo);
-        }
-
-        $cursosQuery = Curso::query()->whereNull('eixo_id');
-        $ofertasQuery = CursoPorEixo::query()->whereNull('eixo_id');
-        if ($cicloId) {
-            $cursosQuery->where('ciclo_id', $cicloId);
-            $ofertasQuery->where('ciclo_id', $cicloId);
-        }
-
-        $cursosCount = (clone $cursosQuery)->count();
-        $ofertasCount = (clone $ofertasQuery)->count();
-
-        $amostra = (clone $cursosQuery)->orderBy('id')->limit(30)->get(['id', 'titulo', 'eixo', 'segmento', 'programa'])
-            ->map(fn (Curso $curso) => [
-                'tipo' => 'curso',
-                'id' => $curso->id,
-                'nome' => $curso->titulo,
-                'eixo_original' => $curso->eixo,
-                'segmento' => $curso->segmento,
-                'programa' => $curso->programa,
-            ])->all();
-
-        $ofertasAmostra = (clone $ofertasQuery)->orderBy('id')->limit(30)->get(['id', 'curso', 'eixo', 'segmento', 'programa'])
-            ->map(fn (CursoPorEixo $oferta) => [
-                'tipo' => 'oferta',
-                'id' => $oferta->id,
-                'nome' => $oferta->curso,
-                'eixo_original' => $oferta->eixo,
-                'segmento' => $oferta->segmento,
-                'programa' => $oferta->programa,
-            ])->all();
-
-        $semCorrespondenciaQuery = CursoPorEixo::query()
-            ->whereNull('curso_id')
-            ->whereNotNull('eixo_id');
-        if ($cicloId) {
-            $semCorrespondenciaQuery->where('ciclo_id', $cicloId);
-        }
-
-        $semCorrespondenciaCount = (clone $semCorrespondenciaQuery)->count();
-        $semCorrespondenciaAmostra = (clone $semCorrespondenciaQuery)
-            ->orderBy('id')
-            ->limit(40)
-            ->get(['id', 'curso', 'eixo', 'segmento', 'codigo', 'programa'])
-            ->map(fn (CursoPorEixo $oferta) => [
-                'tipo' => 'oferta',
-                'id' => $oferta->id,
-                'nome' => $oferta->curso,
-                'eixo_original' => $oferta->eixo,
-                'segmento' => $oferta->segmento,
-                'programa' => $oferta->programa,
-                'codigo' => $oferta->codigo,
-                'motivo' => 'Sem correspondência no catálogo de Cursos',
-            ])->all();
-
-        return [
-            'cursos' => $cursosCount,
-            'ofertas' => $ofertasCount,
-            'sem_correspondencia' => $semCorrespondenciaCount,
-            'amostra' => array_slice(array_merge($amostra, $ofertasAmostra), 0, 40),
-            'amostra_sem_correspondencia' => $semCorrespondenciaAmostra,
-        ];
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CadastroController;
 use App\Http\Controllers\Api\CarometroController;
 use App\Http\Controllers\Api\CpedEquipeController;
 use App\Http\Controllers\Api\CursoController;
+use App\Http\Controllers\Api\CursoExecucaoController;
 use App\Http\Controllers\Api\CursoPorEixoController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EventoController;
@@ -22,7 +23,7 @@ use App\Http\Controllers\Api\OrganogramaController;
 use App\Http\Controllers\Api\PcaController;
 use App\Http\Controllers\Api\PlanoDeMetaController;
 use App\Http\Controllers\Api\RelatorioController;
-use App\Http\Controllers\Api\ResolucaoController;
+use App\Http\Controllers\Api\RevisaoDadosController;
 use App\Http\Controllers\Api\TermoReferenciaController;
 use App\Http\Controllers\Api\UnidadeOfertaController;
 use App\Http\Controllers\Api\RegiaoAdministrativaController;
@@ -61,6 +62,13 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::get('eixos/resumo', [EixoController::class, 'resumo']);
     Route::get('eixos/pendentes', [EixoController::class, 'pendentes']);
     Route::get('eixos/{eixo}/detalhes', [EixoController::class, 'detalhes']);
+    Route::get('eixos/{eixo}/cursos', [EixoController::class, 'cursos']);
+    Route::get('revisao-dados', [RevisaoDadosController::class, 'index']);
+    Route::post('revisao-dados/cursos/{curso}/classificar', [RevisaoDadosController::class, 'classificar']);
+    Route::post('revisao-dados/execucoes/{curso_execucao}/vincular', [RevisaoDadosController::class, 'vincular']);
+    Route::post('curso-execucoes/{curso_execucao}/vincular', [CursoExecucaoController::class, 'vincular']);
+    Route::apiResource('curso-execucoes', CursoExecucaoController::class)
+        ->parameters(['curso-execucoes' => 'curso_execucao']);
     Route::apiResource('curso-por-eixos', CursoPorEixoController::class);
     Route::apiResource('horas-pedagogicas', HoraPedagogicaController::class)
         ->parameters(['horas-pedagogicas' => 'horaPedagogica']);

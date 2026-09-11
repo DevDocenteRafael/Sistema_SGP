@@ -88,6 +88,13 @@ class CursoController extends Controller
 
         return response()->json([
             'curso' => $curso->load('ciclo'),
+            'dados_do_ciclo' => $curso->acompanhamentos()
+                ->orderBy('codigo')
+                ->orderBy('id')
+                ->get([
+                    'id', 'ciclo_id', 'curso_id', 'curso', 'codigo', 'unidade',
+                    'turmas', 'alunos', 'instrutores', 'ch', 'status', 'observacao',
+                ]),
         ]);
     }
 
