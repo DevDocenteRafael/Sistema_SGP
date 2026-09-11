@@ -51,6 +51,11 @@ class Ciclo extends Model
         return $this->hasMany(CursoPorEixo::class, 'ciclo_id');
     }
 
+    public function acompanhamentos(): HasMany
+    {
+        return $this->hasMany(CursoExecucao::class, 'ciclo_id');
+    }
+
     public function visitasTecnicas(): HasMany
     {
         return $this->hasMany(VisitaTecnica::class, 'ciclo_id');

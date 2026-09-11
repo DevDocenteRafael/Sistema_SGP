@@ -83,9 +83,14 @@ class Curso extends Model
         return $this->belongsTo(Segmento::class, 'segmento_id');
     }
 
+    public function acompanhamentos(): HasMany
+    {
+        return $this->hasMany(CursoExecucao::class, 'curso_id');
+    }
+
     public function ofertas(): HasMany
     {
-        return $this->hasMany(CursoPorEixo::class, 'curso_id');
+        return $this->acompanhamentos();
     }
 
     public function replicarParaCiclo(Ciclo $ciclo): self

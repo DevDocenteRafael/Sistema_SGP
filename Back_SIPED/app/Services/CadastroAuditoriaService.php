@@ -69,6 +69,7 @@ class CadastroAuditoriaService
             \App\Models\PlanoDeMeta::class => 'plano-de-metas',
             \App\Models\Pca::class => 'pcas',
             \App\Models\CursoPorEixo::class => 'eixos',
+            \App\Models\CursoExecucao::class => 'eixos',
             \App\Models\VisitaTecnica::class => 'visitas-tecnicas',
             \App\Models\HoraPedagogica::class => 'horas-pedagogicas',
             \App\Models\AcaoExtensiva::class => 'acoes-extensivas',

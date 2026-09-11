@@ -36,6 +36,9 @@ class ConsultaCatalogoCursos
         if (! empty($filtros['eixo'])) {
             CatalogoOficial::aplicarFiltroEixo($query, $filtros['eixo']);
         }
+        if (! empty($filtros['eixo_id'])) {
+            $query->where('eixo_id', (int) $filtros['eixo_id']);
+        }
         foreach (['status', 'tipo', 'segmento', 'programa'] as $campo) {
             if (! empty($filtros[$campo])) {
                 $query->where($campo, $filtros[$campo]);
