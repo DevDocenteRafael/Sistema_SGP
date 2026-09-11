@@ -88,7 +88,7 @@
               <li>{{ textoQuantidade(item.composicao?.cursos, 'curso', 'cursos') }}</li>
               <li>{{ textoQuantidade(item.composicao?.plano_de_metas, 'meta', 'metas') }}</li>
               <li>{{ textoQuantidade(item.composicao?.pca, 'PCA', 'PCAs') }}</li>
-              <li>{{ textoQuantidade(item.composicao?.eixos, 'oferta', 'ofertas') }}</li>
+              <li>{{ textoQuantidade(item.composicao?.eixos, 'acompanhamento', 'acompanhamentos') }}</li>
               <li>{{ textoQuantidade(item.composicao?.visitas, 'visita', 'visitas') }}</li>
               <li>{{ textoQuantidade(item.composicao?.horas_pedagogicas, 'hora', 'horas') }}</li>
               <li>{{ textoQuantidade(item.composicao?.acoes, 'ação', 'ações') }}</li>

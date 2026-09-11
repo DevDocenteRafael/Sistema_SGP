@@ -143,7 +143,7 @@ const MODULOS = [
   {
     rota: 'eixos',
     label: 'Eixos',
-    descricao: 'Comparativo anual de cursos por eixo tecnológico',
+    descricao: 'Distribuição dos cursos nos cinco eixos oficiais',
     path: '/app/eixos',
     icon: 'eixos',
   },

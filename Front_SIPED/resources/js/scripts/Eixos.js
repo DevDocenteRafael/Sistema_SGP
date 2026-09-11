@@ -15,28 +15,19 @@ export default {
     return {
       carregando: false,
       erro: '',
+      cicloContextoId: lerCicloContexto()?.id || '',
       resumo: {
         ciclo_id: null,
         ciclo_nome: '',
+        totais: { eixos: 5, cursos_classificados: 0, cursos: 0, turmas: 0, alunos: 0 },
         eixos: [],
-        pendentes: { cursos: 0, ofertas: 0, sem_correspondencia: 0, amostra: [], amostra_sem_correspondencia: [] },
       },
-      detalhes: null,
-      detalheAberto: false,
-      eixoSelecionadoId: null,
     };
   },
 
   computed: {
     cicloId() {
-      return this.$route.query.ciclo_id || lerCicloContexto()?.id || '';
-    },
-    totalPendentes() {
-      const pendentes = this.resumo.pendentes || {};
-      return (pendentes.cursos || 0) + (pendentes.ofertas || 0);
-    },
-    totalSemCorrespondencia() {
-      return this.resumo.pendentes?.sem_correspondencia || 0;
+      return this.$route.query.ciclo_id || this.cicloContextoId || '';
     },
   },
 
@@ -62,45 +53,45 @@ export default {
     },
 
     queryCiclo() {
-      return this.cicloId ? { ciclo_id: this.cicloId } : {};
+      const id = this.$route.query.ciclo_id || this.cicloContextoId || lerCicloContexto()?.id || '';
+      return id ? { ciclo_id: id } : {};
     },
 
     async carregarResumo() {
       this.carregando = true;
       this.erro = '';
-
       try {
         const { data } = await window.axios.get('/api/eixos/resumo', { params: this.queryCiclo() });
-        this.resumo = data.data || { ciclo_id: null, ciclo_nome: '', eixos: [], pendentes: { cursos: 0, ofertas: 0, sem_correspondencia: 0, amostra: [], amostra_sem_correspondencia: [] } };
+        this.resumo = {
+          ciclo_id: null,
+          ciclo_nome: '',
+          totais: { eixos: 5, cursos_classificados: 0, cursos: 0, turmas: 0, alunos: 0 },
+          eixos: [],
+          ...(data.data || {}),
+        };
       } catch (error) {
         this.erro = error.response?.data?.message || 'Não foi possível carregar o resumo dos eixos.';
-        this.resumo = { ciclo_id: null, ciclo_nome: '', eixos: [], pendentes: { cursos: 0, ofertas: 0, sem_correspondencia: 0, amostra: [], amostra_sem_correspondencia: [] } };
+        this.resumo = {
+          ciclo_id: null,
+          ciclo_nome: '',
+          totais: { eixos: 5, cursos_classificados: 0, cursos: 0, turmas: 0, alunos: 0 },
+          eixos: [],
+        };
       } finally {
         this.carregando = false;
       }
     },
 
-    async abrirDetalhes(eixo) {
-      this.eixoSelecionadoId = eixo.id;
-      this.erro = '';
-
-      try {
-        const { data } = await window.axios.get(`/api/eixos/${eixo.id}/detalhes`, { params: this.queryCiclo() });
-        this.detalhes = data.data || null;
-        this.detalheAberto = true;
-      } catch (error) {
-        this.erro = error.response?.data?.message || 'Não foi possível carregar o detalhe do eixo.';
-      }
+    abrirDetalhe(eixo) {
+      this.$router.push({
+        name: 'eixos-detalhe',
+        params: { id: String(eixo.id) },
+        query: this.queryCiclo(),
+      });
     },
 
-    fecharDetalhes() {
-      this.detalheAberto = false;
-      this.detalhes = null;
-      this.eixoSelecionadoId = null;
-    },
-
-    aoTrocarCiclo() {
-      this.fecharDetalhes();
+    aoTrocarCiclo(evento) {
+      this.cicloContextoId = evento?.detail?.ciclo?.id || lerCicloContexto()?.id || '';
       this.carregarResumo();
     },
   },

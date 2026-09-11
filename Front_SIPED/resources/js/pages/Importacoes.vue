@@ -7,6 +7,7 @@
           Selecione o módulo, envie a planilha e confira a prévia antes de confirmar a importação.
         </p>
       </div>
+      <router-link class="btn-secundario" to="/app/importacoes/revisao-dados">Revisão de Dados</router-link>
     </header>
 
     <div v-if="erro" class="alert alert-error">{{ erro }}</div>

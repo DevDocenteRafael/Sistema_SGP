@@ -133,6 +133,8 @@ export const TERMOS = {
   'carga horaria': 'Carga horária total do curso, em horas.',
   'carga horária': 'Carga horária total do curso, em horas.',
   eixo: 'Eixo tecnológico que agrupa cursos da mesma área.',
+  'acompanhamento do ciclo': 'Como o curso foi executado no ciclo selecionado: unidade, turmas, alunos e instrutores.',
+  'acompanhamento': 'Registro operacional do curso no ciclo, separado do catálogo em Cursos.',
   ciclo: 'Período do portfólio (ex.: 2025-2026) que delimita os registros exibidos.',
   'ciclo de portfolio': 'Período do portfólio que delimita os registros exibidos.',
   'ciclo': 'Período ativo do sistema que filtra Cursos, Metas, PCA e Eixos. Troque pelo seletor no topo.',
