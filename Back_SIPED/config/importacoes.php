@@ -170,8 +170,8 @@ return [
         'eixos' => [
             'key' => 'eixos',
             'label' => 'Eixos',
-            'description' => 'Importa a aba “Quantidade de cursos por eixo” (oferta/execução). Vincula cursos já cadastrados no ciclo; não cria curso novo.',
-            'ajuda' => 'Usa a aba detalhada “Quantidade de cursos por eixo” (com Código, Turmas e Alunos). Cada linha precisa corresponder a um curso já existente no ciclo selecionado. A confirmação faz upsert e não apaga o ciclo anterior.',
+            'description' => 'Importa a aba “Quantidade de cursos por eixo” como acompanhamento do ciclo. Vincula cursos já cadastrados; não cria curso novo.',
+            'ajuda' => 'Usa a aba “Quantidade de cursos por eixo” (Código, Turmas e Alunos). Cada linha vira um acompanhamento do ciclo e tenta vincular a um curso já existente. Linhas sem correspondência ficam como pendência. A confirmação faz upsert e não apaga o ciclo anterior.',
             'model' => App\Models\CursoPorEixo::class,
             'table' => 'curso_por_eixos',
             'mode' => 'eixos_forward_fill',

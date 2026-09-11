@@ -183,6 +183,42 @@
             </div>
 
             <div class="detalhe-secao">
+              <h3>Dados do ciclo {{ cursoDetalhe.ciclo?.nome || cicloAberto?.nome || '' }}</h3>
+              <div v-if="!dadosDoCiclo.length" class="detalhe-valor">Nenhum dado operacional vinculado a este curso no ciclo.</div>
+              <table v-else class="detalhe-ciclo-table">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Unidade</th>
+                    <th>Turmas</th>
+                    <th>Alunos</th>
+                    <th>Instrutor</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="linha in dadosDoCiclo" :key="linha.id">
+                    <td>{{ linha.codigo || '—' }}</td>
+                    <td>{{ linha.unidade || '—' }}</td>
+                    <td>{{ linha.turmas || '—' }}</td>
+                    <td>{{ linha.alunos || '—' }}</td>
+                    <td>{{ linha.instrutores || '—' }}</td>
+                    <td>
+                      <button
+                        v-if="podeEditar"
+                        type="button"
+                        class="btn-link"
+                        @click="abrirEdicaoDadosCiclo(linha)"
+                      >
+                        Editar dados do ciclo
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="detalhe-secao">
               <h3>Informações principais</h3>
               <div class="detalhe-grid">
                 <div class="detalhe-campo">
@@ -317,8 +353,49 @@
       </div>
     </template>
 
+    <div v-if="formDadosCiclo" class="modal-overlay" @click.self="fecharEdicaoDadosCiclo">
+      <div class="modal-detalhes" role="dialog" aria-labelledby="dados-ciclo-titulo">
+        <div class="modal-detalhes-header">
+          <h2 id="dados-ciclo-titulo">Editar dados do ciclo</h2>
+          <button type="button" class="btn-fechar-x" aria-label="Fechar" @click="fecharEdicaoDadosCiclo">×</button>
+        </div>
+        <form class="detalhe-secao" @submit.prevent="salvarDadosCiclo">
+          <p v-if="erroDadosCiclo" class="modal-detalhes-alerta">{{ erroDadosCiclo }}</p>
+          <div class="detalhe-grid">
+            <label class="detalhe-campo">
+              <span class="detalhe-label">Código</span>
+              <input v-model="formDadosCiclo.codigo" type="text" maxlength="100" />
+            </label>
+            <label class="detalhe-campo">
+              <span class="detalhe-label">Unidade</span>
+              <select v-model="formDadosCiclo.unidade">
+                <option value="">Selecione</option>
+                <option v-for="unidade in unidades" :key="unidade" :value="unidade">{{ unidade }}</option>
+              </select>
+            </label>
+            <label class="detalhe-campo">
+              <span class="detalhe-label">Turmas</span>
+              <input v-model="formDadosCiclo.turmas" type="text" inputmode="numeric" maxlength="20" />
+            </label>
+            <label class="detalhe-campo">
+              <span class="detalhe-label">Alunos</span>
+              <input v-model="formDadosCiclo.alunos" type="text" inputmode="numeric" maxlength="20" />
+            </label>
+            <label class="detalhe-campo detalhe-campo-full">
+              <span class="detalhe-label">Instrutor</span>
+              <input v-model="formDadosCiclo.instrutores" type="text" maxlength="255" />
+            </label>
+          </div>
+          <div class="modal-detalhes-actions">
+            <button type="button" class="btn-secondary" @click="fecharEdicaoDadosCiclo">Cancelar</button>
+            <button type="submit" class="btn-editar-modal" :disabled="salvandoDadosCiclo">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- FORMULÁRIO NOVO / EDITAR -->
-    <template v-else>
+    <template v-if="modo !== 'lista'">
       <div class="form-page">
         <div class="form-top-bar"></div>
         <header class="form-header">

@@ -108,7 +108,7 @@ return [
         'eixos' => [
             'key' => 'eixos',
             'label' => 'Cursos por Eixo',
-            'description' => 'Cursos únicos do catálogo oficial por eixo e ciclo. Consulte ofertas, turmas e alunos nos detalhes da página Eixos.',
+            'description' => 'Cursos únicos do catálogo oficial por eixo e ciclo. Turmas e alunos do acompanhamento aparecem na página Eixos.',
             'api' => '/api/cursos',
             'icon' => 'eixos',
             'filtros' => ['ano', 'unidade', 'eixo', 'status'],

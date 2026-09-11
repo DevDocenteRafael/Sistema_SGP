@@ -63,6 +63,10 @@ export default {
       cursoDetalhe: null,
       carregandoDetalhe: false,
       erroDetalhe: '',
+      dadosDoCiclo: [],
+      formDadosCiclo: null,
+      salvandoDadosCiclo: false,
+      erroDadosCiclo: '',
       duplicidadeAberta: false,
       duplicidadeSimilares: [],
       justificativaDuplicidade: '',
@@ -133,6 +137,7 @@ export default {
       this.carregarCursos(),
       this.carregarUnidadesOferta(),
     ]);
+    this.aplicarQueryDaRota();
   },
   beforeUnmount() {
     window.removeEventListener(CICLO_CONTEXTO_EVENTO, this.aoMudarCicloGlobal);
@@ -156,6 +161,17 @@ export default {
       this.filtros.ciclo_id = String(id);
       this.lembrarCicloSelecionado();
       this.carregarCursos();
+    },
+    '$route.query.novo'() {
+      this.aplicarQueryDaRota();
+    },
+    '$route.query.curso_id'() {
+      this.aplicarQueryDaRota();
+    },
+    '$route.query.eixo'(valor) {
+      if ((this.$route.query.novo === '1' || this.$route.query.novo === 'true') && valor) {
+        this.form.eixo = String(valor);
+      }
     },
   },
   methods: {
@@ -260,6 +276,23 @@ export default {
 
       this.aplicarEstadoNovoLocal();
       this.empilharHistoricoFormulario('novo');
+    },
+
+    aplicarQueryDaRota() {
+      const query = this.$route.query || {};
+      if (query.curso_id) {
+        const curso = this.cursos.find((item) => String(item.id) === String(query.curso_id))
+          || { id: query.curso_id };
+        this.abrirDetalhes(curso);
+        return;
+      }
+
+      if (query.novo === '1' || query.novo === 'true') {
+        this.abrirNovo();
+        if (query.eixo) {
+          this.form.eixo = String(query.eixo);
+        }
+      }
     },
 
     aplicarEstadoNovoLocal() {
@@ -800,6 +833,7 @@ export default {
       try {
         const { data } = await window.axios.get(`/api/cursos/${curso.id}`);
         this.cursoDetalhe = data.curso ?? curso;
+        this.dadosDoCiclo = data.dados_do_ciclo || [];
       } catch (error) {
         this.erroDetalhe = extrairErroApi(error, 'Não foi possível carregar os detalhes do curso.');
         this.cursoDetalhe = { ...curso };
@@ -812,6 +846,49 @@ export default {
       this.detalheAberto = false;
       this.cursoDetalhe = null;
       this.erroDetalhe = '';
+      this.dadosDoCiclo = [];
+      this.formDadosCiclo = null;
+    },
+
+    abrirEdicaoDadosCiclo(linha) {
+      this.formDadosCiclo = {
+        id: linha.id,
+        codigo: linha.codigo || '',
+        unidade: linha.unidade || '',
+        turmas: linha.turmas || '',
+        alunos: linha.alunos || '',
+        instrutores: linha.instrutores || '',
+      };
+      this.erroDadosCiclo = '';
+    },
+
+    fecharEdicaoDadosCiclo() {
+      this.formDadosCiclo = null;
+      this.erroDadosCiclo = '';
+    },
+
+    async salvarDadosCiclo() {
+      if (!this.formDadosCiclo?.id) return;
+      this.salvandoDadosCiclo = true;
+      this.erroDadosCiclo = '';
+      try {
+        await window.axios.put(`/api/curso-execucoes/${this.formDadosCiclo.id}`, {
+          curso_id: this.cursoDetalhe?.id,
+          codigo: this.formDadosCiclo.codigo || null,
+          unidade: this.formDadosCiclo.unidade || null,
+          turmas: this.formDadosCiclo.turmas || null,
+          alunos: this.formDadosCiclo.alunos || null,
+          instrutores: this.formDadosCiclo.instrutores || null,
+        });
+        this.fecharEdicaoDadosCiclo();
+        if (this.cursoDetalhe) {
+          await this.abrirDetalhes(this.cursoDetalhe);
+        }
+      } catch (error) {
+        this.erroDadosCiclo = extrairErroApi(error, 'Não foi possível salvar os dados do ciclo.');
+      } finally {
+        this.salvandoDadosCiclo = false;
+      }
     },
 
     editarDoDetalhe() {

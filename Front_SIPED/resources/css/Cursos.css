@@ -438,6 +438,44 @@
   padding: 0.75rem 1.25rem 0.25rem;
 }
 
+.detalhe-ciclo-table {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.detalhe-ciclo-table th,
+.detalhe-ciclo-table td {
+  padding: 0.4rem 0.35rem;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  text-align: left;
+}
+
+.detalhe-ciclo-table th {
+  color: #6b7280;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.detalhe-ciclo-table .btn-link {
+  border: 0;
+  background: transparent;
+  color: #1d4ed8;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.detalhe-secao input,
+.detalhe-secao select {
+  height: 2.2rem;
+  padding: 0 0.55rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.45rem;
+  font: inherit;
+}
+
 .detalhe-secao h3 {
   margin: 0 0 0.75rem;
   padding-bottom: 0.45rem;
