@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\OrganogramaController;
 use App\Http\Controllers\Api\PcaController;
 use App\Http\Controllers\Api\PlanoDeMetaController;
 use App\Http\Controllers\Api\RelatorioController;
+use App\Http\Controllers\Api\ResolucaoController;
 use App\Http\Controllers\Api\RevisaoDadosController;
 use App\Http\Controllers\Api\TermoReferenciaController;
 use App\Http\Controllers\Api\UnidadeOfertaController;
