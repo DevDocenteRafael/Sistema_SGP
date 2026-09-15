@@ -171,8 +171,6 @@
             <button v-if="podeEditar && !registroDetalhe.atual" type="button" class="btn-editar-modal" @click="marcarComoAtual(registroDetalhe)">
               Definir como atual
             </button>
-            <button v-if="podeEditar" type="button" class="btn-editar-modal" @click="abrirEdicao(registroDetalhe)">Editar</button>
-            <button type="button" class="btn-salvar" @click="fecharDetalhes">Fechar</button>
           </div>
         </div>
       </div>

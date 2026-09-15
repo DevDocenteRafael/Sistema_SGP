@@ -23,7 +23,6 @@
 
     <section class="rel-painel">
       <div class="rel-toolbar">
-        <label class="rel-toolbar-label" for="relatorio-select">Relatório</label>
         <SearchableSelect
           id="relatorio-select"
           v-model="relatorioKey"
@@ -63,7 +62,6 @@
             </div>
 
             <div v-if="temFiltro('ano')" class="rel-filtro-campo">
-              <label class="rel-filtro-label">Ano</label>
               <SearchableSelect
                 v-model="filtros.ano"
                 class="rel-filtro-select"
@@ -74,7 +72,6 @@
             </div>
 
             <div v-if="temFiltro('unidade')" class="rel-filtro-campo">
-              <label class="rel-filtro-label">Estrutura Institucional</label>
               <SearchableSelect
                 v-model="filtros.unidade"
                 class="rel-filtro-select rel-filtro-select-wide"
@@ -85,7 +82,6 @@
             </div>
 
             <div v-if="temFiltro('eixo')" class="rel-filtro-campo">
-              <label class="rel-filtro-label">Eixo</label>
               <SearchableSelect
                 v-model="filtros.eixo"
                 class="rel-filtro-select"
@@ -96,7 +92,6 @@
             </div>
 
             <div v-if="temFiltro('status')" class="rel-filtro-campo">
-              <label class="rel-filtro-label">Status</label>
               <SearchableSelect
                 v-model="filtros.status"
                 class="rel-filtro-select"
@@ -107,7 +102,6 @@
             </div>
 
             <div v-if="temFiltro('categoria')" class="rel-filtro-campo">
-              <label class="rel-filtro-label">Categoria</label>
               <SearchableSelect
                 v-model="filtros.categoria"
                 class="rel-filtro-select"
@@ -118,7 +112,6 @@
             </div>
 
             <div v-if="temFiltro('setor')" class="rel-filtro-campo">
-              <label class="rel-filtro-label">Setor</label>
               <SearchableSelect
                 v-model="filtros.setor"
                 class="rel-filtro-select"
@@ -129,7 +122,6 @@
             </div>
 
             <div v-if="temFiltro('relator')" class="rel-filtro-campo">
-              <label class="rel-filtro-label">Relator</label>
               <SearchableSelect
                 v-model="filtros.relator"
                 class="rel-filtro-select"
@@ -148,15 +140,6 @@
               Limpar filtros
             </button>
           </div>
-        </div>
-
-        <div v-if="!carregandoPrevias && resumoRelatorio.length" class="rel-resumo" aria-label="Resumo do relatório">
-          <article v-for="item in resumoRelatorio" :key="item.label" class="rel-resumo-card">
-            <p class="rel-resumo-valor">{{ item.value }}</p>
-            <p class="rel-resumo-label">
-              <SgpHelpLabel :label="item.label" :help="item.help" />
-            </p>
-          </article>
         </div>
 
         <div class="rel-tabela-card">

@@ -26,7 +26,6 @@
           </div>
 
           <div class="filtro-campo filtro-dropdown">
-            <label for="filtro-resumo">Prazo</label>
             <SearchableSelect
               id="filtro-resumo"
               input-id="filtro-resumo"
@@ -37,49 +36,45 @@
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-setor">Setor</label>
             <SearchableSelect
               id="filtro-setor"
               input-id="filtro-setor"
               v-model="filtros.setor"
               :options="meta.setores"
-              empty-option="Todos"
+              empty-option="Todos os setores"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-categoria">Categoria</label>
             <SearchableSelect
               id="filtro-categoria"
               input-id="filtro-categoria"
               v-model="filtros.categoria"
               :options="meta.categorias"
-              empty-option="Todas"
+              empty-option="Todas as categorias"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-status">Status</label>
             <SearchableSelect
               id="filtro-status"
               input-id="filtro-status"
               v-model="filtros.status"
               :options="meta.status.map((status) => ({ value: status, label: labelStatus(status) }))"
-              empty-option="Todos"
+              empty-option="Todos os status"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-ano">Ano</label>
             <SearchableSelect
               id="filtro-ano"
               input-id="filtro-ano"
               v-model="filtros.ano"
               :options="anosDisponiveis"
-              empty-option="Todos"
+              empty-option="Todos os anos"
               @change="aplicarFiltros"
             />
           </div>
@@ -253,12 +248,6 @@
               <LinhaDoTempo :eventos="historico" />
             </div>
 
-            <div class="modal-detalhes-actions">
-              <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
-              <button v-if="podeEditar" type="button" class="btn-editar-modal" @click="abrirEdicao(resolucaoEmEdicao)">
-                Editar
-              </button>
-            </div>
           </div>
         </div>
       </div>

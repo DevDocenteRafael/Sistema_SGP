@@ -27,61 +27,56 @@
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-ano">Ano</label>
             <SearchableSelect
               id="filtro-ano"
               input-id="filtro-ano"
               v-model="filtros.ano"
               :options="anos"
-              empty-option="Todos"
+              empty-option="Todos os anos"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-semestre">Semestre</label>
             <SearchableSelect
               id="filtro-semestre"
               input-id="filtro-semestre"
               v-model="filtros.semestre"
               :options="semestres"
-              empty-option="Todos"
+              empty-option="Todos os semestres"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-unidade">Estrutura Institucional</label>
             <SearchableSelect
               id="filtro-unidade"
               input-id="filtro-unidade"
               v-model="filtros.unidade"
               :options="unidades"
-              empty-option="Todos"
+              empty-option="Todas as unidades"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo filtro-campo-eixo">
-            <label for="filtro-eixo">Eixo</label>
             <SearchableSelect
               id="filtro-eixo"
               input-id="filtro-eixo"
               v-model="filtros.eixo"
               :options="eixos"
-              empty-option="Todos"
+              empty-option="Todos os eixos"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-status">Status</label>
             <SearchableSelect
               id="filtro-status"
               input-id="filtro-status"
               v-model="filtros.status"
               :options="statusLista"
-              empty-option="Todos"
+              empty-option="Todos os status"
               @change="aplicarFiltros"
             />
           </div>
@@ -251,12 +246,6 @@
             </div>
           </div>
 
-          <div class="modal-detalhes-actions">
-            <button v-if="podeEditar" type="button" class="btn-editar-modal" @click="abrirEdicao(registroDetalhe)">
-              Editar
-            </button>
-            <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
-          </div>
         </div>
       </div>
     </template>

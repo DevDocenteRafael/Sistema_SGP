@@ -28,49 +28,45 @@
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-priorizacao">Priorização</label>
             <SearchableSelect
               id="filtro-priorizacao"
               input-id="filtro-priorizacao"
               v-model="filtros.priorizacao"
               :options="priorizacoes"
-              empty-option="Todas"
+              empty-option="Todas as priorizações"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo filtro-campo-eixo">
-            <label for="filtro-eixo">Eixo</label>
             <SearchableSelect
               id="filtro-eixo"
               input-id="filtro-eixo"
               v-model="filtros.eixo"
               :options="eixos"
-              empty-option="Todos"
+              empty-option="Todos os eixos"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-status">Status</label>
             <SearchableSelect
               id="filtro-status"
               input-id="filtro-status"
               v-model="filtros.status"
               :options="statusLista"
-              empty-option="Todos"
+              empty-option="Todos os status"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-tipo">Tipo</label>
             <SearchableSelect
               id="filtro-tipo"
               input-id="filtro-tipo"
               v-model="filtros.tipo"
               :options="tipos"
-              empty-option="Todos"
+              empty-option="Todos os tipos"
               @change="aplicarFiltros"
             />
           </div>
@@ -204,12 +200,6 @@
             </div>
           </div>
 
-          <div class="modal-detalhes-actions">
-            <button v-if="podeEditar" type="button" class="btn-editar-modal" @click="abrirEdicao(registroDetalhe)">
-              Editar
-            </button>
-            <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
-          </div>
         </div>
       </div>
     </template>

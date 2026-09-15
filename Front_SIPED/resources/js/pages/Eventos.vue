@@ -28,65 +28,60 @@
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-ano">Ano</label>
             <SearchableSelect
               id="filtro-ano"
               input-id="filtro-ano"
               v-model="filtros.ano"
               :options="anos"
-              empty-option="Todos"
+              empty-option="Todos os anos"
               aria-label="Ano"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo filtro-campo-eixo">
-            <label for="filtro-eixo">Eixo</label>
             <SearchableSelect
               id="filtro-eixo"
               input-id="filtro-eixo"
               v-model="filtros.eixo"
               :options="eixos"
-              empty-option="Todos"
+              empty-option="Todos os eixos"
               aria-label="Eixo"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-unidade">Estrutura Institucional</label>
             <SearchableSelect
               id="filtro-unidade"
               input-id="filtro-unidade"
               v-model="filtros.unidade"
               :options="unidades"
-              empty-option="Todas"
+              empty-option="Todas as unidades"
               aria-label="Estrutura Institucional"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-status">Status</label>
             <SearchableSelect
               id="filtro-status"
               input-id="filtro-status"
               v-model="filtros.status"
               :options="statusLista"
-              empty-option="Todos"
+              empty-option="Todos os status"
               aria-label="Status"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-acao">Ação Extensiva</label>
             <SearchableSelect
               id="filtro-acao"
               input-id="filtro-acao"
               v-model="filtros.possui_acao_extensiva"
               :options="opcoesAcao"
-              empty-option="Todos"
+              empty-option="Todas as ações extensivas"
               aria-label="Ação Extensiva"
               @change="aplicarFiltros"
             />
@@ -227,12 +222,6 @@
             </div>
           </div>
 
-          <div class="modal-detalhes-actions">
-            <button v-if="podeEditar" type="button" class="btn-editar-modal" @click="abrirEdicao(registroDetalhe)">
-              Editar
-            </button>
-            <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
-          </div>
         </div>
       </div>
     </template>

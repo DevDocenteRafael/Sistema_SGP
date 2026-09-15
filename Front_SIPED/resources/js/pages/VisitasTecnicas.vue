@@ -28,61 +28,56 @@
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-ano-visita">Ano</label>
             <SearchableSelect
               id="filtro-ano-visita"
               input-id="filtro-ano-visita"
               v-model="filtros.ano"
               :options="anosDisponiveis"
-              empty-option="Todos"
+              empty-option="Todos os anos"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-unidade-visita">Estrutura Institucional</label>
             <SearchableSelect
               id="filtro-unidade-visita"
               input-id="filtro-unidade-visita"
               v-model="filtros.unidade"
               :options="unidades"
-              empty-option="Todas"
+              empty-option="Todas as unidades"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo filtro-campo-eixo">
-            <label for="filtro-eixo-visita">Eixo Tecnológico</label>
             <SearchableSelect
               id="filtro-eixo-visita"
               input-id="filtro-eixo-visita"
               v-model="filtros.eixo"
               :options="eixos"
-              empty-option="Todos"
+              empty-option="Todos os eixos"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-status-visita">Status</label>
             <SearchableSelect
               id="filtro-status-visita"
               input-id="filtro-status-visita"
               v-model="filtros.status"
               :options="statusLista"
-              empty-option="Todos"
+              empty-option="Todos os status"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-prazo-visita">Prazo</label>
             <SearchableSelect
               id="filtro-prazo-visita"
               input-id="filtro-prazo-visita"
               v-model="filtros.prazo"
               :options="prazoLista"
-              empty-option="Todos"
+              empty-option="Todos os prazos"
               @change="aplicarFiltros"
             />
           </div>
@@ -212,12 +207,6 @@
             </div>
           </div>
 
-          <div class="modal-detalhes-actions">
-            <button v-if="podeEditarVisita" type="button" class="btn-editar-modal" @click="abrirEdicao(visitaDetalhe)">
-              Editar
-            </button>
-            <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
-          </div>
         </div>
       </div>
     </template>

@@ -25,28 +25,28 @@
           <SearchableSelect
             v-model="filtros.ano"
             aria-label="Ano"
-            empty-option="Todos"
+            empty-option="Todos os anos"
             :options="anosDisponiveis"
           />
 
           <SearchableSelect
             v-model="filtros.unidade"
             aria-label="Estrutura Institucional"
-            empty-option="Todos"
+            empty-option="Todas as unidades"
             :options="unidadesDisponiveis"
           />
 
           <SearchableSelect
             v-model="filtros.eixo"
             aria-label="Eixo"
-            empty-option="Todos"
+            empty-option="Todos os eixos"
             :options="meta.eixos"
           />
 
           <SearchableSelect
             v-model="filtros.status"
             aria-label="Status"
-            empty-option="Todos"
+            empty-option="Todos os status"
             :options="meta.status"
           />
 

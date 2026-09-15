@@ -40,13 +40,6 @@
             aria-label="Data início"
             @change="carregar(1)"
           />
-          <input
-            v-model="filtros.data_fim"
-            type="date"
-            title="Data fim"
-            aria-label="Data fim"
-            @change="carregar(1)"
-          />
         </section>
       </template>
     </CrudPageHeader>

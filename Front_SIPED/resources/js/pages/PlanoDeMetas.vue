@@ -192,17 +192,6 @@
             </div>
           </div>
 
-          <div class="modal-detalhes-actions">
-            <button
-              v-if="podeEditar && registroDetalhe"
-              type="button"
-              class="btn-editar-modal"
-              @click="abrirEdicao(registroDetalhe)"
-            >
-              Editar
-            </button>
-            <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
-          </div>
         </div>
       </div>
     </template>

@@ -198,14 +198,6 @@
             </div>
           </div>
 
-          <div class="modal-detalhes-actions">
-            <button type="button" class="btn-editar-modal" @click="editarDoDetalhe">
-              Editar
-            </button>
-            <button type="button" class="btn-secondary" @click="fecharDetalhes">
-              Fechar
-            </button>
-          </div>
         </div>
       </div>
     </template>

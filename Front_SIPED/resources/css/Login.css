@@ -1,8 +1,8 @@
 /* Login — identidade institucional própria (claro e escuro) */
 
 .login-page {
-  --login-page-bg: #004587;
-  --login-page-bg-deep: #003a72;
+  --login-page-bg: var(--sgp-sidebar-bg, #003f7d);
+  --login-page-bg-deep: var(--sgp-brand-strong, #002f5e);
   --login-decor: rgba(255, 255, 255, 0.05);
   --login-title: #ffffff;
   --login-subtitle: rgba(255, 255, 255, 0.85);
@@ -17,11 +17,11 @@
   --login-input-border: #d1d5db;
   --login-input-placeholder: #9ca3af;
   --login-input-icon: #9ca3af;
-  --login-input-focus: #004587;
-  --login-input-focus-ring: rgba(0, 69, 135, 0.12);
+  --login-input-focus: var(--sgp-brand, #003f7d);
+  --login-input-focus-ring: rgba(0, 63, 125, 0.12);
   --login-muted: #9ca3af;
-  --login-accent: #f3800d;
-  --login-accent-hover: #d96f0a;
+  --login-accent: var(--sgp-accent, #f57c00);
+  --login-accent-hover: #e67300;
   --login-error-bg: #fef2f2;
   --login-error-border: #fecaca;
   --login-error-text: #b91c1c;

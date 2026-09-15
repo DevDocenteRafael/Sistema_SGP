@@ -27,13 +27,12 @@
             />
           </div>
           <div class="filtro-campo">
-            <label for="filtro-status-jornada">Status</label>
             <SearchableSelect
               id="filtro-status-jornada"
               input-id="filtro-status-jornada"
               v-model="filtros.status"
               :options="meta.status"
-              empty-option="Todos"
+              empty-option="Todos os status"
               @change="aplicarFiltros"
             />
           </div>
@@ -87,9 +86,6 @@
                   </button>
                   <button v-if="podeEditar" type="button" class="btn-icon btn-edit" title="Editar" aria-label="Editar" @click="abrirEdicao(item)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                  </button>
-                  <button type="button" class="btn-icon btn-view" title="Gerar PDF" aria-label="Gerar PDF" @click="baixarPdf(item)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
                   </button>
                   <button v-if="podeEditar" type="button" class="btn-icon btn-delete" title="Excluir" aria-label="Excluir" @click="excluirRegistro(item)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -158,11 +154,6 @@
                 <a :href="registroDetalhe.anexo_url" target="_blank" rel="noopener noreferrer">Abrir anexo</a>
               </span>
             </div>
-          </div>
-          <div class="modal-detalhes-actions">
-            <button v-if="podeEditar" type="button" class="btn-editar-modal" @click="abrirEdicao(registroDetalhe)">Editar</button>
-            <button type="button" class="btn-salvar" @click="baixarPdf(registroDetalhe)">Gerar PDF</button>
-            <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
           </div>
         </div>
       </div>

@@ -133,7 +133,7 @@ export default {
     resumoOptions() {
       const totais = this.meta.contagens || {};
       return [
-        { value: 'todos', label: `Todos (${this.meta.total_geral ?? this.registros.length})` },
+        { value: 'todos', label: `Todos os prazos (${this.meta.total_geral ?? this.registros.length})` },
         { value: 'vigente', label: `No prazo (${totais.no_prazo ?? 0})` },
         { value: 'atencao', label: `Atenção (${totais.atencao ?? 0})` },
         { value: 'critico', label: `Crítico (${totais.critico ?? 0})` },

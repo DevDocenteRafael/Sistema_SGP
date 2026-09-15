@@ -579,10 +579,8 @@
         </div>
         <div class="modal-perfil-footer">
           <div v-if="podeEditar" class="modal-perfil-actions">
-            <button type="button" class="btn-sec" @click="abrirEdicao(detalhe)">Editar</button>
             <button type="button" class="btn-danger" @click="excluir(detalhe)">Excluir</button>
           </div>
-          <button type="button" class="link-btn" @click="detalhe = null">Fechar</button>
         </div>
       </div>
     </div>

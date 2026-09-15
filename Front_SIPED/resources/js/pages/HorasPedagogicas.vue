@@ -28,43 +28,39 @@
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-ano-hora">Ano</label>
             <SearchableSelect
               id="filtro-ano-hora"
               input-id="filtro-ano-hora"
               v-model="filtros.ano"
               :options="anos"
-              empty-option="Todos"
+              empty-option="Todos os anos"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo filtro-campo-eixo">
-            <label for="filtro-eixo-hora">Eixo Tecnológico</label>
             <SearchableSelect
               id="filtro-eixo-hora"
               input-id="filtro-eixo-hora"
               v-model="filtros.eixo"
               :options="eixos"
-              empty-option="Todos"
+              empty-option="Todos os eixos"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-status-hora">Status</label>
             <SearchableSelect
               id="filtro-status-hora"
               input-id="filtro-status-hora"
               v-model="filtros.status"
               :options="statusLista"
-              empty-option="Todos"
+              empty-option="Todos os status"
               @change="aplicarFiltros"
             />
           </div>
 
           <div class="filtro-campo">
-            <label for="filtro-situacao-hora">Situação</label>
             <SearchableSelect
               id="filtro-situacao-hora"
               input-id="filtro-situacao-hora"
@@ -73,7 +69,7 @@
                 { value: 'true', label: 'Ativos' },
                 { value: 'false', label: 'Inativos' },
               ]"
-              empty-option="Todas"
+              empty-option="Todas as situações"
               @change="aplicarFiltros"
             />
           </div>
@@ -209,12 +205,6 @@
             </div>
           </div>
 
-          <div class="modal-detalhes-actions">
-            <button v-if="podeEditarHoras" type="button" class="btn-editar-modal" @click="abrirEdicao(horaDetalhe)">
-              Editar
-            </button>
-            <button type="button" class="btn-secondary" @click="fecharDetalhes">Fechar</button>
-          </div>
         </div>
       </div>
     </template>

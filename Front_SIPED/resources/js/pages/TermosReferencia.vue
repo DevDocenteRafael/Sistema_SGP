@@ -179,21 +179,10 @@
             <button
               v-if="podeEditar && termoSelecionado"
               type="button"
-              class="btn-editar-modal"
-              @click="abrirEdicao(termoSelecionado)"
-            >
-              Editar TR
-            </button>
-            <button
-              v-if="podeEditar && termoSelecionado"
-              type="button"
               class="btn-delete"
               @click="iniciarExclusao(termoSelecionado)"
             >
               Excluir TR
-            </button>
-            <button type="button" class="btn-secondary" @click="fecharDetalhes">
-              Fechar
             </button>
           </div>
         </div>

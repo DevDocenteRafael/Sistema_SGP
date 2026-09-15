@@ -167,37 +167,6 @@ export default {
     /**
      * Resumo derivado apenas dos registros já retornados pela API (sem inventar dados).
      */
-    resumoRelatorio() {
-      const total = this.metaApi.total ?? this.registros.length;
-      const cards = [
-        {
-          label: 'Total filtrado',
-          value: total,
-          help: 'Quantidade de registros que atendem aos filtros atuais (conforme a API).',
-        },
-      ];
-
-      const porStatus = {};
-      this.registros.forEach((item) => {
-        const status = String(item.status || '').trim();
-        if (!status) return;
-        porStatus[status] = (porStatus[status] || 0) + 1;
-      });
-
-      const topStatus = Object.entries(porStatus)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 4);
-
-      topStatus.forEach(([status, qtd]) => {
-        cards.push({
-          label: status,
-          value: qtd,
-          help: `Registros com status “${status}” na prévia carregada.`,
-        });
-      });
-
-      return cards;
-    },
   },
 
   mounted() {
