@@ -74,7 +74,6 @@ export default createCrudPage({
   },
   validarFormulario(form) {
     return combinarValidacoes(
-      textoObrigatorio(form.ano, 'Informe o ano.'),
       textoObrigatorio(form.equipe, 'Informe a equipe / responsáveis.'),
       textoObrigatorio(form.observacao, 'Informe a observação.'),
       textoObrigatorio(form.nome, 'Preencha o nome do evento.'),
@@ -100,7 +99,7 @@ export default createCrudPage({
   montarPayload(form) {
     return {
       nome: form.nome.trim(),
-      ano: form.ano || form.data.slice(0, 4),
+      ano: form.data.slice(0, 4),
       data: form.data,
       unidade: form.unidade,
       eixo: form.eixo,
@@ -147,11 +146,6 @@ export default createCrudPage({
   }),
   extraMethods: {
     formatarQuantidadePessoas: formatarInteiroInput('quantidade_pessoas'),
-    preencherAnoDaData() {
-      if (this.form.data && !this.form.ano) {
-        this.form.ano = this.form.data.slice(0, 4);
-      }
-    },
     onMudarAcao() {
       if (this.form.possui_acao_extensiva !== 'Sim') {
         this.form.acao_vinculada = '';

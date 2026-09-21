@@ -30,7 +30,7 @@
 
   .login-content {
     width: 100% !important;
-    max-width: none !important;
+    max-width: 420px !important;
   }
 
   .login-title {
@@ -44,7 +44,7 @@
 
   .login-card {
     width: 100% !important;
-    max-width: none !important;
+    max-width: 420px !important;
     padding: 1.5rem 1.15rem 1.25rem !important;
     border-radius: 10px !important;
   }

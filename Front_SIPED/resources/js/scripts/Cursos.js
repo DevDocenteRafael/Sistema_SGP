@@ -108,16 +108,19 @@ export default {
       return this.indiceAbaForm >= this.abasForm.length - 1;
     },
     opcoesRegiaoOferta() {
-      return this.unidadesOpcoes.map((ra) => ({
-        value: String(ra.id),
-        label: ra.nome,
+      return this.unidadesOpcoes.map((opcao) => ({
+        value: this.valorOpcaoOferta(opcao),
+        label: opcao.nome,
       }));
     },
     regiaoOfertaAtual() {
       if (!this.regiaoOfertaSelecionada) {
         return null;
       }
-      return this.unidadesOpcoes.find((ra) => String(ra.id) === String(this.regiaoOfertaSelecionada)) || null;
+      return this.unidadesOpcoes.find((opcao) => (
+        Array.isArray(opcao.grupos)
+        && this.valorOpcaoOferta(opcao) === String(this.regiaoOfertaSelecionada)
+      )) || null;
     },
     unidadesSelecionadasResumo() {
       return [...this.form.unidades_oferta];
@@ -196,7 +199,7 @@ export default {
       this.unidades = nomes;
       this.unidadesOpcoes = opcoes;
       if (!this.regiaoOfertaSelecionada && opcoes.length) {
-        this.regiaoOfertaSelecionada = String(opcoes[0].id);
+        this.regiaoOfertaSelecionada = this.valorOpcaoOferta(opcoes[0]);
       }
     },
     formVazio() {
@@ -404,6 +407,41 @@ export default {
 
     unidadeSelecionada(unidade) {
       return this.form.unidades_oferta.includes(unidade);
+    },
+
+    valorOpcaoOferta(opcao) {
+      return Array.isArray(opcao.grupos)
+        ? `regiao:${opcao.id}`
+        : `estrutura:${opcao.nome}`;
+    },
+
+    selecionarEstruturaDaRegiao() {
+      const estruturaDireta = this.unidadesOpcoes.find((opcao) => (
+        !Array.isArray(opcao.grupos)
+        && this.valorOpcaoOferta(opcao) === String(this.regiaoOfertaSelecionada)
+      ));
+
+      if (estruturaDireta?.nome) {
+        const lista = this.form.unidades_oferta.includes(estruturaDireta.nome)
+          ? this.form.unidades_oferta
+          : [...this.form.unidades_oferta, estruturaDireta.nome];
+        this.form.unidades_oferta = lista;
+        this.form.unidade = lista[0] ?? '';
+        return;
+      }
+
+      const grupos = this.regiaoOfertaAtual?.grupos ?? [];
+      const estruturas = grupos.flatMap((grupo) => grupo.unidades ?? []);
+
+      if (estruturas.length !== 1) {
+        return;
+      }
+
+      const nome = estruturas[0].nome;
+      if (!this.form.unidades_oferta.includes(nome)) {
+        this.form.unidades_oferta = [...this.form.unidades_oferta, nome];
+      }
+      this.form.unidade = this.form.unidades_oferta[0] ?? '';
     },
 
     validarAba(abaId) {

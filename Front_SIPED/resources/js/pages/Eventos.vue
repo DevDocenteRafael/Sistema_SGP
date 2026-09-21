@@ -239,21 +239,6 @@
             <h2>Dados do evento</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="ano"><FormLabel label="Ano" required /></label>
-                <SearchableSelect
-                  id="ano"
-                  input-id="ano"
-                  v-model="form.ano" aria-required="true"
-                  :options="anos"
-                  empty-option="Selecione..."
-                  aria-label="Ano"
-                />
-              </div>
-              <div class="form-group">
-                <label for="data"><FormLabel label="Data" required /></label>
-                <input id="data" v-model="form.data" type="date" required @change="preencherAnoDaData" />
-              </div>
-              <div class="form-group full">
                 <label for="nome"><FormLabel label="Nome do Evento" required /></label>
                 <input
                   id="nome"
@@ -263,6 +248,10 @@
                   required
                   placeholder="Ex: Feira de Profissões SENAC DF"
                 />
+              </div>
+              <div class="form-group">
+                <label for="data"><FormLabel label="Data" required /></label>
+                <input id="data" v-model="form.data" type="date" required />
               </div>
               <div class="form-group">
                 <label for="unidade"><FormLabel label="Estrutura Institucional" required /></label>
@@ -336,18 +325,16 @@
               </div>
               <div class="form-group">
                 <label for="acao_vinculada"><FormLabel label="Ação Extensiva Vinculada" :required="form.possui_acao_extensiva === 'Sim'" /></label>
-                <input
+                <textarea
                   id="acao_vinculada"
                   v-model="form.acao_vinculada"
-                  type="text"
-                  list="acoes-vinculaveis-list"
-                  maxlength="255"
                   :disabled="form.possui_acao_extensiva !== 'Sim'"
-                  placeholder="Selecione ou digite o título da ação"
-                />
-                <datalist id="acoes-vinculaveis-list">
-                  <option v-for="acao in acoesVinculaveis" :key="acao" :value="acao"></option>
-                </datalist>
+                  rows="2"
+                  maxlength="255"
+                  class="acao-vinculada-input"
+                  :required="form.possui_acao_extensiva === 'Sim'"
+                  placeholder="Informe a ação extensiva vinculada"
+                ></textarea>
               </div>
               <div class="form-group full">
                 <label for="observacao"><FormLabel label="Observação" required /></label>

@@ -547,6 +547,7 @@
                   v-model="regiaoOfertaSelecionada" aria-required="true"
                   :options="opcoesRegiaoOferta"
                   empty-option="Selecione a região..."
+                  @change="selecionarEstruturaDaRegiao"
                 />
               </div>
 
