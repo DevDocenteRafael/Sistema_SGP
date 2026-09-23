@@ -84,7 +84,7 @@
         :bloqueado="acessoBloqueado"
       />
 
-      <PageTableCard :total="totalHoras" aria-label="Tabela de horas pedagógicas">
+      <PageTableCard :total="totalHoras" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de horas pedagógicas" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 

@@ -1,5 +1,6 @@
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
+import Pagination from '../components/crud/Pagination.vue';
 
 const ACAO_LABEL = {
   criar: 'Criou',
@@ -10,7 +11,7 @@ const ACAO_LABEL = {
 
 export default {
   name: 'Auditoria',
-  components: { PageTableCard, CrudPageHeader },
+  components: { PageTableCard, CrudPageHeader, Pagination },
   data() {
     return {
       registros: [],
@@ -123,6 +124,20 @@ export default {
       if (this.meta.current_page < this.meta.last_page) {
         this.carregar(this.meta.current_page + 1);
       }
+    },
+
+    irParaPagina(page) {
+      if (!this.carregando && page >= 1 && page <= this.meta.last_page) {
+        this.carregar(page);
+      }
+    },
+
+    alterarRegistrosPorPagina(perPage) {
+      const quantidade = Number(perPage);
+      if (!Number.isInteger(quantidade) || quantidade < 1 || this.carregando) return;
+      this.meta.per_page = quantidade;
+      this.meta.current_page = 1;
+      this.carregar(1);
     },
   },
 };

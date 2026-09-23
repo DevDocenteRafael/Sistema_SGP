@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlanoDeMetaRequest;
 use App\Models\PlanoDeMeta;
@@ -12,7 +13,7 @@ use Illuminate\Http\Request;
 
 class PlanoDeMetaController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function index(Request $request): JsonResponse
     {
@@ -64,12 +65,11 @@ class PlanoDeMetaController extends Controller
             $query->where('status_final', $request->situacao);
         }
 
-        $registros = $query->get();
+        $paginator = $this->paginar($query, $request);
 
         return response()->json([
-            'data' => $registros,
-            'meta' => [
-                'total' => $registros->count(),
+            'data' => $paginator->items(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => PlanoDeMeta::query()->count(),
                 'anos' => ['2024', '2025', '2026', '2027'],
                 'segmentos' => PlanoDeMeta::query()
@@ -114,7 +114,7 @@ class PlanoDeMetaController extends Controller
                     ->pluck('status_final')
                     ->values()
                     ->all(),
-            ],
+            ]),
         ]);
     }
 

@@ -2,6 +2,7 @@ import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import Pagination from '../components/crud/Pagination.vue';
 import IndicadorPrazo from '../components/ciclo-vida/IndicadorPrazo.vue';
 import LinhaDoTempo from '../components/ciclo-vida/LinhaDoTempo.vue';
 import { podeEditarDados } from './auth';
@@ -57,6 +58,7 @@ export default {
     CrudAlerts,
     CrudFormShell,
     PageTableCard,
+    Pagination,
     IndicadorPrazo,
     LinhaDoTempo,
   },
@@ -84,6 +86,12 @@ export default {
       form: formVazio(),
       registros: [],
       meta: {
+        total: 0,
+        per_page: 10,
+        current_page: 1,
+        last_page: 1,
+        from: 0,
+        to: 0,
         vigencia_anos: 5,
         status: ['vigente', 'atencao', 'critico', 'vencida', 'concluida'],
         categorias: ['Normativa', 'Operacional', 'Regulamentação', 'Interna'],
@@ -153,7 +161,7 @@ export default {
       this.mensagemErro = '';
 
       try {
-        const params = {};
+        const params = { page: this.meta.current_page || 1, per_page: this.meta.per_page || 10 };
         Object.entries(this.filtros).forEach(([chave, valor]) => {
           if (valor !== '' && valor != null) {
             params[chave] = valor;
@@ -174,9 +182,25 @@ export default {
     },
     aplicarFiltros() {
       clearTimeout(this.debounceTimeout);
+      this.meta.current_page = 1;
       this.debounceTimeout = setTimeout(() => {
         this.carregarResolucoes();
       }, 300);
+    },
+
+    irParaPagina(page) {
+      const pagina = Number(page);
+      if (!Number.isInteger(pagina) || pagina < 1 || pagina > (this.meta.last_page || 1) || this.carregando) return;
+      this.meta.current_page = pagina;
+      this.carregarResolucoes();
+    },
+
+    alterarRegistrosPorPagina(perPage) {
+      const quantidade = Number(perPage);
+      if (!Number.isInteger(quantidade) || quantidade < 1 || this.carregando) return;
+      this.meta.per_page = quantidade;
+      this.meta.current_page = 1;
+      this.carregarResolucoes();
     },
     limparFiltros() {
       this.filtros = {

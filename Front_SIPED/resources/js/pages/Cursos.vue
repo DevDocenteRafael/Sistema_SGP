@@ -18,32 +18,32 @@
             v-model="filtros.busca"
             type="search"
             placeholder="Buscar por curso, SIG, SEI, eixo..."
-            @input="carregarCursos"
+            @input="aplicarFiltros"
           />
         </div>
         <SearchableSelect
           v-model="filtros.ano"
           :options="anosDisponiveis"
           empty-option="Todos os anos"
-          @change="carregarCursos"
+          @change="aplicarFiltros"
         />
         <SearchableSelect
           v-model="filtros.eixo"
           :options="meta.eixos"
           empty-option="Todos os eixos"
-          @change="carregarCursos"
+          @change="aplicarFiltros"
         />
         <SearchableSelect
           v-model="filtros.status"
           :options="meta.status"
           empty-option="Todos os status"
-          @change="carregarCursos"
+          @change="aplicarFiltros"
         />
         <SearchableSelect
           v-model="filtros.unidade"
           :options="unidades"
           empty-option="Todas as unidades"
-          @change="carregarCursos"
+          @change="aplicarFiltros"
         />
                 </section>
         </template>
@@ -52,7 +52,7 @@
       <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
       <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
 
-      <PageTableCard :total="totalCursos">
+      <PageTableCard :total="meta.total" :pagination="meta" :pagination-disabled="carregando" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 

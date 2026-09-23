@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\HoraPedagogicaRequest;
 use App\Models\HoraPedagogica;
@@ -12,7 +13,7 @@ use Illuminate\Http\Request;
 
 class HoraPedagogicaController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function index(Request $request): JsonResponse
     {
@@ -60,19 +61,18 @@ class HoraPedagogicaController extends Controller
             }
         }
 
-        $registros = $query->get();
+        $paginator = $this->paginar($query, $request);
 
         return response()->json([
-            'data' => $registros,
-            'meta' => [
-                'total' => $registros->count(),
+            'data' => $paginator->items(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => HoraPedagogica::query()->count(),
                 'total_ativos' => HoraPedagogica::query()->where('ativo', true)->count(),
                 'eixos' => CatalogoOficial::eixos(),
                 'segmentos' => CatalogoOficial::eixos(),
                 'status' => config('horas_pedagogicas.status'),
                 'anos' => config('horas_pedagogicas.anos'),
-            ],
+            ]),
         ]);
     }
 

@@ -97,7 +97,7 @@
 
       <CrudAlerts :sucesso="mensagemSucesso" :erro="mensagemErro" />
 
-      <PageTableCard :total="registrosFiltrados.length" aria-label="Tabela de resoluções">
+      <PageTableCard :total="meta.total" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de resoluções" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">Carregando resoluções...</div>
 

@@ -1,6 +1,7 @@
 import { atualizarUsuarioSessao, getUsuario, podeGerenciarUsuarios } from './auth';
 import { hidratarUnidadesSelect } from './unidadesApi';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import Pagination from '../components/crud/Pagination.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 import {
@@ -19,11 +20,12 @@ import {
 export default {
   name: 'Usuarios',
   mixins: [mixinHistoricoFormulario],
-  components: { PageTableCard, CrudPageHeader },
+  components: { PageTableCard, CrudPageHeader, Pagination },
   data() {
     return {
       modo: 'lista',
       usuarios: [],
+      meta: { total: 0, per_page: 10, current_page: 1, last_page: 1, from: 0, to: 0 },
       carregando: false,
       salvando: false,
       editandoId: null,
@@ -59,6 +61,7 @@ export default {
   methods: {
     limparFiltros() {
       this.filtros = { busca: '', perfil: '', status: '' };
+      this.meta.current_page = 1;
       this.carregarUsuarios();
     },
 
@@ -118,7 +121,7 @@ export default {
         this.mensagemErro = '';
 
         try {
-          const params = {};
+          const params = { page: this.meta.current_page || 1, per_page: this.meta.per_page || 10 };
 
           if (this.filtros.busca) {
             params.busca = this.filtros.busca;
@@ -134,12 +137,34 @@ export default {
 
           const { data } = await window.axios.get('/api/usuarios', { params });
           this.usuarios = data.data ?? [];
+          this.meta = { ...this.meta, ...(data.meta ?? {}) };
         } catch (error) {
           this.mensagemErro = this.extrairErro(error, 'Não foi possível carregar os usuários.');
         } finally {
           this.carregando = false;
         }
       }, 200);
+    },
+
+    aplicarFiltros() {
+      clearTimeout(this.buscaTimeout);
+      this.meta.current_page = 1;
+      this.buscaTimeout = setTimeout(() => this.carregarUsuarios(), 200);
+    },
+
+    irParaPagina(page) {
+      const pagina = Number(page);
+      if (!Number.isInteger(pagina) || pagina < 1 || pagina > (this.meta.last_page || 1) || this.carregando) return;
+      this.meta.current_page = pagina;
+      this.carregarUsuarios();
+    },
+
+    alterarRegistrosPorPagina(perPage) {
+      const quantidade = Number(perPage);
+      if (!Number.isInteger(quantidade) || quantidade < 1 || this.carregando) return;
+      this.meta.per_page = quantidade;
+      this.meta.current_page = 1;
+      this.carregarUsuarios();
     },
 
     abrirDetalhes(usuario) {

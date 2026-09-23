@@ -21,7 +21,7 @@
                 type="search"
                 placeholder="Buscar por nome, e-mail, telefone ou estrutura..."
                 aria-label="Buscar usuários"
-                @input="carregarUsuarios"
+                @input="aplicarFiltros"
               />
             </div>
             <SearchableSelect
@@ -33,7 +33,7 @@
               ]"
               empty-option="Todos os perfis"
               aria-label="Filtrar por perfil"
-              @change="carregarUsuarios"
+              @change="aplicarFiltros"
             />
             <SearchableSelect
               v-model="filtros.status"
@@ -43,7 +43,7 @@
               ]"
               empty-option="Todos os status"
               aria-label="Filtrar por status"
-              @change="carregarUsuarios"
+              @change="aplicarFiltros"
             />
           </section>
         </template>
@@ -52,7 +52,7 @@
       <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
       <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
 
-      <PageTableCard :total="usuarios.length" aria-label="Tabela de usuários">
+      <PageTableCard :total="meta.total" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de usuários" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 

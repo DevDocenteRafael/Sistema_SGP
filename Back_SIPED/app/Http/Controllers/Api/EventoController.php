@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\UnidadeOferta;
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EventoRequest;
 use App\Models\AcaoExtensiva;
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 
 class EventoController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function index(Request $request): JsonResponse
     {
@@ -61,7 +62,7 @@ class EventoController extends Controller
             $query->where('possui_acao_extensiva', $request->possui_acao_extensiva);
         }
 
-        $registros = $query->get();
+        $paginator = $this->paginar($query, $request);
 
         $anosBanco = Evento::query()
             ->whereNotNull('ano')
@@ -85,9 +86,8 @@ class EventoController extends Controller
             ->all();
 
         return response()->json([
-            'data' => $registros,
-            'meta' => [
-                'total' => $registros->count(),
+            'data' => $paginator->items(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => Evento::query()->count(),
                 'status' => config('eventos.status'),
                 'anos' => $anos,
@@ -95,7 +95,7 @@ class EventoController extends Controller
                 'unidades' => UnidadeOferta::nomesAtivos(),
                 'possui_acao_extensiva' => config('eventos.possui_acao_extensiva'),
                 'acoes_vinculaveis' => $acoesVinculaveis,
-            ],
+            ]),
         ]);
     }
 

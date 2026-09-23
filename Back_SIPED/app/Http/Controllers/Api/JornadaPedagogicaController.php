@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\JornadaPedagogicaRequest;
 use App\Models\JornadaPedagogica;
@@ -14,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class JornadaPedagogicaController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function __construct(
         private readonly JornadaPedagogicaAnexoService $anexos,
@@ -44,16 +45,16 @@ class JornadaPedagogicaController extends Controller
             $query->where('status', $request->status);
         }
 
-        $registros = $query->get()->map(fn (JornadaPedagogica $jornada) => $this->serializar($jornada));
+        $paginator = $this->paginar($query, $request);
+        $registros = collect($paginator->items())->map(fn (JornadaPedagogica $jornada) => $this->serializar($jornada));
 
         return response()->json([
             'data' => $registros,
-            'meta' => [
-                'total' => $registros->count(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => JornadaPedagogica::query()->count(),
                 'status' => config('jornadas_pedagogicas.status'),
                 'sim_nao' => config('jornadas_pedagogicas.sim_nao'),
-            ],
+            ]),
         ]);
     }
 

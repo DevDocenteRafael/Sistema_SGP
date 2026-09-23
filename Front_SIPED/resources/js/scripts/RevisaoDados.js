@@ -1,10 +1,11 @@
 import { CICLO_CONTEXTO_EVENTO, lerCicloContexto } from './cicloContexto';
 import { podeEditarDados } from './auth';
 import SearchableSelect from '../components/SearchableSelect.vue';
+import Pagination from '../components/crud/Pagination.vue';
 
 export default {
   name: 'RevisaoDados',
-  components: { SearchableSelect },
+  components: { SearchableSelect, Pagination },
 
   data() {
     return {
@@ -82,7 +83,7 @@ export default {
             tipo: this.tipo,
             busca: this.busca || undefined,
             page: pagina,
-            per_page: 25,
+            per_page: this.meta.per_page || 25,
           },
         });
         this.itens = data.data || [];
@@ -90,7 +91,7 @@ export default {
         this.eixos = data.eixos || [];
         this.segmentosPorEixo = data.segmentos_por_eixo || {};
         this.meta = {
-          total: 0, per_page: 25, current_page: 1, last_page: 1, from: 0, to: 0,
+          total: 0, per_page: this.meta.per_page || 25, current_page: 1, last_page: 1, from: 0, to: 0,
           ...(data.meta || {}),
         };
         if (
@@ -128,6 +129,14 @@ export default {
 
     irPagina(pagina) {
       this.carregar(pagina);
+    },
+
+    alterarRegistrosPorPagina(perPage) {
+      const quantidade = Number(perPage);
+      if (!Number.isInteger(quantidade) || quantidade < 1 || this.carregando) return;
+      this.meta.per_page = quantidade;
+      this.meta.current_page = 1;
+      this.carregar(1);
     },
 
     abrirClassificacao(item) {

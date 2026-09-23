@@ -48,7 +48,7 @@
 
       <CrudAlerts :sucesso="mensagemSucesso" :erro="mensagemErro" />
 
-      <PageTableCard :total="totalTermos" aria-label="Tabela de Termos de Referência">
+      <PageTableCard :total="meta.total" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de Termos de Referência" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">
           <Loading tamanho="padrao" texto="Carregando Termos de Referência..." />

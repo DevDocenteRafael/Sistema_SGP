@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ResolucaoRequest;
 use App\Models\Resolucao;
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 
 class ResolucaoController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function __construct(
         private readonly ResolucaoAnexoService $anexos,
@@ -66,12 +67,12 @@ class ResolucaoController extends Controller
             'data_inicio_vigencia',
             'data_fim_vigencia',
         ]);
-        $registros = $query->get()->map(fn (Resolucao $resolucao) => $this->serializarResolucao($resolucao));
+        $paginator = $this->paginar($query, $request);
+        $registros = collect($paginator->items())->map(fn (Resolucao $resolucao) => $this->serializarResolucao($resolucao));
 
         return response()->json([
             'data' => $registros,
-            'meta' => [
-                'total' => $registros->count(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => $todasLeves->count(),
                 'vigencia_anos' => ResolucaoVigenciaService::vigenciaAnos(),
                 'status' => config('resolucoes.status'),
@@ -79,7 +80,7 @@ class ResolucaoController extends Controller
                 'setores' => config('resolucoes.setores', []),
                 'semaforo' => config('resolucoes.semaforo'),
                 'contagens' => ResolucaoVigenciaService::contarPorSemaforo($todasLeves),
-            ],
+            ]),
         ]);
     }
 

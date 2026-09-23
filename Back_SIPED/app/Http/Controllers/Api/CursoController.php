@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AutorizaConsulta;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Requests\CursoRequest;
 use App\Models\Curso;
 use App\Models\PortfolioCiclo;
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 
 class CursoController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function __construct(
         private readonly CursoDuplicidadeService $duplicidade,
@@ -28,7 +29,7 @@ class CursoController extends Controller
 
         $query = \App\Support\ConsultaCatalogoCursos::query($request->all())->with('ciclo')->orderBy('id');
 
-        $cursos = $query->get();
+        $paginator = $this->paginar($query, $request);
 
         $ciclos = PortfolioCiclo::query()
             ->withCount('cursos')
@@ -47,9 +48,8 @@ class CursoController extends Controller
         $cicloAtualId = is_array($cicloAtual) ? ($cicloAtual['id'] ?? null) : null;
 
         return response()->json([
-            'data' => $cursos,
-            'meta' => [
-                'total' => $cursos->count(),
+            'data' => $paginator->items(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'eixos' => CatalogoOficial::eixos(),
                 'segmentos' => CatalogoOficial::segmentos(),
                 'segmentos_por_eixo' => CatalogoOficial::segmentosPorEixo(),
@@ -59,7 +59,7 @@ class CursoController extends Controller
                 'sim_nao' => config('cursos.sim_nao'),
                 'ciclos' => $ciclos,
                 'ciclo_atual_id' => $cicloAtualId,
-            ],
+            ]),
         ]);
     }
 

@@ -20,6 +20,7 @@ import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import Pagination from '../components/crud/Pagination.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 
 const ENDPOINT_API = '/api/termos-referencia';
@@ -50,6 +51,7 @@ export default {
     CrudPageHeader,
     CrudFormShell,
     PageTableCard,
+    Pagination,
   },
   data() {
     return {
@@ -59,6 +61,7 @@ export default {
       carregando: false,
       carregandoFormulario: false,
       termos: [],
+      meta: { total: 0, per_page: 10, current_page: 1, last_page: 1, from: 0, to: 0 },
       termoSelecionado: null,
       editandoId: null,
       form: { ...FORM_VAZIO },
@@ -119,6 +122,7 @@ export default {
         status: '',
         prazo: '',
       };
+      this.meta.current_page = 1;
       this.carregarTermos();
     },
 
@@ -130,7 +134,7 @@ export default {
       this.mensagemErro = '';
 
       try {
-        const params = {};
+        const params = { page: this.meta.current_page || 1, per_page: this.meta.per_page || 10 };
         Object.entries(this.filtros).forEach(([chave, valor]) => {
           if (valor !== '' && valor != null) {
             params[chave] = valor;
@@ -141,6 +145,7 @@ export default {
         const dados = response.data;
 
         this.termos = Array.isArray(dados.data) ? dados.data : [];
+        this.meta = { ...this.meta, ...(dados.meta ?? {}) };
 
         // Aplicar meta data do backend
         if (dados.meta) {
@@ -164,9 +169,25 @@ export default {
      */
     aplicarFiltros() {
       clearTimeout(this.debounceTimeout);
+      this.meta.current_page = 1;
       this.debounceTimeout = setTimeout(() => {
         this.carregarTermos();
       }, 300);
+    },
+
+    irParaPagina(page) {
+      const pagina = Number(page);
+      if (!Number.isInteger(pagina) || pagina < 1 || pagina > (this.meta.last_page || 1) || this.carregando) return;
+      this.meta.current_page = pagina;
+      this.carregarTermos();
+    },
+
+    alterarRegistrosPorPagina(perPage) {
+      const quantidade = Number(perPage);
+      if (!Number.isInteger(quantidade) || quantidade < 1 || this.carregando) return;
+      this.meta.per_page = quantidade;
+      this.meta.current_page = 1;
+      this.carregarTermos();
     },
 
     /**

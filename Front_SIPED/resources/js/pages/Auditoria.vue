@@ -91,11 +91,16 @@
         </table>
       </div>
 
-      <div v-if="meta.last_page > 1" class="paginacao" role="navigation" aria-label="Paginação da auditoria">
-        <button type="button" :disabled="meta.current_page <= 1" aria-label="Página anterior" @click="paginaAnterior">Anterior</button>
-        <span aria-live="polite">Página {{ meta.current_page }} de {{ meta.last_page }}</span>
-        <button type="button" :disabled="meta.current_page >= meta.last_page" aria-label="Próxima página" @click="paginaProxima">Próxima</button>
-      </div>
+      <Pagination
+        :current-page="meta.current_page"
+        :total-pages="meta.last_page"
+        :total-records="meta.total"
+        :page-size="meta.per_page"
+        :disabled="carregando"
+        aria-label="Paginação da auditoria"
+        @change="irParaPagina"
+        @per-page-change="alterarRegistrosPorPagina"
+      />
     </PageTableCard>
 
     <div v-if="detalhe" class="modal-overlay" @click.self="fecharDetalhe">

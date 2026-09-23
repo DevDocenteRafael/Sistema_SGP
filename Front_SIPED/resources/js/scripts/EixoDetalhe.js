@@ -1,8 +1,10 @@
 import { CICLO_CONTEXTO_EVENTO, lerCicloContexto } from './cicloContexto';
 import { podeEditarDados } from './auth';
+import Pagination from '../components/crud/Pagination.vue';
 
 export default {
   name: 'EixoDetalhe',
+  components: { Pagination },
 
   data() {
     return {
@@ -83,13 +85,13 @@ export default {
             ...this.queryCiclo(),
             busca: this.busca || undefined,
             page: pagina,
-            per_page: 25,
+            per_page: this.meta.per_page || 25,
           },
         });
         this.cursos = data.data || [];
         this.meta = {
           total: 0,
-          per_page: 25,
+          per_page: this.meta.per_page || 25,
           current_page: 1,
           last_page: 1,
           from: 0,
@@ -111,6 +113,14 @@ export default {
 
     irPagina(pagina) {
       this.carregarCursos(pagina);
+    },
+
+    alterarRegistrosPorPagina(perPage) {
+      const quantidade = Number(perPage);
+      if (!Number.isInteger(quantidade) || quantidade < 1 || this.carregandoCursos) return;
+      this.meta.per_page = quantidade;
+      this.meta.current_page = 1;
+      this.carregarCursos(1);
     },
 
     voltar() {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\UnidadeOferta;
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VisitaTecnicaRequest;
 use App\Models\VisitaTecnica;
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 
 class VisitaTecnicaController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function index(Request $request): JsonResponse
     {
@@ -61,19 +62,18 @@ class VisitaTecnicaController extends Controller
             $this->aplicarFiltroPrazo($query, $request->prazo);
         }
 
-        $registros = $query->get();
+        $paginator = $this->paginar($query, $request);
 
         return response()->json([
-            'data' => $registros,
-            'meta' => [
-                'total' => $registros->count(),
+            'data' => $paginator->items(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => VisitaTecnica::query()->count(),
                 'eixos' => CatalogoOficial::eixos(),
                 'status' => config('visitas_tecnicas.status'),
                 'anos' => config('visitas_tecnicas.anos'),
                 'unidades' => UnidadeOferta::nomesAtivos(),
                 'prazos' => config('visitas_tecnicas.prazos'),
-            ],
+            ]),
         ]);
     }
 

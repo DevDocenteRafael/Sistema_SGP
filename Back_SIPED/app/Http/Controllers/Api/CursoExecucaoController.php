@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CursoExecucaoRequest;
 use App\Http\Requests\VincularCursoExecucaoRequest;
@@ -17,7 +18,7 @@ use Illuminate\Http\Request;
 
 class CursoExecucaoController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function index(Request $request): JsonResponse
     {
@@ -65,19 +66,18 @@ class CursoExecucaoController extends Controller
             $query->where('status', $request->status);
         }
 
-        $registros = $query->get();
+        $paginator = $this->paginar($query, $request);
 
         return response()->json([
-            'data' => $registros,
-            'meta' => [
-                'total' => $registros->count(),
+            'data' => $paginator->items(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'eixos' => CatalogoOficial::eixos(),
                 'segmentos' => CatalogoOficial::segmentos(),
                 'programas' => CatalogoOficial::programas(),
                 'status' => config('curso_por_eixos.status'),
                 'anos' => config('curso_por_eixos.anos'),
                 'unidades' => UnidadeOferta::nomesAtivos(),
-            ],
+            ]),
         ]);
     }
 

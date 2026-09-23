@@ -79,7 +79,7 @@
         :erro="mensagemErro"
       />
 
-      <PageTableCard :total="totalRegistros" aria-label="Tabela de Plano de Metas">
+      <PageTableCard :total="totalRegistros" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de Plano de Metas" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 

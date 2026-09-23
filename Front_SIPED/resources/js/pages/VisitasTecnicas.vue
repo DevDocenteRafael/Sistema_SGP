@@ -92,7 +92,7 @@
         :bloqueado="acessoBloqueado"
       />
 
-      <PageTableCard :total="totalVisitas" aria-label="Tabela de visitas técnicas">
+      <PageTableCard :total="totalVisitas" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de visitas técnicas" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Requests\UsuarioRequest;
 use App\Models\Usuario;
 use App\Services\CadastroAuditoriaService;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
+    use PaginatesIndex;
     public function __construct(
         private CadastroAuditoriaService $auditoria,
         private UsuarioFotoService $fotos,
@@ -41,8 +43,11 @@ class UsuarioController extends Controller
             });
         }
 
+        $paginator = $this->paginar($query, $request);
+
         return response()->json([
-            'data' => $query->get(),
+            'data' => $paginator->items(),
+            'meta' => $this->metaPaginacao($paginator),
         ]);
     }
 

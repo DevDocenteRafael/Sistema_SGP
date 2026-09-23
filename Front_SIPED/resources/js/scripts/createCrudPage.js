@@ -10,6 +10,7 @@ import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import TabelaContador from '../components/crud/TabelaContador.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import Pagination from '../components/crud/Pagination.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 import { extrairErroApi } from '../utils/validacao';
 import { hidratarUnidadesSelect } from './unidadesApi';
@@ -115,6 +116,7 @@ export function createCrudPage(config) {
 
     aplicarFiltros() {
       clearTimeout(this.buscaTimeout);
+      this.meta.current_page = 1;
       this.buscaTimeout = setTimeout(() => {
         this.carregarRegistros();
       }, 200);
@@ -122,7 +124,29 @@ export function createCrudPage(config) {
 
     limparFiltros() {
       this.filtros = { ...filtrosIniciais };
+      this.meta.current_page = 1;
       this.aplicarFiltros();
+    },
+
+    irParaPagina(page) {
+      const pagina = Number(page);
+      if (!Number.isInteger(pagina) || pagina < 1 || pagina > (this.meta.last_page || 1)) {
+        return;
+      }
+
+      this.meta.current_page = pagina;
+      this.carregarRegistros();
+    },
+
+    alterarRegistrosPorPagina(perPage) {
+      const quantidade = Number(perPage);
+      if (!Number.isInteger(quantidade) || quantidade < 1 || this.carregando) {
+        return;
+      }
+
+      this.meta.per_page = quantidade;
+      this.meta.current_page = 1;
+      this.carregarRegistros();
     },
 
     async carregarRegistros() {
@@ -152,7 +176,10 @@ export function createCrudPage(config) {
       }
 
       try {
-        const params = {};
+        const params = {
+          page: this.meta.current_page || 1,
+          per_page: this.meta.per_page || 10,
+        };
 
         Object.entries(this.filtros).forEach(([chave, valor]) => {
           if (valor !== '' && valor != null) {
@@ -170,6 +197,10 @@ export function createCrudPage(config) {
         const { data } = await window.axios.get(endpoint, { params });
         const lista = Array.isArray(data.data) ? data.data : [];
         this[listKey] = lista.map((item) => this.normalizarRegistro(item));
+
+        if (data.meta?.current_page && data.meta.current_page !== this.meta.current_page) {
+          this.meta.current_page = data.meta.current_page;
+        }
 
         if (data.meta) {
           if (this.meta && typeof this.meta === 'object') {
@@ -548,7 +579,7 @@ export function createCrudPage(config) {
     },
 
     totalRegistros() {
-      return (this[listKey] ?? []).length;
+      return this.meta?.total ?? (this[listKey] ?? []).length;
     },
 
     listaFiltrada() {
@@ -587,6 +618,7 @@ export function createCrudPage(config) {
       CrudFormShell,
       TabelaContador,
       PageTableCard,
+      Pagination,
       ...components,
     },
 
@@ -594,6 +626,7 @@ export function createCrudPage(config) {
       const base = {
         modo: 'lista',
         [listKey]: [],
+        meta: { total: 0, per_page: 10, current_page: 1, last_page: 1, from: 0, to: 0 },
         filtros: { ...filtrosIniciais },
         buscaTimeout: null,
         carregando: carregandoInicial,

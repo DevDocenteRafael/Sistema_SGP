@@ -93,11 +93,16 @@
 
         <div v-if="meta.total" class="eixos-paginacao" role="navigation" aria-label="Paginação dos cursos">
           <span>Mostrando {{ meta.from || 0 }}-{{ meta.to || 0 }} de {{ meta.total }}</span>
-          <div v-if="meta.last_page > 1" class="eixos-paginacao-acoes">
-            <button type="button" class="btn-secondary" :disabled="meta.current_page <= 1" @click="irPagina(meta.current_page - 1)">Anterior</button>
-            <span>Página {{ meta.current_page }} de {{ meta.last_page }}</span>
-            <button type="button" class="btn-secondary" :disabled="meta.current_page >= meta.last_page" @click="irPagina(meta.current_page + 1)">Próxima</button>
-          </div>
+          <Pagination
+            :current-page="meta.current_page"
+            :total-pages="meta.last_page"
+            :total-records="meta.total"
+            :page-size="meta.per_page"
+            :disabled="carregandoCursos"
+            aria-label="Paginação dos cursos"
+            @change="irPagina"
+            @per-page-change="alterarRegistrosPorPagina"
+          />
         </div>
       </section>
     </template>

@@ -79,11 +79,16 @@
 
     <div v-if="meta.total" class="revisao-paginacao">
       <span>Mostrando {{ meta.from || 0 }}-{{ meta.to || 0 }} de {{ meta.total }}</span>
-      <div v-if="meta.last_page > 1" class="revisao-paginacao-acoes">
-        <button type="button" class="btn-secondary" :disabled="meta.current_page <= 1" @click="irPagina(meta.current_page - 1)">Anterior</button>
-        <span>Página {{ meta.current_page }} de {{ meta.last_page }}</span>
-        <button type="button" class="btn-secondary" :disabled="meta.current_page >= meta.last_page" @click="irPagina(meta.current_page + 1)">Próxima</button>
-      </div>
+      <Pagination
+        :current-page="meta.current_page"
+        :total-pages="meta.last_page"
+        :total-records="meta.total"
+        :page-size="meta.per_page"
+        :disabled="carregando"
+        aria-label="Paginação da revisão de dados"
+        @change="irPagina"
+        @per-page-change="alterarRegistrosPorPagina"
+      />
     </div>
 
     <div v-if="classificando" class="modal-overlay" @click.self="classificando = null">

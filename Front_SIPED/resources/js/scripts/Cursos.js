@@ -2,6 +2,7 @@ import { podeEditarDados } from './auth';
 import { CICLO_CONTEXTO_EVENTO, lerCicloContexto, salvarCicloContexto } from './cicloContexto';
 import { carregarUnidadesNomes, carregarUnidadesOpcoes } from './unidadesApi';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import Pagination from '../components/crud/Pagination.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 import {
@@ -22,7 +23,7 @@ import {
 export default {
   name: 'Cursos',
   mixins: [mixinHistoricoFormulario],
-  components: { PageTableCard, CrudPageHeader },
+  components: { PageTableCard, CrudPageHeader, Pagination },
   data() {
     return {
       modo: 'lista',
@@ -30,6 +31,12 @@ export default {
       ciclos: [],
       cicloInicializado: false,
       meta: {
+        total: 0,
+        per_page: 10,
+        current_page: 1,
+        last_page: 1,
+        from: 0,
+        to: 0,
         eixos: [],
         segmentos: [],
         segmentos_por_eixo: {},
@@ -188,7 +195,14 @@ export default {
         status: '',
         unidade: '',
       };
+      this.meta.current_page = 1;
       this.carregarCursos();
+    },
+
+    aplicarFiltros() {
+      clearTimeout(this.buscaTimeout);
+      this.meta.current_page = 1;
+      this.buscaTimeout = setTimeout(() => this.carregarCursos(), 200);
     },
 
     async carregarUnidadesOferta() {
@@ -244,7 +258,7 @@ export default {
         this.mensagemErro = '';
 
         try {
-          const params = {};
+          const params = { page: this.meta.current_page || 1, per_page: this.meta.per_page || 10 };
 
           Object.entries(this.filtros).forEach(([chave, valor]) => {
             if (valor) {
@@ -269,6 +283,23 @@ export default {
           this.carregando = false;
         }
       }, 200);
+    },
+
+    irParaPagina(page) {
+      const pagina = Number(page);
+      if (!Number.isInteger(pagina) || pagina < 1 || pagina > (this.meta.last_page || 1) || this.carregando) {
+        return;
+      }
+      this.meta.current_page = pagina;
+      this.carregarCursos();
+    },
+
+    alterarRegistrosPorPagina(perPage) {
+      const quantidade = Number(perPage);
+      if (!Number.isInteger(quantidade) || quantidade < 1 || this.carregando) return;
+      this.meta.per_page = quantidade;
+      this.meta.current_page = 1;
+      this.carregarCursos();
     },
 
     abrirNovo() {

@@ -129,5 +129,13 @@ class AcaoExtensivaApiTest extends TestCase
         $filtered->assertOk();
         $filtered->assertJsonPath('meta.total', 1);
         $filtered->assertJsonPath('data.0.numero_processo_sei', '2026.000000001-01');
+
+        $paginaDois = $this->getJson('/api/acoes-extensivas?per_page=1&page=2');
+        $paginaDois->assertOk();
+        $paginaDois->assertJsonPath('meta.total', 2);
+        $paginaDois->assertJsonPath('meta.per_page', 1);
+        $paginaDois->assertJsonPath('meta.current_page', 2);
+        $paginaDois->assertJsonPath('meta.last_page', 2);
+        $paginaDois->assertJsonCount(1, 'data');
     }
 }

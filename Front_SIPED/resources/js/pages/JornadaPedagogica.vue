@@ -43,7 +43,7 @@
 
       <CrudAlerts :sucesso="mensagemSucesso" :erro="mensagemErro" />
 
-      <PageTableCard :total="totalRegistros" aria-label="Tabela de jornadas pedagógicas">
+      <PageTableCard :total="meta.total" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de jornadas pedagógicas" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 

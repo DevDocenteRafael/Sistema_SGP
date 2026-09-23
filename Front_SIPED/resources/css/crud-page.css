@@ -254,6 +254,137 @@
   font-size: 0.9rem;
 }
 
+.sgp-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  min-height: 3.75rem;
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--sgp-border, #e5e7eb);
+  background: var(--sgp-surface-muted, #f9fafb);
+}
+
+.sgp-pagination-navigation,
+.sgp-pagination-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sgp-pagination-options {
+  margin-left: auto;
+  gap: 0.6rem;
+  color: var(--sgp-text-muted, #6b7280);
+  font-size: 0.8rem;
+}
+
+.sgp-pagination-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.sgp-pagination-field span,
+.sgp-pagination-go label {
+  font-weight: 600;
+}
+
+.sgp-pagination-separador {
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+.sgp-pagination-button {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.55rem;
+  border: 1px solid #d7dee8;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sgp-pagination-button:hover:not(:disabled),
+.sgp-pagination-button.ativo {
+  border-color: var(--sgp-brand, #003f7d);
+  background: var(--sgp-brand, #003f7d);
+  color: #fff;
+}
+
+.sgp-pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.sgp-pagination-field select,
+.sgp-pagination-field input {
+  width: auto;
+  height: 2rem;
+  padding: 0 0.45rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #334155;
+  font-size: 0.8rem;
+}
+
+.sgp-pagination-field select {
+  min-width: 3.2rem;
+}
+
+.sgp-pagination-field input {
+  width: 3.4rem;
+  text-align: center;
+}
+
+.sgp-pagination-field select:focus,
+.sgp-pagination-field input:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.12);
+}
+
+.sgp-pagination-go-button {
+  height: 2rem;
+  padding: 0 0.7rem;
+  border: 1px solid #0d6efd;
+  border-radius: 0.25rem;
+  background: #0d6efd;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sgp-pagination-go-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sgp-pagination-error {
+  flex-basis: 100%;
+  color: #b42318;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 800px) {
+  .sgp-pagination {
+    align-items: flex-start;
+  }
+
+  .sgp-pagination-options {
+    margin-left: 0;
+  }
+}
+
 .estado-vazio {
   padding: 3.5rem 1.5rem;
 }

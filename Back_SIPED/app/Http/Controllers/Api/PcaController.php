@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\UnidadeOferta;
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PcaRequest;
 use App\Models\Pca;
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 
 class PcaController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function index(Request $request): JsonResponse
     {
@@ -61,7 +62,7 @@ class PcaController extends Controller
             $query->where('status', $request->status);
         }
 
-        $registros = $query->get();
+        $paginator = $this->paginar($query, $request);
 
         $anosBanco = Pca::query()
             ->whereNotNull('ano')
@@ -103,16 +104,15 @@ class PcaController extends Controller
         sort($status);
 
         return response()->json([
-            'data' => $registros,
-            'meta' => [
-                'total' => $registros->count(),
+            'data' => $paginator->items(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => Pca::query()->count(),
                 'status' => $status,
                 'anos' => $anos,
                 'semestres' => $semestres,
                 'eixos' => CatalogoOficial::eixos(),
                 'unidades' => UnidadeOferta::nomesAtivos(),
-            ],
+            ]),
         ]);
     }
 

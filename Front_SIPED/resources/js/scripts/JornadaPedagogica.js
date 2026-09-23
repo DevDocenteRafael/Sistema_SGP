@@ -12,6 +12,7 @@ import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
+import Pagination from '../components/crud/Pagination.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 
 const ENDPOINT = '/api/jornadas-pedagogicas';
@@ -44,6 +45,7 @@ export default {
     CrudAlerts,
     CrudFormShell,
     PageTableCard,
+    Pagination,
   },
   data() {
     return {
@@ -62,6 +64,12 @@ export default {
       editandoId: null,
       form: formVazio(),
       meta: {
+        total: 0,
+        per_page: 10,
+        current_page: 1,
+        last_page: 1,
+        from: 0,
+        to: 0,
         status: ['Rascunho', 'Consolidado', 'Enviado'],
         sim_nao: ['Sim', 'Não'],
       },
@@ -93,11 +101,13 @@ export default {
 
     limparFiltros() {
       this.filtros = { busca: '', status: '' };
+      this.meta.current_page = 1;
       this.aplicarFiltros();
     },
 
     aplicarFiltros() {
       clearTimeout(this.buscaTimeout);
+      this.meta.current_page = 1;
       this.buscaTimeout = setTimeout(() => this.carregarRegistros(), 200);
     },
 
@@ -106,7 +116,7 @@ export default {
       this.mensagemErro = '';
 
       try {
-        const params = {};
+        const params = { page: this.meta.current_page || 1, per_page: this.meta.per_page || 10 };
         Object.entries(this.filtros).forEach(([chave, valor]) => {
           if (valor) {
             params[chave] = valor;
@@ -127,6 +137,21 @@ export default {
       } finally {
         this.carregando = false;
       }
+    },
+
+    irParaPagina(page) {
+      const pagina = Number(page);
+      if (!Number.isInteger(pagina) || pagina < 1 || pagina > (this.meta.last_page || 1) || this.carregando) return;
+      this.meta.current_page = pagina;
+      this.carregarRegistros();
+    },
+
+    alterarRegistrosPorPagina(perPage) {
+      const quantidade = Number(perPage);
+      if (!Number.isInteger(quantidade) || quantidade < 1 || this.carregando) return;
+      this.meta.per_page = quantidade;
+      this.meta.current_page = 1;
+      this.carregarRegistros();
     },
 
     abrirNovo() {

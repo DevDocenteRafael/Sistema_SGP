@@ -91,7 +91,7 @@
         :bloqueado="acessoBloqueado"
       />
 
-      <PageTableCard :total="totalRegistros" aria-label="Tabela de PCA">
+      <PageTableCard :total="totalRegistros" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de PCA" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 

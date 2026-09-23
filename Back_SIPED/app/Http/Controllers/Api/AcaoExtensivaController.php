@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AcaoExtensivaRequest;
 use App\Models\AcaoExtensiva;
@@ -12,7 +13,7 @@ use Illuminate\Http\Request;
 
 class AcaoExtensivaController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function index(Request $request): JsonResponse
     {
@@ -53,18 +54,17 @@ class AcaoExtensivaController extends Controller
             $query->where('tipo', $request->tipo);
         }
 
-        $registros = $query->get();
+        $paginator = $this->paginar($query, $request);
 
         return response()->json([
-            'data' => $registros,
-            'meta' => [
-                'total' => $registros->count(),
+            'data' => $paginator->items(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => AcaoExtensiva::query()->count(),
                 'priorizacoes' => config('acoes_extensivas.priorizacoes'),
                 'status' => config('acoes_extensivas.status'),
                 'tipos' => config('acoes_extensivas.tipos'),
                 'eixos' => CatalogoOficial::eixos(),
-            ],
+            ]),
         ]);
     }
 

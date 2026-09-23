@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TermoReferenciaRequest;
 use App\Models\TermoReferencia;
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 
 class TermoReferenciaController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function index(Request $request): JsonResponse
     {
@@ -57,17 +58,17 @@ class TermoReferenciaController extends Controller
             'id',
             'prazo_deadline',
         ]);
-        $termos = $query->get()->map(fn (TermoReferencia $termo) => $this->serializarTermo($termo));
+        $paginator = $this->paginar($query, $request);
+        $termos = collect($paginator->items())->map(fn (TermoReferencia $termo) => $this->serializarTermo($termo));
 
         return response()->json([
             'data' => $termos,
-            'meta' => [
-                'total' => $termos->count(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => $todosLeves->count(),
                 'eixos' => CatalogoOficial::eixos(),
                 'status' => config('termos_referencia.status', ['Planejamento', 'Em Andamento', 'Em tramitação (fora da CPED)', 'Concluído', 'Arquivado']),
                 'contagens' => TermoReferenciaPrazoService::contarPorPrazo($todosLeves),
-            ],
+            ]),
         ]);
     }
 
