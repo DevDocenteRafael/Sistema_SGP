@@ -1,4 +1,4 @@
-import { podeEditarDados } from './auth';
+import { podeAdministrarEntidade } from './origemDados';
 import { CICLO_CONTEXTO_EVENTO, lerCicloContexto } from './cicloContexto';
 import {
   combinarValidacoes,
@@ -78,7 +78,7 @@ export default {
   },
   computed: {
     podeEditar() {
-      return podeEditarDados();
+      return podeAdministrarEntidade('jornadas-pedagogicas');
     },
     temFiltro() {
       return Object.values(this.filtros).some(Boolean);

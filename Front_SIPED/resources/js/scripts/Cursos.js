@@ -1,4 +1,4 @@
-import { podeEditarDados } from './auth';
+import { podeAdministrarEntidade, rotuloOrigem, textoSincronizacao } from './origemDados';
 import { CICLO_CONTEXTO_EVENTO, lerCicloContexto, salvarCicloContexto } from './cicloContexto';
 import { carregarUnidadesNomes, carregarUnidadesOpcoes } from './unidadesApi';
 import PageTableCard from '../components/crud/PageTableCard.vue';
@@ -82,7 +82,7 @@ export default {
   },
   computed: {
     podeEditar() {
-      return podeEditarDados();
+      return podeAdministrarEntidade('cursos');
     },
     temFiltro() {
       return Object.entries(this.filtros).some(([chave, valor]) => chave !== 'ciclo_id' && Boolean(valor));
@@ -892,6 +892,10 @@ export default {
 
       return curso?.unidade || '—';
     },
+
+    rotuloOrigem,
+
+    textoSincronizacao,
 
     async abrirDetalhes(curso) {
       this.detalheAberto = true;

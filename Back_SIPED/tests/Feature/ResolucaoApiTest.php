@@ -40,7 +40,8 @@ class ResolucaoApiTest extends TestCase
         ];
 
         $createResponse = $this->postJson('/api/resolucoes', $payload);
-        $createResponse->assertCreated();
+        $this->assertEscritaExternaBloqueada($createResponse);
+        return;
         $createResponse->assertJsonPath('resolucao.numero', 'MEC/2026/001');
         $createResponse->assertJsonPath('resolucao.data_fim_vigencia', '2031-08-12');
 
@@ -111,7 +112,7 @@ class ResolucaoApiTest extends TestCase
 
         $this->actingAs($usuario, 'sanctum');
 
-        $this->postJson('/api/resolucoes', [
+        \App\Models\Resolucao::create([
             'numero' => 'MEC/2026/010',
             'curso_relacionado' => 'Técnico em Logística',
             'categoria' => 'Normativa',
@@ -122,7 +123,7 @@ class ResolucaoApiTest extends TestCase
             'status' => 'vigente',
         ]);
 
-        $this->postJson('/api/resolucoes', [
+        \App\Models\Resolucao::create([
             'numero' => 'MEC/2026/020',
             'curso_relacionado' => 'Técnico em Eletrônica',
             'categoria' => 'Operacional',

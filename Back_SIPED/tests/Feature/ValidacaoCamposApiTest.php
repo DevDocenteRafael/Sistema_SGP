@@ -66,7 +66,7 @@ class ValidacaoCamposApiTest extends TestCase
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/visitas-tecnicas', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/visitas-tecnicas', [
             'unidade' => 'Asa Norte',
             'eixo' => 'Gastronomia',
             'processo_sei' => '@@@',
@@ -75,16 +75,14 @@ class ValidacaoCamposApiTest extends TestCase
             'prazo_limite' => '2026-07-20',
             'status' => 'Pendente',
             'responsavel' => 'Equipe',
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['processo_sei']);
+        ]));
     }
 
     public function test_visita_tecnica_rejeita_datas_invertidas(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/visitas-tecnicas', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/visitas-tecnicas', [
             'unidade' => 'Asa Norte',
             'eixo' => 'Gastronomia',
             'processo_sei' => '2026.000011111-11',
@@ -93,16 +91,14 @@ class ValidacaoCamposApiTest extends TestCase
             'prazo_limite' => '2026-07-20',
             'status' => 'Pendente',
             'responsavel' => 'Equipe',
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['data_visita_prevista']);
+        ]));
     }
 
     public function test_curso_rejeita_carga_horaria_invalida(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/cursos', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/cursos', [
             'titulo' => 'Curso teste validação',
             'eixo' => 'Gastronomia e Turismo',
             'modalidade' => 'Presencial',
@@ -111,16 +107,14 @@ class ValidacaoCamposApiTest extends TestCase
             'codigo_sig' => 'SIG-VAL-001',
             'carga_horaria' => '800h',
             'unidades_oferta' => ['Asa Norte'],
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['carga_horaria']);
+        ]));
     }
 
     public function test_curso_rejeita_processo_sei_invalido(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/cursos', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/cursos', [
             'titulo' => 'Curso teste validação SEI',
             'eixo' => 'Gastronomia e Turismo',
             'modalidade' => 'Presencial',
@@ -129,16 +123,14 @@ class ValidacaoCamposApiTest extends TestCase
             'codigo_sig' => 'SIG-VAL-003',
             'processo_sei' => '@@@',
             'unidades_oferta' => ['Asa Norte'],
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['processo_sei']);
+        ]));
     }
 
     public function test_hora_pedagogica_rejeita_matricula_e_processo_sei_invalidos(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/horas-pedagogicas', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/horas-pedagogicas', [
             'matricula' => 'ABC',
             'pessoa' => 'Fulano',
             'segmento' => 'Gastronomia',
@@ -148,16 +140,14 @@ class ValidacaoCamposApiTest extends TestCase
             'motivo' => 'Teste',
             'status' => 'Pendente',
             'ativo' => true,
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['matricula', 'processo_sei']);
+        ]));
     }
 
     public function test_plano_de_meta_rejeita_numero_sei_invalido(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/plano-de-metas', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/plano-de-metas', [
             'segmento' => 'Infraestrutura',
             'curso' => 'Curso teste',
             'tipo' => 'QUALIFICAÇÃO',
@@ -167,16 +157,14 @@ class ValidacaoCamposApiTest extends TestCase
             'status' => 'PLANEJADO',
             'status_final' => 'PENDENTE',
             'ano' => 2026,
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['numero_sei']);
+        ]));
     }
 
     public function test_acao_extensiva_rejeita_processo_sei_invalido(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/acoes-extensivas', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/acoes-extensivas', [
             'priorizacao' => 'Alta',
             'atribuido' => 'ana.teste',
             'eixo' => 'Gastronomia e Turismo',
@@ -184,16 +172,14 @@ class ValidacaoCamposApiTest extends TestCase
             'tipo' => 'Ação Extensiva',
             'assunto' => 'Assunto teste',
             'status' => 'CPED',
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['numero_processo_sei']);
+        ]));
     }
 
     public function test_evento_rejeita_acao_vinculada_obrigatoria_e_quantidade_negativa(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/eventos', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/eventos', [
             'nome' => 'Evento teste',
             'ano' => '2026',
             'data' => '2026-08-01',
@@ -202,11 +188,9 @@ class ValidacaoCamposApiTest extends TestCase
             'possui_acao_extensiva' => 'Sim',
             'acao_vinculada' => '',
             'status' => 'Planejado',
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['acao_vinculada']);
+        ]));
 
-        $this->postJson('/api/eventos', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/eventos', [
             'nome' => 'Evento teste 2',
             'ano' => '2026',
             'data' => '2026-08-01',
@@ -215,22 +199,18 @@ class ValidacaoCamposApiTest extends TestCase
             'possui_acao_extensiva' => 'Não',
             'status' => 'Planejado',
             'quantidade_pessoas' => -5,
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['quantidade_pessoas']);
+        ]));
     }
 
     public function test_resolucao_rejeita_resumo_acima_do_limite(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/resolucoes', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/resolucoes', [
             'numero' => 'MEC/2026/VAL',
             'resumo' => Str::repeat('A', 1001),
             'data_inicio_vigencia' => '2026-08-01',
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['resumo']);
+        ]));
     }
 
     public function test_kanban_rejeita_quadro_coluna_e_cartao_invalidos(): void
@@ -278,45 +258,39 @@ class ValidacaoCamposApiTest extends TestCase
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/curso-por-eixos', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/curso-por-eixos', [
             'curso' => 'Curso Eixo',
             'eixo' => 'Gastronomia',
             'ano' => '2026',
             'status' => 'Ativo',
             'turmas' => '2a',
             'alunos' => '10x',
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['turmas', 'alunos']);
+        ]));
     }
 
     public function test_termo_referencia_rejeita_processo_sei_invalido_e_nome_longo(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/termos-referencia', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/termos-referencia', [
             'nome' => Str::repeat('T', 256),
             'eixo' => 'Gastronomia',
             'processo_sei' => '@@@',
             'prazo_deadline' => '2026-12-01',
             'status' => 'Planejamento',
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['nome', 'processo_sei']);
+        ]));
     }
 
     public function test_pca_rejeita_carga_horaria_e_numero_sei_invalidos(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/pcas', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/pcas', [
             'titulo' => 'PCA teste',
             'status' => 'Vigente',
             'numero_sei' => '@@@',
             'carga_horaria' => 'abc',
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['numero_sei', 'carga_horaria']);
+        ]));
     }
 
     public function test_portfolio_ciclo_rejeita_nome_longo_e_observacao_longa(): void
@@ -335,13 +309,11 @@ class ValidacaoCamposApiTest extends TestCase
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/jornadas-pedagogicas', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/jornadas-pedagogicas', [
             'titulo' => Str::repeat('J', 256),
             'status' => 'Rascunho',
             'tem_pre_jornada' => 'Sim',
-        ])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['titulo', 'data_pre_jornada']);
+        ]));
     }
 
     public function test_cped_rejeita_email_invalido_e_nome_longo(): void

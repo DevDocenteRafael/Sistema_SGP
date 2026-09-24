@@ -144,7 +144,33 @@ class UnidadeOfertaSeeder extends Seeder
             ->where('tipo', UnidadeOferta::TIPO_FACULDADE)
             ->update(['responsavel' => null]);
 
+        $this->gerarPolosFicticios();
         $this->removerEstruturasLegadasGenericas();
+    }
+
+    private function gerarPolosFicticios(): void
+    {
+        $localidades = RegiaoAdministrativa::query()->orderBy('id')->pluck('id', 'nome');
+        if ($localidades->isEmpty()) {
+            return;
+        }
+
+        $nomesLocalidade = $localidades->keys()->values()->all();
+        for ($i = 1; $i <= 100; $i++) {
+            $nomeRa = $nomesLocalidade[$i % count($nomesLocalidade)];
+            $raId = $localidades[$nomeRa];
+            UnidadeOferta::query()->firstOrCreate(
+                ['nome' => 'Polo de extensão fictício '.$i],
+                [
+                    'regiao_administrativa_id' => $raId,
+                    'tipo' => UnidadeOferta::TIPO_POLO,
+                    'codigo' => 'PX-'.str_pad((string) $i, 3, '0', STR_PAD_LEFT),
+                    'endereco' => $nomeRa,
+                    'ativo' => $i % 8 !== 0,
+                    'source_type' => 'seeder',
+                ]
+            );
+        }
     }
 
     private function removerEstruturasLegadasGenericas(): void

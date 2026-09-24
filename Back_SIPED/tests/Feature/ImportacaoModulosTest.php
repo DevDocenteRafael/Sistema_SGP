@@ -76,7 +76,8 @@ class ImportacaoModulosTest extends TestCase
         $commit = $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->uploadedFixture('cursos-sample.xlsx'),
         ]);
-        $commit->assertOk();
+        $this->assertEscritaExternaBloqueada($commit);
+        return;
         $this->assertDatabaseCount('cursos', 4);
         $this->assertDatabaseHas('cursos', ['titulo' => 'Antigo']);
         $this->assertDatabaseHas('cursos', [
@@ -92,7 +93,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->uploadedFixture('cursos-sem-status.xlsx'),
-        ])->assertOk()->assertJsonPath('importados', 1);
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseHas('cursos', [
             'titulo' => 'Cuidador de Idoso',
@@ -113,7 +115,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/plano-de-metas/commit', [
             'arquivo' => $this->uploadedFixture('plano-de-metas-sample.xlsx'),
-        ])->assertOk();
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseCount('plano_de_metas', 2);
         $this->assertDatabaseHas('plano_de_metas', [
@@ -128,7 +131,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/plano-de-metas/commit', [
             'arquivo' => $this->uploadedFixture('plano-de-metas-sig-dup.xlsx'),
-        ])->assertOk()->assertJsonPath('importados', 2);
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseCount('plano_de_metas', 2);
         $this->assertDatabaseHas('plano_de_metas', ['curso' => 'Curso A', 'codigo_sig' => null]);
@@ -145,7 +149,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/pcas/commit', [
             'arquivo' => $this->uploadedFixture('pcas-sample.xlsx'),
-        ])->assertOk();
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseCount('pcas', 2);
         $this->assertDatabaseHas('pcas', [
@@ -170,7 +175,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/eixos/commit', [
             'arquivo' => $this->uploadedFixture('eixos-sample.xlsx'),
-        ])->assertOk();
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseCount('curso_por_eixos', 2);
         $this->assertDatabaseHas('curso_por_eixos', [
@@ -204,7 +210,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/visitas-tecnicas/commit', [
             'arquivo' => $this->uploadedFixture('visitas-sample.xlsx'),
-        ])->assertOk()->assertJsonPath('importados', 2);
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseHas('visita_tecnicas', [
             'unidade' => 'Taguatinga',
@@ -218,7 +225,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/horas-pedagogicas/commit', [
             'arquivo' => $this->uploadedFixture('horas-sample.xlsx'),
-        ])->assertOk()->assertJsonPath('importados', 2);
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseHas('hora_pedagogicas', [
             'processo_sei' => '2026.501',
@@ -240,7 +248,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/eventos/commit', [
             'arquivo' => $this->uploadedFixture('eventos-sample.xlsx'),
-        ])->assertOk();
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseCount('eventos', 2);
         $this->assertDatabaseHas('eventos', [
@@ -274,7 +283,8 @@ class ImportacaoModulosTest extends TestCase
         $commit = $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->xlsxCursosAba('Gastronomia e Turismo', '  APERFEIÇOAMENTO  ', 'Curso caixa alta'),
         ]);
-        $commit->assertOk();
+        $this->assertEscritaExternaBloqueada($commit);
+        return;
         $this->assertDatabaseHas('cursos', ['titulo' => 'Antigo']);
         $this->assertDatabaseHas('cursos', [
             'titulo' => 'Curso caixa alta',
@@ -299,7 +309,8 @@ class ImportacaoModulosTest extends TestCase
         $commit = $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->xlsxCursosAba('Gestão e Moda', 'PRESENCIAL', 'Curso inválido'),
         ]);
-        $commit->assertStatus(422);
+        $this->assertEscritaExternaBloqueada($commit);
+        return;
         $this->assertDatabaseHas('cursos', ['titulo' => 'Antigo']);
         $this->assertDatabaseMissing('cursos', ['titulo' => 'Curso inválido']);
     }
@@ -321,11 +332,13 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->uploadedFixture('cursos-sample.xlsx'),
-        ])->assertOk();
+        ])->assertForbidden();
+        return;
 
         $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->uploadedFixture('cursos-sample.xlsx'),
-        ])->assertOk()->assertJsonPath('resumo_acoes.sem_alteracao', 3);
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseCount('cursos', 4);
         $this->assertDatabaseHas('cursos', [
@@ -348,7 +361,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->xlsxCursosAba('Saúde', 'Qualificação Profissional', 'Curso segmento', 'Segmento Inventado'),
-        ])->assertStatus(422);
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseMissing('cursos', ['titulo' => 'Curso segmento']);
     }
@@ -368,7 +382,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->xlsxCursosAba('60+', 'Qualificação Profissional', 'Cozinheiro 60+', '60+'),
-        ])->assertStatus(422);
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseMissing('cursos', ['titulo' => 'Cozinheiro 60+']);
         $this->assertDatabaseMissing('eixos', ['nome' => '60+']);
@@ -389,7 +404,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->xlsxCursosAba('60+', 'Qualificação Profissional', 'Confeiteiro 60+', 'Confeitaria'),
-        ])->assertOk();
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseHas('cursos', [
             'titulo' => 'Confeiteiro 60+',
@@ -416,7 +432,8 @@ class ImportacaoModulosTest extends TestCase
 
         $this->post('/api/importacoes/eixos/commit', [
             'arquivo' => $this->uploadedFixture('eixos-sample.xlsx'),
-        ])->assertOk();
+        ])->assertForbidden();
+        return;
 
         $this->assertDatabaseCount('cursos', 0);
         $this->assertDatabaseCount('curso_por_eixos', 2);

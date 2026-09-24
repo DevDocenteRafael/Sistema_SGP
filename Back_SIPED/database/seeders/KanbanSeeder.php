@@ -98,5 +98,19 @@ class KanbanSeeder extends Seeder
                 ]);
             }
         }
+
+        $colunas = array_values($colunasPorTitulo);
+        if ($colunas !== []) {
+            for ($i = 1; $i <= 150; $i++) {
+                $coluna = $colunas[$i % count($colunas)];
+                KanbanCartao::query()->create([
+                    'kanban_coluna_id' => $coluna->id,
+                    'titulo' => 'Tarefa de homologação '.$i,
+                    'descricao' => 'Cartão fictício para testes de volume do Kanban.',
+                    'position' => 10 + $i,
+                    'criado_por' => null,
+                ]);
+            }
+        }
     }
 }

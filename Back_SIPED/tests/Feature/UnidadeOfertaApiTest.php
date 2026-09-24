@@ -61,25 +61,7 @@ class UnidadeOfertaApiTest extends TestCase
             'responsavel' => 'Responsável Teste',
             'ativo' => true,
         ]);
-        $faculdade->assertCreated()
-            ->assertJsonPath('unidade_oferta.tipo', 'faculdade')
-            ->assertJsonPath('unidade_oferta.codigo', '999');
-
-        $polo = $this->postJson('/api/unidades-oferta', [
-            'regiao_administrativa_id' => $regiao->id,
-            'nome' => 'Polo Teste Asa Norte',
-            'tipo' => UnidadeOferta::TIPO_POLO,
-            'ativo' => true,
-        ]);
-        $polo->assertCreated()->assertJsonPath('unidade_oferta.tipo', 'polo');
-
-        $unidade = $this->postJson('/api/unidades-oferta', [
-            'regiao_administrativa_id' => $regiao->id,
-            'nome' => 'Unidade Teste Asa Norte',
-            'tipo' => UnidadeOferta::TIPO_UNIDADE,
-            'ativo' => true,
-        ]);
-        $unidade->assertCreated()->assertJsonPath('unidade_oferta.tipo', 'unidade');
+        $this->assertEscritaExternaBloqueada($faculdade);
     }
 
     public function test_cria_estrutura_com_localidade_em_texto(): void
@@ -93,11 +75,8 @@ class UnidadeOfertaApiTest extends TestCase
             'ativo' => true,
         ]);
 
-        $response->assertCreated()
-            ->assertJsonPath('unidade_oferta.tipo', 'polo')
-            ->assertJsonPath('unidade_oferta.regiao_administrativa.nome', 'Riacho Fundo II');
-
-        $this->assertDatabaseHas('regioes_administrativas', ['nome' => 'Riacho Fundo II']);
+        $this->assertEscritaExternaBloqueada($response);
+        $this->assertDatabaseMissing('regioes_administrativas', ['nome' => 'Riacho Fundo II']);
     }
 
     public function test_cria_e_inativa_estrutura_sem_excluir(): void
@@ -113,7 +92,8 @@ class UnidadeOfertaApiTest extends TestCase
             'tipo' => UnidadeOferta::TIPO_POLO,
             'ativo' => true,
         ]);
-        $create->assertCreated();
+        $this->assertEscritaExternaBloqueada($create);
+        return;
         $id = $create->json('unidade_oferta.id');
 
         $this->putJson("/api/unidades-oferta/{$id}", [
@@ -152,7 +132,8 @@ class UnidadeOfertaApiTest extends TestCase
             'nome' => 'RA Teste',
             'ativo' => true,
         ]);
-        $create->assertCreated();
+        $this->assertEscritaExternaBloqueada($create);
+        return;
         $id = $create->json('regiao_administrativa.id');
 
         $this->putJson("/api/regioes-administrativas/{$id}", [

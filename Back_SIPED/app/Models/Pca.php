@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\IdentificaOrigem;
 use App\Models\Concerns\PertenceAoCicloPortfolio;
 use Illuminate\Database\Eloquent\Model;
 
 class Pca extends Model
 {
     use AuditaCadastro;
+    use IdentificaOrigem;
     use PertenceAoCicloPortfolio;
 
     protected $table = 'pcas';

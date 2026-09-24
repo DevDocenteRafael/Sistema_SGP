@@ -1,5 +1,5 @@
 import { CICLO_CONTEXTO_EVENTO, lerCicloContexto } from './cicloContexto';
-import { podeEditarDados } from './auth';
+import { podeAdministrarEntidade } from './origemDados';
 import Pagination from '../components/crud/Pagination.vue';
 
 export default {
@@ -29,7 +29,7 @@ export default {
 
   computed: {
     podeEditar() {
-      return podeEditarDados();
+      return podeAdministrarEntidade('cursos');
     },
     eixoId() {
       return this.$route.params.id;

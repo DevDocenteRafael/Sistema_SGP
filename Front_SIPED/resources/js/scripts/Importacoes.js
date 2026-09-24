@@ -376,50 +376,7 @@ export default {
     },
 
     async confirmarImportacao() {
-      if (!this.arquivo || this.processando || !this.previa.total || !this.moduloAtivo || this.temErroBloqueante) return;
-
-      const resumo = this.previa.resumo_acoes || {};
-      const partes = [
-        resumo.novo ? `${resumo.novo} novo(s)` : null,
-        resumo.atualizar ? `${resumo.atualizar} atualizar` : null,
-        resumo.sem_alteracao ? `${resumo.sem_alteracao} sem alteração` : null,
-        resumo.pendente ? `${resumo.pendente} pendente(s)` : null,
-      ].filter(Boolean);
-      const detalhe = partes.length ? `\n\n${partes.join(' · ')}.` : '';
-
-      const cicloNome = this.previa.ciclo?.nome || this.cicloSelecionadoNome;
-      const ok = window.confirm(
-        `A importação de ${this.previa.label || this.moduloAtivo.label} fará upsert no ciclo ${cicloNome || 'selecionado'} e não apagará registros de outros ciclos.${detalhe}\n\nDeseja continuar?`,
-      );
-      if (!ok) return;
-
-      this.processando = true;
-      this.erro = '';
-      this.mensagem = '';
-
-      try {
-        const { data } = await window.axios.post(
-          `/api/importacoes/${this.moduloAtivo.key}/commit`,
-          this.formComArquivo(true),
-          { headers: { 'Content-Type': 'multipart/form-data' } },
-        );
-
-        const backupTotal = data.backup?.total;
-        const backupPath = data.backup?.path;
-        let msg = data.message || `Importação concluída: ${data.importados} registro(s).`;
-
-        if (backupPath) {
-          msg += ` Backup prévio: ${backupTotal ?? 0} registro(s) em ${backupPath}.`;
-        }
-
-        this.mensagem = msg;
-        this.voltarUpload();
-        this.limparArquivo();
-      } catch (error) {
-        this.erro = error.response?.data?.message || 'Não foi possível concluir a importação.';
-      } finally {
-        this.processando = false;
-      }
+      this.erro = 'Este registro é gerenciado por integração externa e não pode ser alterado diretamente no SIPED.';
     },
   },
 };

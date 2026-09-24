@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\IdentificaOrigem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Schema;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Schema;
 class UnidadeOferta extends Model
 {
     use AuditaCadastro;
+    use IdentificaOrigem;
 
     /** @deprecated Use TIPO_UNIDADE — mantido para compatibilidade de código legado */
     public const TIPO_CEP = 'unidade';

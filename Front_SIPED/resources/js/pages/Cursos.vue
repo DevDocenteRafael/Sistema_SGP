@@ -4,7 +4,7 @@
     <template v-if="modo === 'lista'">
       <CrudPageHeader
         title="Cursos"
-        subtitle="Catálogo de cursos do portfólio — SENAC DF"
+        subtitle="Consulta do catálogo de cursos — dados provenientes de integração"
         :show-novo="podeEditar"
         novo-label="Novo Curso"
         :show-clear-filters="temFiltro"
@@ -57,8 +57,8 @@
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
         <div v-else-if="totalCursos === 0 && !temFiltro" class="tabela-vazia estado-vazio">
-          <p class="estado-vazio-titulo">Nenhum curso cadastrado ainda.</p>
-          <p class="estado-vazio-texto">Os cursos aparecerão aqui após o cadastro ou importação do portfólio.</p>
+          <p class="estado-vazio-titulo">Nenhum curso neste ciclo.</p>
+          <p class="estado-vazio-texto">Os cursos aparecerão aqui após a sincronização com os sistemas oficiais.</p>
         </div>
 
         <div v-else class="tabela-wrap">
@@ -330,6 +330,20 @@
                 <div class="detalhe-campo detalhe-campo-full">
                   <span class="detalhe-label">Observações</span>
                   <span class="detalhe-valor detalhe-valor-texto">{{ valorCampo(cursoDetalhe.observacoes) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="detalhe-secao detalhe-origem">
+              <h3>Origem dos dados</h3>
+              <div class="detalhe-grid">
+                <div class="detalhe-campo">
+                  <span class="detalhe-label">Fonte</span>
+                  <span class="detalhe-valor">{{ rotuloOrigem(cursoDetalhe) }}</span>
+                </div>
+                <div class="detalhe-campo">
+                  <span class="detalhe-label">Última sincronização</span>
+                  <span class="detalhe-valor">{{ textoSincronizacao(cursoDetalhe) || 'Ainda não sincronizado' }}</span>
                 </div>
               </div>
             </div>

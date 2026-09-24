@@ -47,32 +47,26 @@ class CursoExecucaoApiTest extends TestCase
         $this->actingAs($this->editor(), 'sanctum');
         $curso = $this->cursoCatalogo();
 
-        $create = $this->postJson('/api/curso-execucoes', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/curso-execucoes', [
             'curso_id' => $curso->id,
             'codigo' => 'ACOMP-1',
             'turmas' => '2',
             'alunos' => '30',
             'status' => 'Em andamento',
-        ]);
-
-        $create->assertCreated();
-        $create->assertJsonPath('acompanhamento.curso_id', $curso->id);
-        $create->assertJsonPath('acompanhamento.eixo', 'Ambiente e Saúde');
-        $create->assertJsonPath('acompanhamento.curso', 'Técnico em Enfermagem');
+        ]));
         $this->assertDatabaseCount('cursos', 1);
-        $this->assertDatabaseCount('curso_por_eixos', 1);
+        $this->assertDatabaseCount('curso_por_eixos', 0);
     }
 
     public function test_nao_cria_acompanhamento_sem_curso_oficial(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/curso-execucoes', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/curso-execucoes', [
             'curso' => 'Curso solto',
             'turmas' => '1',
             'alunos' => '10',
-        ])->assertStatus(422)
-            ->assertJsonValidationErrors(['curso_id']);
+        ]));
     }
 
     public function test_editar_importado_atualiza_indicadores(): void
@@ -90,17 +84,17 @@ class CursoExecucaoApiTest extends TestCase
             'status' => 'Ativo',
         ]);
 
-        $this->putJson('/api/curso-execucoes/'.$registro->id, [
+        $this->assertEscritaExternaBloqueada($this->putJson('/api/curso-execucoes/'.$registro->id, [
             'curso_id' => $curso->id,
             'turmas' => '4',
             'alunos' => '70',
             'status' => 'Concluído',
-        ])->assertOk();
+        ]));
 
         $card = collect($this->getJson('/api/eixos/resumo')->json('data.eixos'))
             ->firstWhere('nome', 'Ambiente e Saúde');
-        $this->assertSame(4, $card['turmas']);
-        $this->assertSame(70, $card['alunos']);
+        $this->assertSame(1, $card['turmas']);
+        $this->assertSame(10, $card['alunos']);
     }
 
     public function test_vincular_pendencia_atualiza_curso_id_sem_criar_curso(): void
@@ -117,14 +111,12 @@ class CursoExecucaoApiTest extends TestCase
             'status' => 'Ativo',
         ]);
 
-        $this->postJson('/api/curso-execucoes/'.$pendencia->id.'/vincular', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/curso-execucoes/'.$pendencia->id.'/vincular', [
             'curso_id' => $curso->id,
-        ])->assertOk()
-            ->assertJsonPath('acompanhamento.curso_id', $curso->id)
-            ->assertJsonPath('acompanhamento.curso', 'Acougueiro');
+        ]));
 
         $this->assertDatabaseCount('cursos', 1);
-        $this->assertSame(0, $this->getJson('/api/revisao-dados?tipo=sem_vinculo')->json('totais.sem_vinculo'));
+        $this->assertSame(1, $this->getJson('/api/revisao-dados?tipo=sem_vinculo')->json('totais.sem_vinculo'));
     }
 
     public function test_rota_antiga_curso_por_eixos_continua_disponivel(): void

@@ -86,29 +86,24 @@ class CursoApiTest extends TestCase
 
         $payload = $this->payloadValido();
 
-        $create = $this->postJson('/api/cursos', $payload);
-        $create->assertCreated();
-        $create->assertJsonPath('curso.titulo', 'Curso de teste API');
-        $create->assertJsonPath('curso.status', 'ATIVO');
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/cursos', $payload));
 
-        $id = $create->json('curso.id');
-        $this->assertNotNull($id);
+        $curso = Curso::create($payload);
+        $id = $curso->id;
 
         $this->getJson("/api/cursos/{$id}")
             ->assertOk()
-            ->assertJsonPath('curso.codigo_sig', 'SIG-TEST-001');
+            ->assertJsonPath('curso.codigo_sig', 'SIG-TEST-001')
+            ->assertJsonPath('curso.origem.source_type', 'seeder');
 
-        $this->putJson("/api/cursos/{$id}", [
+        $this->assertEscritaExternaBloqueada($this->putJson("/api/cursos/{$id}", [
             ...$payload,
             'titulo' => 'Curso atualizado',
             'status' => 'INATIVO',
-        ])
-            ->assertOk()
-            ->assertJsonPath('curso.titulo', 'Curso atualizado')
-            ->assertJsonPath('curso.status', 'INATIVO');
+        ]));
 
-        $this->deleteJson("/api/cursos/{$id}")->assertOk();
-        $this->assertDatabaseMissing('cursos', ['id' => $id]);
+        $this->assertEscritaExternaBloqueada($this->deleteJson("/api/cursos/{$id}"));
+        $this->assertDatabaseHas('cursos', ['id' => $id]);
     }
 
     public function test_filters_cursos_by_status_and_eixo(): void
@@ -150,7 +145,7 @@ class CursoApiTest extends TestCase
         ];
 
         foreach (array_values(config('eixos')) as $indice => $eixo) {
-            $this->postJson('/api/cursos', $this->payloadValido([
+            $this->assertEscritaExternaBloqueada($this->postJson('/api/cursos', $this->payloadValido([
                 'titulo' => 'Curso '.$eixo,
                 'eixo' => $eixo,
                 'segmento' => $segmentoPorEixo[$eixo],
@@ -159,10 +154,22 @@ class CursoApiTest extends TestCase
                 'codigo_sig' => 'SIG-EIXO-'.substr(md5($eixo), 0, 6),
                 'processo_sei' => sprintf('123.%03d/2026-01', $indice),
                 'carga_horaria' => '40',
-            ]))->assertCreated()->assertJsonPath('curso.eixo', $eixo);
+            ])));
+
+            $curso = Curso::create($this->payloadValido([
+                'titulo' => 'Curso '.$eixo,
+                'eixo' => $eixo,
+                'segmento' => $segmentoPorEixo[$eixo],
+                'modalidade' => 'Aperfeiçoamento',
+                'status' => 'ATIVO',
+                'codigo_sig' => 'SIG-EIXO-'.substr(md5($eixo), 0, 6),
+                'processo_sei' => sprintf('123.%03d/2026-01', $indice),
+                'carga_horaria' => '40',
+            ]));
+            $this->assertSame($eixo, $curso->fresh()->eixo);
         }
 
-        $alias = $this->postJson('/api/cursos', $this->payloadValido([
+        $alias = Curso::create($this->payloadValido([
             'titulo' => 'Curso alias Saúde',
             'eixo' => 'Saúde',
             'segmento' => 'Enfermagem',
@@ -172,10 +179,9 @@ class CursoApiTest extends TestCase
             'processo_sei' => '123.999/2026-01',
             'carga_horaria' => '40',
         ]));
-        $alias->assertCreated();
-        $alias->assertJsonPath('curso.eixo', 'Ambiente e Saúde');
+        $this->assertSame('Ambiente e Saúde', $alias->fresh()->eixo);
 
-        $this->postJson('/api/cursos', $this->payloadValido([
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/cursos', $this->payloadValido([
             'titulo' => 'Curso eixo inválido',
             'eixo' => '60+',
             'segmento' => 'Enfermagem',
@@ -183,11 +189,9 @@ class CursoApiTest extends TestCase
             'status' => 'ATIVO',
             'codigo_sig' => 'SIG-INVALID-EIXO',
             'carga_horaria' => '40',
-        ]))
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['eixo']);
+        ])));
 
-        $this->postJson('/api/cursos', $this->payloadValido([
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/cursos', $this->payloadValido([
             'titulo' => 'Curso modalidade inválida',
             'eixo' => 'Gestão e Moda',
             'segmento' => 'Gestão e Comércio',
@@ -195,9 +199,7 @@ class CursoApiTest extends TestCase
             'status' => 'ATIVO',
             'codigo_sig' => 'SIG-INVALID-MOD',
             'carga_horaria' => '40',
-        ]))
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['modalidade']);
+        ])));
 
         $meta = $this->getJson('/api/cursos')->json('meta.eixos');
         $this->assertSame(config('eixos'), $meta);

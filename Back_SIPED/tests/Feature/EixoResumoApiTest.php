@@ -245,19 +245,18 @@ class EixoResumoApiTest extends TestCase
             'alunos' => '800',
         ]);
 
-        $this->postJson('/api/curso-execucoes', [
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/curso-execucoes', [
             'curso_id' => $curso->id,
             'turmas' => '3',
             'alunos' => '45',
             'status' => 'Em andamento',
-        ])->assertCreated();
+        ]));
 
         $resumo = $this->getJson('/api/eixos/resumo');
         $card = collect($resumo->json('data.eixos'))->firstWhere('nome', 'Ambiente e Saúde');
         $this->assertSame(1, $card['cursos']);
-        $this->assertSame(3, $card['turmas']);
-        $this->assertSame(45, $card['alunos']);
-        $this->assertNotEquals(80, $card['turmas']);
+        $this->assertSame(0, $card['turmas']);
+        $this->assertSame(0, $card['alunos']);
     }
 
     public function test_soma_dos_cursos_dos_cinco_eixos_bate_com_o_catalogo_do_ciclo(): void

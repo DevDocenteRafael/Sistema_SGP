@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\IdentificaOrigem;
 use App\Models\Concerns\PertenceAoCiclo;
 use Illuminate\Database\Eloquent\Model;
 
 class JornadaPedagogica extends Model
 {
     use AuditaCadastro;
+    use IdentificaOrigem;
     use PertenceAoCiclo;
 
     public string $moduloAuditoria = 'jornadas-pedagogicas';

@@ -298,6 +298,31 @@ class CpedEquipeSeeder extends Seeder
                 $dados
             );
         }
+
+        $tipos = ['assistente', 'responsavel', 'docente', 'apoio'];
+        $eixos = [
+            'Gastronomia e Turismo',
+            'Ambiente e Saúde',
+            'Gestão e Moda',
+            'Tecnologia e Economia Criativa',
+            'Beleza e Cuidado Pessoal',
+        ];
+        $nomes = ['Paulo', 'Renata', 'Sergio', 'Tatiane', 'Ubiratan', 'Vanessa', 'Wagner', 'Yasmin'];
+        for ($i = 1; $i <= 100; $i++) {
+            CpedEquipe::query()->updateOrCreate(
+                ['contato' => 'cped.seed'.$i.'@senac.df.br'],
+                [
+                    'nome' => $nomes[$i % 8].' Equipe '.$i,
+                    'cargo' => $i % 4 === 0 ? 'Docente' : 'Assistente',
+                    'setor' => $eixos[$i % 5],
+                    'tipo' => $tipos[$i % 4],
+                    'eixo_vinculado' => $eixos[$i % 5],
+                    'iniciais' => strtoupper(substr($nomes[$i % 8], 0, 2)),
+                    'cor' => '#003F7D',
+                    'ativo' => $i % 10 !== 0,
+                ]
+            );
+        }
     }
 
     /**

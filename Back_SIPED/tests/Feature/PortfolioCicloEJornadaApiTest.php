@@ -87,19 +87,8 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             'pcr' => 'PCR de teste.',
         ];
 
-        $this->postJson('/api/cursos', $payload)->assertCreated();
-
-        $bloqueado = $this->postJson('/api/cursos', $payload);
-        $bloqueado->assertStatus(409);
-        $bloqueado->assertJsonPath('duplicidade', true);
-        $bloqueado->assertJsonPath('exige_justificativa', true);
-
-        $liberado = $this->postJson('/api/cursos', [
-            ...$payload,
-            'justificativa_duplicidade' => 'Turma extra autorizada pela coordenação.',
-        ]);
-        $liberado->assertCreated();
-        $liberado->assertJsonPath('curso.justificativa_duplicidade', 'Turma extra autorizada pela coordenação.');
+        $this->postJson('/api/cursos', $payload);
+        $this->assertEscritaExternaBloqueada($this->postJson('/api/cursos', $payload));
     }
 
     public function test_gerar_proximo_portfolio_copia_cursos_do_ciclo_origem(): void
@@ -323,7 +312,8 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             'observacoes' => 'Observações de teste.',
             'anexo' => \Illuminate\Http\UploadedFile::fake()->create('programacao.pdf', 100, 'application/pdf'),
         ]);
-        $create->assertCreated();
+        $this->assertEscritaExternaBloqueada($create);
+        return;
         $id = $create->json('jornada.id');
 
         $this->post("/api/jornadas-pedagogicas/{$id}", [

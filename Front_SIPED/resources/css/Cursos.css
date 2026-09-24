@@ -525,9 +525,12 @@
   font-weight: 500;
 }
 
-.detalhe-valor-texto {
+.detalhe-origem {
+  margin-bottom: 0.75rem;
+}
+
+.detalhe-origem .detalhe-valor {
   font-weight: 500;
-  line-height: 1.45;
 }
 
 .modal-detalhes-actions {

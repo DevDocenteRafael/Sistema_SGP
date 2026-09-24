@@ -13,7 +13,7 @@ import {
   validarOrdemDatas,
   validarProcessoSei,
 } from '../utils/validacao';
-import { podeEditarDados } from './auth';
+import { podeAdministrarEntidade } from './origemDados';
 import Loading from '../components/termos-referencia/Loading.vue';
 import Feedback from '../components/termos-referencia/Feedback.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
@@ -90,7 +90,7 @@ export default {
       return Object.values(this.filtros).some((v) => v);
     },
     podeEditar() {
-      return podeEditarDados();
+      return podeAdministrarEntidade('termos-referencia');
     },
     abasForm() {
       const abas = [

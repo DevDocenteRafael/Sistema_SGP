@@ -96,30 +96,8 @@ class ImportacaoAcaoExtensivaTest extends TestCase
             'arquivo' => $this->uploadedFixture('acoes-extensivas-sample.xlsx'),
         ]);
 
-        $response->assertOk();
-        $response->assertJsonPath('importados', 2);
-        $response->assertJsonPath('backup.total', 1);
-        $this->assertNotEmpty($response->json('backup.path'));
-        $this->assertTrue(
-            \Illuminate\Support\Facades\Storage::disk('local')->exists($response->json('backup.path'))
-        );
-        $backupJson = json_decode(
-            \Illuminate\Support\Facades\Storage::disk('local')->get($response->json('backup.path')),
-            true
-        );
-        $this->assertSame('Registro antigo', $backupJson['registros'][0]['assunto'] ?? null);
-        $this->assertDatabaseCount('acao_extensivas', 3);
-        $this->assertDatabaseHas('acao_extensivas', ['assunto' => 'Registro antigo']);
-        $this->assertDatabaseHas('acao_extensivas', [
-            'assunto' => 'Sabores Regionais',
-            'atribuido' => 'ana.5041',
-            'status' => 'CPED',
-        ]);
-        $this->assertDatabaseHas('acao_extensivas', [
-            'assunto' => 'Cafezinho',
-            'atribuido' => 'barbara.6003',
-            'status' => 'DEP',
-        ]);
+        $this->assertEscritaExternaBloqueada($response);
+        $this->assertDatabaseCount('acao_extensivas', 1);
     }
 
     public function test_missing_sheet_returns_422(): void

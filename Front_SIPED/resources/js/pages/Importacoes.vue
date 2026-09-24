@@ -4,7 +4,8 @@
       <div>
         <h1>Importações</h1>
         <p class="imp-subtitle">
-          Selecione o módulo, envie a planilha e confira a prévia antes de confirmar a importação.
+          A importação por planilha deixou de ser a fonte oficial dos dados do SIPED.
+          Use esta tela apenas para conferência transitória. A gravação no banco está bloqueada.
         </p>
       </div>
       <router-link class="btn-secundario" to="/app/importacoes/revisao-dados">Revisão de Dados</router-link>
@@ -213,14 +214,9 @@
                 <button type="button" class="btn-secundario" :disabled="processando" @click="voltarUpload">
                   Trocar arquivo
                 </button>
-                <button
-                  type="button"
-                  class="btn-primario"
-                  :disabled="processando || !previa.total || temErroBloqueante"
-                  @click="confirmarImportacao"
-                >
-                  {{ processando ? 'Importando...' : 'Confirmar importação' }}
-                </button>
+                <p class="imp-toolbar-desc">
+                  A confirmação foi desativada: os dados oficiais virão por integração, não por planilha.
+                </p>
               </div>
             </template>
           </div>

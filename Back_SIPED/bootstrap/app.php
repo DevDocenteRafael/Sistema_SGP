@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'perfil' => \App\Http\Middleware\CheckPerfil::class,
             'usuario.ativo' => \App\Http\Middleware\EnsureUsuarioAtivo::class,
+            'somente.leitura.externa' => \App\Http\Middleware\SomenteLeituraExterna::class,
         ]);
         $middleware->api(append: [
             \App\Http\Middleware\ResolveCicloContexto::class,

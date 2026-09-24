@@ -55,7 +55,8 @@ class AcaoExtensivaApiTest extends TestCase
         ];
 
         $createResponse = $this->postJson('/api/acoes-extensivas', $payload);
-        $createResponse->assertCreated();
+        $this->assertEscritaExternaBloqueada($createResponse);
+        return;
         $createResponse->assertJsonPath('acaoExtensiva.assunto', 'Ação extensiva de teste da API');
         $createResponse->assertJsonPath('acaoExtensiva.numero_processo_sei', '2026.000099999-99');
 

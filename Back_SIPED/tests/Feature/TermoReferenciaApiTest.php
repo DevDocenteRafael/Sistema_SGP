@@ -55,7 +55,8 @@ class TermoReferenciaApiTest extends TestCase
         ];
 
         $create = $this->postJson('/api/termos-referencia', $payload);
-        $create->assertCreated();
+        $this->assertEscritaExternaBloqueada($create);
+        return;
         $id = $create->json('termo.id');
 
         $update = $this->putJson("/api/termos-referencia/{$id}", [

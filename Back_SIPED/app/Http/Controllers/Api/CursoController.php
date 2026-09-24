@@ -86,8 +86,12 @@ class CursoController extends Controller
             return $negado;
         }
 
+        $curso->load('ciclo');
+        $payload = $curso->toArray();
+        $payload['origem'] = $curso->origemResumo();
+
         return response()->json([
-            'curso' => $curso->load('ciclo'),
+            'curso' => $payload,
             'dados_do_ciclo' => $curso->acompanhamentos()
                 ->orderBy('codigo')
                 ->orderBy('id')

@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\IdentificaOrigem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RegiaoAdministrativa extends Model
 {
     use AuditaCadastro;
+    use IdentificaOrigem;
 
     protected $table = 'regioes_administrativas';
 

@@ -43,5 +43,19 @@ class FluxogramaSeeder extends Seeder
                 'ativo' => true,
             ]
         );
+
+        $padrao = $service->diagramaPadrao(Fluxograma::TIPO_LINEAR);
+        for ($i = 1; $i <= 100; $i++) {
+            Fluxograma::query()->updateOrCreate(
+                ['slug' => 'fluxo-homologacao-'.$i],
+                [
+                    'titulo' => 'Fluxo de homologação '.$i,
+                    'descricao' => 'Fluxograma fictício para testes de volume.',
+                    'tipo' => Fluxograma::TIPO_LINEAR,
+                    'diagrama' => $padrao,
+                    'ativo' => $i % 9 !== 0,
+                ]
+            );
+        }
     }
 }
