@@ -1,4 +1,4 @@
-import { podeAdministrarEntidade } from './origemDados';
+import { podeEditarDados } from './auth';
 import { invalidarCacheCiclos, salvarCicloContexto } from './cicloContexto';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
@@ -54,7 +54,7 @@ export default {
   },
   computed: {
     podeEditar() {
-      return podeAdministrarEntidade('ciclos');
+      return podeEditarDados();
     },
     temFiltro() {
       return Object.values(this.filtros).some(Boolean);

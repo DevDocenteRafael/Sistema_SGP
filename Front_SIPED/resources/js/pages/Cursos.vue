@@ -4,7 +4,7 @@
     <template v-if="modo === 'lista'">
       <CrudPageHeader
         title="Cursos"
-        subtitle="Consulta do catálogo de cursos — dados provenientes de integração"
+        subtitle="Cadastro e consulta do catálogo de cursos do ciclo selecionado"
         :show-novo="podeEditar"
         novo-label="Novo Curso"
         :show-clear-filters="temFiltro"

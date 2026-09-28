@@ -1,5 +1,4 @@
-import { podeConsultarDados } from './auth';
-import { podeAdministrarEntidade } from './origemDados';
+import { podeConsultarDados, podeEditarDados } from './auth';
 import {
   combinarValidacoes,
   extrairErroApi,
@@ -119,7 +118,7 @@ export default {
     },
 
     podeEditar() {
-      return podeAdministrarEntidade('cped');
+      return podeEditarDados();
     },
 
     precisaEixo() {

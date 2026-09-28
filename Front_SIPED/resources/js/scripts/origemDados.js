@@ -14,8 +14,8 @@ export function entidadeEhAdministrativa(chave) {
   return ENTIDADES_ADMINISTRATIVAS.includes(chave);
 }
 
-export function podeAdministrarEntidade(chave) {
-  return podeEditarDados() && entidadeEhAdministrativa(chave);
+export function podeAdministrarEntidade() {
+  return podeEditarDados();
 }
 
 export function origemDoRegistro(registro) {

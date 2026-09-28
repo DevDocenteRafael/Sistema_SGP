@@ -1,6 +1,6 @@
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
-import { podeAdministrarEntidade } from './origemDados';
+import { podeEditarDados } from './auth';
 import { limparCacheUnidadesNomes } from './unidadesApi';
 import {
   combinarValidacoes,
@@ -63,7 +63,7 @@ export default {
   },
   computed: {
     podeEditar() {
-      return podeAdministrarEntidade('unidades');
+      return podeEditarDados();
     },
     temFiltro() {
       return Object.values(this.filtros).some((valor) => valor !== '' && valor != null);

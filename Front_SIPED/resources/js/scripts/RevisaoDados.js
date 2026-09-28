@@ -1,5 +1,5 @@
 import { CICLO_CONTEXTO_EVENTO, lerCicloContexto } from './cicloContexto';
-import { podeAdministrarEntidade } from './origemDados';
+import { podeEditarDados } from './auth';
 import SearchableSelect from '../components/SearchableSelect.vue';
 import Pagination from '../components/crud/Pagination.vue';
 
@@ -32,7 +32,7 @@ export default {
 
   computed: {
     podeEditar() {
-      return podeAdministrarEntidade('revisao-dados');
+      return podeEditarDados();
     },
     cicloNome() {
       return lerCicloContexto()?.nome || 'atual';

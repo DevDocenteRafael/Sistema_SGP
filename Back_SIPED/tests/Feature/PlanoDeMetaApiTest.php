@@ -53,8 +53,7 @@ class PlanoDeMetaApiTest extends TestCase
         ];
 
         $create = $this->postJson('/api/plano-de-metas', $payload);
-        $this->assertEscritaExternaBloqueada($create);
-        return;
+        $create->assertCreated();
         $create->assertJsonPath('planoDeMeta.curso', 'Curso de Teste');
 
         $id = $create->json('planoDeMeta.id');

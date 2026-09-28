@@ -34,7 +34,6 @@ export function createCrudPage(config) {
     debounceOnLoad = false,
     usarCicloContexto = false,
     cicloModulo = null,
-    administrativa = false,
     filtrosIniciais = {},
     formVazio,
     montarForm = null,
@@ -564,7 +563,7 @@ export function createCrudPage(config) {
     },
 
     podeEditar() {
-      return Boolean(administrativa) && podeEditarDados();
+      return podeEditarDados();
     },
 
     podeConsultar() {

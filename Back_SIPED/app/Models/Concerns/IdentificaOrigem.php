@@ -22,7 +22,7 @@ trait IdentificaOrigem
     {
         static::creating(function ($model) {
             if (empty($model->source_type)) {
-                $model->source_type = 'seeder';
+                $model->source_type = 'local';
             }
         });
     }

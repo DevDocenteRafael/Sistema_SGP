@@ -52,8 +52,7 @@ class HoraPedagogicaApiTest extends TestCase
         ];
 
         $create = $this->postJson('/api/horas-pedagogicas', $payload);
-        $this->assertEscritaExternaBloqueada($create);
-        return;
+        $create->assertCreated();
         $create->assertJsonPath('horaPedagogica.pessoa', 'Ana Teste');
         $create->assertJsonPath('horaPedagogica.ativo', true);
 

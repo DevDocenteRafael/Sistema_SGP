@@ -64,23 +64,24 @@ class CrudFormulariosCompletoTest extends TestCase
             'data_fim' => '2026-11-01',
         ];
 
-        $this->assertEscritaExternaBloqueada($this->postJson('/api/termos-referencia', $payload));
-
-        $termo = \App\Models\TermoReferencia::create($payload);
-        $id = $termo->id;
+        $create = $this->postJson('/api/termos-referencia', $payload);
+        $create->assertCreated();
+        $id = $create->json('termo.id');
 
         $this->getJson("/api/termos-referencia/{$id}")
             ->assertOk()
             ->assertJsonPath('termo.nome', 'TR CRUD completo');
 
-        $this->assertEscritaExternaBloqueada($this->putJson("/api/termos-referencia/{$id}", [
+        $this->putJson("/api/termos-referencia/{$id}", [
             ...$payload,
             'nome' => 'TR CRUD atualizado',
             'status' => 'Em Andamento',
-        ]));
+        ])
+            ->assertOk()
+            ->assertJsonPath('termo.nome', 'TR CRUD atualizado');
 
-        $this->assertEscritaExternaBloqueada($this->deleteJson("/api/termos-referencia/{$id}"));
-        $this->assertDatabaseHas('termos_referencia', ['id' => $id]);
+        $this->deleteJson("/api/termos-referencia/{$id}")->assertOk();
+        $this->assertDatabaseMissing('termos_referencia', ['id' => $id]);
     }
 
     public function test_portfolio_ciclo_show_update_e_delete(): void
@@ -140,20 +141,14 @@ class CrudFormulariosCompletoTest extends TestCase
             'observacoes' => 'Observações de teste.',
             'anexo' => \Illuminate\Http\UploadedFile::fake()->create('programacao.pdf', 100, 'application/pdf'),
         ]);
-        $this->assertEscritaExternaBloqueada($create);
+        $create->assertCreated();
+        $id = $create->json('jornada.id');
 
-        $jornada = \App\Models\JornadaPedagogica::create([
-            'titulo' => 'Jornada show teste',
-            'status' => 'Rascunho',
-            'tem_pre_jornada' => 'Não',
-            'local' => 'Asa Norte',
-        ]);
-
-        $this->getJson("/api/jornadas-pedagogicas/{$jornada->id}")
+        $this->getJson("/api/jornadas-pedagogicas/{$id}")
             ->assertOk()
             ->assertJsonPath('jornada.titulo', 'Jornada show teste');
 
-        $this->assertEscritaExternaBloqueada($this->deleteJson("/api/jornadas-pedagogicas/{$jornada->id}"));
+        $this->deleteJson("/api/jornadas-pedagogicas/{$id}")->assertOk();
     }
 
     public function test_mascaras_cpf_telefone_e_sei_sao_normalizadas_no_cadastro(): void
@@ -190,7 +185,8 @@ class CrudFormulariosCompletoTest extends TestCase
             'relatorio' => 'Relatório de teste.',
             'observacao' => 'Observação de teste.',
         ]);
-        $this->assertEscritaExternaBloqueada($visita);
+        $visita->assertCreated();
+        $visita->assertJsonPath('visitaTecnica.processo_sei', '2026.000011111-11');
 
         $regiao = \App\Models\RegiaoAdministrativa::query()->firstOrCreate(['nome' => 'Asa Norte'], ['ativo' => true]);
         \App\Models\UnidadeOferta::query()->firstOrCreate(
@@ -229,7 +225,9 @@ class CrudFormulariosCompletoTest extends TestCase
             'pcn' => 'PCN de teste.',
             'pcr' => 'PCR de teste.',
         ]);
-        $this->assertEscritaExternaBloqueada($curso);
+        $curso->assertCreated();
+        $curso->assertJsonPath('curso.processo_sei', '2026.00001-1');
+        $curso->assertJsonPath('curso.carga_horaria', '160');
     }
 
     public function test_todos_modulos_crud_principais_estao_acessiveis(): void

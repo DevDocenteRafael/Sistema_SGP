@@ -59,8 +59,7 @@ class EventoApiTest extends TestCase
         ];
 
         $createResponse = $this->postJson('/api/eventos', $payload);
-        $this->assertEscritaExternaBloqueada($createResponse);
-        return;
+        $createResponse->assertCreated();
         $createResponse->assertJsonPath('evento.nome', 'Evento de Teste da API');
         $createResponse->assertJsonPath('evento.possui_acao_extensiva', 'Não');
         $createResponse->assertJsonPath('evento.acao_vinculada', null);

@@ -52,8 +52,7 @@ class VisitaTecnicaApiTest extends TestCase
         ];
 
         $create = $this->postJson('/api/visitas-tecnicas', $payload);
-        $this->assertEscritaExternaBloqueada($create);
-        return;
+        $create->assertCreated();
         $create->assertJsonPath('visitaTecnica.processo_sei', '2026.000011111-11');
 
         $id = $create->json('visitaTecnica.id');

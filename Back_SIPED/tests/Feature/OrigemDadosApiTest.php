@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Curso;
+use App\Models\PortfolioCiclo;
+use App\Models\RegiaoAdministrativa;
+use App\Models\UnidadeOferta;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -27,131 +30,92 @@ class OrigemDadosApiTest extends TestCase
         ]);
     }
 
-    private function admin(): Usuario
+    private function payloadValido(array $sobrescreve = []): array
     {
-        return Usuario::create([
-            'nome' => 'Admin Origem',
-            'email' => 'admin-origem@teste.com',
-            'senha' => Hash::make('senha123'),
-            'cpf' => '12345678142',
-            'perfil' => Usuario::PERFIL_ADMINISTRADOR,
-            'status' => true,
-            'unidade' => 'Asa Norte',
-            'area' => 'CPED',
-            'telefone' => '61999991042',
-        ]);
-    }
+        $ciclo = PortfolioCiclo::query()->first() ?? PortfolioCiclo::create(['nome' => '2025-2026', 'atual' => true]);
+        $regiao = RegiaoAdministrativa::query()->firstOrCreate(['nome' => 'Asa Norte'], ['ativo' => true]);
+        UnidadeOferta::query()->firstOrCreate(
+            ['nome' => 'Asa Norte'],
+            ['tipo' => UnidadeOferta::TIPO_UNIDADE, 'ativo' => true, 'regiao_administrativa_id' => $regiao->id],
+        );
 
-    public function test_entidades_externas_continuam_consultaveis(): void
-    {
-        $this->actingAs($this->editor(), 'sanctum');
-
-        foreach ([
-            '/api/cursos',
-            '/api/curso-execucoes',
-            '/api/plano-de-metas',
-            '/api/pcas',
-            '/api/visitas-tecnicas',
-            '/api/horas-pedagogicas',
-            '/api/acoes-extensivas',
-            '/api/eventos',
-            '/api/resolucoes',
-            '/api/termos-referencia',
-            '/api/jornadas-pedagogicas',
-            '/api/unidades-oferta',
-            '/api/revisao-dados',
-            '/api/eixos/resumo',
-            '/api/dashboard',
-        ] as $endpoint) {
-            $this->getJson($endpoint)->assertOk();
-        }
-    }
-
-    public function test_escrita_em_curso_e_bloqueada_e_show_expoe_origem(): void
-    {
-        $this->actingAs($this->editor(), 'sanctum');
-
-        $curso = Curso::create([
-            'titulo' => 'Curso somente leitura',
-            'status' => 'ATIVO',
+        return array_merge([
+            'ciclo_id' => $ciclo->id,
+            'titulo' => 'Curso cadastrado no SIPED',
             'eixo' => 'Gestão e Moda',
-            'source_type' => 'seeder',
-        ]);
-
-        $this->assertEscritaExternaBloqueada($this->postJson('/api/cursos', [
-            'titulo' => 'Novo curso',
+            'segmento' => 'Gestão e Comércio',
+            'programa' => '60+',
+            'modalidade' => 'Qualificação Profissional',
             'status' => 'ATIVO',
-        ]));
-        $this->assertEscritaExternaBloqueada($this->putJson('/api/cursos/'.$curso->id, [
+            'codigo_sig' => 'SIG-ORIGEM-001',
+            'codigo_dn' => 'DN-ORIGEM-001',
+            'carga_horaria' => '40',
+            'turmas' => '1',
+            'codigo_processo' => 'PROC-ORIGEM-001',
+            'alunos' => '10',
+            'instrutor' => 'Instrutor Origem',
+            'descricao' => 'Cadastro local.',
+            'identificacao' => '2026',
+            'ultima_revisao' => '2026',
+            'processo_sei' => '123.456/2026-01',
+            'data_inicio' => '2026-01-01',
+            'data_fim' => '2026-12-31',
+            'unidade' => 'Asa Norte',
+            'unidades_oferta' => ['Asa Norte'],
+            'observacoes' => 'Observação de origem.',
+            'valores' => '0',
+            'compativel_bolsa' => 'NÃO',
+            'comercial' => 'NÃO',
+            'pcn' => 'PCN.',
+            'pcr' => 'PCR.',
+        ], $sobrescreve);
+    }
+
+    public function test_cadastro_local_expoe_origem_e_permite_crud(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $payload = $this->payloadValido();
+        $create = $this->postJson('/api/cursos', $payload);
+        $create->assertCreated();
+        $id = $create->json('curso.id');
+        $this->assertNotNull($id);
+
+        $this->getJson('/api/cursos/'.$id)
+            ->assertOk()
+            ->assertJsonPath('curso.titulo', 'Curso cadastrado no SIPED')
+            ->assertJsonPath('curso.origem.source_type', 'local');
+
+        $this->putJson('/api/cursos/'.$id, [
+            ...$payload,
             'titulo' => 'Curso alterado',
             'status' => 'INATIVO',
-        ]));
-        $this->assertEscritaExternaBloqueada($this->deleteJson('/api/cursos/'.$curso->id));
+        ])->assertOk()
+            ->assertJsonPath('curso.titulo', 'Curso alterado');
+
+        $this->deleteJson('/api/cursos/'.$id)->assertOk();
+        $this->assertDatabaseMissing('cursos', ['id' => $id]);
+    }
+
+    public function test_registro_de_seeder_continua_identificado_e_pode_ser_editado(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $payload = $this->payloadValido([
+            'titulo' => 'Curso da massa',
+            'codigo_sig' => 'SIG-SEEDER-001',
+            'source_type' => 'seeder',
+        ]);
+        $curso = Curso::create($payload);
 
         $this->getJson('/api/cursos/'.$curso->id)
             ->assertOk()
-            ->assertJsonPath('curso.titulo', 'Curso somente leitura')
             ->assertJsonPath('curso.origem.source_type', 'seeder');
-    }
 
-    public function test_commit_de_importacao_e_bloqueado_mas_preview_continua(): void
-    {
-        $this->actingAs($this->editor(), 'sanctum');
-
-        $this->post('/api/importacoes/cursos/commit')->assertForbidden()
-            ->assertJsonPath('message', config('origem_dados.mensagem_bloqueio'));
-
-        $this->post('/api/importacoes/cursos/preview')->assertStatus(422);
-    }
-
-    public function test_logout_continua_permitido(): void
-    {
-        $this->actingAs($this->editor(), 'sanctum')
-            ->postJson('/api/logout')
-            ->assertOk();
-    }
-
-    public function test_usuarios_e_cped_continuam_com_crud(): void
-    {
-        $this->actingAs($this->admin(), 'sanctum');
-
-        $usuario = $this->postJson('/api/usuarios', [
-            'nome' => 'Novo Usuário',
-            'email' => 'novo-origem@teste.com',
-            'senha' => 'senha123',
-            'cpf' => '39053344705',
-            'perfil' => Usuario::PERFIL_EDITOR,
-            'status' => true,
-            'telefone' => '61999990088',
-            'unidade' => 'Asa Norte',
-            'area' => 'Portfólio',
-        ]);
-        $usuario->assertCreated();
-
-        $this->actingAs($this->editor(), 'sanctum');
-        $cped = $this->postJson('/api/cped-equipes', [
-            'nome' => 'Membro Origem',
-            'cargo' => 'Assistente',
-            'setor' => 'CPED',
-            'contato' => 'membro.origem@senac.df.br',
-            'tipo' => 'assistente',
-            'iniciais' => 'MO',
-            'cor' => '#003F7D',
-            'ativo' => true,
-            'observacao' => 'Cadastro interno.',
-        ]);
-        $cped->assertCreated();
-        $cped->assertJsonPath('cped_equipe.nome', 'Membro Origem');
-    }
-
-    public function test_ciclos_continuam_editaveis(): void
-    {
-        $this->actingAs($this->editor(), 'sanctum');
-
-        $this->postJson('/api/ciclos', [
-            'nome' => '2031',
-            'observacao' => 'Ciclo administrativo',
-            'atual' => false,
-        ])->assertCreated();
+        $this->putJson('/api/cursos/'.$curso->id, [
+            ...$payload,
+            'titulo' => 'Curso da massa revisado',
+        ])->assertOk()
+            ->assertJsonPath('curso.titulo', 'Curso da massa revisado');
     }
 }

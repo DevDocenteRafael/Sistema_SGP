@@ -5,7 +5,7 @@ import PageTableCard from '../components/crud/PageTableCard.vue';
 import Pagination from '../components/crud/Pagination.vue';
 import IndicadorPrazo from '../components/ciclo-vida/IndicadorPrazo.vue';
 import LinhaDoTempo from '../components/ciclo-vida/LinhaDoTempo.vue';
-import { podeAdministrarEntidade } from './origemDados';
+import { podeEditarDados } from './auth';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 import {
   combinarValidacoes,
@@ -107,7 +107,7 @@ export default {
   },
   computed: {
     podeEditar() {
-      return podeAdministrarEntidade('resolucoes');
+      return podeEditarDados();
     },
     registrosFiltrados() {
       if (this.filtroResumo === 'todos') {

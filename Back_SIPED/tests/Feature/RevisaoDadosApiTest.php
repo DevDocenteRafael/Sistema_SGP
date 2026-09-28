@@ -71,12 +71,15 @@ class RevisaoDadosApiTest extends TestCase
         ]);
         $this->assertNull($curso->fresh()->eixo_id);
 
-        $this->assertEscritaExternaBloqueada($this->postJson('/api/revisao-dados/cursos/'.$curso->id.'/classificar', [
+        $this->postJson('/api/revisao-dados/cursos/'.$curso->id.'/classificar', [
             'eixo' => 'Beleza e Cuidado Pessoal',
             'segmento' => 'Beleza e cuidado pessoal',
-        ]));
+        ])->assertOk();
 
-        $this->assertNull($curso->fresh()->eixo);
+        $this->assertSame('Beleza e Cuidado Pessoal', $curso->fresh()->eixo);
+        $card = collect($this->getJson('/api/eixos/resumo')->json('data.eixos'))
+            ->firstWhere('nome', 'Beleza e Cuidado Pessoal');
+        $this->assertSame(1, $card['cursos']);
     }
 
     public function test_vincular_registro_importado_atualiza_indicadores(): void
@@ -104,13 +107,14 @@ class RevisaoDadosApiTest extends TestCase
             ->firstWhere('nome', 'Tecnologia e Economia Criativa');
         $this->assertSame(0, $antes['turmas']);
 
-        $this->assertEscritaExternaBloqueada($this->postJson('/api/revisao-dados/execucoes/'.$pendencia->id.'/vincular', [
+        $this->postJson('/api/revisao-dados/execucoes/'.$pendencia->id.'/vincular', [
             'curso_id' => $curso->id,
-        ]));
+        ])->assertOk();
 
         $depois = collect($this->getJson('/api/eixos/resumo')->json('data.eixos'))
             ->firstWhere('nome', 'Tecnologia e Economia Criativa');
-        $this->assertSame(0, $depois['turmas']);
+        $this->assertSame(2, $depois['turmas']);
+        $this->assertSame(30, $depois['alunos']);
     }
 
     public function test_nao_vincula_ciclos_diferentes(): void
@@ -131,8 +135,8 @@ class RevisaoDadosApiTest extends TestCase
             'ciclo_id' => $outro->id,
         ]);
 
-        $this->assertEscritaExternaBloqueada($this->postJson('/api/revisao-dados/execucoes/'.$pendencia->id.'/vincular', [
+        $this->postJson('/api/revisao-dados/execucoes/'.$pendencia->id.'/vincular', [
             'curso_id' => $curso->id,
-        ]));
+        ])->assertStatus(422);
     }
 }

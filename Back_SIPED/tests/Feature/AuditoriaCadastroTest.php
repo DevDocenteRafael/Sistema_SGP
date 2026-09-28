@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\AcaoExtensiva;
 use App\Models\Cadastro;
-use App\Models\CpedEquipe;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -62,29 +61,16 @@ class AuditoriaCadastroTest extends TestCase
             'ultima_atualizacao' => '2026-07-20',
         ]);
 
-        $this->assertEscritaExternaBloqueada($response);
+        $response->assertCreated();
 
-        $membro = $this->postJson('/api/cped-equipes', [
-            'nome' => 'Membro Auditoria',
-            'cargo' => 'Assistente',
-            'setor' => 'CPED',
-            'contato' => 'auditoria.cped@senac.df.br',
-            'tipo' => 'assistente',
-            'iniciais' => 'MA',
-            'cor' => '#003F7D',
-            'ativo' => true,
-            'observacao' => 'Auditoria de criação.',
-        ]);
-        $membro->assertCreated();
-
-        $acao = CpedEquipe::query()->first();
+        $acao = AcaoExtensiva::query()->first();
         $this->assertNotNull($acao);
         $this->assertSame($editor->id, $acao->criado_por);
 
         $this->assertDatabaseHas('cadastros', [
             'usuario_id' => $editor->id,
             'acao' => 'criar',
-            'modulo' => 'cped-equipes',
+            'modulo' => 'acoes-extensivas',
             'registro_id' => $acao->id,
         ]);
     }
@@ -107,9 +93,18 @@ class AuditoriaCadastroTest extends TestCase
             'arquivo' => $arquivo,
         ]);
 
-        $this->assertEscritaExternaBloqueada($response);
+        $response->assertOk();
 
-        $this->assertSame(0, Cadastro::query()->where('acao', 'importar')->count());
+        $this->assertSame(1, Cadastro::query()->where('acao', 'importar')->count());
+        $this->assertDatabaseHas('cadastros', [
+            'usuario_id' => $editor->id,
+            'acao' => 'importar',
+            'modulo' => 'acoes-extensivas',
+        ]);
+
+        $primeira = AcaoExtensiva::query()->first();
+        $this->assertNotNull($primeira);
+        $this->assertSame($editor->id, $primeira->criado_por);
     }
 
     public function test_apenas_admin_lista_auditoria(): void
