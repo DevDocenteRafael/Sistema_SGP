@@ -25,6 +25,10 @@ class TermoReferenciaController extends Controller
 
         $query = TermoReferencia::query()->orderBy('id');
 
+        if ($request->filled('id')) {
+            $query->where('id', (int) $request->id);
+        }
+
         if ($request->filled('busca')) {
             $busca = $request->busca;
             $query->where(function ($q) use ($busca) {

@@ -1,11 +1,12 @@
 import Sidebar from '../components/Sidebar.vue';
 import AcessibilidadeFlutuante from '../components/ui/AcessibilidadeFlutuante.vue';
 import CicloSeletor from '../components/CicloSeletor.vue';
+import NotificacaoSino from '../components/NotificacaoSino.vue';
 import { BREAKPOINTS } from '../responsive/breakpoints';
 
 export default {
   name: 'AppLayout',
-  components: { Sidebar, AcessibilidadeFlutuante, CicloSeletor },
+  components: { Sidebar, AcessibilidadeFlutuante, CicloSeletor, NotificacaoSino },
   data() {
     return {
       menuAberto: false,

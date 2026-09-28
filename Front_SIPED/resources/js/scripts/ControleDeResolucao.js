@@ -8,6 +8,12 @@ import LinhaDoTempo from '../components/ciclo-vida/LinhaDoTempo.vue';
 import { podeEditarDados } from './auth';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 import {
+  buscarRegistroDoAlerta,
+  idDaNotificacao,
+  limparQueryNotificacao,
+  metaListaUnitaria,
+} from './filtroNotificacao';
+import {
   combinarValidacoes,
   extrairErroApi,
   tamanhoMaximo,
@@ -123,7 +129,8 @@ export default {
         || this.filtros.status
         || this.filtros.categoria
         || this.filtros.ano
-        || this.filtroResumo !== 'todos',
+        || this.filtroResumo !== 'todos'
+        || Boolean(idDaNotificacao(this.$route)),
       );
     },
     anosDisponiveis() {
@@ -152,6 +159,14 @@ export default {
       return this.calcularFimVigencia(this.form.data_inicio_vigencia);
     },
   },
+  watch: {
+    '$route.query.alerta'() {
+      this.aoMudarAlerta();
+    },
+    '$route.query.id'() {
+      this.aoMudarAlerta();
+    },
+  },
   mounted() {
     this.carregarResolucoes();
   },
@@ -161,6 +176,17 @@ export default {
       this.mensagemErro = '';
 
       try {
+        const alertaId = idDaNotificacao(this.$route);
+        if (alertaId) {
+          const registro = await buscarRegistroDoAlerta(ENDPOINT_API, alertaId, ['resolucao', 'data']);
+          this.registros = registro ? [registro] : [];
+          this.meta = metaListaUnitaria(this.meta, this.registros.length);
+          if (!registro) {
+            this.mensagemErro = 'Não foi possível localizar a resolução do alerta.';
+          }
+          return;
+        }
+
         const params = { page: this.meta.current_page || 1, per_page: this.meta.per_page || 10 };
         Object.entries(this.filtros).forEach(([chave, valor]) => {
           if (valor !== '' && valor != null) {
@@ -211,6 +237,22 @@ export default {
         ano: '',
       };
       this.filtroResumo = 'todos';
+      this.meta.current_page = 1;
+      if (limparQueryNotificacao(this)) {
+        return;
+      }
+      this.carregarResolucoes();
+    },
+    aoMudarAlerta() {
+      this.filtros = {
+        busca: '',
+        setor: '',
+        status: '',
+        categoria: '',
+        ano: '',
+      };
+      this.filtroResumo = 'todos';
+      this.meta.current_page = 1;
       this.carregarResolucoes();
     },
     aplicarResumoFiltro() {

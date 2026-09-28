@@ -22,6 +22,12 @@ import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import Pagination from '../components/crud/Pagination.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
+import {
+  buscarRegistroDoAlerta,
+  idDaNotificacao,
+  limparQueryNotificacao,
+  metaListaUnitaria,
+} from './filtroNotificacao';
 
 const ENDPOINT_API = '/api/termos-referencia';
 const STATUS_TRAMITACAO = 'Em tramitação (fora da CPED)';
@@ -87,7 +93,8 @@ export default {
       return this.termos.length;
     },
     temFiltro() {
-      return Object.values(this.filtros).some((v) => v);
+      return Object.values(this.filtros).some((v) => v)
+        || Boolean(idDaNotificacao(this.$route));
     },
     podeEditar() {
       return podeEditarDados();
@@ -123,6 +130,20 @@ export default {
         prazo: '',
       };
       this.meta.current_page = 1;
+      if (limparQueryNotificacao(this)) {
+        return;
+      }
+      this.carregarTermos();
+    },
+
+    aoMudarAlerta() {
+      this.filtros = {
+        busca: '',
+        eixo: '',
+        status: '',
+        prazo: '',
+      };
+      this.meta.current_page = 1;
       this.carregarTermos();
     },
 
@@ -134,6 +155,17 @@ export default {
       this.mensagemErro = '';
 
       try {
+        const alertaId = idDaNotificacao(this.$route);
+        if (alertaId) {
+          const registro = await buscarRegistroDoAlerta(ENDPOINT_API, alertaId, ['termo', 'data']);
+          this.termos = registro ? [registro] : [];
+          this.meta = metaListaUnitaria(this.meta, this.termos.length);
+          if (!registro) {
+            this.mensagemErro = 'Não foi possível localizar o termo do alerta.';
+          }
+          return;
+        }
+
         const params = { page: this.meta.current_page || 1, per_page: this.meta.per_page || 10 };
         Object.entries(this.filtros).forEach(([chave, valor]) => {
           if (valor !== '' && valor != null) {
@@ -612,8 +644,16 @@ export default {
     },
   },
 
+  watch: {
+    '$route.query.alerta'() {
+      this.aoMudarAlerta();
+    },
+    '$route.query.id'() {
+      this.aoMudarAlerta();
+    },
+  },
+
   mounted() {
-    // Carrega dados iniciais
     this.carregarTermos();
   },
 };

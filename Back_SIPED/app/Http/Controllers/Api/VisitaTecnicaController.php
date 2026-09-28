@@ -26,7 +26,12 @@ class VisitaTecnicaController extends Controller
         $query = VisitaTecnica::query()
             ->orderByDesc('data_solicitacao')
             ->orderByDesc('id');
-        \App\Models\Ciclo::aplicarFiltroNaConsulta($query, $request->input('ciclo_id'));
+
+        if ($request->filled('id')) {
+            $query->where('id', (int) $request->id);
+        } else {
+            \App\Models\Ciclo::aplicarFiltroNaConsulta($query, $request->input('ciclo_id'));
+        }
 
         if ($request->filled('busca')) {
             $busca = $request->busca;

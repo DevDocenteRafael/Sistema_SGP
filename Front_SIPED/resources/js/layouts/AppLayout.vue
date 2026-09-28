@@ -37,6 +37,7 @@
         aria-label="Contexto do ciclo"
       >
         <CicloSeletor />
+        <NotificacaoSino />
       </div>
 
       <main

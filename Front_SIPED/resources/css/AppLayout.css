@@ -27,6 +27,7 @@
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 0.55rem 1.5rem;
+  overflow: visible;
   border-bottom: 1px solid var(--sgp-border, #e5e7eb);
   background: var(--sgp-surface, #fff);
   color: var(--sgp-text, #111827);
@@ -64,6 +65,18 @@
   color: #d1fae5;
 }
 
+.app-ciclo-bar--brand :deep(.notif-sino-botao) {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.app-ciclo-bar--brand :deep(.notif-sino-botao:hover),
+.app-ciclo-bar--brand :deep(.notif-sino-botao:focus-visible) {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
+}
+
 .app-main {
   flex: 1;
   min-width: 0;
@@ -91,12 +104,14 @@
   }
 
   .app-ciclo-bar {
-    justify-content: stretch;
+    justify-content: flex-end;
     padding: 0.45rem 0.85rem;
   }
 
   .app-ciclo-bar :deep(.ciclo-seletor) {
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
   }
 
   .app-ciclo-bar :deep(.ciclo-seletor__trigger) {

@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\JornadaPedagogicaController;
 use App\Http\Controllers\Api\CicloController;
 use App\Http\Controllers\Api\SistemaApoioController;
 use App\Http\Controllers\Api\KanbanController;
+use App\Http\Controllers\Api\NotificacaoController;
 use App\Http\Controllers\Api\OrganogramaController;
 use App\Http\Controllers\Api\PcaController;
 use App\Http\Controllers\Api\PlanoDeMetaController;
@@ -97,6 +98,8 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::get('carometro', [CarometroController::class, 'index']);
 
     Route::get('dashboard', [DashboardController::class, 'resumo']);
+    Route::get('notificacoes', [NotificacaoController::class, 'index']);
+    Route::post('notificacoes/marcar-lidas', [NotificacaoController::class, 'marcarLidas']);
 
     Route::get('relatorios', [RelatorioController::class, 'index']);
     Route::get('relatorios/{tipo}/preview', [RelatorioController::class, 'preview']);
