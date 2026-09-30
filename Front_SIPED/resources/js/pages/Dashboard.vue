@@ -59,94 +59,24 @@
 
     <template v-if="filtros.grupo === 'gerais'">
       <section class="dashboard-kpi-strip" aria-label="Indicadores principais">
-        <article class="dashboard-kpi-tile is-accent">
-          <div class="dashboard-kpi-tile-head">
-            <div class="dashboard-metric-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>
-            </div>
-          </div>
-          <p class="dashboard-metric-value">{{ totalResolucoes }}</p>
-          <p class="dashboard-metric-title">
-            <SgpHelpLabel label="Resoluções" />
-          </p>
-          <div class="dashboard-metric-chips" aria-label="Resoluções por prazo">
-            <span
-              v-for="card in cardsResolucoesPrazo"
-              :key="card.title"
-              class="dashboard-metric-chip"
-            >
-              <strong :style="{ color: card.color }">{{ card.value }}</strong>
-              <SgpHelpLabel :label="card.title" :help="card.subtitle" />
-            </span>
-          </div>
-        </article>
-
-        <article class="dashboard-kpi-tile">
-          <div class="dashboard-kpi-tile-head">
-            <div class="dashboard-metric-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
-            </div>
-            <span class="dashboard-metric-sub">portfólio</span>
-          </div>
-          <p class="dashboard-metric-value">{{ totalTermos }}</p>
-          <p class="dashboard-metric-title">
-            <SgpHelpLabel label="Termos de Referência" />
-          </p>
-          <div class="dashboard-metric-chips" aria-label="Termos por prazo">
-            <span
-              v-for="card in cardsTermosPrazo"
-              :key="card.title"
-              class="dashboard-metric-chip"
-            >
-              <strong :style="{ color: card.color }">{{ card.value }}</strong>
-              <SgpHelpLabel :label="card.title" :help="card.subtitle" />
-            </span>
-          </div>
-        </article>
-
-        <article class="dashboard-kpi-tile dashboard-kpi-tile--cursos">
-          <div class="dashboard-kpi-tile-head">
-            <div class="dashboard-metric-icon" v-html="iconPortfolio"></div>
-            <span class="dashboard-metric-sub">portfólio</span>
-          </div>
-          <div class="dashboard-metric-cursos-row">
-            <div>
-              <p class="dashboard-metric-value">{{ totalCursos }}</p>
-              <p class="dashboard-metric-title">
-                <SgpHelpLabel label="Total de Cursos" />
-              </p>
-            </div>
-            <div class="dashboard-metric-status-side" aria-label="Status dos cursos">
-              <span class="dashboard-metric-status is-ativo">
-                <strong>{{ cursosAtivos }}</strong>
-                <SgpHelpLabel label="Ativos" term="ativo" />
-              </span>
-              <span class="dashboard-metric-status is-inativo">
-                <strong>{{ cursosInativos }}</strong>
-                <SgpHelpLabel label="Inativos" term="inativo" />
-              </span>
-              <span class="dashboard-metric-status is-revisao">
-                <strong>{{ cursosEmRevisao }}</strong>
-                <SgpHelpLabel label="Em revisão" term="em revisao" />
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <article
-          v-for="card in metricCards"
-          :key="card.label"
-          class="dashboard-kpi-tile"
-          :class="card.tileClass"
-        >
+        <article v-for="card in metricCards" :key="card.label" class="dashboard-kpi-tile dashboard-kpi-tile--standard">
           <div class="dashboard-kpi-tile-head">
             <div class="dashboard-metric-icon" v-html="card.icon"></div>
-            <span v-if="card.sub" class="dashboard-metric-sub">{{ card.sub }}</span>
+            <span class="dashboard-metric-category"><SgpHelpLabel :label="card.label" /></span>
           </div>
-          <p class="dashboard-metric-value">{{ card.value }}</p>
-          <p class="dashboard-metric-title">
-            <SgpHelpLabel :label="card.label" />
-          </p>
+          <div class="dashboard-metric-content">
+            <div class="dashboard-metric-primary">
+              <p class="dashboard-metric-value">{{ card.value }}</p>
+              <p v-if="card.sub" class="dashboard-metric-detail">{{ card.sub }}</p>
+            </div>
+            <div v-if="card.statuses?.length" class="dashboard-metric-status-list" :aria-label="`Status de ${card.label}`">
+              <span v-for="status in card.statuses" :key="status.title" class="dashboard-metric-status">
+                <span class="dashboard-metric-status-dot" :style="{ backgroundColor: status.color }" aria-hidden="true"></span>
+                <strong>{{ status.value }}</strong>
+                <SgpHelpLabel :label="status.title" :help="status.subtitle" :term="status.term" />
+              </span>
+            </div>
+          </div>
         </article>
       </section>
 
@@ -156,13 +86,13 @@
             <div>
               <h3><SgpHelpLabel label="Eixos Tecnológicos" /></h3>
               <p class="dashboard-chart-subtitle">Cursos por eixo · {{ totalEixos }} eixos no filtro</p>
+              <p class="dashboard-chart-summary">{{ cursosParaGraficos.length }} cursos · {{ chartEixos.length }} eixos</p>
             </div>
           </div>
           <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
           <div v-else-if="chartEixos.length === 0" class="dashboard-chart-empty">Sem dados para os filtros selecionados</div>
           <div v-else class="dashboard-rank-list">
-            <div v-for="(item, index) in chartEixos" :key="item.label" class="dashboard-rank-item">
-              <span class="dashboard-rank-pos">{{ index + 1 }}</span>
+            <div v-for="item in chartEixos" :key="item.label" class="dashboard-rank-item">
               <div class="dashboard-rank-body">
                 <div class="dashboard-rank-head">
                   <span class="dashboard-rank-label" :title="item.label">{{ item.label }}</span>
@@ -174,7 +104,8 @@
                 <div class="dashboard-rank-track">
                   <div
                     class="dashboard-rank-fill"
-                    :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"
+                    :style="{ width: `${Math.max(item.bar, 4)}%` }"
+                    :title="`${item.label}: ${item.value} (${item.share}%)`"
                   ></div>
                 </div>
               </div>
@@ -187,6 +118,7 @@
             <div>
               <h3><SgpHelpLabel label="Tipos de Curso" /></h3>
               <p class="dashboard-chart-subtitle">Distribuição por tipo de oferta</p>
+              <p class="dashboard-chart-summary">{{ cursosParaGraficos.length }} cursos · {{ chartTipos.length }} tipos</p>
             </div>
           </div>
           <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
@@ -201,7 +133,7 @@
                   <div class="dashboard-vbar-shaft">
                     <div
                       class="dashboard-vbar-fill"
-                      :style="{ height: `${Math.max(item.bar, 18)}%`, background: item.color }"
+                      :style="{ height: `${Math.max(item.bar, 18)}%` }"
                       :title="`${item.label}: ${item.value} (${item.share}%)`"
                     >
                       <span class="dashboard-vbar-value">{{ item.value }}</span>
@@ -224,32 +156,27 @@
             <div>
               <h3><SgpHelpLabel label="Faixas de Carga Horária" /></h3>
               <p class="dashboard-chart-subtitle">Cursos agrupados por carga horária</p>
+              <p class="dashboard-chart-summary">{{ cursosParaGraficos.length }} cursos · {{ chartCargaHoraria.length }} faixas</p>
             </div>
           </div>
           <div v-if="carregando" class="dashboard-chart-empty">Carregando...</div>
-          <div v-else class="dashboard-vchart" role="img" aria-label="Gráfico de faixas de carga horária">
-            <div class="dashboard-vchart-plot">
-              <div class="dashboard-vchart-grid" aria-hidden="true">
-                <span></span><span></span><span></span><span></span>
-              </div>
-              <div class="dashboard-vbars">
-                <div v-for="item in chartCargaHoraria" :key="item.label" class="dashboard-vbar">
-                  <div class="dashboard-vbar-shaft">
-                    <div
-                      class="dashboard-vbar-fill"
-                      :style="{ height: `${item.value ? Math.max(item.bar, 18) : 0}%`, background: item.color }"
-                      :title="`${item.label}: ${item.value} (${item.share}%)`"
-                    >
-                      <span v-if="item.value" class="dashboard-vbar-value">{{ item.value }}</span>
-                    </div>
-                  </div>
+          <div v-else class="dashboard-rank-list dashboard-range-list" role="img" aria-label="Distribuição de cursos por faixa de carga horária">
+            <div v-for="item in chartCargaHoraria" :key="item.label" class="dashboard-rank-item">
+              <div class="dashboard-rank-body">
+                <div class="dashboard-rank-head">
+                  <span class="dashboard-rank-label">{{ item.label }}</span>
+                  <span class="dashboard-rank-meta">
+                    <strong>{{ item.value }}</strong>
+                    <small>{{ item.share }}%</small>
+                  </span>
                 </div>
-              </div>
-            </div>
-            <div class="dashboard-vchart-axis">
-              <div v-for="item in chartCargaHoraria" :key="`axis-${item.label}`" class="dashboard-vbar-caption">
-                <span class="dashboard-vbar-label">{{ item.label }}</span>
-                <small class="dashboard-vbar-share">{{ item.share }}%</small>
+                <div class="dashboard-rank-track">
+                  <div
+                    class="dashboard-rank-fill"
+                    :style="{ width: `${item.value ? Math.max(item.bar, 4) : 0}%` }"
+                    :title="`${item.label}: ${item.value} (${item.share}%)`"
+                  ></div>
+                </div>
               </div>
             </div>
           </div>

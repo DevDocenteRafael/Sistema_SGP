@@ -169,35 +169,60 @@ export default {
 
       return [
         {
+          label: 'Resoluções',
+          category: 'Portfólio',
+          value: this.totalResolucoes,
+          icon: this.iconResolucoes,
+          statuses: this.cardsResolucoesPrazo.filter((status) => status.value > 0),
+        },
+        {
+          label: 'Termos de Referência',
+          category: 'Portfólio',
+          value: this.totalTermos,
+          icon: this.iconPortfolio,
+          statuses: this.cardsTermosPrazo.filter((status) => status.value > 0),
+        },
+        {
+          label: 'Total de Cursos',
+          category: 'Portfólio',
+          value: this.totalCursos,
+          icon: this.iconPortfolio,
+          statuses: [
+            { title: 'Ativos', value: this.cursosAtivos, color: '#16A34A', term: 'ativo' },
+            { title: 'Inativos', value: this.cursosInativos, color: '#DC2626', term: 'inativo' },
+            { title: 'Em revisão', value: this.cursosEmRevisao, color: '#2563EB', term: 'em revisao' },
+          ].filter((status) => status.value > 0),
+        },
+        {
           label: 'Estruturas',
+          category: 'Estruturas',
           value: estruturasValor,
           sub: estruturasSub,
           icon: this.iconUnidades,
         },
         {
           label: 'Horas Pedagógicas',
+          category: 'Solicitações',
           value: this.contagens.horas,
-          sub: 'solicitações',
           icon: this.iconHoras,
         },
         {
           label: 'Ações Extensivas',
+          category: 'Cadastradas',
           value: this.contagens.acoes,
-          sub: 'cadastradas',
           icon: this.iconAcoes,
         },
         {
           label: 'Eventos',
+          category: 'Cadastrados',
           value: this.contagens.eventos,
-          sub: 'cadastrados',
           icon: this.iconEventos,
         },
         {
           label: 'Visitas Técnicas',
+          category: 'Processos',
           value: this.contagens.visitas,
-          sub: 'processos',
           icon: this.iconVisitas,
-          tileClass: 'dashboard-kpi-tile--visitas',
         },
       ];
     },
@@ -339,6 +364,9 @@ export default {
 
     iconPortfolio() {
       return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>`;
+    },
+    iconResolucoes() {
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>`;
     },
     iconCheck() {
       return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`;
@@ -531,10 +559,10 @@ export default {
 
     montarCardsPrazo(contagens, total) {
       const itens = [
-        { title: 'No prazo', key: 'no_prazo', color: '#15803d' },
-        { title: 'Atenção', key: 'atencao', color: '#a16207' },
-        { title: 'Crítico', key: 'critico', color: '#c2410c' },
-        { title: 'Vencidos', key: 'vencidos', color: '#b91c1c' },
+        { title: 'No prazo', key: 'no_prazo', color: '#16A34A' },
+        { title: 'Atenção', key: 'atencao', color: '#F59E0B' },
+        { title: 'Crítico', key: 'critico', color: '#F97316' },
+        { title: 'Vencidos', key: 'vencidos', color: '#DC2626' },
       ];
 
       return itens.map((item) => {
