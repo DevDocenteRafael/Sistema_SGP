@@ -5,5 +5,5 @@
  */
 return [
     '60+',
-    'Ensino Médio 2025',
+    'Ensino Médio',
 ];

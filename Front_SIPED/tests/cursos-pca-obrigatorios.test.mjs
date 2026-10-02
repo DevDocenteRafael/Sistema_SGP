@@ -12,7 +12,7 @@ function carregarMetodo(pagina, metodo) {
 
 const abas = {
   basico: {
-    eixo: 'Gestão e Negócios', segmento: 'Administração', programa: '60+', ciclo_id: '1',
+    eixo: 'Gestão e Negócios', segmento: 'Administração', ciclo_id: '1',
     titulo: 'Curso', carga_horaria: '80', turmas: '0', alunos: '0', codigo_processo: '123',
     instrutor: 'Instrutor', descricao: 'Descrição', unidades_oferta: ['Unidade'],
   },

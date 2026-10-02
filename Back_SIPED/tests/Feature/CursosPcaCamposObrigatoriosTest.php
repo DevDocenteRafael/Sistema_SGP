@@ -16,7 +16,7 @@ class CursosPcaCamposObrigatoriosTest extends TestCase
     {
         $request = new CursoRequest;
         $campos = [
-            'ciclo_id', 'titulo', 'eixo', 'segmento', 'programa', 'modalidade', 'carga_horaria',
+            'ciclo_id', 'titulo', 'eixo', 'segmento', 'modalidade', 'carga_horaria',
             'turmas', 'codigo_processo', 'alunos', 'instrutor', 'descricao', 'codigo_dn', 'codigo_sig',
             'identificacao', 'status', 'ultima_revisao', 'processo_sei', 'data_inicio', 'data_fim',
             'unidade', 'unidades_oferta', 'observacoes', 'valores', 'compativel_bolsa', 'comercial', 'pcn', 'pcr',

@@ -17,7 +17,7 @@
           <input
             v-model="filtros.busca"
             type="search"
-            placeholder="Buscar por curso, SIG, SEI, eixo..."
+            placeholder="Buscar por curso, SIG, SEI, eixo, programa..."
             @input="aplicarFiltros"
           />
         </div>
@@ -31,6 +31,12 @@
           v-model="filtros.eixo"
           :options="meta.eixos"
           empty-option="Todos os eixos"
+          @change="aplicarFiltros"
+        />
+        <SearchableSelect
+          v-model="filtros.programa"
+          :options="meta.programas"
+          empty-option="Todos os programas"
           @change="aplicarFiltros"
         />
         <SearchableSelect
@@ -460,13 +466,13 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="programa"><FormLabel label="Programa / categoria" required /></label>
+                  <label for="programa"><FormLabel label="Programa / categoria" /></label>
                   <SearchableSelect
                     id="programa"
                     input-id="programa"
-                    v-model="form.programa" aria-required="true"
+                    v-model="form.programa"
                     :options="meta.programas"
-                    empty-option="Selecione o programa..."
+                    empty-option="Nenhum"
                   />
                 </div>
                 <div class="form-group full">

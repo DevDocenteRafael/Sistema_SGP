@@ -69,7 +69,7 @@ class CatalogoOficialClassificacaoTest extends TestCase
     {
         $resolvido = ClassificadorLegado::classificar('Ensino Médio 2025', null, 'Técnico em Administração SEEDF');
 
-        $this->assertSame('Ensino Médio 2025', $resolvido['programa']);
+        $this->assertSame('Ensino Médio', $resolvido['programa']);
         $this->assertSame('Gestão e Moda', $resolvido['eixo']);
         $this->assertSame('Gestão e Comércio', $resolvido['segmento']);
     }

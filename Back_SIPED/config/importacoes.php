@@ -22,6 +22,7 @@ return [
                 'Tecnologia e Economia Criativa',
                 'Beleza e Cuidado Pessoal',
                 'Ensino Médio 2025',
+                'Ensino Médio',
                 '60+',
             ],
             'header_markers' => ['titulo', 'ch', 'modalidade'],

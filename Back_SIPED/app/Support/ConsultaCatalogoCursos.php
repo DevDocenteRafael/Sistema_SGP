@@ -25,7 +25,7 @@ class ConsultaCatalogoCursos
         }
         if (! empty($filtros['busca'])) {
             $query->where(function ($q) use ($filtros) {
-                foreach (['titulo', 'codigo_sig', 'processo_sei', 'eixo', 'unidade'] as $campo) {
+                foreach (['titulo', 'codigo_sig', 'processo_sei', 'eixo', 'unidade', 'programa'] as $campo) {
                     $q->orWhere($campo, 'like', '%'.$filtros['busca'].'%');
                 }
             });
@@ -39,10 +39,14 @@ class ConsultaCatalogoCursos
         if (! empty($filtros['eixo_id'])) {
             $query->where('eixo_id', (int) $filtros['eixo_id']);
         }
-        foreach (['status', 'tipo', 'segmento', 'programa'] as $campo) {
+        foreach (['status', 'tipo', 'segmento'] as $campo) {
             if (! empty($filtros[$campo])) {
                 $query->where($campo, $filtros[$campo]);
             }
+        }
+        if (! empty($filtros['programa'])) {
+            $programa = CatalogoOficial::canonicalizarPrograma($filtros['programa']) ?? $filtros['programa'];
+            $query->whereIn('programa', array_unique([$programa, $filtros['programa']]));
         }
         if (! empty($filtros['unidade'])) {
             $query->where(fn ($q) => $q->where('unidade', $filtros['unidade'])

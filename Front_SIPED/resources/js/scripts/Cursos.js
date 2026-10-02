@@ -58,6 +58,7 @@ export default {
         ciclo_id: '',
         ano: '',
         eixo: '',
+        programa: '',
         status: '',
         unidade: '',
       },
@@ -193,6 +194,7 @@ export default {
         ciclo_id: cicloId,
         ano: '',
         eixo: '',
+        programa: '',
         status: '',
         unidade: '',
       };
@@ -481,7 +483,6 @@ export default {
         return combinarValidacoes(
           textoObrigatorio(this.regiaoOfertaSelecionada, 'Selecione a localidade / região.'),
           textoObrigatorio(this.form.segmento, 'Preencha o campo Segmento.'),
-          textoObrigatorio(this.form.programa, 'Preencha o campo Programa / categoria.'),
           textoObrigatorio(this.form.ciclo_id, 'Preencha o campo Ciclo de gestão.'),
           textoObrigatorio(this.form.codigo_processo, 'Preencha o campo Código do processo.'),
           textoObrigatorio(this.form.instrutor, 'Preencha o campo Instrutor(es).'),

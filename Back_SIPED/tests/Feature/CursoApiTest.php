@@ -137,6 +137,30 @@ class CursoApiTest extends TestCase
         $porCanonico->assertJsonPath('data.0.titulo', 'Curso Saúde');
     }
 
+    public function test_filters_cursos_by_programa(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        Curso::create(['titulo' => 'Curso EM', 'eixo' => 'Gestão e Moda', 'status' => 'ATIVO', 'programa' => 'Ensino Médio']);
+        Curso::create(['titulo' => 'Curso 60+', 'eixo' => 'Gestão e Moda', 'status' => 'ATIVO', 'programa' => '60+']);
+        Curso::create(['titulo' => 'Curso Regular', 'eixo' => 'Gestão e Moda', 'status' => 'ATIVO']);
+
+        $this->getJson('/api/cursos?programa=Ensino Médio')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.titulo', 'Curso EM');
+
+        $this->getJson('/api/cursos?programa=Ensino Médio 2025')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.titulo', 'Curso EM');
+
+        $this->getJson('/api/cursos?busca=60%2B')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.titulo', 'Curso 60+');
+    }
+
     public function test_canonicaliza_alias_saude_e_rejeita_eixo_invalido(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
@@ -203,7 +227,7 @@ class CursoApiTest extends TestCase
         $this->assertSame(config('eixos'), $meta);
         $this->assertNotContains('Saúde', $meta);
         $this->assertNotContains('60+', $meta);
-        $this->assertNotContains('Ensino Médio 2025', $meta);
+        $this->assertNotContains('Ensino Médio', $meta);
     }
 
     public function test_guest_cannot_list_cursos(): void

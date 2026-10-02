@@ -32,6 +32,7 @@ class CatalogoOficial
      */
     private const ABAS_ESPECIAIS = [
         'ensino medio 2025',
+        'ensino medio',
         '60+',
         '60 +',
     ];
@@ -181,10 +182,10 @@ class CatalogoOficial
             '60+' => '60+',
             '60 +' => '60+',
             '60' => '60+',
-            'ensino medio 2025' => 'Ensino Médio 2025',
-            'ensino medio' => 'Ensino Médio 2025',
-            'novo ensino medio' => 'Ensino Médio 2025',
-            'tem' => 'Ensino Médio 2025',
+            'ensino medio 2025' => 'Ensino Médio',
+            'ensino medio' => 'Ensino Médio',
+            'novo ensino medio' => 'Ensino Médio',
+            'tem' => 'Ensino Médio',
         ];
 
         if (isset($aliases[$chave])) {
