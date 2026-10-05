@@ -95,6 +95,19 @@
   transform: translateX(-50%);
 }
 
+/* Ao lado do gatilho: não é cortado pelo overflow de tabelas com rolagem horizontal. */
+.sgp-tooltip__bubble--left {
+  right: calc(100% + 0.4rem);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sgp-tooltip__bubble--right {
+  left: calc(100% + 0.4rem);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .sgp-help-label {
   display: inline-flex;
   align-items: center;

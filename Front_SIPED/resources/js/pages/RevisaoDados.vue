@@ -1,3 +1,8 @@
+<!--
+  LEGADO (SPEC 01 V2): esta tela não tem mais botão em Importações e a importação não
+  redireciona para cá. Mantida, com rota e endpoints, até confirmar que não há consumidores.
+  Registros incompletos da importação aparecem no Histórico de Importações.
+-->
 <template>
   <div class="revisao-page">
     <header class="revisao-header">

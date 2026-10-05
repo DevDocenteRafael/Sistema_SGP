@@ -1,0 +1,236 @@
+/* Histórico de importações e envio de documento PDF */
+
+.imp-historico__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.imp-historico__head h2 {
+  margin: 0;
+  color: var(--sgp-text, #111827);
+  font-size: 1.15rem;
+}
+
+.imp-historico .imp-tabela-wrap {
+  border: 1px solid var(--sgp-border, #e5e7eb);
+  border-radius: 0.85rem;
+  background: var(--sgp-surface, #fff);
+}
+
+.imp-historico .alert {
+  margin: 0 0 0.75rem;
+}
+
+.num {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.imp-destaque {
+  color: #b45309 !important;
+  font-weight: 700;
+}
+
+.imp-tag {
+  display: inline-block;
+  margin-left: 0.3rem;
+  padding: 0 0.35rem;
+  border-radius: 0.3rem;
+  background: var(--sgp-info-bg, #eff6ff);
+  color: var(--sgp-info-text, #1e3a8a);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.imp-situacao {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.imp-situacao--concluida {
+  background: var(--sgp-success-bg, #e8f8ef);
+  color: var(--sgp-success-text, #0f7b3b);
+}
+
+.imp-situacao--bloqueada {
+  background: var(--sgp-error-bg, #fef2f2);
+  color: var(--sgp-error-text, #b91c1c);
+}
+
+.imp-historico__paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--sgp-text-muted, #6b7280);
+}
+
+.btn-sm {
+  display: inline-flex;
+  align-items: center;
+  height: auto;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.imp-modal {
+  width: min(48rem, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1.25rem 1.4rem;
+  border-radius: 0.85rem;
+  background: var(--sgp-surface, #fff);
+  color: var(--sgp-text, #111827);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+}
+
+.imp-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.imp-modal__head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.imp-modal h3 {
+  margin: 1.1rem 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.imp-modal__mensagem {
+  margin: 0.6rem 0;
+  font-size: 0.9rem;
+}
+
+.btn-fechar-x {
+  border: 0;
+  background: transparent;
+  color: var(--sgp-text-muted, #6b7280);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.imp-lista-incompletos,
+.imp-lista-erros {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.imp-lista-incompletos li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--sgp-border, #e5e7eb);
+}
+
+.imp-lista-incompletos .imp-ajuda {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+}
+
+.imp-lista-erros li {
+  padding: 0.35rem 0;
+  border-top: 1px solid var(--sgp-border, #f3f4f6);
+  color: var(--sgp-warning-text, #92400e);
+}
+
+/* Documento PDF */
+.imp-documento > .imp-ajuda {
+  margin: 0 0 1rem;
+}
+
+.imp-documento__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.imp-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.imp-campo--full {
+  grid-column: 1 / -1;
+}
+
+.imp-campo label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sgp-text, #374151);
+}
+
+.imp-campo input,
+.imp-campo textarea {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--sgp-border, #d1d5db);
+  border-radius: 0.45rem;
+  background: var(--sgp-surface, #fff);
+  color: var(--sgp-text, #111827);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.imp-campo .imp-ajuda {
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+.imp-documento .alert {
+  margin: 0 0 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .imp-documento__grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -6,6 +6,8 @@ const appChildren = [
   { path: 'dashboard', name: 'dashboard', component: () => import('../pages/Dashboard.vue'), meta: { menu: 'dashboard' } },
   { path: 'relatorios', name: 'relatorios', component: () => import('../pages/Relatorios.vue'), meta: { menu: 'relatorios' } },
   { path: 'importacoes', name: 'importacoes', component: () => import('../pages/Importacoes.vue'), meta: { menu: 'importacoes' } },
+  // LEGADO: o botão "Revisão de Dados" saiu de Importações (SPEC 01 V2). A rota fica até
+  // confirmar que não há consumidores; incompletos agora aparecem no Histórico de Importações.
   { path: 'importacoes/revisao-dados', name: 'revisao-dados', component: () => import('../pages/RevisaoDados.vue'), meta: { menu: 'importacoes' } },
   { path: 'cursos', name: 'cursos', component: () => import('../pages/Cursos.vue'), meta: { menu: 'cursos' } },
   { path: 'ciclos', name: 'ciclos', component: () => import('../pages/CiclosPortfolio.vue'), meta: { menu: 'ciclos' } },

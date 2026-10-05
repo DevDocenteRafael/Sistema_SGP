@@ -1,5 +1,6 @@
 import { atualizarUsuarioSessao, getUsuario, podeGerenciarUsuarios } from './auth';
 import { hidratarUnidadesSelect } from './unidadesApi';
+import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import Pagination from '../components/crud/Pagination.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
@@ -23,6 +24,7 @@ export default {
   components: { PageTableCard, CrudPageHeader, Pagination },
   data() {
     return {
+      eixosOficiais: EIXOS_OFICIAIS,
       modo: 'lista',
       usuarios: [],
       meta: { total: 0, per_page: 10, current_page: 1, last_page: 1, from: 0, to: 0 },
@@ -75,6 +77,7 @@ export default {
         status: true,
         unidade: '',
         area: '',
+        eixos: [],
         telefone: '',
         cpf: '',
         foto: '',
@@ -224,6 +227,7 @@ export default {
         status: Boolean(usuario.status),
         unidade: usuario.unidade ?? '',
         area: usuario.area ?? '',
+        eixos: Array.isArray(usuario.eixos) ? [...usuario.eixos] : [],
         telefone: usuario.telefone ?? '',
         cpf: usuario.cpf ?? '',
         foto: usuario.foto || '',
@@ -342,6 +346,7 @@ export default {
       formData.append('status', this.form.status ? '1' : '0');
       formData.append('unidade', this.form.unidade || '');
       formData.append('area', this.form.area?.trim() || '');
+      formData.append('eixos', JSON.stringify(this.form.eixos || []));
       formData.append('cpf', this.form.cpf ? somenteNumeros(this.form.cpf) : '');
       formData.append('telefone', this.form.telefone ? somenteNumeros(this.form.telefone) : '');
 

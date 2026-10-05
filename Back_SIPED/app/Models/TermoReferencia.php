@@ -16,8 +16,12 @@ class TermoReferencia extends Model
 
     protected $fillable = [
         'nome',
+        'numero_tr',
         'eixo',
         'processo_sei',
+        'numero_ata',
+        'data_vencimento_ata',
+        'ata_renovada',
         'prazo_deadline',
         'status',
         'observacao',
@@ -34,6 +38,8 @@ class TermoReferencia extends Model
             'data_inicio' => 'date',
             'data_fim' => 'date',
             'prazo_deadline' => 'date',
+            'data_vencimento_ata' => 'date',
+            'ata_renovada' => 'boolean',
             'concluido_em' => 'datetime',
         ];
     }

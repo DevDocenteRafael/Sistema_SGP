@@ -38,13 +38,11 @@ export default {
       resolucoesContagens: {
         no_prazo: 0,
         atencao: 0,
-        critico: 0,
         vencidos: 0,
       },
       termosContagens: {
         no_prazo: 0,
         atencao: 0,
-        critico: 0,
         vencidos: 0,
       },
       filtros: {
@@ -512,14 +510,12 @@ export default {
         this.resolucoesContagens = {
           no_prazo: 0,
           atencao: 0,
-          critico: 0,
           vencidos: 0,
           ...(payload.resolucoes_contagens || {}),
         };
         this.termosContagens = {
           no_prazo: 0,
           atencao: 0,
-          critico: 0,
           vencidos: 0,
           ...(payload.termos_contagens || {}),
         };
@@ -608,11 +604,11 @@ export default {
     },
 
     montarCardsPrazo(contagens, total) {
+      // Semáforo de três estados: Vigente / Atenção / Vencida.
       const itens = [
-        { title: 'No prazo', key: 'no_prazo', color: '#16A34A' },
+        { title: 'Vigente', key: 'no_prazo', color: '#16A34A' },
         { title: 'Atenção', key: 'atencao', color: '#F59E0B' },
-        { title: 'Crítico', key: 'critico', color: '#F97316' },
-        { title: 'Vencidos', key: 'vencidos', color: '#DC2626' },
+        { title: 'Vencida', key: 'vencidos', color: '#DC2626' },
       ];
 
       return itens.map((item) => {

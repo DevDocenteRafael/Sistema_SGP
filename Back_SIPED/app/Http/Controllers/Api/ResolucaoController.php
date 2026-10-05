@@ -49,9 +49,6 @@ class ResolucaoController extends Controller
             $query->where('categoria', $request->categoria);
         }
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
 
         if ($request->filled('setor')) {
             $query->where('setor', $request->setor);
@@ -71,6 +68,12 @@ class ResolucaoController extends Controller
             'data_inicio_vigencia',
             'data_fim_vigencia',
         ]);
+
+        // Filtro pelo semáforo (Vigente / Atenção / Vencida), calculado pela data de fim.
+        $prazo = $request->input('prazo', $request->input('status'));
+        if (is_string($prazo) && $prazo !== '') {
+            ResolucaoVigenciaService::aplicarFiltro($query, $prazo, $todasLeves);
+        }
         $paginator = $this->paginar($query, $request);
         $registros = collect($paginator->items())->map(fn (Resolucao $resolucao) => $this->serializarResolucao($resolucao));
 
@@ -79,7 +82,7 @@ class ResolucaoController extends Controller
             'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => $todasLeves->count(),
                 'vigencia_anos' => ResolucaoVigenciaService::vigenciaAnos(),
-                'status' => config('resolucoes.status'),
+                'status' => ResolucaoVigenciaService::estados(),
                 'categorias' => config('resolucoes.categorias', []),
                 'setores' => config('resolucoes.setores', []),
                 'semaforo' => config('resolucoes.semaforo'),
@@ -94,7 +97,7 @@ class ResolucaoController extends Controller
         $payload['data_fim_vigencia'] = ResolucaoVigenciaService::calcularDataFimVigencia(
             $payload['data_inicio_vigencia']
         )->format('Y-m-d');
-        $payload['status'] = $payload['status'] ?? ResolucaoVigenciaService::statusAutomatico(
+        $payload['status'] = ResolucaoVigenciaService::statusAutomatico(
             $payload['data_inicio_vigencia'],
             $payload['data_fim_vigencia']
         );
@@ -147,7 +150,7 @@ class ResolucaoController extends Controller
         $payload['data_fim_vigencia'] = ResolucaoVigenciaService::calcularDataFimVigencia(
             $payload['data_inicio_vigencia']
         )->format('Y-m-d');
-        $payload['status'] = $payload['status'] ?? ResolucaoVigenciaService::statusAutomatico(
+        $payload['status'] = ResolucaoVigenciaService::statusAutomatico(
             $payload['data_inicio_vigencia'],
             $payload['data_fim_vigencia']
         );
@@ -306,7 +309,7 @@ class ResolucaoController extends Controller
             'setor' => $resolucao->setor,
             'data_inicio_vigencia' => $resolucao->data_inicio_vigencia?->format('Y-m-d'),
             'data_fim_vigencia' => $dataFimVigencia->format('Y-m-d'),
-            'status' => $resolucao->status ?: $statusVigencia,
+            'status' => $statusVigencia,
             'status_vigencia' => $statusVigencia,
             'semaforo' => ResolucaoVigenciaService::corSemaforo($statusVigencia),
             'observacoes' => $resolucao->observacoes,

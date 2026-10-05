@@ -22,6 +22,19 @@ class TermoReferenciaRequest extends FormRequest
         }
 
         $this->canonicalizarEixoInput();
+
+        $merge = [];
+        foreach (['numero_tr', 'numero_ata', 'data_vencimento_ata'] as $campo) {
+            if ($this->exists($campo) && trim((string) $this->input($campo)) === '') {
+                $merge[$campo] = null;
+            }
+        }
+        if ($this->has('ata_renovada')) {
+            $merge['ata_renovada'] = filter_var($this->input('ata_renovada'), FILTER_VALIDATE_BOOLEAN);
+        }
+        if ($merge !== []) {
+            $this->merge($merge);
+        }
     }
 
     public function rules(): array
@@ -36,6 +49,11 @@ class TermoReferenciaRequest extends FormRequest
             'data_inicio' => ['required', 'date'],
             'data_fim' => ['required', 'date', 'after_or_equal:data_inicio'],
             'concluido_em' => ['nullable', 'datetime'],
+            // Dados da Ata derivada do TR (opcionais até a Ata existir).
+            'numero_tr' => ['nullable', 'string', 'max:50'],
+            'numero_ata' => ['nullable', 'string', 'max:100'],
+            'data_vencimento_ata' => ['nullable', 'date'],
+            'ata_renovada' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -56,6 +74,9 @@ class TermoReferenciaRequest extends FormRequest
             'status.required' => 'O status é obrigatório.',
             'status.in' => 'Status inválido.',
             'data_fim.after_or_equal' => 'A data de término deve ser posterior ou igual à data de início.',
+            'numero_tr.max' => 'O número do TR deve ter no máximo 50 caracteres.',
+            'numero_ata.max' => 'O número da Ata deve ter no máximo 100 caracteres.',
+            'data_vencimento_ata.date' => 'A data de vencimento da Ata deve ser uma data válida.',
         ];
     }
 }

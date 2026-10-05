@@ -5,6 +5,7 @@ import PageTableCard from '../components/crud/PageTableCard.vue';
 import Pagination from '../components/crud/Pagination.vue';
 import IndicadorPrazo from '../components/ciclo-vida/IndicadorPrazo.vue';
 import LinhaDoTempo from '../components/ciclo-vida/LinhaDoTempo.vue';
+import DocumentosVinculados from '../components/documentos/DocumentosVinculados.vue';
 import { podeEditarDados } from './auth';
 import { mixinHistoricoFormulario } from './formularioHistorico';
 import {
@@ -23,21 +24,20 @@ import {
 
 const ENDPOINT_API = '/api/resolucoes';
 
+/** Semáforo de Resoluções: exatamente três estados. */
 const STATUS_LABELS = {
   vigente: 'Vigente',
   atencao: 'Atenção',
-  critico: 'Crítico',
   vencida: 'Vencida',
-  concluida: 'Concluída',
 };
 
-const SEMAFORO_LABELS = {
-  vigente: 'No prazo',
-  atencao: 'Atenção',
-  critico: 'Crítico',
-  vencida: 'Vencida',
-  concluida: 'Concluída',
+const SEMAFORO_POR_STATUS = {
+  vigente: 'verde',
+  atencao: 'amarelo',
+  vencida: 'vermelho',
 };
+
+const ALERTA_PREVENTIVO_MESES = 6;
 
 function formVazio() {
   return {
@@ -48,7 +48,6 @@ function formVazio() {
     relator: '',
     setor: '',
     data_inicio_vigencia: '',
-    status: '',
     observacoes: '',
     anexoFile: null,
     anexo_path: '',
@@ -67,6 +66,7 @@ export default {
     Pagination,
     IndicadorPrazo,
     LinhaDoTempo,
+    DocumentosVinculados,
   },
   data() {
     return {
@@ -79,11 +79,10 @@ export default {
       filtros: {
         busca: '',
         setor: '',
-        status: '',
+        prazo: '',
         categoria: '',
         ano: '',
       },
-      filtroResumo: 'todos',
       debounceTimeout: null,
       detalheAberto: false,
       resolucaoEmEdicao: null,
@@ -99,13 +98,12 @@ export default {
         from: 0,
         to: 0,
         vigencia_anos: 5,
-        status: ['vigente', 'atencao', 'critico', 'vencida', 'concluida'],
+        status: ['vigente', 'atencao', 'vencida'],
         categorias: ['Normativa', 'Operacional', 'Regulamentação', 'Interna'],
         setores: ['CPED', 'Gabinete', 'Coordenação', 'Diretoria'],
         contagens: {
           no_prazo: 0,
           atencao: 0,
-          critico: 0,
           vencidos: 0,
         },
       },
@@ -115,21 +113,13 @@ export default {
     podeEditar() {
       return podeEditarDados();
     },
-    registrosFiltrados() {
-      if (this.filtroResumo === 'todos') {
-        return this.registros;
-      }
-
-      return this.registros.filter((item) => item.status_vigencia === this.filtroResumo);
-    },
     temFiltroAtivo() {
       return Boolean(
         this.filtros.busca
         || this.filtros.setor
-        || this.filtros.status
+        || this.filtros.prazo
         || this.filtros.categoria
         || this.filtros.ano
-        || this.filtroResumo !== 'todos'
         || Boolean(idDaNotificacao(this.$route)),
       );
     },
@@ -145,15 +135,19 @@ export default {
       });
       return Array.from(anos).sort((a, b) => b.localeCompare(a));
     },
-    resumoOptions() {
+    prazoOptions() {
       const totais = this.meta.contagens || {};
       return [
-        { value: 'todos', label: `Todos os prazos (${this.meta.total_geral ?? this.registros.length})` },
-        { value: 'vigente', label: `No prazo (${totais.no_prazo ?? 0})` },
+        { value: 'vigente', label: `Vigente (${totais.no_prazo ?? 0})` },
         { value: 'atencao', label: `Atenção (${totais.atencao ?? 0})` },
-        { value: 'critico', label: `Crítico (${totais.critico ?? 0})` },
-        { value: 'vencida', label: `Vencidas (${totais.vencidos ?? 0})` },
+        { value: 'vencida', label: `Vencida (${totais.vencidos ?? 0})` },
       ];
+    },
+    statusPrevisto() {
+      return this.calcularStatusPrevisto(this.dataFimCalculada);
+    },
+    semaforoPrevisto() {
+      return SEMAFORO_POR_STATUS[this.statusPrevisto] || 'verde';
     },
     dataFimCalculada() {
       return this.calcularFimVigencia(this.form.data_inicio_vigencia);
@@ -232,11 +226,10 @@ export default {
       this.filtros = {
         busca: '',
         setor: '',
-        status: '',
+        prazo: '',
         categoria: '',
         ano: '',
       };
-      this.filtroResumo = 'todos';
       this.meta.current_page = 1;
       if (limparQueryNotificacao(this)) {
         return;
@@ -247,19 +240,12 @@ export default {
       this.filtros = {
         busca: '',
         setor: '',
-        status: '',
+        prazo: '',
         categoria: '',
         ano: '',
       };
-      this.filtroResumo = 'todos';
       this.meta.current_page = 1;
       this.carregarResolucoes();
-    },
-    aplicarResumoFiltro() {
-      if (this.filtroResumo === 'todos') {
-        return;
-      }
-      this.filtros.status = '';
     },
     abrirNovaResolucao() {
       if (!this.podeEditar) {
@@ -371,7 +357,6 @@ export default {
         relator: item.relator || '',
         setor: item.setor || '',
         data_inicio_vigencia: this.normalizarData(item.data_inicio_vigencia),
-        status: item.status || '',
         observacoes: item.observacoes || '',
         anexoFile: null,
         anexo_path: item.anexo_path || '',
@@ -385,7 +370,6 @@ export default {
 
     validarFormulario() {
       return combinarValidacoes(
-        textoObrigatorio(this.form.status, 'Informe o status.'),
         textoObrigatorio(this.form.curso_relacionado, 'Informe o curso relacionado.'),
         textoObrigatorio(this.form.categoria, 'Informe a categoria.'),
         textoObrigatorio(this.form.relator, 'Informe o relator.'),
@@ -466,7 +450,6 @@ export default {
         relator: this.form.relator?.trim() || null,
         setor: this.form.setor || null,
         data_inicio_vigencia: this.form.data_inicio_vigencia,
-        status: this.form.status || null,
         observacoes: this.form.observacoes?.trim() || null,
       };
     },
@@ -531,11 +514,17 @@ export default {
     labelStatus(status) {
       return STATUS_LABELS[status] || status || '—';
     },
-    labelSemaforo(statusVigencia) {
-      return SEMAFORO_LABELS[statusVigencia] || statusVigencia || '—';
-    },
-    classeStatus(status) {
-      return `status-${status || 'vigente'}`;
+    /** Mesma regra do servidor: hoje > fim => vencida; hoje >= fim - 6 meses => atenção. */
+    calcularStatusPrevisto(fim) {
+      if (!fim) return 'vigente';
+      const dataFim = new Date(`${String(fim).slice(0, 10)}T00:00:00`);
+      if (Number.isNaN(dataFim.getTime())) return 'vigente';
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+      if (hoje > dataFim) return 'vencida';
+      const inicioAtencao = new Date(dataFim);
+      inicioAtencao.setMonth(inicioAtencao.getMonth() - ALERTA_PREVENTIVO_MESES);
+      return hoje >= inicioAtencao ? 'atencao' : 'vigente';
     },
     semaforoDe(item) {
       return item.semaforo || 'verde';

@@ -95,6 +95,7 @@
       </div>
 
       <div class="notif-corpo">
+        <p v-if="textoEscopo" class="notif-escopo">{{ textoEscopo }}</p>
         <p v-if="erro" class="notif-erro">{{ erro }}</p>
         <p v-else-if="carregando" class="notif-vazio">Carregando prazos...</p>
         <p v-else-if="!itens.length" class="notif-vazio">{{ mensagemVazio }}</p>

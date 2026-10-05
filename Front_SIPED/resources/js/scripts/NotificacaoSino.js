@@ -3,7 +3,6 @@ import { destinoDaNotificacao } from './filtroNotificacao';
 
 const ROTULOS = {
   vencido: 'Vencido',
-  critico: 'Crítico',
   atencao: 'Atenção',
 };
 
@@ -21,7 +20,6 @@ const OPCOES_MODULO = [
 const OPCOES_NIVEL = [
   { valor: '', rotulo: 'Todas' },
   { valor: 'vencido', rotulo: 'Vencido' },
-  { valor: 'critico', rotulo: 'Crítico' },
   { valor: 'atencao', rotulo: 'Atenção' },
 ];
 
@@ -48,7 +46,8 @@ export default {
         nao_lidas: 0,
         has_more: false,
         filtrado: false,
-        por_nivel: { vencido: 0, critico: 0, atencao: 0 },
+        por_nivel: { vencido: 0, atencao: 0 },
+        escopo: { todos: true, eixos: [] },
         por_modulo: {
           resolucoes: 0,
           'termos-referencia': 0,
@@ -58,6 +57,11 @@ export default {
     };
   },
   computed: {
+    textoEscopo() {
+      const escopo = this.meta.escopo;
+      if (!escopo || escopo.todos || !escopo.eixos?.length) return '';
+      return `Mostrando alertas dos seus eixos (${escopo.eixos.join(', ')}) e itens gerais.`;
+    },
     naoLidas() {
       return this.meta.nao_lidas || 0;
     },
