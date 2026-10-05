@@ -195,6 +195,10 @@
                 <span>Área</span>
                 <div class="detalhe-valor-box">{{ usuarioDetalhe.area || '—' }}</div>
               </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Eixos sob responsabilidade</span>
+                <div class="detalhe-valor-box">{{ (usuarioDetalhe.eixos || []).length ? usuarioDetalhe.eixos.join(', ') : 'Todos os eixos' }}</div>
+              </div>
             </div>
           </div>
 
@@ -266,6 +270,19 @@
                 <label for="area"><FormLabel label="Área de atuação" required /></label>
                 <input id="area" v-model="form.area" aria-required="true" type="text" placeholder="Ex: Coordenação Pedagógica" maxlength="100" />
               </div>
+              <fieldset class="form-group full eixos-responsavel">
+                <legend>Eixos sob responsabilidade</legend>
+                <p class="eixos-responsavel__hint">
+                  Define quais notificações de prazo o usuário recebe. Sem eixo marcado, recebe as de todos os eixos.
+                  Administradores (coordenação) sempre veem tudo.
+                </p>
+                <div class="eixos-responsavel__lista">
+                  <label v-for="eixo in eixosOficiais" :key="eixo" class="eixos-responsavel__item">
+                    <input v-model="form.eixos" type="checkbox" :value="eixo" />
+                    <span>{{ eixo }}</span>
+                  </label>
+                </div>
+              </fieldset>
             </div>
           </section>
 

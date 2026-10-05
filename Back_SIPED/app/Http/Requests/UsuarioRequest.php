@@ -41,6 +41,20 @@ class UsuarioRequest extends FormRequest
             ]);
         }
 
+        if ($this->has('eixos')) {
+            $eixos = $this->input('eixos');
+            if (is_string($eixos)) {
+                $eixos = trim($eixos) === '' ? [] : (json_decode($eixos, true) ?? [$eixos]);
+            }
+            $this->merge([
+                'eixos' => collect(is_array($eixos) ? $eixos : [])
+                    ->map(fn ($eixo) => is_string($eixo) ? (\App\Support\CatalogoOficial::canonicalizarEixo($eixo) ?? $eixo) : $eixo)
+                    ->unique()
+                    ->values()
+                    ->all(),
+            ]);
+        }
+
         if ($this->has('remover_foto')) {
             $this->merge([
                 'remover_foto' => filter_var($this->input('remover_foto'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
@@ -81,6 +95,9 @@ class UsuarioRequest extends FormRequest
             'status' => ['required', 'boolean'],
             'unidade' => ['required', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
             'area' => ['required', 'string', 'max:100'],
+            // Eixos sob responsabilidade (escopo das notificações). Vazio = todos.
+            'eixos' => ['sometimes', 'array', 'max:5'],
+            'eixos.*' => ['string', Rule::in(config('eixos', []))],
             'telefone' => ['required', 'string', 'max:20', 'regex:/^\d{10,11}$/'],
             'foto' => ['nullable', 'image', 'max:2048'],
             'remover_foto' => ['nullable', 'boolean'],
@@ -109,6 +126,7 @@ class UsuarioRequest extends FormRequest
             'unidade.in' => 'Selecione uma unidade válida.',
             'foto.image' => 'A foto deve ser uma imagem válida.',
             'foto.max' => 'A foto deve ter no máximo 2 MB.',
+            'eixos.*.in' => 'Selecione somente eixos oficiais.',
         ];
     }
 }

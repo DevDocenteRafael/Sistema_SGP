@@ -7,13 +7,16 @@ use App\Models\Resolucao;
 use App\Models\TermoReferencia;
 use App\Models\Usuario;
 use App\Models\VisitaTecnica;
+use App\Support\CatalogoOficial;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class NotificacaoService
 {
     /**
-     * Alertas de prazo (atenção, crítico e vencido) para o sininho.
+     * Alertas internos de prazo (Atenção e Vencido) para o sininho,
+     * respeitando o escopo de eixos do usuário.
+     *
      *
      * @param  array{q?: string, modulo?: string, nivel?: string}  $filtros
      * @return array{itens: list<array<string, mixed>>, meta: array<string, mixed>}
@@ -29,13 +32,14 @@ class NotificacaoService
             ->concat($this->deResolucoes($hoje))
             ->concat($this->deTermos($hoje))
             ->concat($this->deVisitas($hoje, $cicloId))
+            ->filter(fn (array $item) => $this->dentroDoEscopo($usuario, $item))
             ->map(function (array $item) use ($lidas) {
                 $item['lida'] = $lidas->has($item['chave']);
 
                 return $item;
             })
             ->sort(function (array $a, array $b) {
-                $peso = ['vencido' => 0, 'critico' => 1, 'atencao' => 2];
+                $peso = ['vencido' => 0, 'atencao' => 1];
                 $cmp = ($peso[$a['nivel']] ?? 9) <=> ($peso[$b['nivel']] ?? 9);
                 if ($cmp !== 0) {
                     return $cmp;
@@ -67,8 +71,11 @@ class NotificacaoService
                 'filtrado' => $this->temFiltro($filtros),
                 'por_nivel' => [
                     'vencido' => $naoLidas->where('nivel', 'vencido')->count(),
-                    'critico' => $naoLidas->where('nivel', 'critico')->count(),
                     'atencao' => $naoLidas->where('nivel', 'atencao')->count(),
+                ],
+                'escopo' => [
+                    'todos' => $usuario->veTodasNotificacoes(),
+                    'eixos' => $usuario->eixosResponsavel(),
                 ],
                 'por_modulo' => [
                     'resolucoes' => $naoLidas->where('modulo', 'resolucoes')->count(),
@@ -77,6 +84,25 @@ class NotificacaoService
                 ],
             ],
         ];
+    }
+
+    /**
+     * Item sem eixo (ex.: Resoluções) é geral e aparece para todos.
+     *
+     * @param  array<string, mixed>  $item
+     */
+    private function dentroDoEscopo(Usuario $usuario, array $item): bool
+    {
+        if ($usuario->veTodasNotificacoes()) {
+            return true;
+        }
+
+        $eixo = $item['eixo'] ?? null;
+        if (! $eixo) {
+            return true;
+        }
+
+        return in_array($eixo, $usuario->eixosResponsavel(), true);
     }
 
     /**
@@ -215,7 +241,7 @@ class NotificacaoService
                             });
                     });
             })
-            ->get(['id', 'nome', 'processo_sei', 'status', 'prazo_deadline', 'data_vencimento_ata'])
+            ->get(['id', 'nome', 'eixo', 'processo_sei', 'status', 'prazo_deadline', 'data_vencimento_ata'])
             ->map(function (TermoReferencia $termo) use ($hoje) {
                 $status = TermoReferenciaPrazoService::statusDoTermo($termo);
                 $nivel = match ($status) {
@@ -238,6 +264,7 @@ class NotificacaoService
                     hoje: $hoje,
                     rota: '/app/termos-de-referencia',
                     rotuloModulo: 'Termo de referência',
+                    eixo: $termo->eixo,
                 );
             })
             ->filter()
@@ -274,8 +301,6 @@ class NotificacaoService
                 $nivel = null;
                 if ($atrasada || ($prazo && $hoje->gt($prazo))) {
                     $nivel = 'vencido';
-                } elseif ($prazo && $hoje->equalTo($prazo)) {
-                    $nivel = 'critico';
                 } elseif ($prazo && $prazo->lte($limiteAlerta)) {
                     $nivel = 'atencao';
                 }
@@ -298,6 +323,7 @@ class NotificacaoService
                     hoje: $hoje,
                     rota: '/app/visitas-tecnicas',
                     rotuloModulo: 'Visita técnica',
+                    eixo: $visita->eixo,
                 );
             })
             ->filter()
@@ -317,6 +343,7 @@ class NotificacaoService
         Carbon $hoje,
         string $rota,
         string $rotuloModulo,
+        ?string $eixo = null,
     ): array {
         $chave = $modulo.':'.$registroId.':'.$nivel;
 
@@ -331,6 +358,7 @@ class NotificacaoService
             'mensagem' => $this->mensagem($nivel, $prazo, $hoje),
             'data_prazo' => $prazo,
             'rota' => $rota,
+            'eixo' => $eixo ? (CatalogoOficial::canonicalizarEixo($eixo) ?? $eixo) : null,
         ];
     }
 
@@ -345,7 +373,7 @@ class NotificacaoService
         }
 
         if (! $prazo) {
-            return $nivel === 'critico' ? 'Prazo crítico.' : 'Prazo em atenção.';
+            return 'Prazo em atenção.';
         }
 
         $dias = (int) $hoje->diffInDays(Carbon::parse($prazo)->startOfDay(), false);
@@ -355,10 +383,6 @@ class NotificacaoService
         }
 
         $unidade = $dias === 1 ? 'dia' : 'dias';
-
-        if ($nivel === 'critico') {
-            return "Prazo crítico — vence em {$dias} {$unidade} ({$formatada}).";
-        }
 
         return "Atenção — vence em {$dias} {$unidade} ({$formatada}).";
     }
