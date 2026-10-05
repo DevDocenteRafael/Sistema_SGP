@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\AutorizaConsulta;
+use App\Http\Controllers\Concerns\PaginatesIndex;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UnidadeOfertaRequest;
 use App\Models\RegiaoAdministrativa;
@@ -12,7 +13,7 @@ use Illuminate\Http\Request;
 
 class UnidadeOfertaController extends Controller
 {
-    use AutorizaConsulta;
+    use AutorizaConsulta, PaginatesIndex;
 
     public function index(Request $request): JsonResponse
     {
@@ -48,17 +49,16 @@ class UnidadeOfertaController extends Controller
             $query->where('ativo', filter_var($request->ativo, FILTER_VALIDATE_BOOLEAN));
         }
 
-        $registros = $query->get();
+        $paginator = $this->paginar($query, $request);
 
         return response()->json([
-            'data' => $registros,
-            'meta' => [
-                'total' => $registros->count(),
+            'data' => $paginator->items(),
+            'meta' => array_merge($this->metaPaginacao($paginator), [
                 'tipos' => config('unidades_oferta.tipos'),
                 'regioes' => RegiaoAdministrativa::query()
                     ->orderBy('nome')
                     ->get(['id', 'nome', 'ativo']),
-            ],
+            ]),
         ]);
     }
 

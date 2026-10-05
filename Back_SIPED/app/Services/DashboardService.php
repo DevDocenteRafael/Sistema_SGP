@@ -9,6 +9,7 @@ use App\Models\HoraPedagogica;
 use App\Models\Resolucao;
 use App\Models\TermoReferencia;
 use App\Models\UnidadeOferta;
+use App\Models\Usuario;
 use App\Models\VisitaTecnica;
 
 class DashboardService
@@ -127,6 +128,11 @@ class DashboardService
             ->groupBy('tipo')
             ->pluck('total', 'tipo')
             ->all();
+        $usuarios = Usuario::query()
+            ->selectRaw('COUNT(*) as total, SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as ativos')
+            ->first();
+        $totalUsuarios = (int) ($usuarios->total ?? 0);
+        $usuariosAtivos = (int) ($usuarios->ativos ?? 0);
 
         return [
             'cursos' => $cursos,
@@ -143,6 +149,9 @@ class DashboardService
                 'estruturas_faculdade' => (int) ($estruturasPorTipo['faculdade'] ?? 0),
                 'estruturas_polo' => (int) ($estruturasPorTipo['polo'] ?? 0),
                 'estruturas_unidade' => (int) (($estruturasPorTipo['unidade'] ?? 0) + ($estruturasPorTipo['cep'] ?? 0)),
+                'usuarios' => $totalUsuarios,
+                'usuarios_ativos' => $usuariosAtivos,
+                'usuarios_inativos' => $totalUsuarios - $usuariosAtivos,
             ],
             'resolucoes_contagens' => ResolucaoVigenciaService::contarPorSemaforo($resolucoesLeves),
             'termos_contagens' => TermoReferenciaPrazoService::contarPorPrazo($termosLeves),

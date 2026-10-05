@@ -47,7 +47,14 @@
       <div v-if="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
       <div v-if="mensagemErro" class="alert alert-error">{{ mensagemErro }}</div>
 
-      <PageTableCard :total="registros.length" aria-label="Tabela de estruturas institucionais">
+      <PageTableCard
+        :total="meta.total"
+        :pagination="meta"
+        :pagination-disabled="carregando"
+        aria-label="Tabela de estruturas institucionais"
+        @page-change="irParaPagina"
+        @per-page-change="alterarRegistrosPorPagina"
+      >
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
         <div v-else class="tabela-wrap">
           <table class="crud-table">

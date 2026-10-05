@@ -130,8 +130,8 @@ A ordem importa: as tabelas (inclusive `cache`) precisam existir **antes** de `o
 
 Não use `php artisan serve` nem `npm run dev` como servidor definitivo.
 
-- Front: `cd Front_SIPED && npm run build` e sirva os estáticos pelo servidor web.
-- API: IIS/Apache/Nginx apontando para `Back_SIPED/public`.
+- Build: `cd Front_SIPED && npm run build`; os assets são gravados em `Back_SIPED/public/build/siped`.
+- Aplicação: IIS/Apache/Nginx aponta para `Back_SIPED/public`. Com `APP_DEBUG=false`, o Laravel serve o Vue compilado e encaminha as rotas da SPA; `/api`, `/up`, `/storage` e `/IMG` preservam seus destinos.
 - Produção: `APP_DEBUG=false` e `LOG_LEVEL=warning`.
 
 ## Estrutura

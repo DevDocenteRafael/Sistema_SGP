@@ -50,6 +50,12 @@ export default {
       erroFormulario: '',
       editandoId: null,
       registros: [],
+      meta: {
+        total: 0,
+        per_page: 10,
+        current_page: 1,
+        last_page: 1,
+      },
       tiposMeta: { ...Object.fromEntries(TIPOS_PADRAO.map((t) => [t.value, t.label])) },
       filtros: {
         busca: '',
@@ -103,9 +109,27 @@ export default {
       if (this.buscaTimeout) {
         clearTimeout(this.buscaTimeout);
       }
+      this.meta.current_page = 1;
       this.buscaTimeout = setTimeout(() => {
         this.carregarLista();
       }, 250);
+    },
+
+    irParaPagina(pagina) {
+      const destino = Number(pagina);
+      if (!Number.isInteger(destino) || destino < 1 || destino > this.meta.last_page || this.carregando) return;
+      clearTimeout(this.buscaTimeout);
+      this.meta.current_page = destino;
+      this.carregarLista();
+    },
+
+    alterarRegistrosPorPagina(quantidade) {
+      const tamanho = Number(quantidade);
+      if (!Number.isInteger(tamanho) || tamanho < 1 || this.carregando) return;
+      clearTimeout(this.buscaTimeout);
+      this.meta.per_page = tamanho;
+      this.meta.current_page = 1;
+      this.carregarLista();
     },
 
     async carregarLista() {
@@ -116,9 +140,16 @@ export default {
         if (this.filtros.busca) params.busca = this.filtros.busca;
         if (this.filtros.ativo !== '') params.ativo = this.filtros.ativo;
         if (this.filtros.tipo) params.tipo = this.filtros.tipo;
+        params.page = this.meta.current_page;
+        params.per_page = this.meta.per_page;
 
-        const { data } = await window.axios.get(ENDPOINT_ESTRUTURAS, { params });
+        let { data } = await window.axios.get(ENDPOINT_ESTRUTURAS, { params });
+        if (data.meta?.current_page > data.meta?.last_page) {
+          params.page = Math.max(1, Number(data.meta.last_page) || 1);
+          ({ data } = await window.axios.get(ENDPOINT_ESTRUTURAS, { params }));
+        }
         this.registros = Array.isArray(data.data) ? data.data : [];
+        this.meta = { ...this.meta, ...(data.meta || {}) };
 
         if (data.meta?.tipos && typeof data.meta.tipos === 'object') {
           this.tiposMeta = { ...data.meta.tipos };
@@ -126,6 +157,7 @@ export default {
       } catch (erro) {
         this.mensagemErro = extrairErroApi(erro, 'Não foi possível carregar as estruturas institucionais.');
         this.registros = [];
+        this.meta.total = 0;
       } finally {
         this.carregando = false;
       }

@@ -2,15 +2,20 @@ import { defineConfig, loadEnv } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
     const env = loadEnv(mode, process.cwd(), '');
     const apiTarget = env.VITE_API_URL || 'http://127.0.0.1:8000';
 
     return {
+        base: command === 'build' ? '/build/siped/' : '/',
         plugins: [
             tailwindcss(),
             vue(),
         ],
+        build: {
+            outDir: '../Back_SIPED/public/build/siped',
+            emptyOutDir: true,
+        },
         server: {
             host: '127.0.0.1',
             port: 5173,

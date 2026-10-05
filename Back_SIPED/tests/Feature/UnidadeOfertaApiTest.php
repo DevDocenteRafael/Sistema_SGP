@@ -45,6 +45,27 @@ class UnidadeOfertaApiTest extends TestCase
         $this->assertSame('Unidade', $opcoes->json('meta.tipos.unidade'));
     }
 
+    public function test_lista_estruturas_paginada(): void
+    {
+        $this->seed(UnidadeOfertaSeeder::class);
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $primeiraPagina = $this->getJson('/api/unidades-oferta?per_page=1&page=1');
+        $segundaPagina = $this->getJson('/api/unidades-oferta?per_page=1&page=2');
+
+        $primeiraPagina->assertOk()
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 1)
+            ->assertJsonCount(1, 'data');
+        $segundaPagina->assertOk()
+            ->assertJsonPath('meta.current_page', 2)
+            ->assertJsonCount(1, 'data');
+        $this->assertNotSame(
+            $primeiraPagina->json('data.0.id'),
+            $segundaPagina->json('data.0.id'),
+        );
+    }
+
     public function test_cria_faculdade_polo_e_unidade_com_metadados(): void
     {
         $this->seed(UnidadeOfertaSeeder::class);

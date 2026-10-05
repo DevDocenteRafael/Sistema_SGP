@@ -27,6 +27,9 @@ export default {
         estruturas_faculdade: 0,
         estruturas_polo: 0,
         estruturas_unidade: 0,
+        usuarios: 0,
+        usuarios_ativos: 0,
+        usuarios_inativos: 0,
       },
       resolucoesContagens: {
         no_prazo: 0,
@@ -224,6 +227,16 @@ export default {
           value: this.contagens.visitas,
           icon: this.iconVisitas,
         },
+        {
+          label: 'Usuários',
+          category: 'Acesso',
+          value: this.contagens.usuarios,
+          icon: this.iconUsuarios,
+          statuses: [
+            { title: 'Ativos', value: this.contagens.usuarios_ativos, color: '#16A34A' },
+            { title: 'Inativos', value: this.contagens.usuarios_inativos, color: '#DC2626' },
+          ].filter((status) => status.value > 0),
+        },
       ];
     },
 
@@ -382,6 +395,9 @@ export default {
     },
     iconVisitas() {
       return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`;
+    },
+    iconUsuarios() {
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
     },
     iconHoras() {
       return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
