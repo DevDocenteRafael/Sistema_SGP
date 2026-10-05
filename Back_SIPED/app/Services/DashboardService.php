@@ -11,6 +11,7 @@ use App\Models\TermoReferencia;
 use App\Models\UnidadeOferta;
 use App\Models\Usuario;
 use App\Models\VisitaTecnica;
+use Illuminate\Support\Str;
 
 class DashboardService
 {
@@ -121,12 +122,20 @@ class DashboardService
             ->values()
             ->all();
 
-        $estruturasAtivas = UnidadeOferta::query()->where('ativo', true)->count();
-        $estruturasPorTipo = UnidadeOferta::query()
+        $acoesLeves = AcaoExtensiva::query()
+            ->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))
+            ->get(['priorizacao']);
+
+        $eventosLeves = Evento::query()
+            ->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))
+            ->get(['status']);
+
+        $estruturas = UnidadeOferta::query()
+            ->get(['nome', 'tipo', 'ativo']);
+        $estruturasPorTipo = $estruturas
             ->where('ativo', true)
-            ->selectRaw('tipo, COUNT(*) as total')
             ->groupBy('tipo')
-            ->pluck('total', 'tipo')
+            ->map->count()
             ->all();
         $usuarios = Usuario::query()
             ->selectRaw('COUNT(*) as total, SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as ativos')
@@ -138,20 +147,27 @@ class DashboardService
             'cursos' => $cursos,
             'visitas' => $visitas,
             'horas' => $horas,
+            'estruturas' => $estruturas,
             'contagens' => [
                 'visitas' => count($visitas),
                 'horas' => count($horas),
-                'acoes' => AcaoExtensiva::query()->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))->count(),
-                'eventos' => Evento::query()->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))->count(),
+                'acoes' => $acoesLeves->count(),
+                'eventos' => $eventosLeves->count(),
                 'resolucoes' => $resolucoesLeves->count(),
                 'termos' => $termosLeves->count(),
-                'estruturas' => $estruturasAtivas,
+                'estruturas' => $estruturas->count(),
                 'estruturas_faculdade' => (int) ($estruturasPorTipo['faculdade'] ?? 0),
                 'estruturas_polo' => (int) ($estruturasPorTipo['polo'] ?? 0),
                 'estruturas_unidade' => (int) (($estruturasPorTipo['unidade'] ?? 0) + ($estruturasPorTipo['cep'] ?? 0)),
                 'usuarios' => $totalUsuarios,
                 'usuarios_ativos' => $usuariosAtivos,
                 'usuarios_inativos' => $totalUsuarios - $usuariosAtivos,
+            ],
+            'distribuicoes' => [
+                'horas' => $this->contarDistribuicao($horas, 'status', config('horas_pedagogicas.status', [])),
+                'acoes' => $this->contarDistribuicao($acoesLeves->all(), 'priorizacao', config('acoes_extensivas.priorizacoes', [])),
+                'eventos' => $this->contarDistribuicao($eventosLeves->all(), 'status', config('eventos.status', [])),
+                'visitas' => $this->contarDistribuicao($visitas, 'status', config('visitas_tecnicas.status', [])),
             ],
             'resolucoes_contagens' => ResolucaoVigenciaService::contarPorSemaforo($resolucoesLeves),
             'termos_contagens' => TermoReferenciaPrazoService::contarPorPrazo($termosLeves),
@@ -163,5 +179,35 @@ class DashboardService
                 'unidades' => UnidadeOferta::nomesAtivos(),
             ],
         ];
+    }
+
+    /**
+     * @param  iterable<array<string, mixed>|object>  $registros
+     * @param  list<string>  $categorias
+     * @return array<string, int>
+     */
+    private function contarDistribuicao(iterable $registros, string $campo, array $categorias): array
+    {
+        $contagens = [];
+        foreach ($categorias as $categoria) {
+            $contagens[Str::slug($categoria, '_')] = 0;
+        }
+        $contagens['sem_classificacao'] = 0;
+        $contagens['outros'] = 0;
+
+        foreach ($registros as $registro) {
+            $valor = data_get($registro, $campo);
+            $chave = Str::slug(trim((string) $valor), '_');
+
+            if ($chave === '') {
+                $contagens['sem_classificacao']++;
+            } elseif (array_key_exists($chave, $contagens) && ! in_array($chave, ['sem_classificacao', 'outros'], true)) {
+                $contagens[$chave]++;
+            } else {
+                $contagens['outros']++;
+            }
+        }
+
+        return $contagens;
     }
 }

@@ -8,6 +8,7 @@ import {
   validarInteiro,
 } from '../utils/validacao';
 import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
+import DocumentosVinculados from '../components/documentos/DocumentosVinculados.vue';
 
 const STATUS_LISTA = ['Planejado', 'Realizado', 'Cancelado'];
 const ANOS = ['2024', '2025', '2026', '2027'];
@@ -16,6 +17,7 @@ const OPCOES_ACAO = ['Sim', 'Não'];
 
 export default createCrudPage({
   name: 'Eventos',
+  components: { DocumentosVinculados },
   carregarUnidadesApi: true,
   usarCicloContexto: true,
   endpoint: '/api/eventos',

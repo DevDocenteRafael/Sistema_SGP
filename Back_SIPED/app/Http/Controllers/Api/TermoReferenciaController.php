@@ -33,6 +33,8 @@ class TermoReferenciaController extends Controller
             $busca = $request->busca;
             $query->where(function ($q) use ($busca) {
                 $q->where('nome', 'like', "%{$busca}%")
+                    ->orWhere('numero_tr', 'like', "%{$busca}%")
+                    ->orWhere('numero_ata', 'like', "%{$busca}%")
                     ->orWhere('processo_sei', 'like', "%{$busca}%")
                     ->orWhere('eixo', 'like', "%{$busca}%")
                     ->orWhere('observacao', 'like', "%{$busca}%");
@@ -47,21 +49,16 @@ class TermoReferenciaController extends Controller
             $query->where('status', $request->status);
         }
 
-        if ($request->filled('prazo')) {
-            $prazo = $request->prazo;
-            if ($prazo === 'vencido') {
-                $query->where('prazo_deadline', '<', now()->toDateString())
-                    ->whereNotIn('status', ['Concluído', 'Arquivado']);
-            } elseif ($prazo === 'proximo') {
-                $query->whereBetween('prazo_deadline', [now()->toDateString(), now()->addDays(30)->toDateString()])
-                    ->whereNotIn('status', ['Concluído', 'Arquivado']);
-            }
-        }
-
         $todosLeves = TermoReferencia::query()->get([
             'id',
             'prazo_deadline',
+            'data_vencimento_ata',
         ]);
+
+        // Filtro pelo semáforo (verde / amarelo / vermelho), pela data da Ata ou do TR.
+        if ($request->filled('prazo')) {
+            TermoReferenciaPrazoService::aplicarFiltro($query, (string) $request->prazo, $todosLeves);
+        }
         $paginator = $this->paginar($query, $request);
         $termos = collect($paginator->items())->map(fn (TermoReferencia $termo) => $this->serializarTermo($termo));
 
@@ -124,6 +121,7 @@ class TermoReferenciaController extends Controller
         $anterior = [
             'status' => $termoReferencia->status,
             'prazo_deadline' => $termoReferencia->prazo_deadline?->format('Y-m-d'),
+            'ata' => $this->resumoAta($termoReferencia),
         ];
 
         $payload = $this->aplicarConclusao($request->validated(), $termoReferencia);
@@ -167,13 +165,25 @@ class TermoReferenciaController extends Controller
     }
 
     /**
-     * @param  array{status: ?string, prazo_deadline: ?string}  $anterior
+     * @param  array{status: ?string, prazo_deadline: ?string, ata: ?string}  $anterior
      */
     private function registrarAlteracoesImportantes(TermoReferencia $termo, array $anterior): void
     {
         $statusNovo = $termo->status;
         $prazoNovo = $termo->prazo_deadline?->format('Y-m-d');
+        $ataNova = $this->resumoAta($termo);
         $registrou = false;
+
+        if ($anterior['ata'] !== $ataNova) {
+            $this->registrarHistorico(
+                $termo,
+                'Dados da Ata alterados',
+                'info',
+                $anterior['ata'],
+                $ataNova,
+            );
+            $registrou = true;
+        }
 
         if ($anterior['status'] !== $statusNovo) {
             $tramitacaoFora = config('termos_referencia.status_tramitacao_fora_cped', 'Em tramitação (fora da CPED)');
@@ -250,18 +260,34 @@ class TermoReferenciaController extends Controller
         ];
     }
 
+    private function resumoAta(TermoReferencia $termo): ?string
+    {
+        if (! $termo->numero_ata && ! $termo->data_vencimento_ata && ! $termo->ata_renovada) {
+            return null;
+        }
+
+        return implode(' · ', array_filter([
+            $termo->numero_ata ? 'Ata '.$termo->numero_ata : null,
+            $termo->data_vencimento_ata ? 'vence '.$termo->data_vencimento_ata->format('d/m/Y') : null,
+            $termo->ata_renovada ? 'renovada' : 'não renovada',
+        ]));
+    }
+
     /**
      * @return array<string, mixed>
      */
     private function serializarTermo(TermoReferencia $termo): array
     {
-        $prazoDeadline = $termo->prazo_deadline?->format('Y-m-d');
-        $statusPrazo = TermoReferenciaPrazoService::statusPrazo($prazoDeadline);
+        $statusPrazo = TermoReferenciaPrazoService::statusDoTermo($termo);
 
         return array_merge($termo->toArray(), [
-            'prazo_deadline' => $prazoDeadline,
+            'prazo_deadline' => $termo->prazo_deadline?->format('Y-m-d'),
             'data_inicio' => $termo->data_inicio?->format('Y-m-d'),
             'data_fim' => $termo->data_fim?->format('Y-m-d'),
+            'data_vencimento_ata' => $termo->data_vencimento_ata?->format('Y-m-d'),
+            'ata_renovada' => (bool) $termo->ata_renovada,
+            'data_referencia_prazo' => TermoReferenciaPrazoService::dataReferencia($termo),
+            'origem_prazo' => TermoReferenciaPrazoService::origemPrazo($termo),
             'status_prazo' => $statusPrazo,
             'semaforo' => TermoReferenciaPrazoService::corSemaforo($statusPrazo),
         ]);

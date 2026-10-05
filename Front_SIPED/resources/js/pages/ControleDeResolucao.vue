@@ -4,7 +4,7 @@
       <CrudPageHeader
         title="Controle de Resoluções"
         subtitle="Acompanhamento da vigência, status e vencimentos das resoluções institucionais"
-        info="Vigência padrão de 5 anos. O semáforo antecipa atenção (6 meses) e crítico (1 mês) antes do vencimento."
+        info="Vigência padrão de 5 anos. Semáforo: Vigente (verde), Atenção (amarelo, a partir de 6 meses antes do fim) e Vencida (vermelho)."
         :show-novo="podeEditar"
         novo-label="Nova resolução"
         @novo="abrirNovaResolucao"
@@ -27,11 +27,13 @@
 
           <div class="filtro-campo filtro-dropdown">
             <SearchableSelect
-              id="filtro-resumo"
-              input-id="filtro-resumo"
-              v-model="filtroResumo"
-              :options="resumoOptions"
-              @change="aplicarResumoFiltro"
+              id="filtro-prazo"
+              input-id="filtro-prazo"
+              v-model="filtros.prazo"
+              :options="prazoOptions"
+              :empty-option="`Todos os prazos (${meta.total_geral ?? 0})`"
+              aria-label="Filtrar por prazo"
+              @change="aplicarFiltros"
             />
           </div>
 
@@ -59,17 +61,6 @@
 
           <div class="filtro-campo">
             <SearchableSelect
-              id="filtro-status"
-              input-id="filtro-status"
-              v-model="filtros.status"
-              :options="meta.status.map((status) => ({ value: status, label: labelStatus(status) }))"
-              empty-option="Todos os status"
-              @change="aplicarFiltros"
-            />
-          </div>
-
-          <div class="filtro-campo">
-            <SearchableSelect
               id="filtro-ano"
               input-id="filtro-ano"
               v-model="filtros.ano"
@@ -84,7 +75,7 @@
           <div class="filtros-resumo" aria-live="polite">
             <span v-if="filtros.setor" class="resumo-chip">Setor: {{ filtros.setor }}</span>
             <span v-if="filtros.categoria" class="resumo-chip">Categoria: {{ filtros.categoria }}</span>
-            <span v-if="filtros.status" class="resumo-chip">Status: {{ labelStatus(filtros.status) }}</span>
+            <span v-if="filtros.prazo" class="resumo-chip">Prazo: {{ labelStatus(filtros.prazo) }}</span>
             <span v-if="filtros.ano" class="resumo-chip">Ano: {{ filtros.ano }}</span>
           </div>
           <button v-if="temFiltroAtivo" type="button" class="btn-limpar-filtros" @click="limparFiltros">
@@ -101,12 +92,12 @@
 
         <div v-if="carregando" class="tabela-loading">Carregando resoluções...</div>
 
-        <div v-else-if="registrosFiltrados.length === 0 && !temFiltroAtivo" class="tabela-vazia estado-vazio">
+        <div v-else-if="registros.length === 0 && !temFiltroAtivo" class="tabela-vazia estado-vazio">
           <p class="estado-vazio-titulo">Nenhum registro cadastrado ainda.</p>
           <p class="estado-vazio-texto">Os registros aparecerão aqui após o cadastro ou a importação.</p>
         </div>
 
-        <div v-else-if="registrosFiltrados.length === 0" class="tabela-vazia">
+        <div v-else-if="registros.length === 0" class="tabela-vazia">
           Nenhum registro encontrado para os filtros selecionados.
         </div>
 
@@ -119,13 +110,13 @@
                 <th>Curso</th>
                 <th>Setor</th>
                 <th>Vigência</th>
-                <th>Status</th>
+                <th>Prazo</th>
                 <th>Relator</th>
                 <th class="text-center">Ações</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in registrosFiltrados" :key="item.id">
+              <tr v-for="item in registros" :key="item.id">
                 <td>
                   <div class="resolucao-numero">{{ item.numero }}</div>
                   <small class="meta-muted">{{ item.categoria || '—' }}</small>
@@ -142,15 +133,13 @@
                   <small class="meta-muted">até {{ formatarData(item.data_fim_vigencia) }}</small>
                 </td>
                 <td>
-                  <div class="status-prazo-cell">
-                    <span class="badge-status" :class="classeStatus(item.status)">{{ labelStatus(item.status) }}</span>
-                    <IndicadorPrazo
-                      :status="semaforoDe(item)"
-                      :label="labelSemaforo(item.status_vigencia)"
-                      :data-prazo="formatarData(item.data_fim_vigencia)"
-                      :mostrar-data="false"
-                    />
-                  </div>
+                  <IndicadorPrazo
+                    compacto
+                    :status="semaforoDe(item)"
+                    :label="labelStatus(item.status_vigencia)"
+                    :data-prazo="formatarData(item.data_fim_vigencia)"
+                    rotulo-data="Fim da vigência"
+                  />
                 </td>
                 <td>{{ item.relator || '—' }}</td>
                 <td class="text-center acoes">
@@ -184,9 +173,13 @@
                 <span class="detalhe-valor">{{ resolucaoEmEdicao.numero }}</span>
               </div>
               <div class="detalhe-campo">
-                <span class="detalhe-label">Status</span>
+                <span class="detalhe-label">Prazo</span>
                 <span class="detalhe-valor">
-                  <span class="badge-status" :class="classeStatus(resolucaoEmEdicao.status)">{{ labelStatus(resolucaoEmEdicao.status) }}</span>
+                  <IndicadorPrazo
+                    :status="semaforoDe(resolucaoEmEdicao)"
+                    :label="labelStatus(resolucaoEmEdicao.status_vigencia)"
+                    :mostrar-data="false"
+                  />
                 </span>
               </div>
               <div class="detalhe-campo detalhe-campo-full">
@@ -217,11 +210,6 @@
                 <span class="detalhe-label">Fim da vigência</span>
                 <span class="detalhe-valor">
                   {{ formatarData(resolucaoEmEdicao.data_fim_vigencia) }}
-                  <IndicadorPrazo
-                    :status="semaforoDe(resolucaoEmEdicao)"
-                    :label="labelSemaforo(resolucaoEmEdicao.status_vigencia)"
-                    :mostrar-data="false"
-                  />
                 </span>
               </div>
               <div class="detalhe-campo detalhe-campo-full">
@@ -242,6 +230,13 @@
                 </span>
               </div>
             </div>
+
+            <DocumentosVinculados
+              v-if="resolucaoEmEdicao?.id"
+              class="detalhe-secao"
+              modulo="resolucoes"
+              :registro-id="resolucaoEmEdicao.id"
+            />
 
             <div class="detalhe-secao">
               <h3>Linha do tempo</h3>
@@ -270,14 +265,17 @@
                 <input id="resolucao-numero" v-model="form.numero" type="text" placeholder="Ex: MEC/2026/001" maxlength="100" required />
               </div>
               <div class="form-group">
-                <label for="resolucao-status"><FormLabel label="Status" required /></label>
-                <SearchableSelect
-                  id="resolucao-status"
-                  input-id="resolucao-status"
-                  v-model="form.status" aria-required="true"
-                  :options="meta.status.map((status) => ({ value: status, label: labelStatus(status) }))"
-                  empty-option="Automático (pela vigência)"
-                />
+                <span class="form-label-estatico">Status</span>
+                <p class="form-status-automatico" aria-live="polite">
+                  <template v-if="form.data_inicio_vigencia">
+                    <IndicadorPrazo
+                      :status="semaforoPrevisto"
+                      :label="labelStatus(statusPrevisto)"
+                      :mostrar-data="false"
+                    />
+                  </template>
+                  <span class="form-hint">Calculado automaticamente pela data de fim da vigência.</span>
+                </p>
               </div>
               <div class="form-group full">
                 <label for="resolucao-resumo"><FormLabel label="Resumo" required /></label>

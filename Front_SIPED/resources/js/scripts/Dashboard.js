@@ -16,6 +16,7 @@ export default {
       courses: [],
       visitas: [],
       horas: [],
+      estruturas: [],
       contagens: {
         visitas: 0,
         horas: 0,
@@ -31,16 +32,20 @@ export default {
         usuarios_ativos: 0,
         usuarios_inativos: 0,
       },
+      distribuicoes: {
+        horas: {},
+        acoes: {},
+        eventos: {},
+        visitas: {},
+      },
       resolucoesContagens: {
         no_prazo: 0,
         atencao: 0,
-        critico: 0,
         vencidos: 0,
       },
       termosContagens: {
         no_prazo: 0,
         atencao: 0,
-        critico: 0,
         vencidos: 0,
       },
       filtros: {
@@ -158,16 +163,23 @@ export default {
     },
 
     metricCards() {
-      const estruturasValor = this.filtros.unidade
-        ? 1
-        : Number(this.contagens.estruturas || 0);
+      const estruturas = this.filtros.unidade
+        ? this.estruturas.filter((estrutura) => estrutura.nome === this.filtros.unidade)
+        : this.estruturas;
+      const estruturasAtivas = estruturas.filter((estrutura) => estrutura.ativo === true);
+      const estruturasInativas = estruturas.length - estruturasAtivas.length;
+      const estruturasPorTipo = {
+        faculdade: estruturasAtivas.filter((estrutura) => estrutura.tipo === 'faculdade').length,
+        polo: estruturasAtivas.filter((estrutura) => estrutura.tipo === 'polo').length,
+        unidade: estruturasAtivas.filter((estrutura) => ['unidade', 'cep'].includes(estrutura.tipo)).length,
+      };
 
       const estruturasSub = this.filtros.unidade
-        ? 'filtrada'
+        ? (estruturas.length ? 'filtrada' : '')
         : [
-          this.contagens.estruturas_faculdade ? `${this.contagens.estruturas_faculdade} fac.` : null,
-          this.contagens.estruturas_polo ? `${this.contagens.estruturas_polo} polo` : null,
-          this.contagens.estruturas_unidade ? `${this.contagens.estruturas_unidade} unid.` : null,
+          estruturasPorTipo.faculdade ? `${estruturasPorTipo.faculdade} fac.` : null,
+          estruturasPorTipo.polo ? `${estruturasPorTipo.polo} polo` : null,
+          estruturasPorTipo.unidade ? `${estruturasPorTipo.unidade} unid.` : null,
         ].filter(Boolean).join(' · ') || 'cadastradas';
 
       return [
@@ -199,33 +211,61 @@ export default {
         {
           label: 'Estruturas',
           category: 'Estruturas',
-          value: estruturasValor,
+          value: estruturas.length,
           sub: estruturasSub,
           icon: this.iconUnidades,
+          statuses: [
+            { title: 'Ativos', value: estruturasAtivas.length, color: '#16A34A' },
+            { title: 'Inativos', value: estruturasInativas, color: '#DC2626' },
+          ].filter((status) => status.value > 0),
         },
         {
           label: 'Horas Pedagógicas',
           category: 'Solicitações',
           value: this.contagens.horas,
           icon: this.iconHoras,
+          statuses: this.montarCardsDistribuicao(this.distribuicoes.horas, [
+            { key: 'em_andamento', title: 'Em andamento', color: '#2563EB' },
+            { key: 'pendente', title: 'Pendentes', color: '#F59E0B' },
+            { key: 'concluida', title: 'Concluídas', color: '#16A34A' },
+            { key: 'cancelada', title: 'Canceladas', color: '#DC2626' },
+          ]),
         },
         {
           label: 'Ações Extensivas',
           category: 'Cadastradas',
           value: this.contagens.acoes,
           icon: this.iconAcoes,
+          statuses: this.montarCardsDistribuicao(this.distribuicoes.acoes, [
+            { key: 'alta', title: 'Alta', color: '#DC2626' },
+            { key: 'media', title: 'Média', color: '#F59E0B' },
+            { key: 'baixa', title: 'Baixa', color: '#16A34A' },
+            { key: 'resolvido', title: 'Resolvido', color: '#2563EB' },
+          ]),
         },
         {
           label: 'Eventos',
           category: 'Cadastrados',
           value: this.contagens.eventos,
           icon: this.iconEventos,
+          statuses: this.montarCardsDistribuicao(this.distribuicoes.eventos, [
+            { key: 'planejado', title: 'Planejados', color: '#2563EB' },
+            { key: 'realizado', title: 'Realizados', color: '#16A34A' },
+            { key: 'cancelado', title: 'Cancelados', color: '#DC2626' },
+          ]),
         },
         {
           label: 'Visitas Técnicas',
           category: 'Processos',
           value: this.contagens.visitas,
           icon: this.iconVisitas,
+          statuses: this.montarCardsDistribuicao(this.distribuicoes.visitas, [
+            { key: 'pendente', title: 'Pendentes', color: '#F59E0B' },
+            { key: 'em_andamento', title: 'Em andamento', color: '#2563EB' },
+            { key: 'realizada', title: 'Realizadas', color: '#16A34A' },
+            { key: 'cancelada', title: 'Canceladas', color: '#DC2626' },
+            { key: 'atrasada', title: 'Atrasadas', color: '#DC2626' },
+          ]),
         },
         {
           label: 'Usuários',
@@ -445,6 +485,14 @@ export default {
         this.courses = payload.cursos ?? [];
         this.visitas = payload.visitas ?? [];
         this.horas = payload.horas ?? [];
+        this.estruturas = payload.estruturas ?? [];
+        this.distribuicoes = {
+          horas: {},
+          acoes: {},
+          eventos: {},
+          visitas: {},
+          ...(payload.distribuicoes || {}),
+        };
 
         const eixosApi = Array.isArray(payload.meta?.eixos) && payload.meta.eixos.length
           ? payload.meta.eixos.filter((eixo) => EIXOS_PADRAO.includes(eixo))
@@ -478,14 +526,12 @@ export default {
         this.resolucoesContagens = {
           no_prazo: 0,
           atencao: 0,
-          critico: 0,
           vencidos: 0,
           ...(payload.resolucoes_contagens || {}),
         };
         this.termosContagens = {
           no_prazo: 0,
           atencao: 0,
-          critico: 0,
           vencidos: 0,
           ...(payload.termos_contagens || {}),
         };
@@ -574,11 +620,11 @@ export default {
     },
 
     montarCardsPrazo(contagens, total) {
+      // Semáforo de três estados: Vigente / Atenção / Vencida.
       const itens = [
-        { title: 'No prazo', key: 'no_prazo', color: '#16A34A' },
+        { title: 'Vigente', key: 'no_prazo', color: '#16A34A' },
         { title: 'Atenção', key: 'atencao', color: '#F59E0B' },
-        { title: 'Crítico', key: 'critico', color: '#F97316' },
-        { title: 'Vencidos', key: 'vencidos', color: '#DC2626' },
+        { title: 'Vencida', key: 'vencidos', color: '#DC2626' },
       ];
 
       return itens.map((item) => {
@@ -589,6 +635,31 @@ export default {
           subtitle: `${this.percentual(value, total)}% do total`,
         };
       });
+    },
+
+    montarCardsDistribuicao(contagens, categorias) {
+      const statuses = categorias.map((categoria) => ({
+        ...categoria,
+        value: Number(contagens?.[categoria.key] || 0),
+      }));
+
+      if (Number(contagens?.sem_classificacao || 0) > 0) {
+        statuses.push({
+          title: 'Sem classificação',
+          value: Number(contagens.sem_classificacao),
+          color: '#6B7280',
+        });
+      }
+
+      if (Number(contagens?.outros || 0) > 0) {
+        statuses.push({
+          title: 'Outros',
+          value: Number(contagens.outros),
+          color: '#6B7280',
+        });
+      }
+
+      return statuses.filter((status) => status.value > 0);
     },
 
     percentual(parte, total) {

@@ -77,7 +77,7 @@ class NotificacaoController extends Controller
         }
 
         $nivel = (string) $request->query('nivel', '');
-        if (! in_array($nivel, ['vencido', 'critico', 'atencao'], true)) {
+        if (! in_array($nivel, ['vencido', 'atencao'], true)) {
             $nivel = '';
         }
 

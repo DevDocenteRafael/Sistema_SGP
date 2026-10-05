@@ -290,7 +290,7 @@ class MassaDadosSeeder extends Seeder
                 'setor' => $this->item(['CPED', 'Diretoria', 'Gabinete', 'Coordenação'], $i),
                 'data_inicio_vigencia' => $inicio,
                 'data_fim_vigencia' => date('Y-m-d', strtotime($inicio.' +5 years')),
-                'status' => $this->statusPorPeso(['vigente' => 55, 'vencida' => 20, 'em_atencao' => 15, 'concluida' => 10], $i),
+                'status' => \App\Services\ResolucaoVigenciaService::statusAutomatico($inicio, date('Y-m-d', strtotime($inicio.' +5 years'))),
                 'observacoes' => 'Documento fictício.',
                 'created_at' => $agora,
                 'updated_at' => $agora,

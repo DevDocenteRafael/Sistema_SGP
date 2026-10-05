@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
+use Throwable;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
@@ -73,7 +75,10 @@ class ImportacaoService
             $resultado = $this->enriquecerPlanoDeMetas($spreadsheet, $def, $resultado);
         }
 
-        $resultado['colunas_preview'] = $def['preview_columns'] ?? [];
+        $resultado['colunas_preview'] = array_merge(
+            $def['preview_columns'] ?? [],
+            [['key' => 'pendencias', 'label' => 'Campos faltantes']],
+        );
         $resultado['label'] = $def['label'];
 
         if (($def['key'] ?? $modulo) === 'cursos') {
@@ -84,6 +89,7 @@ class ImportacaoService
             $resultado = $this->canonicalizarEixosNasLinhas($resultado);
         }
 
+        $resultado = $this->avaliarCompletude($modulo, $def, $resultado);
         $resultado = $this->classificarAcoesUpsert($modulo, $def, $resultado);
         if ($this->moduloTemCiclo($modulo)) {
             $resultado['ciclo'] = app(CicloContextoService::class)->meta();
@@ -104,7 +110,8 @@ class ImportacaoService
             );
         }
 
-        if ($resultado['total'] === 0) {
+        $linhasValidas = collect($resultado['linhas'])->where('status_importacao', '!=', 'erro')->count();
+        if ($resultado['total'] === 0 || $linhasValidas === 0) {
             throw new InvalidArgumentException(
                 'Nenhuma linha válida encontrada para importar em '.$def['label'].'.'
             );
@@ -119,11 +126,12 @@ class ImportacaoService
 
         $usuarioId = Auth::id();
         $backup = null;
-        $resumo = ['novo' => 0, 'atualizar' => 0, 'sem_alteracao' => 0];
+        $resumo = ['novo' => 0, 'atualizar' => 0, 'sem_alteracao' => 0, 'incompleto' => 0, 'falha' => 0];
+        $incompletos = [];
 
         $cicloAtualId = $this->cicloDestinoId($modulo);
 
-        DB::transaction(function () use ($modelClass, $campos, $resultado, $modulo, $camposUnicos, $defaults, $usuarioId, $def, $cicloAtualId, &$backup, &$resumo) {
+        DB::transaction(function () use ($modelClass, $campos, &$resultado, $modulo, $camposUnicos, $defaults, $usuarioId, $def, $cicloAtualId, &$backup, &$resumo, &$incompletos) {
             $backup = $this->backupService->backupAntesDeSubstituir($modulo, $modelClass);
 
             foreach ($resultado['linhas'] as $linha) {
@@ -131,31 +139,65 @@ class ImportacaoService
                     continue;
                 }
 
-                $row = $this->montarLinhaCommit($linha, $campos, $camposUnicos, $defaults, $modulo, $cicloAtualId);
-                $existente = $this->encontrarExistente($modulo, $modelClass, $row, $cicloAtualId);
+                try {
+                    // Savepoint por linha: uma linha com falha não derruba o lote.
+                    $registro = DB::transaction(function () use ($linha, $campos, $camposUnicos, $defaults, $modulo, $cicloAtualId, $modelClass, $usuarioId, &$resumo) {
+                        $row = $this->montarLinhaCommit($linha, $campos, $camposUnicos, $defaults, $modulo, $cicloAtualId);
+                        $existente = $this->encontrarExistente($modulo, $modelClass, $row, $cicloAtualId);
 
-                if (! $existente) {
-                    if ($usuarioId) {
-                        $row['criado_por'] = $usuarioId;
-                        $row['atualizado_por'] = $usuarioId;
+                        if (! $existente) {
+                            if ($usuarioId) {
+                                $row['criado_por'] = $usuarioId;
+                                $row['atualizado_por'] = $usuarioId;
+                            }
+                            $criado = $modelClass::query()->create($row);
+                            $resumo['novo']++;
+
+                            return $criado;
+                        }
+
+                        if (($linha['status_importacao'] ?? '') === 'sem_alteracao') {
+                            $resumo['sem_alteracao']++;
+
+                            return $existente;
+                        }
+
+                        unset($row['ciclo_id']);
+                        if ($usuarioId) {
+                            $row['atualizado_por'] = $usuarioId;
+                        }
+                        $existente->fill($row);
+                        $existente->save();
+                        $resumo['atualizar']++;
+
+                        return $existente;
+                    });
+                } catch (Throwable $e) {
+                    Log::warning('Importação: linha não gravada', ['modulo' => $modulo, 'erro' => $e->getMessage()]);
+                    $resumo['falha']++;
+                    $resultado['erros'][] = $this->erroImportacao(
+                        '',
+                        (int) ($linha['linha_planilha'] ?? 0),
+                        '',
+                        $this->rotuloLinha($linha),
+                        'Não foi possível gravar esta linha; ela foi ignorada e as demais seguiram. Detalhe: '.mb_substr($e->getMessage(), 0, 200),
+                        false,
+                    );
+
+                    continue;
+                }
+
+                if (! empty($linha['campos_faltantes'])) {
+                    $resumo['incompleto']++;
+                    if (count($incompletos) < self::LIMITE_INCOMPLETOS_HISTORICO) {
+                        $incompletos[] = [
+                            'id' => $registro->getKey(),
+                            'rotulo' => $this->rotuloLinha($linha),
+                            'linha' => $linha['linha_planilha'] ?? null,
+                            'campos' => $linha['campos_faltantes'],
+                        ];
                     }
-                    $modelClass::query()->create($row);
-                    $resumo['novo']++;
-                    continue;
                 }
-
-                if (($linha['status_importacao'] ?? '') === 'sem_alteracao') {
-                    $resumo['sem_alteracao']++;
-                    continue;
-                }
-
-                unset($row['ciclo_id']);
-                if ($usuarioId) {
-                    $row['atualizado_por'] = $usuarioId;
-                }
-                $existente->fill($row);
-                $existente->save();
-                $resumo['atualizar']++;
             }
 
             app(CadastroAuditoriaService::class)->registrar(
@@ -167,6 +209,7 @@ class ImportacaoService
                     'novo' => $resumo['novo'],
                     'atualizar' => $resumo['atualizar'],
                     'sem_alteracao' => $resumo['sem_alteracao'],
+                    'incompleto' => $resumo['incompleto'],
                     'ignoradas' => $resultado['ignoradas'] ?? 0,
                     'aba' => $resultado['aba'] ?? null,
                     'backup' => $backup,
@@ -178,6 +221,201 @@ class ImportacaoService
         $resultado['total'] = $resumo['novo'] + $resumo['atualizar'] + $resumo['sem_alteracao'];
         $resultado['resumo_acoes'] = $resumo;
         $resultado['backup'] = $backup;
+        $resultado['incompletos_registros'] = $incompletos;
+
+        return $resultado;
+    }
+
+    /** Quantos registros incompletos o histórico guarda com link para correção. */
+    private const LIMITE_INCOMPLETOS_HISTORICO = 1000;
+
+    /**
+     * Campos sem os quais a linha não vira registro (identidade mínima / NOT NULL no banco).
+     *
+     * @return list<string>
+     */
+    private function camposIdentidade(string $modulo): array
+    {
+        return match ($modulo) {
+            'cursos' => ['titulo'],
+            'eixos' => ['curso', 'eixo'],
+            default => [],
+        };
+    }
+
+    /**
+     * Campos que o formulário do módulo exige. Se vierem vazios na planilha, o registro
+     * é importado mesmo assim e marcado como incompleto para correção no cadastro.
+     *
+     * @param  array<string, mixed>  $def
+     * @return array<string, string>  campo => rótulo
+     */
+    private function camposEsperados(array $def): array
+    {
+        $requestClass = $def['request'] ?? null;
+        if (! is_string($requestClass) || ! class_exists($requestClass)) {
+            return [];
+        }
+
+        try {
+            $request = new $requestClass;
+            $regras = $request->rules();
+            $mensagens = method_exists($request, 'messages') ? $request->messages() : [];
+        } catch (Throwable) {
+            return [];
+        }
+
+        $rotulos = collect($def['preview_columns'] ?? [])->pluck('label', 'key')->all();
+        $internos = ['eixo_id', 'segmento_id', 'curso_id', 'ciclo_id', 'programa'];
+        $esperados = [];
+
+        foreach ($def['db_fields'] ?? [] as $campo) {
+            if (in_array($campo, $internos, true) || ! isset($regras[$campo])) {
+                continue;
+            }
+            $lista = is_string($regras[$campo]) ? explode('|', $regras[$campo]) : (array) $regras[$campo];
+            if (in_array('required', $lista, true)) {
+                $esperados[$campo] = $rotulos[$campo]
+                    ?? $this->rotuloDaMensagem($mensagens[$campo.'.required'] ?? null)
+                    ?? $this->rotuloCampo($campo);
+            }
+        }
+
+        return $esperados;
+    }
+
+    /**
+     * Extrai o nome do campo da mensagem do formulário
+     * (ex.: "Preencha o campo Identificação." => "Identificação").
+     */
+    private function rotuloDaMensagem(?string $mensagem): ?string
+    {
+        if (! $mensagem) {
+            return null;
+        }
+
+        $padroes = [
+            '/^Preencha o campo (.+?)\.?$/u',
+            '/^Informe (?:o|a|os|as) (.+?)\.?$/u',
+            '/^Selecione (?:o|a|um|uma) (.+?)\.?$/u',
+            '/^(?:O|A|Os|As) (.+?) (?:é|são) obrigatóri[oa]s?\.?$/u',
+        ];
+        foreach ($padroes as $padrao) {
+            if (preg_match($padrao, trim($mensagem), $m)) {
+                $rotulo = trim($m[1]);
+
+                return mb_strtoupper(mb_substr($rotulo, 0, 1)).mb_substr($rotulo, 1);
+            }
+        }
+
+        return null;
+    }
+
+    private function rotuloCampo(string $campo): string
+    {
+        $mapa = [
+            'processo_sei' => 'Processo SEI',
+            'numero_sei' => 'Número SEI',
+            'numero_processo_sei' => 'Processo SEI',
+            'codigo_sig' => 'Código SIG',
+            'codigo_dn' => 'Código DN',
+            'ch' => 'CH',
+            'carga_horaria' => 'Carga horária',
+            'pcn' => 'PCN',
+            'pcr' => 'PCR',
+            'mes_entrega' => 'Mês de entrega',
+            'ultima_revisao' => 'Última revisão',
+            'ultima_atualizacao' => 'Última atualização',
+            'observacao' => 'Observação',
+            'observacoes' => 'Observações',
+            'titulo' => 'Título',
+            'identificacao' => 'Identificação',
+            'compativel_bolsa' => 'Compatível com bolsa',
+            'numero_processo_sei' => 'Processo SEI',
+            'quantidade_pessoas' => 'Quantidade de pessoas',
+            'possui_acao_extensiva' => 'Possui ação extensiva',
+            'data_solicitacao' => 'Data de solicitação',
+            'responsavel' => 'Responsável',
+            'relatorio' => 'Relatório',
+            'matricula' => 'Matrícula',
+            'priorizacao' => 'Priorização',
+            'atribuido' => 'Atribuído',
+            'precificacao' => 'Precificação',
+            'codigo' => 'Código',
+        ];
+
+        return $mapa[$campo] ?? mb_convert_case(str_replace('_', ' ', $campo), MB_CASE_TITLE, 'UTF-8');
+    }
+
+    /**
+     * @param  array<string, mixed>  $linha
+     */
+    private function rotuloLinha(array $linha): string
+    {
+        foreach (['titulo', 'curso', 'nome', 'assunto', 'pessoa', 'numero_sei', 'processo_sei', 'numero_processo_sei', 'codigo'] as $campo) {
+            $valor = $linha[$campo] ?? null;
+            if (is_scalar($valor) && trim((string) $valor) !== '') {
+                return mb_substr(trim((string) $valor), 0, 255);
+            }
+        }
+
+        return 'Linha '.($linha['linha_planilha'] ?? '?');
+    }
+
+    /**
+     * Importação parcial: linha sem identidade mínima é ignorada (com motivo);
+     * linha com campos complementares vazios é importada e marcada como incompleta.
+     *
+     * @param  array<string, mixed>  $def
+     * @param  array<string, mixed>  $resultado
+     * @return array<string, mixed>
+     */
+    private function avaliarCompletude(string $modulo, array $def, array $resultado): array
+    {
+        $identidade = $this->camposIdentidade($modulo);
+        $esperados = $this->camposEsperados($def);
+        $incompletos = 0;
+
+        foreach ($resultado['linhas'] as &$linha) {
+            if (($linha['status_importacao'] ?? '') === 'erro') {
+                continue;
+            }
+
+            $semIdentidade = array_values(array_filter(
+                $identidade,
+                fn (string $campo) => $this->valorVazio($linha[$campo] ?? null),
+            ));
+            if ($semIdentidade !== []) {
+                $linha['status_importacao'] = 'erro';
+                $resultado['erros'][] = $this->erroImportacao(
+                    '',
+                    (int) ($linha['linha_planilha'] ?? 0),
+                    implode(', ', array_map(fn ($c) => $esperados[$c] ?? $this->rotuloCampo($c), $semIdentidade)),
+                    '',
+                    'Linha sem identidade mínima ('.implode(', ', array_map(fn ($c) => $esperados[$c] ?? $this->rotuloCampo($c), $semIdentidade)).'). Somente esta linha foi ignorada.',
+                    false,
+                );
+
+                continue;
+            }
+
+            $faltantes = [];
+            foreach ($esperados as $campo => $rotulo) {
+                if ($this->valorVazio($linha[$campo] ?? null)) {
+                    $faltantes[] = $rotulo;
+                }
+            }
+
+            $linha['campos_faltantes'] = $faltantes;
+            $linha['pendencias'] = $faltantes === [] ? null : implode(', ', $faltantes);
+            if ($faltantes !== []) {
+                $incompletos++;
+            }
+        }
+        unset($linha);
+
+        $resultado['incompletos'] = $incompletos;
+        $resultado['campos_esperados'] = array_values($esperados);
 
         return $resultado;
     }
@@ -427,12 +665,17 @@ class ImportacaoService
             }
 
             if (! $this->temCampoObrigatorio($registro, $def['required_any'] ?? [])) {
-                $erros[] = ['linha' => $row, 'mensagem' => 'Linha sem campos obrigatórios.'];
+                $erros[] = [
+                    'linha' => $row,
+                    'mensagem' => 'Linha '.$row.': sem identidade mínima. Somente esta linha foi ignorada.',
+                    'bloqueante' => false,
+                ];
                 $ignoradas++;
                 continue;
             }
 
             $registro['_linha'] = $row;
+            $registro['linha_planilha'] = $row;
             $linhas[] = $registro;
         }
 
@@ -487,7 +730,9 @@ class ImportacaoService
             if (! $this->temCampoObrigatorio($registro, $def['required_any'] ?? [])) {
                 $erros[] = [
                     'linha' => $row,
-                    'mensagem' => 'Linha sem campos obrigatórios para '.$def['label'].'.',
+                    'mensagem' => 'Aba "'.$abaLabel.'", linha '.$row.': sem identidade mínima para '.$def['label']
+                        .' ('.implode(' ou ', array_map(fn ($c) => $this->rotuloCampo($c), $def['required_any'] ?? [])).'). Somente esta linha foi ignorada.',
+                    'bloqueante' => false,
                 ];
                 $ignoradas++;
                 continue;
@@ -507,6 +752,7 @@ class ImportacaoService
                 $registro['_linha'] = $row;
             }
 
+            $registro['linha_planilha'] = $row;
             $linhas[] = $registro;
         }
 
@@ -601,13 +847,15 @@ class ImportacaoService
             );
 
             if ($resolvido['erro'] !== null) {
+                // Sem eixo/segmento oficial não é seguro criar o curso: ignora só a linha.
                 $valor = $resolvido['segmento'] ?? $segmentoBruto ?: $eixoBruto;
                 $erros[] = $this->erroImportacao(
                     $aba,
                     $numeroLinha,
                     str_contains((string) $resolvido['erro'], 'Segmento') ? 'Segmento' : 'Eixo',
                     (string) $valor,
-                    $resolvido['erro'],
+                    $resolvido['erro'].' Somente esta linha foi ignorada (valor original: "'.$valor.'").',
+                    false,
                 );
                 $linha['status_importacao'] = 'erro';
             } else {
@@ -626,6 +874,7 @@ class ImportacaoService
             $linha['modalidade'] = $resolucao['modalidade'];
             $linha['tipo'] = $resolucao['tipo'];
             if ($resolucao['erro'] !== null) {
+                // Modalidade é complementar: importa sem ela e sinaliza para correção.
                 $valorModalidade = is_scalar($linha['modalidade'] ?? null)
                     ? (string) ($linha['modalidade'] ?? '')
                     : '';
@@ -634,11 +883,13 @@ class ImportacaoService
                     $numeroLinha,
                     'Modalidade',
                     $valorModalidade !== '' ? $valorModalidade : (string) ($linha['tipo'] ?? ''),
-                    $resolucao['erro'],
+                    $resolucao['erro'].' O curso será importado sem modalidade; corrija no cadastro.',
+                    false,
                 );
-                $linha['status_importacao'] = 'erro';
+                $linha['modalidade'] = null;
             }
 
+            $linha['linha_planilha'] = $numeroLinha ?: ($linha['linha_planilha'] ?? null);
             unset($linha['_aba'], $linha['_linha']);
             $linhas[] = $linha;
         }
@@ -748,7 +999,8 @@ class ImportacaoService
                     $numeroLinha,
                     'Segmento',
                     $segmentoBruto !== '' ? $segmentoBruto : $eixoBruto,
-                    $resolvido['erro'],
+                    $resolvido['erro'].' Somente esta linha foi ignorada.',
+                    false,
                 );
                 $linha['status_importacao'] = 'erro';
             } else {
@@ -786,6 +1038,7 @@ class ImportacaoService
                 $linha['curso'] = $curso->titulo;
             }
 
+            $linha['linha_planilha'] = $numeroLinha ?: ($linha['linha_planilha'] ?? null);
             unset($linha['_aba'], $linha['_linha']);
             $linhas[] = $linha;
         }
@@ -810,12 +1063,16 @@ class ImportacaoService
         $defaults = $def['defaults'] ?? [];
         $cicloId = $this->cicloDestinoId($modulo);
 
-        $resumo = ['novo' => 0, 'atualizar' => 0, 'sem_alteracao' => 0, 'erro' => 0, 'pendente' => 0];
+        $resumo = ['novo' => 0, 'atualizar' => 0, 'sem_alteracao' => 0, 'erro' => 0, 'pendente' => 0, 'incompleto' => 0];
 
         foreach ($resultado['linhas'] as &$linha) {
             if (($linha['status_importacao'] ?? '') === 'erro') {
                 $resumo['erro']++;
                 continue;
+            }
+
+            if (! empty($linha['campos_faltantes'])) {
+                $resumo['incompleto']++;
             }
 
             $eraPendente = ($linha['status_importacao'] ?? '') === 'pendente';

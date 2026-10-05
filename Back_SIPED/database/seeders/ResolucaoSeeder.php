@@ -43,8 +43,8 @@ class ResolucaoSeeder extends Seeder
                 'setor' => 'Gabinete',
                 'data_inicio_vigencia' => '2021-09-01',
                 'data_fim_vigencia' => '2026-09-20',
-                'status' => 'critico',
-                'observacoes' => 'Prazo crítico — ação imediata necessária.',
+                'status' => 'atencao',
+                'observacoes' => 'Vencimento próximo — ação necessária.',
             ],
             [
                 'numero' => 'MEC/2018/203',
@@ -67,7 +67,7 @@ class ResolucaoSeeder extends Seeder
                 'setor' => 'CPED',
                 'data_inicio_vigencia' => '2019-06-01',
                 'data_fim_vigencia' => '2024-06-01',
-                'status' => 'concluida',
+                'status' => 'vencida',
                 'observacoes' => 'Processo concluído e arquivado.',
             ],
         ];
@@ -78,6 +78,12 @@ class ResolucaoSeeder extends Seeder
                     $registro['data_inicio_vigencia']
                 )->format('Y-m-d');
             }
+
+            // O status gravado acompanha o semáforo calculado pela vigência.
+            $registro['status'] = ResolucaoVigenciaService::statusAutomatico(
+                $registro['data_inicio_vigencia'] ?? null,
+                $registro['data_fim_vigencia'] ?? null,
+            );
 
             Resolucao::query()->updateOrCreate(
                 ['numero' => $registro['numero']],

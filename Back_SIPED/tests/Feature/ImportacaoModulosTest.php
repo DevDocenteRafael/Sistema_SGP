@@ -283,25 +283,29 @@ class ImportacaoModulosTest extends TestCase
         ]);
     }
 
-    public function test_import_cursos_bloqueia_modalidade_invalida_sem_apagar_dados(): void
+    public function test_import_cursos_modalidade_invalida_importa_sem_modalidade_e_sinaliza(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
         Curso::create(['titulo' => 'Antigo', 'status' => 'ATIVO', 'eixo' => 'Gestão e Moda']);
 
-        $arquivo = $this->xlsxCursosAba('Gestão e Moda', 'PRESENCIAL', 'Curso inválido');
-
-        $preview = $this->post('/api/importacoes/cursos/preview', ['arquivo' => $arquivo]);
+        $preview = $this->post('/api/importacoes/cursos/preview', [
+            'arquivo' => $this->xlsxCursosAba('Gestão e Moda', 'PRESENCIAL', 'Curso modalidade estranha'),
+        ]);
         $preview->assertOk();
-        $this->assertNotEmpty($preview->json('erros'));
-        $this->assertTrue(collect($preview->json('erros'))->contains(fn ($erro) => ($erro['bloqueante'] ?? false) === true));
+        $erros = collect($preview->json('erros'));
+        $this->assertTrue($erros->contains(fn ($erro) => str_contains((string) $erro['mensagem'], 'Modalidade inválida')));
+        $this->assertTrue($erros->every(fn ($erro) => empty($erro['bloqueante'])));
+        $this->assertStringContainsString('Modalidade', (string) $preview->json('linhas.0.pendencias'));
 
         $commit = $this->post('/api/importacoes/cursos/commit', [
-            'arquivo' => $this->xlsxCursosAba('Gestão e Moda', 'PRESENCIAL', 'Curso inválido'),
+            'arquivo' => $this->xlsxCursosAba('Gestão e Moda', 'PRESENCIAL', 'Curso modalidade estranha'),
         ]);
-        $commit->assertStatus(422);
+        $commit->assertOk();
+        $this->assertSame(1, $commit->json('resumo_acoes.incompleto'));
+
         $this->assertDatabaseHas('cursos', ['titulo' => 'Antigo']);
-        $this->assertDatabaseMissing('cursos', ['titulo' => 'Curso inválido']);
+        $this->assertDatabaseHas('cursos', ['titulo' => 'Curso modalidade estranha', 'modalidade' => null]);
     }
 
     public function test_import_cursos_e_idempotente_e_preserva_ciclo_anterior(): void
@@ -334,26 +338,30 @@ class ImportacaoModulosTest extends TestCase
         ]);
     }
 
-    public function test_import_cursos_bloqueia_segmento_desconhecido(): void
+    public function test_import_cursos_segmento_desconhecido_ignora_so_a_linha(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $arquivo = $this->xlsxCursosAba('Saúde', 'Qualificação Profissional', 'Curso segmento', 'Segmento Inventado');
+        $linhas = [
+            ['Saúde', 'Qualificação Profissional', 'Curso segmento válido', 'SIG-OK-1'],
+            ['Segmento Inventado', 'Qualificação Profissional', 'Curso segmento', 'SIG-OK-2'],
+        ];
 
-        $preview = $this->post('/api/importacoes/cursos/preview', ['arquivo' => $arquivo]);
+        $preview = $this->post('/api/importacoes/cursos/preview', ['arquivo' => $this->xlsxCursosLinhas('Saúde', $linhas)]);
         $preview->assertOk();
         $this->assertTrue(collect($preview->json('erros'))->contains(
-            fn ($erro) => ($erro['bloqueante'] ?? false) === true && str_contains((string) ($erro['mensagem'] ?? ''), 'Segmento desconhecido')
+            fn ($erro) => empty($erro['bloqueante']) && str_contains((string) ($erro['mensagem'] ?? ''), 'Segmento desconhecido')
         ));
 
         $this->post('/api/importacoes/cursos/commit', [
-            'arquivo' => $this->xlsxCursosAba('Saúde', 'Qualificação Profissional', 'Curso segmento', 'Segmento Inventado'),
-        ])->assertStatus(422);
+            'arquivo' => $this->xlsxCursosLinhas('Saúde', $linhas),
+        ])->assertOk()->assertJsonPath('resumo_acoes.novo', 1);
 
+        $this->assertDatabaseHas('cursos', ['titulo' => 'Curso segmento válido']);
         $this->assertDatabaseMissing('cursos', ['titulo' => 'Curso segmento']);
     }
 
-    public function test_import_cursos_programa_sem_eixo_bloqueia_sem_criar_eixo(): void
+    public function test_import_cursos_programa_sem_eixo_ignora_linha_sem_criar_eixo(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
@@ -362,10 +370,11 @@ class ImportacaoModulosTest extends TestCase
         $preview = $this->post('/api/importacoes/cursos/preview', ['arquivo' => $arquivo]);
         $preview->assertOk();
         $this->assertTrue(collect($preview->json('erros'))->contains(
-            fn ($erro) => ($erro['bloqueante'] ?? false) === true
+            fn ($erro) => empty($erro['bloqueante'])
                 && str_contains((string) ($erro['mensagem'] ?? ''), 'Não foi possível classificar o registro em um dos 5 Eixos.')
         ));
 
+        // Única linha do arquivo foi ignorada: não há o que importar.
         $this->post('/api/importacoes/cursos/commit', [
             'arquivo' => $this->xlsxCursosAba('60+', 'Qualificação Profissional', 'Cozinheiro 60+', '60+'),
         ])->assertStatus(422);
@@ -445,6 +454,34 @@ class ImportacaoModulosTest extends TestCase
         $sheet->setCellValue('D2', $titulo);
         $sheet->setCellValue('E2', '40');
         $sheet->setCellValue('F2', 'SIG-IMP-1');
+
+        $path = tempnam(sys_get_temp_dir(), 'siped-cursos-').'.xlsx';
+        (new Xlsx($ss))->save($path);
+
+        return new UploadedFile($path, 'cursos-teste.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    }
+
+    /**
+     * @param  list<array{0: string, 1: string, 2: string, 3: string}>  $linhas  [segmento, modalidade, título, SIG]
+     */
+    private function xlsxCursosLinhas(string $aba, array $linhas): UploadedFile
+    {
+        $ss = new Spreadsheet;
+        $sheet = $ss->getActiveSheet();
+        $sheet->setTitle($aba);
+        $headers = ['Status SIG', 'Segmento', 'Modalidade', 'Título - Nome do Curso', 'CH', 'Cód. SIG'];
+        foreach ($headers as $i => $header) {
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($i + 1).'1', $header);
+        }
+        foreach ($linhas as $i => [$segmento, $modalidade, $titulo, $sig]) {
+            $row = $i + 2;
+            $sheet->setCellValue('A'.$row, 'ATIVO');
+            $sheet->setCellValue('B'.$row, $segmento);
+            $sheet->setCellValue('C'.$row, $modalidade);
+            $sheet->setCellValue('D'.$row, $titulo);
+            $sheet->setCellValue('E'.$row, '40');
+            $sheet->setCellValue('F'.$row, $sig);
+        }
 
         $path = tempnam(sys_get_temp_dir(), 'siped-cursos-').'.xlsx';
         (new Xlsx($ss))->save($path);

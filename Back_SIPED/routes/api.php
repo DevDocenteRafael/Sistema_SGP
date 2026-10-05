@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\CursoController;
 use App\Http\Controllers\Api\CursoExecucaoController;
 use App\Http\Controllers\Api\CursoPorEixoController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\DocumentoController;
 use App\Http\Controllers\Api\EventoController;
 use App\Http\Controllers\Api\EixoController;
 use App\Http\Controllers\Api\FerramentaController;
@@ -106,6 +107,16 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::get('relatorios/{tipo}/pdf', [RelatorioController::class, 'pdf']);
 
     Route::get('importacoes', [ImportacaoController::class, 'catalogo']);
+    Route::get('importacoes/historico', [ImportacaoController::class, 'historico']);
+    Route::get('importacoes/historico/{historico}', [ImportacaoController::class, 'historicoDetalhe']);
+    Route::get('importacoes/historico/{historico}/arquivo', [ImportacaoController::class, 'historicoArquivo']);
+
+    // PDF é documento/anexo controlado (não é importado como planilha).
+    Route::get('documentos', [DocumentoController::class, 'index']);
+    Route::post('documentos', [DocumentoController::class, 'store']);
+    Route::put('documentos/{documento}', [DocumentoController::class, 'update']);
+    Route::delete('documentos/{documento}', [DocumentoController::class, 'destroy']);
+    Route::get('documentos/{documento}/arquivo', [DocumentoController::class, 'download']);
     Route::post('importacoes/{modulo}/preview', [ImportacaoController::class, 'preview']);
     Route::post('importacoes/{modulo}/commit', [ImportacaoController::class, 'commit']);
 

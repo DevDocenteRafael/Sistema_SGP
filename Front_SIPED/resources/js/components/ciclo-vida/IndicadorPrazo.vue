@@ -1,8 +1,26 @@
 <template>
-  <div class="indicador-prazo">
+  <!-- Modo compacto (tabelas): só a bolinha do semáforo + "?" com tooltip acessível. -->
+  <span
+    v-if="compacto"
+    class="indicador-prazo-compacto"
+    :class="classeIndicador"
+  >
+    <span class="indicador-prazo-ponto indicador-prazo-ponto--grande" aria-hidden="true"></span>
+    <span class="indicador-prazo-sr">{{ textoCompleto }}</span>
+    <SgpTooltip
+      :text="textoCompleto"
+      mode="icon"
+      :placement="placement"
+      :label="`Explicar prazo: ${statusLabel}`"
+    >
+      <span class="indicador-prazo-ajuda" aria-hidden="true">?</span>
+    </SgpTooltip>
+  </span>
+
+  <div v-else class="indicador-prazo">
     <div class="indicador-prazo-visual" :class="classeIndicador">
       <span class="indicador-prazo-ponto" aria-hidden="true"></span>
-      <SgpHelpLabel :label="statusLabel" :help="textoPrazo" />
+      <SgpHelpLabel :label="statusLabel" :help="textoAjuda" />
     </div>
     <span v-if="mostrarData && dataPrazo" class="indicador-prazo-data">{{ dataPrazo }}</span>
   </div>
@@ -10,10 +28,24 @@
 
 <script>
 import SgpHelpLabel from '../ui/SgpHelpLabel.vue';
+import SgpTooltip from '../ui/SgpTooltip.vue';
+
+/** Semáforo com exatamente três estados. */
+const LABELS = {
+  verde: 'Vigente',
+  amarelo: 'Atenção',
+  vermelho: 'Vencida',
+};
+
+const AJUDA = {
+  verde: 'Vencimento ainda fora da janela de atenção.',
+  amarelo: 'O prazo entrou na janela preventiva, mas ainda não venceu.',
+  vermelho: 'A data de vencimento já passou.',
+};
 
 export default {
   name: 'IndicadorPrazo',
-  components: { SgpHelpLabel },
+  components: { SgpHelpLabel, SgpTooltip },
   props: {
     status: {
       type: String,
@@ -24,13 +56,31 @@ export default {
       type: String,
       default: null,
     },
+    /** Explicação do estado; se omitida, usa o texto padrão do semáforo. */
+    explicacao: {
+      type: String,
+      default: '',
+    },
     dataPrazo: {
       type: String,
       default: '',
     },
+    /** Rótulo da data no tooltip (ex.: "Vencimento da Ata"). */
+    rotuloData: {
+      type: String,
+      default: 'Vencimento',
+    },
     mostrarData: {
       type: Boolean,
       default: true,
+    },
+    compacto: {
+      type: Boolean,
+      default: false,
+    },
+    placement: {
+      type: String,
+      default: 'left',
     },
   },
   computed: {
@@ -38,21 +88,17 @@ export default {
       return `indicador-${this.status}`;
     },
     statusLabel() {
-      if (this.label) return this.label;
-      const labels = {
-        verde: 'No prazo',
-        amarelo: 'Atenção',
-        vermelho: 'Crítico',
-      };
-      return labels[this.status] || this.status;
+      return this.label || LABELS[this.status] || this.status;
     },
-    textoPrazo() {
-      const ajuda = {
-        verde: 'Dentro do prazo esperado (semáforo verde).',
-        amarelo: 'Prazo em atenção — próximo do limite.',
-        vermelho: 'Prazo crítico ou vencido — ação urgente.',
-      };
-      return ajuda[this.status] || `Status do prazo: ${this.statusLabel}`;
+    textoAjuda() {
+      return this.explicacao || AJUDA[this.status] || `Status do prazo: ${this.statusLabel}`;
+    },
+    textoCompleto() {
+      const partes = [`${this.statusLabel}.`, this.textoAjuda];
+      if (this.dataPrazo && this.dataPrazo !== '—') {
+        partes.push(`${this.rotuloData}: ${this.dataPrazo}.`);
+      }
+      return partes.join(' ');
     },
   },
 };
@@ -84,6 +130,42 @@ export default {
   border-radius: 50%;
 }
 
+.indicador-prazo-compacto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  white-space: nowrap;
+}
+
+.indicador-prazo-ponto--grande {
+  width: 0.85rem;
+  height: 0.85rem;
+  box-shadow: 0 0 0 2px var(--sgp-surface, #fff), 0 0 0 3px currentColor;
+}
+
+.indicador-prazo-compacto :deep(.sgp-tooltip__bubble) {
+  width: 15rem;
+  white-space: normal;
+}
+
+.indicador-prazo-ajuda {
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.indicador-prazo-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .indicador-verde {
   border-color: #bbf7d0;
   background: #ecfdf5;
@@ -101,7 +183,7 @@ export default {
 }
 
 .indicador-amarelo .indicador-prazo-ponto {
-  background: #b45309;
+  background: #d97706;
 }
 
 .indicador-vermelho {
@@ -112,6 +194,13 @@ export default {
 
 .indicador-vermelho .indicador-prazo-ponto {
   background: #b91c1c;
+}
+
+.indicador-prazo-compacto.indicador-verde,
+.indicador-prazo-compacto.indicador-amarelo,
+.indicador-prazo-compacto.indicador-vermelho {
+  background: transparent;
+  border: 0;
 }
 
 .indicador-prazo-data {
@@ -148,6 +237,10 @@ export default {
 
 :global(html[data-theme='dark']) .indicador-vermelho .indicador-prazo-ponto {
   background: #fecaca;
+}
+
+:global(html[data-theme='dark']) .indicador-prazo-compacto {
+  background: transparent !important;
 }
 
 :global(html[data-theme='dark']) .indicador-prazo-data {

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\UsuarioFotoService;
+use App\Support\CatalogoOficial;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -30,6 +31,7 @@ class Usuario extends Authenticatable
         'status',
         'unidade',
         'area',
+        'eixos',
         'telefone',
         'foto',
     ];
@@ -42,6 +44,7 @@ class Usuario extends Authenticatable
     {
         return [
             'status' => 'boolean',
+            'eixos' => 'array',
         ];
     }
 
@@ -113,5 +116,29 @@ class Usuario extends Authenticatable
     public function podeConsultarAuditoria(): bool
     {
         return $this->pode('consultar_auditoria');
+    }
+
+    /**
+     * Eixos oficiais sob responsabilidade do usuário.
+     *
+     * @return list<string>
+     */
+    public function eixosResponsavel(): array
+    {
+        return collect($this->eixos ?? [])
+            ->map(fn ($eixo) => is_string($eixo) ? CatalogoOficial::canonicalizarEixo($eixo) : null)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Coordenação (Administrador) vê todas as notificações. Usuários operacionais
+     * veem as do seu escopo; sem eixo associado, continuam vendo o conjunto completo.
+     */
+    public function veTodasNotificacoes(): bool
+    {
+        return $this->isAdministrador() || $this->eixosResponsavel() === [];
     }
 }

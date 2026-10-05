@@ -270,3 +270,13 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* Escopo de eixos do usuário (notificações por responsabilidade) */
+.notif-escopo {
+  margin: 0;
+  padding: 0.45rem 0.9rem;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  background: var(--sgp-info-bg, #eff6ff);
+  color: var(--sgp-info-text, #1e3a8a);
+  font-size: 0.75rem;
+}

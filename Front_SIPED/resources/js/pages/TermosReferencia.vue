@@ -17,7 +17,7 @@
           <input
             v-model="filtros.busca"
             type="search"
-            placeholder="Buscar por nome, eixo, SEI..."
+            placeholder="Buscar por nome, nº do TR, nº da Ata, eixo, SEI..."
             @input="aplicarFiltros"
           />
         </div>
@@ -35,11 +35,9 @@
         />
         <SearchableSelect
           v-model="filtros.prazo"
-          :options="[
-            { value: 'proximo', label: 'Próximos 30 dias' },
-            { value: 'vencido', label: 'Vencidos' },
-          ]"
-          empty-option="Todos os prazos"
+          :options="prazoOptions"
+          :empty-option="`Todos os prazos (${meta.total_geral ?? 0})`"
+          aria-label="Filtrar por prazo"
           @change="aplicarFiltros"
         />
                 </section>
@@ -77,17 +75,25 @@
             </thead>
             <tbody>
               <tr v-for="termo in termos" :key="termo.id">
-                <td>{{ termo.nome }}</td>
+                <td>
+                  <div>{{ termo.nome }}</div>
+                  <small v-if="termo.numero_tr || termo.numero_ata" class="meta-muted">
+                    <template v-if="termo.numero_tr">TR {{ termo.numero_tr }}</template>
+                    <template v-if="termo.numero_tr && termo.numero_ata"> · </template>
+                    <template v-if="termo.numero_ata">Ata {{ termo.numero_ata }}</template>
+                  </small>
+                </td>
                 <td>{{ termo.eixo || '—' }}</td>
                 <td class="mono">
                   <ProcessoSeiLink :valor="termo.processo_sei" />
                 </td>
                 <td>
                   <IndicadorPrazo
+                    compacto
                     :status="semaforoDe(termo)"
                     :label="labelPrazo(termo)"
-                    :dataPrazo="formatarData(termo.prazo_deadline)"
-                    :mostrarData="true"
+                    :data-prazo="formatarData(termo.data_referencia_prazo || termo.prazo_deadline)"
+                    :rotulo-data="rotuloDataPrazo(termo)"
                   />
                 </td>
                 <td>
@@ -135,8 +141,8 @@
                 <IndicadorPrazo
                   :status="semaforoDe(termoSelecionado)"
                   :label="labelPrazo(termoSelecionado)"
-                  :dataPrazo="formatarData(termoSelecionado.prazo_deadline)"
-                  :mostrarData="true"
+                  :data-prazo="formatarData(termoSelecionado.data_referencia_prazo || termoSelecionado.prazo_deadline)"
+                  :mostrar-data="true"
                 />
               </div>
             </div>
@@ -152,8 +158,28 @@
                 </span>
               </div>
               <div class="detalhe-campo">
-                <span class="detalhe-label">Prazo / Deadline</span>
+                <span class="detalhe-label">Número do TR</span>
+                <span class="detalhe-valor">{{ termoSelecionado.numero_tr || '—' }}</span>
+              </div>
+              <div class="detalhe-campo">
+                <span class="detalhe-label">Prazo / Deadline do TR</span>
                 <span class="detalhe-valor">{{ formatarData(termoSelecionado.prazo_deadline) }}</span>
+              </div>
+              <div class="detalhe-campo">
+                <span class="detalhe-label">Número da Ata</span>
+                <span class="detalhe-valor">{{ termoSelecionado.numero_ata || '—' }}</span>
+              </div>
+              <div class="detalhe-campo">
+                <span class="detalhe-label">Vencimento da Ata</span>
+                <span class="detalhe-valor">{{ formatarData(termoSelecionado.data_vencimento_ata) || '—' }}</span>
+              </div>
+              <div class="detalhe-campo">
+                <span class="detalhe-label">Ata renovada?</span>
+                <span class="detalhe-valor">{{ termoSelecionado.ata_renovada ? 'Sim' : 'Não' }}</span>
+              </div>
+              <div class="detalhe-campo">
+                <span class="detalhe-label">Semáforo calculado por</span>
+                <span class="detalhe-valor">{{ termoSelecionado.origem_prazo === 'ata' ? 'Vencimento da Ata' : 'Prazo do TR (ainda sem Ata)' }}</span>
               </div>
               <div class="detalhe-campo">
                 <span class="detalhe-label">Data de início</span>
@@ -169,6 +195,13 @@
               </div>
             </div>
           </div>
+
+          <DocumentosVinculados
+            v-if="termoSelecionado?.id"
+            class="detalhe-secao"
+            modulo="termos-referencia"
+            :registro-id="termoSelecionado.id"
+          />
 
           <div class="detalhe-secao">
             <h3>Linha do tempo</h3>
@@ -227,6 +260,16 @@
                     type="text"
                     placeholder="Ex: TR - Desenvolvimento de Sistema Web"
                     maxlength="255"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="numero-tr"><FormLabel label="Número do TR" /></label>
+                  <input
+                    id="numero-tr"
+                    v-model="form.numero_tr"
+                    type="text"
+                    placeholder="Ex: TR-012/2026"
+                    maxlength="50"
                   />
                 </div>
                 <div class="form-group">
@@ -289,6 +332,41 @@
                     maxlength="2000"
                     placeholder="Adicione observações, justificativas ou informações adicionais sobre o TR..."
                   ></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section v-show="abaForm === 'acompanhamento'" class="form-section">
+            <div class="form-card">
+              <h2>Ata</h2>
+              <p class="form-card-hint">
+                Preencha quando a Ata derivada do TR existir. Com vencimento da Ata informado, o semáforo passa a usar essa data.
+              </p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="numero-ata"><FormLabel label="Número da Ata" /></label>
+                  <input
+                    id="numero-ata"
+                    v-model="form.numero_ata"
+                    type="text"
+                    placeholder="Ex: ATA-077/2026"
+                    maxlength="100"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="data-vencimento-ata"><FormLabel label="Data de vencimento da Ata" /></label>
+                  <input id="data-vencimento-ata" v-model="form.data_vencimento_ata" type="date" />
+                </div>
+                <div class="form-group">
+                  <label for="ata-renovada"><FormLabel label="Ata renovada?" /></label>
+                  <SearchableSelect
+                    id="ata-renovada"
+                    input-id="ata-renovada"
+                    v-model="form.ata_renovada"
+                    :options="[{ value: 'nao', label: 'Não' }, { value: 'sim', label: 'Sim' }]"
+                  />
+                  <small class="form-card-hint">A regra de nova renovação ainda depende de confirmação institucional.</small>
                 </div>
               </div>
             </div>

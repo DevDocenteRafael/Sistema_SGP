@@ -1,4 +1,5 @@
 import IndicadorPrazo from '../components/ciclo-vida/IndicadorPrazo.vue';
+import DocumentosVinculados from '../components/documentos/DocumentosVinculados.vue';
 import LinhaDoTempo from '../components/ciclo-vida/LinhaDoTempo.vue';
 import ProcessoSeiLink from '../components/ciclo-vida/ProcessoSeiLink.vue';
 import BadgeStatus from '../components/termos-referencia/BadgeStatus.vue';
@@ -34,8 +35,12 @@ const STATUS_TRAMITACAO = 'Em tramitação (fora da CPED)';
 
 const FORM_VAZIO = {
   nome: '',
+  numero_tr: '',
   eixo: '',
   processo_sei: '',
+  numero_ata: '',
+  data_vencimento_ata: '',
+  ata_renovada: 'nao',
   prazo_deadline: '',
   status: 'Planejamento',
   observacao: '',
@@ -48,6 +53,7 @@ export default {
   mixins: [mixinHistoricoFormulario],
   components: {
     IndicadorPrazo,
+    DocumentosVinculados,
     LinhaDoTempo,
     ProcessoSeiLink,
     BadgeStatus,
@@ -89,6 +95,14 @@ export default {
     };
   },
   computed: {
+    prazoOptions() {
+      const totais = this.meta.contagens || {};
+      return [
+        { value: 'no_prazo', label: `Vigente (${totais.no_prazo ?? 0})` },
+        { value: 'atencao', label: `Atenção (${totais.atencao ?? 0})` },
+        { value: 'vencido', label: `Vencida (${totais.vencidos ?? 0})` },
+      ];
+    },
     totalTermos() {
       return this.termos.length;
     },
@@ -292,8 +306,12 @@ export default {
       this.abaForm = 'basico';
       this.form = {
         nome: termo.nome || '',
+        numero_tr: termo.numero_tr || '',
         eixo: termo.eixo || '',
         processo_sei: termo.processo_sei || '',
+        numero_ata: termo.numero_ata || '',
+        data_vencimento_ata: this.normalizarData(termo.data_vencimento_ata) || '',
+        ata_renovada: termo.ata_renovada ? 'sim' : 'nao',
         prazo_deadline: this.normalizarData(termo.prazo_deadline) || '',
         status: termo.status || 'Planejamento',
         observacao: termo.observacao || '',
@@ -355,6 +373,12 @@ export default {
           textoObrigatorio(this.form.status, 'O status é obrigatório.'),
           validarData(this.form.data_inicio, { obrigatorio: true, rotulo: 'Data de início' }),
           validarData(this.form.data_fim, { obrigatorio: true, rotulo: 'Data de término' }),
+          this.form.data_vencimento_ata
+            ? validarData(this.form.data_vencimento_ata, { obrigatorio: false, rotulo: 'Vencimento da Ata' })
+            : '',
+          this.form.numero_ata
+            ? tamanhoMaximo(this.form.numero_ata, 100, 'O número da Ata deve ter no máximo 100 caracteres.')
+            : '',
           validarOrdemDatas(
             this.form.data_inicio,
             this.form.data_fim,
@@ -475,6 +499,10 @@ export default {
         let response;
         const payload = {
           nome: this.form.nome.trim(),
+          numero_tr: this.form.numero_tr?.trim() || null,
+          numero_ata: this.form.numero_ata?.trim() || null,
+          data_vencimento_ata: this.form.data_vencimento_ata || null,
+          ata_renovada: this.form.ata_renovada === 'sim',
           eixo: this.form.eixo,
           processo_sei: somenteAlfanumericoProcesso(this.form.processo_sei).trim(),
           prazo_deadline: this.form.prazo_deadline,
@@ -624,12 +652,14 @@ export default {
     },
     labelPrazo(termo) {
       const mapa = {
-        no_prazo: 'No prazo',
+        no_prazo: 'Vigente',
         atencao: 'Atenção',
-        critico: 'Crítico',
-        vencido: 'Vencido',
+        vencido: 'Vencida',
       };
       return mapa[termo?.status_prazo] || null;
+    },
+    rotuloDataPrazo(termo) {
+      return termo?.origem_prazo === 'ata' ? 'Vencimento da Ata' : 'Prazo do TR';
     },
 
     /**

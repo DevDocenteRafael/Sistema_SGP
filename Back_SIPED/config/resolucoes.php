@@ -2,14 +2,13 @@
 
 return [
     'vigencia_anos' => 5,
+    // Início da janela de Atenção antes do fim da vigência.
     'alerta_preventivo_meses' => 6,
-    'alerta_critico_meses' => 1,
+    // Semáforo: exatamente três estados, calculados pela data de fim da vigência.
     'status' => [
         'vigente',
         'atencao',
-        'critico',
         'vencida',
-        'concluida',
     ],
     'categorias' => [
         'Normativa',
@@ -26,7 +25,6 @@ return [
     'semaforo' => [
         'verde' => 'vigente',
         'amarelo' => 'atencao',
-        'vermelho' => 'critico',
-        'vencida' => 'vencida',
+        'vermelho' => 'vencida',
     ],
 ];
