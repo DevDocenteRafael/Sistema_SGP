@@ -12,12 +12,12 @@ return [
     'status_tramitacao_fora_cped' => 'Em tramitação (fora da CPED)',
 
     /**
-     * Limiares visuais do semáforo (demonstração).
-     * PENDENTE CPED: prazos oficiais de TR — não tratar estes números como regra institucional.
+     * Semáforo de três estados (verde / amarelo / vermelho).
+     * Amarelo começa quando faltam até `dias_atencao` dias para o vencimento da Ata
+     * (ou do prazo do TR, quando ainda não há Ata). Vermelho = vencido.
+     * PENDENTE CPED: prazo oficial da janela de atenção — não tratar como regra institucional.
      */
     'prazos' => [
-        'dias_verde' => 30,
-        'dias_amarelo' => 15,
-        'dias_vermelho' => 0,
+        'dias_atencao' => 30,
     ],
 ];

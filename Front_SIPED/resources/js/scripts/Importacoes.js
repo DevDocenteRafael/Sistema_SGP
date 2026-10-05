@@ -1,6 +1,9 @@
 import { podeImportarDados } from './auth';
 import { mixinHistoricoCatalogo } from './formularioHistorico';
 import { lerCicloContexto } from './cicloContexto';
+import HistoricoImportacoes from '../components/importacoes/HistoricoImportacoes.vue';
+import DocumentoPdfUpload from '../components/importacoes/DocumentoPdfUpload.vue';
+import { ehPdf } from '../utils/documentos';
 
 const FILTROS_POR_MODULO = {
   cursos: ['status', 'eixo', 'unidade', 'tipo'],
@@ -41,6 +44,7 @@ function previaVazia(colunas = [], label = '') {
     label,
     resumo_acoes: null,
     ciclo: null,
+    incompletos: 0,
   };
 }
 
@@ -49,12 +53,13 @@ const ROTULOS_ACAO = {
   atualizar: 'Atualizar',
   sem_alteracao: 'Sem alteração',
   pendente: 'Pendente',
-  erro: 'Erro',
+  erro: 'Ignorada',
 };
 
 export default {
   name: 'Importacoes',
   mixins: [mixinHistoricoCatalogo],
+  components: { HistoricoImportacoes, DocumentoPdfUpload },
 
   data() {
     return {
@@ -88,6 +93,15 @@ export default {
       return (this.previa.erros || []).some((item) => item.bloqueante);
     },
 
+    linhasValidas() {
+      return (this.previa.linhas || []).filter((linha) => linha?.status_importacao !== 'erro').length;
+    },
+
+    linhasIgnoradas() {
+      const comErro = (this.previa.linhas || []).filter((linha) => linha?.status_importacao === 'erro').length;
+      return comErro + (this.previa.ignoradas || 0);
+    },
+
     cicloSelecionadoNome() {
       return lerCicloContexto()?.nome || '';
     },
@@ -103,7 +117,7 @@ export default {
       if (resumo.atualizar) partes.push(`${resumo.atualizar} atualizar`);
       if (resumo.sem_alteracao) partes.push(`${resumo.sem_alteracao} sem alteração`);
       if (resumo.pendente) partes.push(`${resumo.pendente} pendente(s)`);
-      if (resumo.erro) partes.push(`${resumo.erro} com erro`);
+      if (resumo.incompleto) partes.push(`${resumo.incompleto} incompleto(s)`);
 
       return partes.length ? `Resumo: ${partes.join(' · ')}.` : '';
     },
@@ -315,6 +329,17 @@ export default {
       this.arquivo = file;
       this.erro = '';
       this.mensagem = '';
+      // PDF não é planilha: segue o fluxo de documento/anexo.
+      if (ehPdf(file)) {
+        this.etapa = 'documento';
+      }
+    },
+
+    aoEnviarDocumento(data) {
+      this.voltarUpload();
+      this.limparArquivo();
+      this.mensagem = data?.message || 'Documento PDF guardado.';
+      this.$refs.historico?.carregar(1);
     },
 
     formComArquivo(congelarCiclo = false) {
@@ -362,13 +387,18 @@ export default {
           label: data.label || this.moduloAtivo.label,
           resumo_acoes: data.resumo_acoes || null,
           ciclo: data.ciclo || null,
+          incompletos: data.incompletos || 0,
         };
         this.etapa = 'previa';
 
-        if (!this.previa.total) {
+        if (!this.linhasValidas) {
           this.erro = `Nenhuma linha válida encontrada para ${this.previa.label}.`;
         }
       } catch (error) {
+        if (error.response?.data?.tipo === 'documento') {
+          this.etapa = 'documento';
+          return;
+        }
         this.erro = error.response?.data?.message || 'Não foi possível gerar a prévia.';
       } finally {
         this.processando = false;
@@ -376,7 +406,7 @@ export default {
     },
 
     async confirmarImportacao() {
-      if (!this.arquivo || this.processando || !this.previa.total || !this.moduloAtivo || this.temErroBloqueante) return;
+      if (!this.arquivo || this.processando || !this.linhasValidas || !this.moduloAtivo || this.temErroBloqueante) return;
 
       const resumo = this.previa.resumo_acoes || {};
       const partes = [
@@ -384,6 +414,8 @@ export default {
         resumo.atualizar ? `${resumo.atualizar} atualizar` : null,
         resumo.sem_alteracao ? `${resumo.sem_alteracao} sem alteração` : null,
         resumo.pendente ? `${resumo.pendente} pendente(s)` : null,
+        resumo.incompleto ? `${resumo.incompleto} incompleto(s) — entram com aviso` : null,
+        this.linhasIgnoradas ? `${this.linhasIgnoradas} linha(s) ignorada(s)` : null,
       ].filter(Boolean);
       const detalhe = partes.length ? `\n\n${partes.join(' · ')}.` : '';
 
@@ -412,11 +444,14 @@ export default {
           msg += ` Backup prévio: ${backupTotal ?? 0} registro(s) em ${backupPath}.`;
         }
 
-        this.mensagem = msg;
         this.voltarUpload();
         this.limparArquivo();
+        this.mensagem = msg;
+        // Sem redirecionar para a Revisão de Dados: o histórico mostra os incompletos.
+        this.$refs.historico?.abrirPorId(data.historico_id);
       } catch (error) {
         this.erro = error.response?.data?.message || 'Não foi possível concluir a importação.';
+        this.$refs.historico?.carregar(1);
       } finally {
         this.processando = false;
       }

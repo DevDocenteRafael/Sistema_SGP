@@ -12,6 +12,8 @@ return [
             'description' => 'Importa as abas de portfólio por eixo (título, CH, SIG, SEI, status…). Atualiza o ciclo selecionado sem apagar ciclos anteriores.',
             'ajuda' => 'Usa as abas de portfólio por eixo. A coluna Segmento é preservada. A aba Saúde vira Ambiente e Saúde. 60+ e Ensino Médio são programas, não eixos: cada linha precisa de um segmento (ou outro dado) que resolva um dos 5 eixos oficiais. A confirmação faz upsert no ciclo selecionado no seletor.',
             'model' => App\Models\Curso::class,
+            // Campos obrigatórios do formulário: vazios na planilha => registro importado como incompleto.
+            'request' => App\Http\Requests\CursoRequest::class,
             'table' => 'cursos',
             'mode' => 'multi_sheet',
             'sheet_names' => [
@@ -75,6 +77,8 @@ return [
             'description' => 'Importa a aba de Plano de Metas. Faz upsert no ciclo selecionado, sem apagar o ciclo anterior.',
             'ajuda' => 'Procura a aba “PLANO DE METAS 2025” (ou nome semelhante).',
             'model' => App\Models\PlanoDeMeta::class,
+            // Campos obrigatórios do formulário: vazios na planilha => registro importado como incompleto.
+            'request' => App\Http\Requests\PlanoDeMetaRequest::class,
             'table' => 'plano_de_metas',
             'mode' => 'single_sheet',
             'sheet_names' => ['PLANO DE METAS 2025', 'Plano de Metas', 'PLANO DE METAS'],
@@ -115,6 +119,8 @@ return [
             'description' => 'Importa a aba de propostas/valores do PCA. Faz upsert no ciclo selecionado, sem apagar o ciclo anterior.',
             'ajuda' => 'Prioriza a aba “PCA 2026 | Propostas” ou abas de Retificativos/Valores PCA.',
             'model' => App\Models\Pca::class,
+            // Campos obrigatórios do formulário: vazios na planilha => registro importado como incompleto.
+            'request' => App\Http\Requests\PcaRequest::class,
             'table' => 'pcas',
             'mode' => 'single_sheet',
             'sheet_names' => [
@@ -174,6 +180,8 @@ return [
             'description' => 'Importa a aba “Quantidade de cursos por eixo” como acompanhamento do ciclo. Vincula cursos já cadastrados; não cria curso novo.',
             'ajuda' => 'Usa a aba “Quantidade de cursos por eixo” (Código, Turmas e Alunos). Cada linha vira um acompanhamento do ciclo e tenta vincular a um curso já existente. Linhas sem correspondência ficam como pendência. A confirmação faz upsert e não apaga o ciclo anterior.',
             'model' => App\Models\CursoPorEixo::class,
+            // Campos obrigatórios do formulário: vazios na planilha => registro importado como incompleto.
+            'request' => App\Http\Requests\CursoPorEixoRequest::class,
             'table' => 'curso_por_eixos',
             'mode' => 'eixos_forward_fill',
             'sheet_names' => [
@@ -212,6 +220,8 @@ return [
             'description' => 'Importa a aba de processos de visitas técnicas. Substitui os registros atuais.',
             'ajuda' => 'Procura a aba “Processos de Visitas Técnicas”.',
             'model' => App\Models\VisitaTecnica::class,
+            // Campos obrigatórios do formulário: vazios na planilha => registro importado como incompleto.
+            'request' => App\Http\Requests\VisitaTecnicaRequest::class,
             'table' => 'visita_tecnicas',
             'mode' => 'single_sheet',
             'sheet_names' => ['Processos de Visitas Técnicas', 'Visitas Técnicas', 'Visitas Tecnicas'],
@@ -247,6 +257,8 @@ return [
             'description' => 'Importa a aba de processos de horas pedagógicas. Substitui os registros atuais.',
             'ajuda' => 'Procura a aba “Processos Horas Pedagógicas”.',
             'model' => App\Models\HoraPedagogica::class,
+            // Campos obrigatórios do formulário: vazios na planilha => registro importado como incompleto.
+            'request' => App\Http\Requests\HoraPedagogicaRequest::class,
             'table' => 'hora_pedagogicas',
             'mode' => 'single_sheet',
             'sheet_names' => [
@@ -287,6 +299,8 @@ return [
             'description' => 'Importa a aba “Ações extensivas”. Substitui todos os registros do módulo.',
             'ajuda' => 'Usa apenas a aba “Ações extensivas” da planilha enviada.',
             'model' => App\Models\AcaoExtensiva::class,
+            // Campos obrigatórios do formulário: vazios na planilha => registro importado como incompleto.
+            'request' => App\Http\Requests\AcaoExtensivaRequest::class,
             'table' => 'acao_extensivas',
             'mode' => 'single_sheet',
             'sheet_names' => ['Ações extensivas', 'Acoes extensivas', 'Ações Extensivas'],
@@ -326,6 +340,8 @@ return [
             'description' => 'Importa a aba “Eventos” com colunas padronizadas. Substitui os registros atuais.',
             'ajuda' => 'A planilha deve ter uma aba chamada “Eventos” com colunas como Nome, Data, Unidade, Eixo, Status.',
             'model' => App\Models\Evento::class,
+            // Campos obrigatórios do formulário: vazios na planilha => registro importado como incompleto.
+            'request' => App\Http\Requests\EventoRequest::class,
             'table' => 'eventos',
             'mode' => 'single_sheet',
             'sheet_names' => ['Eventos', 'EVENTOS'],

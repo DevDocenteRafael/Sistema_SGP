@@ -4,10 +4,10 @@
       <div>
         <h1>Importações</h1>
         <p class="imp-subtitle">
-          Selecione o módulo, envie a planilha e confira a prévia antes de confirmar a importação.
+          Selecione o módulo, envie a planilha (.xlsx/.xls) e confira a prévia antes de confirmar.
+          Linhas incompletas são importadas com aviso; PDFs entram como documento anexado a um registro.
         </p>
       </div>
-      <router-link class="btn-secundario" to="/app/importacoes/revisao-dados">Revisão de Dados</router-link>
     </header>
 
     <div v-if="erro" class="alert alert-error">{{ erro }}</div>
@@ -111,19 +111,23 @@
 
           <div class="imp-upload-card">
             <div class="imp-painel-head">
-              <p class="imp-kicker">{{ moduloAtivo.label }}</p>
-              <h2>{{ etapa === 'previa' ? 'Confirmar importação' : 'Enviar planilha' }}</h2>
+              <p class="imp-kicker">{{ etapa === 'documento' ? 'Documento / anexo' : moduloAtivo.label }}</p>
+              <h2>{{ etapa === 'previa' ? 'Confirmar importação' : etapa === 'documento' ? 'Vincular documento PDF' : 'Enviar arquivo' }}</h2>
               <p class="imp-ajuda">
                 <template v-if="etapa === 'previa'">
-                  {{ previa.total }} registro(s) válidos
-                  <template v-if="previa.ignoradas"> · {{ previa.ignoradas }} linha(s) ignorada(s)</template>
+                  {{ linhasValidas }} registro(s) a importar
+                  <template v-if="previa.incompletos"> · <strong>{{ previa.incompletos }} incompleto(s)</strong> (entram com aviso e podem ser corrigidos depois)</template>
+                  <template v-if="linhasIgnoradas"> · {{ linhasIgnoradas }} linha(s) ignorada(s)</template>
                   . A confirmação faz upsert no ciclo
                   <strong>{{ previa.ciclo?.nome || cicloSelecionadoNome || 'selecionado' }}</strong>
                   e <strong>não apaga</strong> registros de outros ciclos.
                   <template v-if="resumoAcoesTexto"> {{ resumoAcoesTexto }}</template>
                 </template>
+                <template v-else-if="etapa === 'documento'">
+                  Escolha o módulo e o registro ao qual o PDF pertence.
+                </template>
                 <template v-else>
-                  Aceita <code>.xlsx</code> / <code>.xls</code>.
+                  Aceita <code>.xlsx</code> / <code>.xls</code> para dados estruturados e <code>.pdf</code> como documento anexado.
                   {{ moduloAtivo.ajuda || moduloAtivo.description }}
                 </template>
               </p>
@@ -134,10 +138,10 @@
                 <input
                   ref="inputArquivo"
                   type="file"
-                  accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                  accept=".xlsx,.xls,.pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/pdf"
                   @change="onArquivoSelecionado"
                 />
-                <span v-if="!arquivo">Clique para selecionar o arquivo Excel</span>
+                <span v-if="!arquivo">Clique para selecionar a planilha Excel ou o documento PDF</span>
                 <span v-else>{{ arquivo.name }}</span>
               </label>
 
@@ -161,9 +165,16 @@
               </div>
             </template>
 
+            <DocumentoPdfUpload
+              v-else-if="etapa === 'documento'"
+              :arquivo="arquivo"
+              @cancelar="voltarUpload(); limparArquivo()"
+              @enviado="aoEnviarDocumento"
+            />
+
             <template v-else>
               <div v-if="previa.erros?.length" class="imp-erros">
-                <h3>{{ temErroBloqueante ? 'Erros que bloqueiam a importação' : 'Avisos de linha' }}</h3>
+                <h3>{{ temErroBloqueante ? 'Erros que bloqueiam a importação' : 'Avisos (não impedem a importação das demais linhas)' }}</h3>
                 <ul>
                   <li v-for="(item, idx) in previa.erros.slice(0, 20)" :key="idx">
                     {{ item.mensagem }}
@@ -216,7 +227,7 @@
                 <button
                   type="button"
                   class="btn-primario"
-                  :disabled="processando || !previa.total || temErroBloqueante"
+                  :disabled="processando || !linhasValidas || temErroBloqueante"
                   @click="confirmarImportacao"
                 >
                   {{ processando ? 'Importando...' : 'Confirmar importação' }}
@@ -226,6 +237,10 @@
           </div>
         </template>
       </template>
+    </section>
+
+    <section v-if="podeImportar" class="imp-painel">
+      <HistoricoImportacoes ref="historico" />
     </section>
   </div>
 </template>

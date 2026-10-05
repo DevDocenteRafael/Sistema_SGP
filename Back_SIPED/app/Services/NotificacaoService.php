@@ -148,10 +148,6 @@ class NotificacaoService
     private function deResolucoes(Carbon $hoje): Collection
     {
         return Resolucao::query()
-            ->where(function ($query) {
-                $query->whereNull('status')
-                    ->orWhere('status', '!=', 'concluida');
-            })
             ->where(function ($query) use ($hoje) {
                 $limiteAtencao = $hoje->copy()->addMonthsNoOverflow(
                     (int) config('resolucoes.alerta_preventivo_meses', 6)
@@ -171,7 +167,6 @@ class NotificacaoService
                 $status = ResolucaoVigenciaService::statusVigencia($resolucao);
                 $nivel = match ($status) {
                     'vencida' => 'vencido',
-                    'critico' => 'critico',
                     'atencao' => 'atencao',
                     default => null,
                 };
@@ -209,18 +204,22 @@ class NotificacaoService
                     ->orWhereNotIn('status', ['Concluído', 'Arquivado']);
             })
             ->where(function ($query) use ($hoje) {
-                $limiteAtencao = $hoje->copy()->addDays(
-                    (int) config('termos_referencia.prazos.dias_verde', 30)
-                );
-                $query->whereDate('prazo_deadline', '<=', $limiteAtencao)
-                    ->orWhereNull('prazo_deadline');
+                $limiteAtencao = $hoje->copy()->addDays(TermoReferenciaPrazoService::diasAtencao());
+                // Vencimento da Ata quando existir; sem Ata, prazo do TR.
+                $query->whereDate('data_vencimento_ata', '<=', $limiteAtencao)
+                    ->orWhere(function ($semAta) use ($limiteAtencao) {
+                        $semAta->whereNull('data_vencimento_ata')
+                            ->where(function ($prazo) use ($limiteAtencao) {
+                                $prazo->whereDate('prazo_deadline', '<=', $limiteAtencao)
+                                    ->orWhereNull('prazo_deadline');
+                            });
+                    });
             })
-            ->get(['id', 'nome', 'processo_sei', 'status', 'prazo_deadline'])
+            ->get(['id', 'nome', 'processo_sei', 'status', 'prazo_deadline', 'data_vencimento_ata'])
             ->map(function (TermoReferencia $termo) use ($hoje) {
-                $status = TermoReferenciaPrazoService::statusPrazo($termo->prazo_deadline?->format('Y-m-d'));
+                $status = TermoReferenciaPrazoService::statusDoTermo($termo);
                 $nivel = match ($status) {
                     'vencido' => 'vencido',
-                    'critico' => 'critico',
                     'atencao' => 'atencao',
                     default => null,
                 };
@@ -235,7 +234,7 @@ class NotificacaoService
                     nivel: $nivel,
                     titulo: $termo->nome ?: 'Termo de referência #'.$termo->id,
                     detalhe: $termo->processo_sei,
-                    prazo: $termo->prazo_deadline?->toDateString(),
+                    prazo: TermoReferenciaPrazoService::dataReferencia($termo),
                     hoje: $hoje,
                     rota: '/app/termos-de-referencia',
                     rotuloModulo: 'Termo de referência',

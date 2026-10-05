@@ -220,6 +220,12 @@
                 <div class="detalhe-valor-box detalhe-valor-texto">{{ registroDetalhe.observacao || '—' }}</div>
               </div>
             </div>
+
+            <DocumentosVinculados
+              v-if="registroDetalhe.id"
+              modulo="eventos"
+              :registro-id="registroDetalhe.id"
+            />
           </div>
 
         </div>

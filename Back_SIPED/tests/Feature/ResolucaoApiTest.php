@@ -73,6 +73,9 @@ class ResolucaoApiTest extends TestCase
         $updateResponse = $this->putJson('/api/resolucoes/' . $id, $updatePayload);
         $updateResponse->assertOk();
         $updateResponse->assertJsonPath('resolucao.data_fim_vigencia', '2026-01-10');
+        // Status manual enviado é ignorado: o semáforo vem da vigência (fim em 2026-01-10 => vencida).
+        $updateResponse->assertJsonPath('resolucao.status', 'vencida');
+        $updateResponse->assertJsonPath('resolucao.semaforo', 'vermelho');
 
         $this->assertDatabaseHas('resolucao_historicos', [
             'resolucao_id' => $id,
@@ -82,7 +85,7 @@ class ResolucaoApiTest extends TestCase
             'resolucao_id' => $id,
             'evento' => 'Status alterado',
             'status_anterior' => 'vigente',
-            'status_novo' => 'atencao',
+            'status_novo' => 'vencida',
             'usuario_id' => $usuario->id,
         ]);
 
