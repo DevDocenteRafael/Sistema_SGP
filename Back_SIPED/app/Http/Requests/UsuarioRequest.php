@@ -13,7 +13,14 @@ class UsuarioRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->podeGerenciarUsuarios() === true;
+        if ($this->user()?->podeGerenciarUsuarios() !== true) {
+            return false;
+        }
+
+        // Só Root altera um usuário Root.
+        $alvo = $this->route('usuario');
+
+        return ! ($alvo instanceof Usuario && $alvo->isRoot() && ! $this->user()->isRoot());
     }
 
     protected function failedAuthorization(): void
@@ -91,6 +98,12 @@ class UsuarioRequest extends FormRequest
             'perfil' => [
                 'required',
                 Rule::in(config('permissoes.perfis')),
+                // Só Root concede o perfil Root.
+                function (string $atributo, mixed $valor, \Closure $falhar) {
+                    if ($valor === Usuario::PERFIL_ROOT && ! $this->user()?->isRoot()) {
+                        $falhar('Somente o perfil Root pode conceder o perfil Root.');
+                    }
+                },
             ],
             'status' => ['required', 'boolean'],
             'unidade' => ['required', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
@@ -119,7 +132,7 @@ class UsuarioRequest extends FormRequest
             'senha.required' => 'A senha é obrigatória no cadastro.',
             'senha.min' => 'A senha deve ter no mínimo 6 caracteres.',
             'perfil.required' => 'O perfil é obrigatório.',
-            'perfil.in' => 'Perfil inválido. Use Administrador, Editor ou Consultor.',
+            'perfil.in' => 'Perfil inválido. Use Root, Administrador, Editor ou Consultor.',
             'cpf.unique' => 'Este CPF já está cadastrado.',
             'cpf.size' => 'Informe um CPF válido.',
             'telefone.regex' => 'Informe um telefone válido com DDD.',

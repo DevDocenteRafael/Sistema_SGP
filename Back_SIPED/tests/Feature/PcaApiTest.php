@@ -222,6 +222,6 @@ class PcaApiTest extends TestCase
             ->assertJsonPath('pca.status', 'Suspenso');
 
         $this->deleteJson("/api/pcas/{$id}")->assertOk();
-        $this->assertDatabaseMissing('pcas', ['id' => $id]);
+        $this->assertSoftDeleted('pcas', ['id' => $id]);
     }
 }

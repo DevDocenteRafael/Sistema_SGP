@@ -162,7 +162,7 @@ class CpedEquipeController extends Controller
         }
 
         $nome = $cpedEquipe->nome ?: 'Membro';
-        $this->fotos->apagar($cpedEquipe->caminhoFoto());
+        // Exclusão lógica: a foto fica guardada para uma eventual restauração.
         $cpedEquipe->delete();
 
         return response()->json([

@@ -112,7 +112,7 @@ class KanbanApiTest extends TestCase
         $this->deleteJson("/api/kanban/cartoes/{$cartaoId}")->assertOk();
 
         $this->deleteJson("/api/kanban/quadros/{$novoSlug}")->assertOk();
-        $this->assertDatabaseMissing('kanban_quadros', ['slug' => $novoSlug]);
+        $this->assertSoftDeleted('kanban_quadros', ['slug' => $novoSlug]);
     }
 
     public function test_consultor_can_list_but_cannot_mutate_kanban(): void

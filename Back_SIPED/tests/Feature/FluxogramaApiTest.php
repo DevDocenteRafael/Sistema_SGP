@@ -99,7 +99,7 @@ class FluxogramaApiTest extends TestCase
             ->assertJsonPath('data.0.total_nos', 1);
 
         $this->deleteJson("/api/fluxogramas/{$slug}")->assertOk();
-        $this->assertDatabaseMissing('fluxogramas', ['slug' => $slug]);
+        $this->assertSoftDeleted('fluxogramas', ['slug' => $slug]);
     }
 
     public function test_consultor_can_list_but_cannot_mutate_fluxogramas(): void

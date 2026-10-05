@@ -176,7 +176,7 @@ class ResolucaoController extends Controller
         }
 
         $numero = $resolucao->numero;
-        $this->anexos->apagar($resolucao->anexo_path);
+        // Exclusão lógica: o anexo fica guardado para uma eventual restauração.
         $resolucao->delete();
 
         return response()->json([

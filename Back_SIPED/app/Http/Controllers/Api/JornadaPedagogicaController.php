@@ -100,7 +100,7 @@ class JornadaPedagogicaController extends Controller
         }
 
         $titulo = $jornadaPedagogica->titulo;
-        $this->anexos->apagar($jornadaPedagogica->anexo_path);
+        // Exclusão lógica: o anexo fica guardado para uma eventual restauração.
         $jornadaPedagogica->delete();
 
         return response()->json([

@@ -1,4 +1,4 @@
-import { atualizarUsuarioSessao, getUsuario, podeGerenciarUsuarios } from './auth';
+import { atualizarUsuarioSessao, getUsuario, isRoot, podeGerenciarUsuarios } from './auth';
 import { hidratarUnidadesSelect } from './unidadesApi';
 import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 import PageTableCard from '../components/crud/PageTableCard.vue';
@@ -46,6 +46,21 @@ export default {
     };
   },
   computed: {
+    souRoot() {
+      return isRoot();
+    },
+    opcoesPerfil() {
+      const opcoes = [
+        { value: 'Administrador', label: 'Administrador — gestão de usuários, auditoria e restauração' },
+        { value: 'Editor', label: 'Editor — cria, altera e exclui dados do portfólio (com restauração)' },
+        { value: 'Consultor', label: 'Consultor — somente leitura' },
+      ];
+      // Só Root concede o perfil Root.
+      if (this.souRoot || this.form?.perfil === 'Root') {
+        opcoes.unshift({ value: 'Root', label: 'Root — dono do sistema (gerencia administradores)' });
+      }
+      return opcoes;
+    },
     podeEditar() {
       return podeGerenciarUsuarios();
     },
@@ -417,16 +432,20 @@ export default {
       }
     },
 
-    async excluirUsuario(usuario) {
-      if (!this.podeEditar) {
-        this.mensagemErro = 'Você não tem permissão para excluir usuários.';
+    /** Usuário Root só pode ser alterado por outro Root. */
+    podeAlterar(usuario) {
+      return this.podeEditar && (usuario?.perfil !== 'Root' || this.souRoot);
+    },
+
+    async inativarUsuario(usuario) {
+      if (!this.podeAlterar(usuario)) {
+        this.mensagemErro = 'Você não tem permissão para inativar este usuário.';
         return;
       }
 
       const confirmar = window.confirm(
-        `Excluir o usuário "${usuario.nome}"? Esta ação não pode ser desfeita.`
+        `Inativar o usuário "${usuario.nome}"? O acesso será bloqueado imediatamente, mas o histórico e a auditoria são mantidos. Ele pode ser reativado depois.`
       );
-
       if (!confirmar) {
         return;
       }
@@ -439,7 +458,25 @@ export default {
         this.mensagemSucesso = data.message;
         await this.carregarUsuarios();
       } catch (error) {
-        this.mensagemErro = this.extrairErro(error, 'Não foi possível excluir o usuário.');
+        this.mensagemErro = this.extrairErro(error, 'Não foi possível inativar o usuário.');
+      }
+    },
+
+    async reativarUsuario(usuario) {
+      if (!this.podeAlterar(usuario)) {
+        this.mensagemErro = 'Você não tem permissão para reativar este usuário.';
+        return;
+      }
+
+      this.mensagemErro = '';
+      this.mensagemSucesso = '';
+
+      try {
+        const { data } = await window.axios.post(`/api/usuarios/${usuario.id}/reativar`);
+        this.mensagemSucesso = data.message;
+        await this.carregarUsuarios();
+      } catch (error) {
+        this.mensagemErro = this.extrairErro(error, 'Não foi possível reativar o usuário.');
       }
     },
 

@@ -54,6 +54,12 @@
   color: #b91c1c;
 }
 
+.alert-success {
+  background: var(--sgp-success-bg, #e8f8ef);
+  border: 1px solid var(--sgp-success-border, #b7e4c7);
+  color: var(--sgp-success-text, #0f7b3b);
+}
+
 .filtros-bar {
   display: flex;
   flex-wrap: wrap;
@@ -295,3 +301,26 @@
   font-size: 0.8rem;
 }
 
+
+/* Filtro de exclusões a restaurar e ação Restaurar */
+.filtro-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--sgp-text, #374151);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.filtro-check input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--sgp-brand, #003f7d);
+}
+
+.btn-restaurar {
+  margin-left: 0.6rem;
+  font-weight: 600;
+}

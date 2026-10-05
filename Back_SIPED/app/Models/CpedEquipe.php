@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\ExclusaoLogica;
 use App\Services\CpedEquipeFotoService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class CpedEquipe extends Model
 {
     use AuditaCadastro;
+    use ExclusaoLogica;
 
     protected $table = 'cped_equipes';
 

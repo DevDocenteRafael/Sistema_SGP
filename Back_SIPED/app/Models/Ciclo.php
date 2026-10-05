@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\ExclusaoLogica;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Ciclo extends Model
 {
     use AuditaCadastro;
+    use ExclusaoLogica;
 
     protected $table = 'portfolio_ciclos';
 

@@ -76,9 +76,13 @@ Se o login falhar, a tela mostra a mensagem da API. Feche as janelas e rode `loc
 
 | Perfil | E-mail | Senha |
 |---|---|---|
+| Root | `root@df.senac.br` | `root2025` |
 | Administrador | `administrador@df.senac.br` | `senac2025` |
 | Editor | `editor@df.senac.br` | `editor2025` |
 | Consultor | `consultor@df.senac.br` | `consultor2025` |
+
+Esses usuários são só para desenvolvimento local. Em produção, crie o Root real com
+`php artisan siped:criar-root email@df.senac.br --gerar-senha` (a senha aparece uma única vez).
 
 ## Se preferir os comandos na mão
 

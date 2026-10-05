@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\ExclusaoLogica;
 use App\Models\Concerns\IdentificaOrigem;
 use App\Models\Concerns\SyncsEixoSegmento;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Curso extends Model
 {
     use AuditaCadastro;
+    use ExclusaoLogica;
     use IdentificaOrigem;
     use SyncsEixoSegmento;
 

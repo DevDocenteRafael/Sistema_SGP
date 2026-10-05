@@ -130,8 +130,9 @@ class CpedEquipeApiTest extends TestCase
 
         $deleteResponse = $this->deleteJson("/api/cped-equipes/{$id}");
         $deleteResponse->assertOk();
-        $this->assertDatabaseMissing('cped_equipes', ['id' => $id]);
-        Storage::disk('public')->assertMissing($caminhoRelativo);
+        $this->assertSoftDeleted('cped_equipes', ['id' => $id]);
+        // Exclusão lógica: a foto é mantida para permitir a restauração.
+        Storage::disk('public')->assertExists($caminhoRelativo);
     }
 
     public function test_filters_cped_equipes_by_tipo_and_eixo(): void

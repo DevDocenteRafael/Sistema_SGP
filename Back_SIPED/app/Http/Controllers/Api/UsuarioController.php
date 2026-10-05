@@ -51,6 +51,20 @@ class UsuarioController extends Controller
         ]);
     }
 
+    /**
+     * Só Root altera, inativa ou cria outro Root.
+     */
+    private function negarSeRootProtegido(Request $request, Usuario $alvo): ?JsonResponse
+    {
+        if ($alvo->isRoot() && ! $request->user()?->isRoot()) {
+            return response()->json([
+                'message' => 'Somente o perfil Root pode alterar um usuário Root.',
+            ], 403);
+        }
+
+        return null;
+    }
+
     public function store(UsuarioRequest $request): JsonResponse
     {
         $dados = $request->safe()->except(['foto', 'remover_foto']);
@@ -80,6 +94,10 @@ class UsuarioController extends Controller
 
     public function update(UsuarioRequest $request, Usuario $usuario): JsonResponse
     {
+        if ($negado = $this->negarSeRootProtegido($request, $usuario)) {
+            return $negado;
+        }
+
         $dados = $request->safe()->except(['foto', 'remover_foto']);
 
         if (! empty($dados['senha'])) {
@@ -89,9 +107,9 @@ class UsuarioController extends Controller
         }
 
         if (
-            $usuario->isAdministrador()
+            $usuario->temPerfilAdministrativo()
             && isset($dados['perfil'])
-            && $dados['perfil'] !== Usuario::PERFIL_ADMINISTRADOR
+            && ! in_array($dados['perfil'], [Usuario::PERFIL_ROOT, Usuario::PERFIL_ADMINISTRADOR], true)
             && $this->ehUltimoAdministradorAtivo($usuario)
         ) {
             return response()->json([
@@ -100,7 +118,7 @@ class UsuarioController extends Controller
         }
 
         if (
-            $usuario->isAdministrador()
+            $usuario->temPerfilAdministrativo()
             && array_key_exists('status', $dados)
             && $dados['status'] === false
             && $this->ehUltimoAdministradorAtivo($usuario)
@@ -109,6 +127,14 @@ class UsuarioController extends Controller
                 'message' => 'Não é possível inativar o último administrador ativo.',
             ], 422);
         }
+
+        if (array_key_exists('status', $dados) && $dados['status'] === false && $request->user()?->id === $usuario->id) {
+            return response()->json([
+                'message' => 'Você não pode inativar o próprio usuário.',
+            ], 422);
+        }
+
+        $statusAnterior = (bool) $usuario->status;
 
         $fotoAnterior = $usuario->caminhoFoto();
 
@@ -138,41 +164,87 @@ class UsuarioController extends Controller
             ['alterados' => $alterados],
         );
 
+        if (in_array('status', $alterados, true)) {
+            $this->auditoria->registrarModelo(
+                $usuario->status ? CadastroAuditoriaService::ACAO_REATIVAR : CadastroAuditoriaService::ACAO_INATIVAR,
+                $usuario,
+                null,
+                ['status_anterior' => $statusAnterior],
+            );
+        }
+
         return response()->json([
             'message' => 'Usuário atualizado com sucesso.',
             'usuario' => $usuario->fresh(),
         ]);
     }
 
+    /**
+     * Usuários não são excluídos: DELETE inativa, revoga os tokens e mantém o histórico.
+     */
     public function destroy(Request $request, Usuario $usuario): JsonResponse
     {
         if ($request->user()->id === $usuario->id) {
             return response()->json([
-                'message' => 'Você não pode excluir o próprio usuário.',
+                'message' => 'Você não pode inativar o próprio usuário.',
             ], 422);
         }
 
-        if ($usuario->isAdministrador() && $this->ehUltimoAdministradorAtivo($usuario)) {
+        if ($negado = $this->negarSeRootProtegido($request, $usuario)) {
+            return $negado;
+        }
+
+        if ($usuario->temPerfilAdministrativo() && $this->ehUltimoAdministradorAtivo($usuario)) {
             return response()->json([
-                'message' => 'Não é possível excluir o último administrador ativo.',
+                'message' => 'Não é possível inativar o último administrador ativo.',
             ], 422);
         }
 
-        $this->fotos->apagar($usuario->caminhoFoto());
-        $usuario->tokens()->delete();
-        $usuario->delete();
+        if (! $usuario->status) {
+            return response()->json([
+                'message' => 'Usuário já está inativo.',
+                'usuario' => $usuario,
+            ]);
+        }
 
-        $this->auditoria->registrarModelo(CadastroAuditoriaService::ACAO_EXCLUIR, $usuario);
+        $usuario->forceFill(['status' => false])->save();
+        $usuario->tokens()->delete();
+
+        $this->auditoria->registrarModelo(CadastroAuditoriaService::ACAO_INATIVAR, $usuario);
 
         return response()->json([
-            'message' => 'Usuário excluído com sucesso.',
+            'message' => 'Usuário inativado. O acesso foi bloqueado e o histórico foi mantido.',
+            'usuario' => $usuario->fresh(),
         ]);
     }
 
+    public function reativar(Request $request, Usuario $usuario): JsonResponse
+    {
+        if ($negado = $this->negarSeRootProtegido($request, $usuario)) {
+            return $negado;
+        }
+
+        if ($usuario->status) {
+            return response()->json([
+                'message' => 'Usuário já está ativo.',
+                'usuario' => $usuario,
+            ]);
+        }
+
+        $usuario->forceFill(['status' => true])->save();
+        $this->auditoria->registrarModelo(CadastroAuditoriaService::ACAO_REATIVAR, $usuario);
+
+        return response()->json([
+            'message' => 'Usuário reativado.',
+            'usuario' => $usuario->fresh(),
+        ]);
+    }
+
+    /** Root e Administrador contam como perfis administrativos. */
     private function ehUltimoAdministradorAtivo(Usuario $usuario): bool
     {
         return Usuario::query()
-            ->where('perfil', Usuario::PERFIL_ADMINISTRADOR)
+            ->whereIn('perfil', [Usuario::PERFIL_ROOT, Usuario::PERFIL_ADMINISTRADOR])
             ->where('status', true)
             ->where('id', '!=', $usuario->id)
             ->doesntExist();

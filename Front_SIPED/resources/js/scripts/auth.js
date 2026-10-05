@@ -1,42 +1,44 @@
 /**
  * Perfis e permissões do front (espelha config/permissoes.php).
  *
- * Administrador — gerencia usuários e acesso total.
+ * Root — dono técnico/funcional: gerencia administradores, auditoria e restauração.
+ * Administrador — gerencia usuários (exceto Root), auditoria e restauração.
  * Editor — altera dados do portfólio (sem usuários).
  * Consultor — apenas consulta.
  */
 
 export const PERFIS = {
+  ROOT: 'Root',
   ADMINISTRADOR: 'Administrador',
   EDITOR: 'Editor',
   CONSULTOR: 'Consultor',
 };
 
 export const MENU_POR_PERFIL = {
-  inicio: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  dashboard: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  relatorios: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  importacoes: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR],
-  auditoria: [PERFIS.ADMINISTRADOR],
-  cursos: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  ciclos: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  'ciclos-portfolio': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  'plano-de-metas': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  pca: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  'controle-de-resolucoes': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  'termos-de-referencia': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  eixos: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  'visitas-tecnicas': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  'horas-pedagogicas': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  'acoes-extensivas': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  eventos: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  'jornada-pedagogica': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  ferramentas: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  'sistemas-apoio': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  unidades: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  'estruturas-institucionais': [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  cped: [PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
-  usuarios: [PERFIS.ADMINISTRADOR],
+  inicio: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  dashboard: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  relatorios: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  importacoes: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR],
+  auditoria: [PERFIS.ROOT, PERFIS.ADMINISTRADOR],
+  cursos: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  ciclos: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  'ciclos-portfolio': [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  'plano-de-metas': [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  pca: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  'controle-de-resolucoes': [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  'termos-de-referencia': [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  eixos: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  'visitas-tecnicas': [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  'horas-pedagogicas': [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  'acoes-extensivas': [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  eventos: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  'jornada-pedagogica': [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  ferramentas: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  'sistemas-apoio': [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  unidades: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  'estruturas-institucionais': [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  cped: [PERFIS.ROOT, PERFIS.ADMINISTRADOR, PERFIS.EDITOR, PERFIS.CONSULTOR],
+  usuarios: [PERFIS.ROOT, PERFIS.ADMINISTRADOR],
 };
 
 /** null = ainda não validou; true/false = resultado da última checagem */
@@ -151,8 +153,17 @@ export async function garantirSessao() {
   return validacaoEmAndamento;
 }
 
+export function isRoot() {
+  return getPerfil() === PERFIS.ROOT;
+}
+
 export function isAdministrador() {
   return getPerfil() === PERFIS.ADMINISTRADOR;
+}
+
+/** Root ou Administrador. */
+export function temPerfilAdministrativo() {
+  return isRoot() || isAdministrador();
 }
 
 export function isEditor() {
@@ -171,13 +182,13 @@ export function podeAcessarMenu(rota) {
 }
 
 export function podeGerenciarUsuarios() {
-  return isAdministrador();
+  return temPerfilAdministrativo();
 }
 
 export function podeEditarDados() {
   const perfil = getPerfil();
 
-  return perfil === PERFIS.ADMINISTRADOR || perfil === PERFIS.EDITOR;
+  return perfil === PERFIS.ROOT || perfil === PERFIS.ADMINISTRADOR || perfil === PERFIS.EDITOR;
 }
 
 export function podeConsultarDados() {
@@ -187,9 +198,13 @@ export function podeConsultarDados() {
 export function podeImportarDados() {
   const perfil = getPerfil();
 
-  return perfil === PERFIS.ADMINISTRADOR || perfil === PERFIS.EDITOR;
+  return perfil === PERFIS.ROOT || perfil === PERFIS.ADMINISTRADOR || perfil === PERFIS.EDITOR;
 }
 
 export function podeConsultarAuditoria() {
-  return isAdministrador();
+  return temPerfilAdministrativo();
+}
+
+export function podeRestaurarRegistros() {
+  return temPerfilAdministrativo();
 }

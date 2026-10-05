@@ -30,9 +30,11 @@ class CicloContextoService
             return $this->encontrarOuFalhar((int) $explicito);
         }
 
+        // Cabeçalho é o ciclo lembrado pelo navegador: se ele foi excluído,
+        // volta para o ciclo atual em vez de travar todas as telas.
         $header = $request->headers->get(self::HEADER);
         if ($header !== null && $header !== '') {
-            return $this->encontrarOuFalhar((int) $header);
+            return Ciclo::query()->find((int) $header) ?? Ciclo::atual();
         }
 
         return Ciclo::atual();

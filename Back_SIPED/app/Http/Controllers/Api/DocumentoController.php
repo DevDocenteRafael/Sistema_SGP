@@ -163,7 +163,7 @@ class DocumentoController extends Controller
         }
 
         $titulo = $documento->titulo;
-        $this->documentos->apagarArquivo($documento);
+        // Exclusão lógica: o PDF fica guardado e pode ser restaurado.
         $documento->delete();
 
         return response()->json(['message' => 'Documento "'.$titulo.'" removido.']);

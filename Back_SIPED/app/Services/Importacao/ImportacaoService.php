@@ -1080,6 +1080,25 @@ class ImportacaoService
             $row = $this->montarLinhaCommit($linha, $campos, $camposUnicos, $defaults, $modulo, $cicloId);
             $existente = $this->encontrarExistente($modulo, $modelClass, $row, $cicloId);
 
+            // Registro correspondente está na lixeira: não recria nem sobrescreve.
+            if (! $existente && $this->encontrarExistente($modulo, $modelClass, $row, $cicloId, true)) {
+                $linha['status_importacao'] = 'erro';
+                $resumo['erro']++;
+                if (! empty($linha['campos_faltantes'])) {
+                    $resumo['incompleto']--;
+                }
+                $resultado['erros'][] = $this->erroImportacao(
+                    '',
+                    (int) ($linha['linha_planilha'] ?? 0),
+                    '',
+                    $this->rotuloLinha($linha),
+                    'O registro correspondente foi excluído. Restaure-o na Auditoria antes de reimportar; somente esta linha foi ignorada.',
+                    false,
+                );
+
+                continue;
+            }
+
             if (! $existente) {
                 $resumo['novo']++;
                 $linha['status_importacao'] = $eraPendente ? 'pendente' : 'novo';
@@ -1160,9 +1179,13 @@ class ImportacaoService
      * @param  class-string<Model>  $modelClass
      * @param  array<string, mixed>  $row
      */
-    private function encontrarExistente(string $modulo, string $modelClass, array $row, ?int $cicloId): ?Model
+    private function encontrarExistente(string $modulo, string $modelClass, array $row, ?int $cicloId, bool $naLixeira = false): ?Model
     {
-        $query = $modelClass::query();
+        $usaLixeira = in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses_recursive($modelClass), true);
+        if ($naLixeira && ! $usaLixeira) {
+            return null;
+        }
+        $query = $naLixeira ? $modelClass::query()->onlyTrashed() : $modelClass::query();
         if ($cicloId && $this->moduloTemCiclo($modulo)) {
             $query->where('ciclo_id', $cicloId);
         }

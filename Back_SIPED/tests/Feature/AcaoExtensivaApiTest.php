@@ -82,7 +82,7 @@ class AcaoExtensivaApiTest extends TestCase
 
         $deleteResponse = $this->deleteJson("/api/acoes-extensivas/{$id}");
         $deleteResponse->assertOk();
-        $this->assertDatabaseMissing('acao_extensivas', ['id' => $id]);
+        $this->assertSoftDeleted('acao_extensivas', ['id' => $id]);
     }
 
     public function test_filters_acoes_extensivas_by_status_and_priorizacao(): void

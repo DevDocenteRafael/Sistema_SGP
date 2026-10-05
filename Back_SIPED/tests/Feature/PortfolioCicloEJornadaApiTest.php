@@ -349,7 +349,7 @@ class PortfolioCicloEJornadaApiTest extends TestCase
         $this->assertStringContainsString('application/pdf', (string) $pdf->headers->get('content-type'));
 
         $this->deleteJson("/api/jornadas-pedagogicas/{$id}")->assertOk();
-        $this->assertDatabaseMissing('jornadas_pedagogicas', ['id' => $id]);
+        $this->assertSoftDeleted('jornadas_pedagogicas', ['id' => $id]);
     }
 
     public function test_consultor_nao_cria_jornada(): void

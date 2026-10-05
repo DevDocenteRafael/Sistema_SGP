@@ -108,7 +108,7 @@ class CursoApiTest extends TestCase
             ->assertJsonPath('curso.status', 'INATIVO');
 
         $this->deleteJson("/api/cursos/{$id}")->assertOk();
-        $this->assertDatabaseMissing('cursos', ['id' => $id]);
+        $this->assertSoftDeleted('cursos', ['id' => $id]);
     }
 
     public function test_filters_cursos_by_status_and_eixo(): void

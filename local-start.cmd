@@ -191,6 +191,7 @@ cd /d "%~dp0"
 echo.
 echo === Setup concluido ===
 echo Login: http://127.0.0.1:5173/login
+echo Root:  root@df.senac.br / root2025
 echo Admin: administrador@df.senac.br / senac2025
 echo Pasta do back usada: %~dp0Back_SIPED
 echo.

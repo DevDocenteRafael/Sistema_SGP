@@ -6,7 +6,13 @@ const ACAO_LABEL = {
   criar: 'Criou',
   editar: 'Editou',
   excluir: 'Excluiu',
+  restaurar: 'Restaurou',
   importar: 'Importou',
+  inativar: 'Inativou',
+  reativar: 'Reativou',
+  login: 'Entrou',
+  logout: 'Saiu',
+  login_falha: 'Login recusado',
 };
 
 export default {
@@ -20,11 +26,13 @@ export default {
         per_page: 50,
         current_page: 1,
         last_page: 1,
-        acoes: ['criar', 'editar', 'excluir', 'importar'],
+        acoes: Object.keys(ACAO_LABEL),
         modulos: [],
       },
       carregando: false,
       mensagemErro: '',
+      mensagemSucesso: '',
+      restaurando: null,
       detalhe: null,
       filtros: {
         busca: '',
@@ -32,6 +40,7 @@ export default {
         acao: '',
         data_inicio: '',
         data_fim: '',
+        a_restaurar: false,
       },
       buscaTimeout: null,
     };
@@ -41,7 +50,7 @@ export default {
   },
   computed: {
     temFiltro() {
-      return Object.values(this.filtros).some((valor) => valor !== '' && valor != null);
+      return Object.values(this.filtros).some((valor) => valor !== '' && valor != null && valor !== false);
     },
   },
   methods: {
@@ -52,6 +61,7 @@ export default {
         acao: '',
         data_inicio: '',
         data_fim: '',
+        a_restaurar: false,
       };
       this.carregar(1);
     },
@@ -85,8 +95,8 @@ export default {
           const params = { page, per_page: this.meta.per_page };
 
           Object.entries(this.filtros).forEach(([chave, valor]) => {
-            if (valor !== '' && valor !== null) {
-              params[chave] = valor;
+            if (valor !== '' && valor !== null && valor !== false) {
+              params[chave] = valor === true ? 1 : valor;
             }
           });
 
@@ -104,6 +114,24 @@ export default {
           this.carregando = false;
         }
       }, 200);
+    },
+
+    async restaurar(item) {
+      if (!window.confirm(`Restaurar este registro?\n\n${item.resumo}\n\nEle volta a aparecer na tela de origem.`)) {
+        return;
+      }
+      this.restaurando = item.id;
+      this.mensagemErro = '';
+      this.mensagemSucesso = '';
+      try {
+        const { data } = await window.axios.post(`/api/lixeira/${item.modulo_lixeira}/${item.registro_id}/restaurar`);
+        this.mensagemSucesso = data.message || 'Registro restaurado.';
+        this.carregar(this.meta.current_page);
+      } catch (error) {
+        this.mensagemErro = error?.response?.data?.message ?? 'Não foi possível restaurar o registro.';
+      } finally {
+        this.restaurando = null;
+      }
     },
 
     abrirDetalhe(registro) {

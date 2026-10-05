@@ -75,7 +75,7 @@ class CursoPorEixoApiTest extends TestCase
             ->assertJsonPath('cursoPorEixo.status', 'Suspenso');
 
         $this->deleteJson("/api/curso-por-eixos/{$id}")->assertOk();
-        $this->assertDatabaseMissing('curso_por_eixos', ['id' => $id]);
+        $this->assertSoftDeleted('curso_por_eixos', ['id' => $id]);
     }
 
     public function test_filters_curso_por_eixo_by_ano_and_eixo(): void

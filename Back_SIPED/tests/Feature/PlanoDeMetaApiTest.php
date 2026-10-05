@@ -73,7 +73,7 @@ class PlanoDeMetaApiTest extends TestCase
             ->assertJsonPath('planoDeMeta.status', 'APROVADO');
 
         $this->deleteJson("/api/plano-de-metas/{$id}")->assertOk();
-        $this->assertDatabaseMissing('plano_de_metas', ['id' => $id]);
+        $this->assertSoftDeleted('plano_de_metas', ['id' => $id]);
     }
 
     public function test_filters_plano_de_meta_by_status_and_segmento(): void

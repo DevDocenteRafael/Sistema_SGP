@@ -4,11 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cadastro;
+use App\Services\LixeiraService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CadastroController extends Controller
 {
+    public function __construct(
+        private readonly LixeiraService $lixeira,
+    ) {}
+
     public function index(Request $request): JsonResponse
     {
         $usuario = $request->user();
@@ -50,17 +55,26 @@ class CadastroController extends Controller
             $query->whereDate('created_at', '<=', $request->data_fim);
         }
 
+        // Exclusões que ainda podem ser restauradas (registro segue excluído).
+        if ($request->boolean('a_restaurar')) {
+            $this->lixeira->filtrarARestaurar($query);
+        }
+
         $porPagina = min(max((int) $request->input('per_page', 50), 1), 100);
         $paginator = $query->paginate($porPagina);
 
+        $podeRestaurar = (bool) $usuario->podeRestaurarRegistros();
+
         return response()->json([
-            'data' => $paginator->items(),
+            'data' => $podeRestaurar
+                ? $this->lixeira->anotar($paginator->items())
+                : $paginator->items(),
             'meta' => [
                 'total' => $paginator->total(),
                 'per_page' => $paginator->perPage(),
                 'current_page' => $paginator->currentPage(),
                 'last_page' => $paginator->lastPage(),
-                'acoes' => ['criar', 'editar', 'excluir', 'importar'],
+                'acoes' => \App\Services\CadastroAuditoriaService::acoes(),
                 'modulos' => Cadastro::query()
                     ->select('modulo')
                     ->distinct()

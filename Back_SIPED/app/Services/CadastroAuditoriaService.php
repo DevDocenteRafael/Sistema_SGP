@@ -18,6 +18,28 @@ class CadastroAuditoriaService
 
     public const ACAO_IMPORTAR = 'importar';
 
+    public const ACAO_RESTAURAR = 'restaurar';
+
+    public const ACAO_INATIVAR = 'inativar';
+
+    public const ACAO_REATIVAR = 'reativar';
+
+    public const ACAO_LOGIN = 'login';
+
+    public const ACAO_LOGOUT = 'logout';
+
+    public const ACAO_LOGIN_FALHA = 'login_falha';
+
+    /** @return list<string> */
+    public static function acoes(): array
+    {
+        return [
+            self::ACAO_CRIAR, self::ACAO_EDITAR, self::ACAO_EXCLUIR, self::ACAO_RESTAURAR,
+            self::ACAO_IMPORTAR, self::ACAO_INATIVAR, self::ACAO_REATIVAR,
+            self::ACAO_LOGIN, self::ACAO_LOGOUT, self::ACAO_LOGIN_FALHA,
+        ];
+    }
+
     /**
      * @param  array<string, mixed>|null  $dados
      */
@@ -82,7 +104,9 @@ class CadastroAuditoriaService
             \App\Models\CpedEquipe::class => 'cped-equipes',
             \App\Models\Fluxograma::class => 'fluxogramas',
             \App\Models\KanbanCartao::class => 'kanban',
+            \App\Models\KanbanColuna::class => 'kanban',
             \App\Models\KanbanQuadro::class => 'kanban',
+            \App\Models\Documento::class => 'documentos',
             \App\Models\Usuario::class => 'usuarios',
             default => class_basename($registro),
         };
@@ -108,6 +132,12 @@ class CadastroAuditoriaService
             self::ACAO_CRIAR => "Cadastrou {$rotulo}",
             self::ACAO_EDITAR => "Atualizou {$rotulo}",
             self::ACAO_EXCLUIR => "Excluiu {$rotulo}",
+            self::ACAO_RESTAURAR => "Restaurou {$rotulo}",
+            self::ACAO_INATIVAR => "Inativou {$rotulo}",
+            self::ACAO_REATIVAR => "Reativou {$rotulo}",
+            self::ACAO_LOGIN => "Entrou no sistema",
+            self::ACAO_LOGOUT => "Saiu do sistema",
+            self::ACAO_LOGIN_FALHA => "Tentativa de login recusada",
             self::ACAO_IMPORTAR => "Importou dados de {$modulo}",
             default => ucfirst($acao).' em '.$modulo,
         };

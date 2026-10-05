@@ -72,7 +72,7 @@ class HoraPedagogicaApiTest extends TestCase
             ->assertJsonPath('horaPedagogica.ativo', false);
 
         $this->deleteJson("/api/horas-pedagogicas/{$id}")->assertOk();
-        $this->assertDatabaseMissing('hora_pedagogicas', ['id' => $id]);
+        $this->assertSoftDeleted('hora_pedagogicas', ['id' => $id]);
     }
 
     public function test_filters_horas_by_ano_and_ativo(): void

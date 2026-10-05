@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ExclusaoLogica;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class KanbanQuadro extends Model
 {
+    use ExclusaoLogica;
+
     protected $table = 'kanban_quadros';
 
     protected $fillable = [

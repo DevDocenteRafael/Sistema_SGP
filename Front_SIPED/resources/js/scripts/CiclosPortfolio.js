@@ -422,7 +422,7 @@ export default {
         return;
       }
 
-      if (!window.confirm(`Excluir o ciclo "${item.nome}"? Esta ação não pode ser desfeita.`)) {
+      if (!window.confirm(`Excluir o ciclo "${item.nome}"? Ele pode ser restaurado por um administrador na Auditoria.`)) {
         return;
       }
 

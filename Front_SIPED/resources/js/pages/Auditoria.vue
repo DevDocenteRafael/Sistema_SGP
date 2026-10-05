@@ -2,8 +2,8 @@
   <div class="auditoria-page crud-page">
     <CrudPageHeader
       title="Auditoria"
-      subtitle="Histórico de cadastros, edições, exclusões e importações"
-      info="Registro automático de quem alterou cada módulo do SIPED. Disponível apenas para administradores."
+      subtitle="Histórico de cadastros, edições, exclusões, restaurações, importações e acessos"
+      info="Registro automático de quem fez o quê no SIPED. Exclusões são lógicas: enquanto o registro estiver excluído, o evento mostra o botão Restaurar. Disponível para Root e Administrador."
       :show-clear-filters="temFiltro"
       filters-aria-label="Filtros de auditoria"
       @limpar-filtros="limparFiltros"
@@ -33,6 +33,10 @@
             aria-label="Filtrar por ação"
             @change="carregar(1)"
           />
+          <label class="filtro-check">
+            <input v-model="filtros.a_restaurar" type="checkbox" @change="carregar(1)" />
+            Somente exclusões a restaurar
+          </label>
           <input
             v-model="filtros.data_inicio"
             type="date"
@@ -44,6 +48,7 @@
       </template>
     </CrudPageHeader>
 
+    <div v-if="mensagemSucesso" class="alert alert-success" role="status">{{ mensagemSucesso }}</div>
     <div v-if="mensagemErro" class="alert alert-error" role="alert">{{ mensagemErro }}</div>
 
     <PageTableCard :total="meta.total" aria-label="Tabela de auditoria">
@@ -59,7 +64,7 @@
               <th>Ação</th>
               <th>Módulo</th>
               <th>Resumo</th>
-              <th class="text-center">Detalhes</th>
+              <th class="text-center">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -85,6 +90,16 @@
               <td class="resumo-cell">{{ item.resumo }}</td>
               <td class="text-center">
                 <button type="button" class="btn-link" aria-label="Ver detalhes do evento" @click="abrirDetalhe(item)">Ver</button>
+                <button
+                  v-if="item.restauravel"
+                  type="button"
+                  class="btn-link btn-restaurar"
+                  :disabled="restaurando === item.id"
+                  :aria-label="`Restaurar registro: ${item.resumo}`"
+                  @click="restaurar(item)"
+                >
+                  {{ restaurando === item.id ? 'Restaurando...' : 'Restaurar' }}
+                </button>
               </td>
             </tr>
           </tbody>

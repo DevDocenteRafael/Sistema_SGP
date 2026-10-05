@@ -976,7 +976,7 @@ export default {
 
     async excluirCurso(curso) {
       const confirmar = window.confirm(
-        `Excluir o curso "${curso.titulo}"? Esta ação não pode ser desfeita.`
+        `Excluir o curso "${curso.titulo}"? Ele pode ser restaurado por um administrador na Auditoria.`
       );
 
       if (!confirmar) {

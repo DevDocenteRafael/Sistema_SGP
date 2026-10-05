@@ -61,6 +61,7 @@ class AuthSecurityTest extends TestCase
         $this->seed(\Database\Seeders\UsuarioSeeder::class);
 
         foreach ([
+            ['email' => 'root@df.senac.br', 'senha' => 'root2025', 'perfil' => Usuario::PERFIL_ROOT],
             ['email' => 'administrador@df.senac.br', 'senha' => 'senac2025', 'perfil' => Usuario::PERFIL_ADMINISTRADOR],
             ['email' => 'editor@df.senac.br', 'senha' => 'editor2025', 'perfil' => Usuario::PERFIL_EDITOR],
             ['email' => 'consultor@df.senac.br', 'senha' => 'consultor2025', 'perfil' => Usuario::PERFIL_CONSULTOR],

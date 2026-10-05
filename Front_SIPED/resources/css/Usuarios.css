@@ -749,23 +749,35 @@
 }
 
 .eixos-responsavel__lista {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.5rem 1.25rem;
 }
 
 .eixos-responsavel__item {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.7rem;
-  border: 1px solid var(--sgp-border, #d1d5db);
-  border-radius: 999px;
-  font-size: 0.82rem;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--sgp-text, #374151);
   cursor: pointer;
 }
 
-.eixos-responsavel__item:focus-within {
+/* Checkbox nativo: anula o estilo de campo de texto de .form-group input */
+.form-group .eixos-responsavel__item input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border-radius: 0.2rem;
+  accent-color: var(--sgp-brand, #003f7d);
+  cursor: pointer;
+}
+
+.form-group .eixos-responsavel__item input[type='checkbox']:focus-visible {
   outline: 2px solid var(--sgp-brand, #003f7d);
   outline-offset: 2px;
+  box-shadow: none;
 }

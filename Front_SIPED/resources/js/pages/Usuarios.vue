@@ -27,6 +27,7 @@
             <SearchableSelect
               v-model="filtros.perfil"
               :options="[
+                { value: 'Root', label: 'Root' },
                 { value: 'Administrador', label: 'Administrador' },
                 { value: 'Editor', label: 'Editor' },
                 { value: 'Consultor', label: 'Consultor' },
@@ -110,6 +111,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
                   <button
+                    v-if="podeAlterar(usuario)"
                     type="button"
                     class="btn-icon btn-edit"
                     title="Editar usuário"
@@ -119,13 +121,24 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                   </button>
                   <button
+                    v-if="podeAlterar(usuario) && usuario.status"
                     type="button"
                     class="btn-icon btn-delete"
-                    title="Excluir usuário"
-                    aria-label="Excluir usuário"
-                    @click="excluirUsuario(usuario)"
+                    title="Inativar usuário"
+                    aria-label="Inativar usuário"
+                    @click="inativarUsuario(usuario)"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>
+                  </button>
+                  <button
+                    v-if="podeAlterar(usuario) && !usuario.status"
+                    type="button"
+                    class="btn-icon btn-edit"
+                    title="Reativar usuário"
+                    aria-label="Reativar usuário"
+                    @click="reativarUsuario(usuario)"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
                   </button>
                 </td>
               </tr>
@@ -295,11 +308,7 @@
                   id="perfil"
                   input-id="perfil"
                   v-model="form.perfil"
-                  :options="[
-                    { value: 'Administrador', label: 'Administrador — acesso total e gestão de usuários' },
-                    { value: 'Editor', label: 'Editor — cria e altera dados do portfólio' },
-                    { value: 'Consultor', label: 'Consultor — somente leitura' },
-                  ]"
+                  :options="opcoesPerfil"
                   empty-option="Selecione o nível de acesso"
                   :required="true"
                 />

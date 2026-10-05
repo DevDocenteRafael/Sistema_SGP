@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\JornadaPedagogicaController;
 use App\Http\Controllers\Api\CicloController;
 use App\Http\Controllers\Api\SistemaApoioController;
 use App\Http\Controllers\Api\KanbanController;
+use App\Http\Controllers\Api\LixeiraController;
 use App\Http\Controllers\Api\NotificacaoController;
 use App\Http\Controllers\Api\OrganogramaController;
 use App\Http\Controllers\Api\PcaController;
@@ -42,9 +43,16 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'me']);
 
-    // Somente Administrador gerencia usuários (cadastra e define login/senha).
-    Route::middleware('perfil:'.Usuario::PERFIL_ADMINISTRADOR)
-        ->apiResource('usuarios', UsuarioController::class);
+    // Root e Administrador gerenciam usuários (só Root mexe em Root).
+    Route::middleware('perfil:'.Usuario::PERFIL_ROOT.','.Usuario::PERFIL_ADMINISTRADOR)
+        ->group(function () {
+            Route::apiResource('usuarios', UsuarioController::class);
+            Route::post('usuarios/{usuario}/reativar', [UsuarioController::class, 'reativar']);
+        });
+
+    // Registros excluídos (lixeira) — Root e Administrador restauram.
+    Route::get('lixeira', [LixeiraController::class, 'index']);
+    Route::post('lixeira/{modulo}/{id}/restaurar', [LixeiraController::class, 'restaurar'])->whereNumber('id');
 
     // Auditoria (tabela cadastros) — somente leitura para Administrador.
     Route::get('cadastros', [CadastroController::class, 'index']);

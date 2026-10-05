@@ -87,7 +87,7 @@ class EventoApiTest extends TestCase
 
         $deleteResponse = $this->deleteJson("/api/eventos/{$id}");
         $deleteResponse->assertOk();
-        $this->assertDatabaseMissing('eventos', ['id' => $id]);
+        $this->assertSoftDeleted('eventos', ['id' => $id]);
     }
 
     public function test_filters_eventos_by_status_and_acao_extensiva(): void

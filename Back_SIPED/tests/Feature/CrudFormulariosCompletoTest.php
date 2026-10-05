@@ -81,7 +81,7 @@ class CrudFormulariosCompletoTest extends TestCase
             ->assertJsonPath('termo.nome', 'TR CRUD atualizado');
 
         $this->deleteJson("/api/termos-referencia/{$id}")->assertOk();
-        $this->assertDatabaseMissing('termos_referencia', ['id' => $id]);
+        $this->assertSoftDeleted('termos_referencia', ['id' => $id]);
     }
 
     public function test_portfolio_ciclo_show_update_e_delete(): void
@@ -109,7 +109,7 @@ class CrudFormulariosCompletoTest extends TestCase
             ->assertJsonPath('ciclo.nome', '2030-A');
 
         $this->deleteJson("/api/portfolio-ciclos/{$id}")->assertOk();
-        $this->assertDatabaseMissing('portfolio_ciclos', ['id' => $id]);
+        $this->assertSoftDeleted('portfolio_ciclos', ['id' => $id]);
     }
 
     public function test_portfolio_ciclo_atual_nao_pode_ser_excluido(): void

@@ -14,6 +14,8 @@ class Usuario extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public const PERFIL_ROOT = 'Root';
+
     public const PERFIL_ADMINISTRADOR = 'Administrador';
 
     public const PERFIL_EDITOR = 'Editor';
@@ -71,9 +73,25 @@ class Usuario extends Authenticatable
         return $this->senha;
     }
 
+    public function isRoot(): bool
+    {
+        return $this->perfil === self::PERFIL_ROOT;
+    }
+
     public function isAdministrador(): bool
     {
         return $this->perfil === self::PERFIL_ADMINISTRADOR;
+    }
+
+    /** Root ou Administrador. */
+    public function temPerfilAdministrativo(): bool
+    {
+        return $this->isRoot() || $this->isAdministrador();
+    }
+
+    public function podeRestaurarRegistros(): bool
+    {
+        return $this->pode('restaurar_registros');
     }
 
     public function isEditor(): bool
@@ -139,6 +157,6 @@ class Usuario extends Authenticatable
      */
     public function veTodasNotificacoes(): bool
     {
-        return $this->isAdministrador() || $this->eixosResponsavel() === [];
+        return $this->temPerfilAdministrativo() || $this->eixosResponsavel() === [];
     }
 }

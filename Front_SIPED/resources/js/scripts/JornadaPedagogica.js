@@ -372,7 +372,7 @@ export default {
         return;
       }
 
-      if (!window.confirm(`Excluir a jornada "${item.titulo}"? Esta ação não pode ser desfeita.`)) {
+      if (!window.confirm(`Excluir a jornada "${item.titulo}"? Ele pode ser restaurado por um administrador na Auditoria.`)) {
         return;
       }
 

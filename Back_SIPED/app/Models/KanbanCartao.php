@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditaCadastro;
+use App\Models\Concerns\ExclusaoLogica;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class KanbanCartao extends Model
 {
     use AuditaCadastro;
+    use ExclusaoLogica;
 
     protected $table = 'kanban_cartoes';
 

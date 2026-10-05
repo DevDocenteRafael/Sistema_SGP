@@ -41,13 +41,17 @@ class CicloContextoApiTest extends TestCase
         $this->assertNotNull($novo->json('meta.ciclo_atual_id'));
     }
 
-    public function test_header_de_ciclo_inexistente_retorna_422(): void
+    public function test_header_de_ciclo_inexistente_volta_para_o_ciclo_atual(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
+        // O navegador pode lembrar um ciclo que foi excluído: a API usa o ciclo atual.
         $this->getJson('/api/visitas-tecnicas', [
             'X-SIPED-Ciclo-Id' => '99999',
-        ])->assertStatus(422);
+        ])->assertOk();
+
+        // Ciclo explícito inválido continua sendo erro de validação.
+        $this->getJson('/api/visitas-tecnicas?ciclo_id=99999')->assertStatus(422);
     }
 
     public function test_visitas_respeitam_header_de_ciclo(): void

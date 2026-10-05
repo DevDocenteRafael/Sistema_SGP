@@ -94,7 +94,7 @@ class OrigemDadosApiTest extends TestCase
             ->assertJsonPath('curso.titulo', 'Curso alterado');
 
         $this->deleteJson('/api/cursos/'.$id)->assertOk();
-        $this->assertDatabaseMissing('cursos', ['id' => $id]);
+        $this->assertSoftDeleted('cursos', ['id' => $id]);
     }
 
     public function test_registro_de_seeder_continua_identificado_e_pode_ser_editado(): void

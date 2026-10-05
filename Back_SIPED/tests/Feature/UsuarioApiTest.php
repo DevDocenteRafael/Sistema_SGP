@@ -74,8 +74,9 @@ class UsuarioApiTest extends TestCase
             ->assertJsonPath('usuario.nome', 'Editor Atualizado')
             ->assertJsonPath('usuario.perfil', Usuario::PERFIL_CONSULTOR);
 
-        $this->deleteJson("/api/usuarios/{$id}")->assertOk();
-        $this->assertDatabaseMissing('usuarios', ['id' => $id]);
+        // DELETE inativa (não exclui): o usuário permanece no histórico.
+        $this->deleteJson("/api/usuarios/{$id}")->assertOk()->assertJsonPath('usuario.status', false);
+        $this->assertDatabaseHas('usuarios', ['id' => $id, 'status' => false]);
     }
 
     public function test_editor_cannot_manage_usuarios(): void

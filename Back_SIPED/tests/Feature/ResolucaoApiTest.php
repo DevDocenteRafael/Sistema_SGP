@@ -95,7 +95,7 @@ class ResolucaoApiTest extends TestCase
 
         $deleteResponse = $this->deleteJson('/api/resolucoes/' . $id);
         $deleteResponse->assertOk();
-        $this->assertDatabaseMissing('resolucoes', ['id' => $id]);
+        $this->assertSoftDeleted('resolucoes', ['id' => $id]);
     }
 
     public function test_filters_resolucoes_by_status_and_setor(): void

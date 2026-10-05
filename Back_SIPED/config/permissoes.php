@@ -3,13 +3,16 @@
 /**
  * Níveis de acesso do SIPED.
  *
- * Administrador — gerencia usuários e tem acesso total.
+ * Root — dono técnico/funcional: gerencia administradores, usuários, auditoria e restauração.
+ *        Não pode ser alterado nem inativado por perfis inferiores.
+ * Administrador — gerencia usuários (exceto Root), auditoria, importação e restauração.
  * Editor — cria e altera dados do portfólio (sem gerenciar usuários).
  * Consultor — apenas consulta (leitura).
  */
 return [
 
     'perfis' => [
+        'Root',
         'Administrador',
         'Editor',
         'Consultor',
@@ -28,12 +31,14 @@ return [
     */
 
     'acoes' => [
-        'gerenciar_usuarios' => ['Administrador'],
-        'editar_dados' => ['Administrador', 'Editor'],
-        'consultar_dados' => ['Administrador', 'Editor', 'Consultor'],
-        'importar_dados' => ['Administrador', 'Editor'],
-        'ver_relatorios' => ['Administrador', 'Editor', 'Consultor'],
-        'consultar_auditoria' => ['Administrador'],
+        'gerenciar_usuarios' => ['Root', 'Administrador'],
+        'gerenciar_root' => ['Root'],
+        'editar_dados' => ['Root', 'Administrador', 'Editor'],
+        'consultar_dados' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'importar_dados' => ['Root', 'Administrador', 'Editor'],
+        'ver_relatorios' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'consultar_auditoria' => ['Root', 'Administrador'],
+        'restaurar_registros' => ['Root', 'Administrador'],
     ],
 
     /*
@@ -43,29 +48,29 @@ return [
     */
 
     'menu' => [
-        'inicio' => ['Administrador', 'Editor', 'Consultor'],
-        'dashboard' => ['Administrador', 'Editor', 'Consultor'],
-        'relatorios' => ['Administrador', 'Editor', 'Consultor'],
-        'importacoes' => ['Administrador', 'Editor'],
-        'auditoria' => ['Administrador'],
-        'cursos' => ['Administrador', 'Editor', 'Consultor'],
-        'ciclos' => ['Administrador', 'Editor', 'Consultor'],
-        'ciclos-portfolio' => ['Administrador', 'Editor', 'Consultor'],
-        'plano-de-metas' => ['Administrador', 'Editor', 'Consultor'],
-        'pca' => ['Administrador', 'Editor', 'Consultor'],
-        'controle-de-resolucoes' => ['Administrador', 'Editor', 'Consultor'],
-        'termos-de-referencia' => ['Administrador', 'Editor', 'Consultor'],
-        'eixos' => ['Administrador', 'Editor', 'Consultor'],
-        'visitas-tecnicas' => ['Administrador', 'Editor', 'Consultor'],
-        'horas-pedagogicas' => ['Administrador', 'Editor', 'Consultor'],
-        'acoes-extensivas' => ['Administrador', 'Editor', 'Consultor'],
-        'eventos' => ['Administrador', 'Editor', 'Consultor'],
-        'jornada-pedagogica' => ['Administrador', 'Editor', 'Consultor'],
-        'ferramentas' => ['Administrador', 'Editor', 'Consultor'],
-        'sistemas-apoio' => ['Administrador', 'Editor', 'Consultor'],
-        'unidades' => ['Administrador', 'Editor', 'Consultor'],
-        'estruturas-institucionais' => ['Administrador', 'Editor', 'Consultor'],
-        'cped' => ['Administrador', 'Editor', 'Consultor'],
-        'usuarios' => ['Administrador'],
+        'inicio' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'dashboard' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'relatorios' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'importacoes' => ['Root', 'Administrador', 'Editor'],
+        'auditoria' => ['Root', 'Administrador'],
+        'cursos' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'ciclos' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'ciclos-portfolio' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'plano-de-metas' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'pca' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'controle-de-resolucoes' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'termos-de-referencia' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'eixos' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'visitas-tecnicas' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'horas-pedagogicas' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'acoes-extensivas' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'eventos' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'jornada-pedagogica' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'ferramentas' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'sistemas-apoio' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'unidades' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'estruturas-institucionais' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'cped' => ['Root', 'Administrador', 'Editor', 'Consultor'],
+        'usuarios' => ['Root', 'Administrador'],
     ],
 ];

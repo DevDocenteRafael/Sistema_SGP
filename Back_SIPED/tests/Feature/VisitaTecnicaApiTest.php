@@ -70,7 +70,7 @@ class VisitaTecnicaApiTest extends TestCase
             ->assertJsonPath('visitaTecnica.status', 'Realizada');
 
         $this->deleteJson("/api/visitas-tecnicas/{$id}")->assertOk();
-        $this->assertDatabaseMissing('visita_tecnicas', ['id' => $id]);
+        $this->assertSoftDeleted('visita_tecnicas', ['id' => $id]);
     }
 
     public function test_filters_visitas_by_status(): void

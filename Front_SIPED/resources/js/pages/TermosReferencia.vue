@@ -421,7 +421,7 @@
       <div class="modal-confirmacao" role="dialog" aria-labelledby="confirmar-titulo">
         <h2 id="confirmar-titulo">Confirmar exclusão</h2>
         <p>Tem certeza que deseja excluir este Termo de Referência?</p>
-        <p class="modal-confirmacao-nome">Esta ação não pode ser desfeita.</p>
+        <p class="modal-confirmacao-nome">Ele pode ser restaurado por um administrador na Auditoria.</p>
         <div class="modal-confirmacao-actions">
           <button type="button" class="btn-secondary" @click="cancelarExclusao" :disabled="carregando">
             Cancelar
