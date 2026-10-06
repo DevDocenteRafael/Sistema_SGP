@@ -2,14 +2,19 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Concerns\SomenteForaDeProducao;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class TruncarDadosOperacionaisSeeder extends Seeder
 {
+    use SomenteForaDeProducao;
+
     public function run(): void
     {
+        $this->bloquearEmProducao();
+
         $tabelas = [
             'cadastros',
             'resolucao_historicos',

@@ -46,16 +46,17 @@ Route::middleware('throttle:svt')->prefix('integracoes/svt')->group(function () 
     Route::get('situacao', [SvtIntegracaoController::class, 'situacao']);
 });
 
-Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
+Route::middleware(['auth:sanctum', 'usuario.ativo', 'throttle:api-usuario'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'me']);
 
-    // Root e Administrador gerenciam usuários (só Root mexe em Root).
+    // Root e Administrador consultam usuários; só o Root cadastra, edita, inativa e reativa.
     Route::middleware('perfil:'.Usuario::PERFIL_ROOT.','.Usuario::PERFIL_ADMINISTRADOR)
-        ->group(function () {
-            Route::apiResource('usuarios', UsuarioController::class);
-            Route::post('usuarios/{usuario}/reativar', [UsuarioController::class, 'reativar']);
-        });
+        ->apiResource('usuarios', UsuarioController::class)->only(['index', 'show']);
+    Route::middleware(['perfil:'.Usuario::PERFIL_ROOT, 'throttle:pesado'])->group(function () {
+        Route::apiResource('usuarios', UsuarioController::class)->except(['index', 'show']);
+        Route::post('usuarios/{usuario}/reativar', [UsuarioController::class, 'reativar']);
+    });
 
     // Registros excluídos (lixeira) — Root e Administrador restauram.
     Route::get('lixeira', [LixeiraController::class, 'index']);
@@ -95,7 +96,7 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::apiResource('acoes-extensivas', AcaoExtensivaController::class)
         ->parameters(['acoes-extensivas' => 'acaoExtensiva']);
     Route::apiResource('eventos', EventoController::class);
-    Route::get('jornadas-pedagogicas/{jornadaPedagogica}/pdf', [JornadaPedagogicaController::class, 'pdf']);
+    Route::get('jornadas-pedagogicas/{jornadaPedagogica}/pdf', [JornadaPedagogicaController::class, 'pdf'])->middleware('throttle:pesado');
     Route::apiResource('jornadas-pedagogicas', JornadaPedagogicaController::class)
         ->parameters(['jornadas-pedagogicas' => 'jornadaPedagogica']);
     Route::get('sistemas-apoio', [SistemaApoioController::class, 'index']);
@@ -120,7 +121,7 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
 
     Route::get('relatorios', [RelatorioController::class, 'index']);
     Route::get('relatorios/{tipo}/preview', [RelatorioController::class, 'preview']);
-    Route::get('relatorios/{tipo}/pdf', [RelatorioController::class, 'pdf']);
+    Route::get('relatorios/{tipo}/pdf', [RelatorioController::class, 'pdf'])->middleware('throttle:pesado');
 
     Route::get('importacoes', [ImportacaoController::class, 'catalogo']);
     Route::get('importacoes/historico', [ImportacaoController::class, 'historico']);
@@ -129,12 +130,12 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
 
     // PDF é documento/anexo controlado (não é importado como planilha).
     Route::get('documentos', [DocumentoController::class, 'index']);
-    Route::post('documentos', [DocumentoController::class, 'store']);
+    Route::post('documentos', [DocumentoController::class, 'store'])->middleware('throttle:pesado');
     Route::put('documentos/{documento}', [DocumentoController::class, 'update']);
     Route::delete('documentos/{documento}', [DocumentoController::class, 'destroy']);
     Route::get('documentos/{documento}/arquivo', [DocumentoController::class, 'download']);
-    Route::post('importacoes/{modulo}/preview', [ImportacaoController::class, 'preview']);
-    Route::post('importacoes/{modulo}/commit', [ImportacaoController::class, 'commit']);
+    Route::post('importacoes/{modulo}/preview', [ImportacaoController::class, 'preview'])->middleware('throttle:pesado');
+    Route::post('importacoes/{modulo}/commit', [ImportacaoController::class, 'commit'])->middleware('throttle:pesado');
 
     Route::prefix('kanban')->group(function () {
         Route::get('quadros', [KanbanController::class, 'indexQuadros']);

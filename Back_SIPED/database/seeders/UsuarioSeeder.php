@@ -3,17 +3,34 @@
 namespace Database\Seeders;
 
 use App\Models\Usuario;
+use Database\Seeders\Concerns\SomenteForaDeProducao;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class UsuarioSeeder extends Seeder
 {
-    public function run(): void
+    use SomenteForaDeProducao;
+
+    /**
+     * Usuários de demonstração (senhas conhecidas). Nunca em produção: o comando
+     * siped:verificar-producao acusa se algum deles existir com essa senha.
+     *
+     * @return list<array<string, string>>
+     */
+    public static function demonstracao(): array
     {
-        $usuarios = [
+        return [
             [
                 'email' => 'root@df.senac.br',
                 'nome' => 'Root do Sistema',
+                'senha' => 'root2025',
+                'perfil' => Usuario::PERFIL_ROOT,
+                'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
+                'area' => 'Administração do sistema',
+            ],
+            [
+                'email' => 'root.substituto@df.senac.br',
+                'nome' => 'Root Substituto',
                 'senha' => 'root2025',
                 'perfil' => Usuario::PERFIL_ROOT,
                 'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
@@ -44,8 +61,13 @@ class UsuarioSeeder extends Seeder
                 'area' => 'Gestão',
             ],
         ];
+    }
 
-        foreach ($usuarios as $dados) {
+    public function run(): void
+    {
+        $this->bloquearEmProducao();
+
+        foreach (self::demonstracao() as $dados) {
             Usuario::updateOrCreate(
                 ['email' => $dados['email']],
                 [
@@ -69,6 +91,7 @@ class UsuarioSeeder extends Seeder
         $sobrenomes = ['Souza', 'Lima', 'Mendes', 'Prado', 'Costa', 'Ribeiro', 'Alves', 'Rocha'];
         $perfis = [Usuario::PERFIL_EDITOR, Usuario::PERFIL_EDITOR, Usuario::PERFIL_CONSULTOR, Usuario::PERFIL_EDITOR];
         $senha = Hash::make('senac2025');
+        $eixos = array_values((array) config('eixos', []));
 
         for ($i = 1; $i <= 117; $i++) {
             Usuario::query()->updateOrCreate(
@@ -82,6 +105,7 @@ class UsuarioSeeder extends Seeder
                     'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus 712/912 Norte',
                     'area' => $i % 3 === 0 ? 'Equipe Pedagógica' : 'Portfólio',
                     'telefone' => '6199'.str_pad((string) (100000 + $i), 6, '0', STR_PAD_LEFT),
+                    'eixos' => $eixos === [] ? null : array_values(array_unique([$eixos[$i % count($eixos)], $eixos[($i * 3) % count($eixos)]])),
                 ]
             );
         }
