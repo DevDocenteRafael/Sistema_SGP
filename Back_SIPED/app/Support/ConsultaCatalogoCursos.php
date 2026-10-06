@@ -16,6 +16,17 @@ class ConsultaCatalogoCursos
         return ($valor !== null && $valor !== '') ? (int) $valor : app(\App\Services\CicloContextoService::class)->id();
     }
 
+    /** Expressão SQL que remove a pontuação comum de SEI/SIG (funciona em MySQL e SQLite). */
+    private static function somenteDigitosSql(string $coluna): string
+    {
+        $sql = $coluna;
+        foreach (['.', '/', '-', ' '] as $caractere) {
+            $sql = "REPLACE({$sql}, '{$caractere}', '')";
+        }
+
+        return $sql;
+    }
+
     public static function query(array $filtros = []): Builder
     {
         $query = Curso::query();
@@ -23,10 +34,19 @@ class ConsultaCatalogoCursos
         if ($ciclo !== null) {
             $query->where('ciclo_id', $ciclo);
         }
-        if (! empty($filtros['busca'])) {
-            $query->where(function ($q) use ($filtros) {
-                foreach (['titulo', 'codigo_sig', 'processo_sei', 'eixo', 'unidade', 'programa'] as $campo) {
-                    $q->orWhere($campo, 'like', '%'.$filtros['busca'].'%');
+        $busca = trim((string) ($filtros['busca'] ?? ''));
+        if ($busca !== '') {
+            $query->where(function ($q) use ($busca) {
+                foreach (['titulo', 'codigo_sig', 'codigo_dn', 'processo_sei', 'eixo', 'segmento', 'unidade', 'programa'] as $campo) {
+                    $q->orWhere($campo, 'like', '%'.$busca.'%');
+                }
+
+                // SEI/SIG digitados com ou sem pontuação: compara só os dígitos.
+                $digitos = preg_replace('/\D+/', '', $busca);
+                if (strlen($digitos) >= 4) {
+                    foreach (['processo_sei', 'codigo_sig'] as $campo) {
+                        $q->orWhereRaw(self::somenteDigitosSql($campo).' like ?', ['%'.$digitos.'%']);
+                    }
                 }
             });
         }

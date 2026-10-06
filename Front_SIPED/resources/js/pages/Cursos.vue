@@ -97,8 +97,8 @@
                 <td>{{ curso.segmento || '—' }}</td>
                 <td>{{ curso.programa || '—' }}</td>
                 <td>{{ curso.carga_horaria || '—' }}</td>
-                <td>{{ curso.codigo_sig || '—' }}</td>
-                <td class="col-sei">{{ curso.processo_sei || '—' }}</td>
+                <td><CodigoSig :valor="curso.codigo_sig" :mostrar-atalho="false" /></td>
+                <td class="col-sei"><ProcessoSeiLink :valor="curso.processo_sei" /></td>
                 <td>
                   <span class="badge" :class="badgeStatus(curso.status)">
                     {{ rotuloStatus(curso.status) }}
@@ -297,7 +297,7 @@
                 </div>
                 <div class="detalhe-campo">
                   <span class="detalhe-label">Cód. SIG</span>
-                  <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.codigo_sig) }}</span>
+                  <span class="detalhe-valor"><CodigoSig :valor="cursoDetalhe.codigo_sig" /></span>
                 </div>
                 <div class="detalhe-campo">
                   <span class="detalhe-label">Identificação</span>
@@ -305,7 +305,7 @@
                 </div>
                 <div class="detalhe-campo detalhe-campo-full">
                   <span class="detalhe-label">Processo SEI</span>
-                  <span class="detalhe-valor detalhe-valor-mono">{{ valorCampo(cursoDetalhe.processo_sei) }}</span>
+                  <span class="detalhe-valor detalhe-valor-mono"><ProcessoSeiLink :valor="cursoDetalhe.processo_sei" /></span>
                 </div>
               </div>
             </div>

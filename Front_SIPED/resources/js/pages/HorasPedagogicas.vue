@@ -122,7 +122,7 @@
                 <td>{{ hora.matricula || '—' }}</td>
                 <td>{{ hora.segmento || '—' }}</td>
                 <td>{{ hora.eixo || '—' }}</td>
-                <td>{{ hora.processo_sei || '—' }}</td>
+                <td><ProcessoSeiLink :valor="hora.processo_sei" /></td>
                 <td>{{ hora.ano || '—' }}</td>
                 <td class="col-motivo" :title="hora.motivo || ''">{{ hora.motivo || '—' }}</td>
                 <td>
@@ -180,7 +180,7 @@
               </div>
               <div class="detalhe-form-campo">
                 <span>Processo SEI</span>
-                <div class="detalhe-valor-box">{{ horaDetalhe.processo_sei || '—' }}</div>
+                <div class="detalhe-valor-box"><ProcessoSeiLink :valor="horaDetalhe.processo_sei" /></div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Ano</span>

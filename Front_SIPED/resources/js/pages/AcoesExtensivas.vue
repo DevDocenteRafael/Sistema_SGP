@@ -121,7 +121,7 @@
                 <td>{{ item.atribuido || '—' }}</td>
                 <td>{{ item.eixo || '—' }}</td>
                 <td>
-                  <strong class="acao-sei">{{ item.numero_processo_sei || '—' }}</strong>
+                  <strong class="acao-sei"><ProcessoSeiLink :valor="item.numero_processo_sei" /></strong>
                 </td>
                 <td>{{ item.tipo || '—' }}</td>
                 <td class="col-assunto" :title="item.assunto || ''">{{ item.assunto || '—' }}</td>
@@ -163,7 +163,7 @@
             <div class="detalhe-form-grid">
               <div class="detalhe-form-campo">
                 <span>Processo SEI</span>
-                <div class="detalhe-valor-box">{{ registroDetalhe.numero_processo_sei || '—' }}</div>
+                <div class="detalhe-valor-box"><ProcessoSeiLink :valor="registroDetalhe.numero_processo_sei" /></div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Priorização</span>

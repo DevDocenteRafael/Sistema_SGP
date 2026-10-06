@@ -6,6 +6,8 @@ import SearchableSelect from './components/SearchableSelect.vue';
 import SgpTooltip from './components/ui/SgpTooltip.vue';
 import SgpHelpLabel from './components/ui/SgpHelpLabel.vue';
 import FormLabel from './components/ui/FormLabel.vue';
+import ProcessoSeiLink from './components/ciclo-vida/ProcessoSeiLink.vue';
+import CodigoSig from './components/ciclo-vida/CodigoSig.vue';
 import { initAcessibilidade } from './utils/acessibilidade';
 import { initScrollHorizontalTabelas, aplicarScrollHorizontalTabelas } from './utils/tableScrollSticky';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -22,6 +24,8 @@ app.component('SearchableSelect', SearchableSelect);
 app.component('SgpTooltip', SgpTooltip);
 app.component('SgpHelpLabel', SgpHelpLabel);
 app.component('FormLabel', FormLabel);
+app.component('ProcessoSeiLink', ProcessoSeiLink);
+app.component('CodigoSig', CodigoSig);
 app.use(router);
 app.mount('#app');
 

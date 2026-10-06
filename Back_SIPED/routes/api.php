@@ -92,6 +92,7 @@ Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::apiResource('jornadas-pedagogicas', JornadaPedagogicaController::class)
         ->parameters(['jornadas-pedagogicas' => 'jornadaPedagogica']);
     Route::get('sistemas-apoio', [SistemaApoioController::class, 'index']);
+    Route::get('sistemas-externos', [SistemaApoioController::class, 'externos']);
     Route::get('unidades-oferta/nomes', [UnidadeOfertaController::class, 'nomes']);
     Route::get('unidades-oferta/opcoes', [UnidadeOfertaController::class, 'opcoes']);
     Route::apiResource('regioes-administrativas', RegiaoAdministrativaController::class)

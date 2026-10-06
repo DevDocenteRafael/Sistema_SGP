@@ -226,6 +226,28 @@ class ImportacaoService
         return $resultado;
     }
 
+    /**
+     * Códigos oficiais do curso que mudariam com a importação.
+     *
+     * @param  array<string, mixed>  $row
+     * @return list<array{rotulo: string, cadastro: string, planilha: string}>
+     */
+    private function divergenciasDeCodigo(Model $existente, array $row): array
+    {
+        $campos = ['codigo_sig' => 'Cód. SIG', 'processo_sei' => 'Processo SEI', 'codigo_dn' => 'Cód. DN'];
+        $divergencias = [];
+
+        foreach ($campos as $campo => $rotulo) {
+            $cadastro = trim((string) ($existente->getAttribute($campo) ?? ''));
+            $planilha = trim((string) ($row[$campo] ?? ''));
+            if ($cadastro !== '' && $planilha !== '' && mb_strtolower($cadastro) !== mb_strtolower($planilha)) {
+                $divergencias[] = ['rotulo' => $rotulo, 'cadastro' => $cadastro, 'planilha' => $planilha];
+            }
+        }
+
+        return $divergencias;
+    }
+
     /** Quantos registros incompletos o histórico guarda com link para correção. */
     private const LIMITE_INCOMPLETOS_HISTORICO = 1000;
 
@@ -485,13 +507,20 @@ class ImportacaoService
             }
 
             $valor = trim($valor);
-            if ($valor === '' || mb_strlen($valor) > 80) {
-                // Vazio ou texto de observação que caiu na coluna de código
+            if ($valor === '') {
                 $registro[$campo] = null;
                 continue;
             }
 
-            $registro[$campo] = mb_substr($valor, 0, 100);
+            if (mb_strlen($valor) > 80) {
+                // Texto longo (observação) que caiu na coluna de código: não é código oficial.
+                $registro['_codigos_descartados'][$campo] = $valor;
+                $registro[$campo] = null;
+                continue;
+            }
+
+            // Código oficial: mantido exatamente (sem truncar).
+            $registro[$campo] = $valor;
         }
 
         return $registro;
@@ -779,6 +808,11 @@ class ImportacaoService
         }
 
         foreach ($mapa as $campo => $col) {
+            if (in_array($campo, self::CAMPOS_CODIGO, true)) {
+                $registro[$campo] = $this->valorCodigo($sheet, $col, $row);
+                continue;
+            }
+
             $valor = $this->cellValue($sheet, $col, $row);
             if (in_array($campo, $dateFields, true)) {
                 $registro[$campo] = $this->parseData($valor);
@@ -788,6 +822,40 @@ class ImportacaoService
         }
 
         return $registro;
+    }
+
+    /**
+     * Códigos oficiais (SIG, DN, SEI, matrícula...): preservados exatamente como aparecem na planilha.
+     */
+    private const CAMPOS_CODIGO = [
+        'codigo_sig', 'codigo_dn', 'processo_sei', 'numero_sei', 'numero_processo_sei', 'codigo', 'matricula',
+    ];
+
+    /**
+     * Lê um código como texto. Se o Excel guardou como número, usa o valor exibido
+     * na célula (mantém zeros à esquerda de formatos como "000123") e nunca a
+     * notação científica (1,23E+16).
+     */
+    private function valorCodigo(Worksheet $sheet, int $col, int $row): ?string
+    {
+        $celula = $sheet->getCell(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col).$row);
+        $bruto = $celula->getCalculatedValue();
+
+        if (is_int($bruto) || is_float($bruto)) {
+            $exibido = trim((string) $celula->getFormattedValue());
+            $inteiroComDecimais = is_float($bruto) && floor($bruto) === $bruto && preg_match('/[.,]0+$/', $exibido);
+            if ($exibido !== '' && ! $inteiroComDecimais && ! preg_match('/e[+-]?\d+$/i', $exibido) && preg_match('/^[\d.\/\-\s]+$/', $exibido)) {
+                return $exibido;
+            }
+
+            if (is_float($bruto) && floor($bruto) === $bruto) {
+                return sprintf('%.0f', $bruto);
+            }
+
+            return $this->textoOuNulo($bruto);
+        }
+
+        return $this->textoOuNulo($bruto);
     }
 
     /**
@@ -889,8 +957,19 @@ class ImportacaoService
                 $linha['modalidade'] = null;
             }
 
+            foreach ($linha['_codigos_descartados'] ?? [] as $campo => $valorDescartado) {
+                $erros[] = $this->erroImportacao(
+                    $aba,
+                    $numeroLinha,
+                    $campo === 'codigo_sig' ? 'Cód. SIG' : 'Cód. DN',
+                    mb_substr((string) $valorDescartado, 0, 120),
+                    'O conteúdo não parece um código oficial (texto longo); o curso foi importado sem esse código.',
+                    false,
+                );
+            }
+
             $linha['linha_planilha'] = $numeroLinha ?: ($linha['linha_planilha'] ?? null);
-            unset($linha['_aba'], $linha['_linha']);
+            unset($linha['_aba'], $linha['_linha'], $linha['_codigos_descartados']);
             $linhas[] = $linha;
         }
 
@@ -1097,6 +1176,20 @@ class ImportacaoService
                 );
 
                 continue;
+            }
+
+            if ($existente && $modulo === 'cursos') {
+                foreach ($this->divergenciasDeCodigo($existente, $row) as $divergencia) {
+                    $resultado['erros'][] = $this->erroImportacao(
+                        '',
+                        (int) ($linha['linha_planilha'] ?? 0),
+                        $divergencia['rotulo'],
+                        $divergencia['planilha'],
+                        'Código diferente do cadastro de "'.$this->rotuloLinha($linha).'": cadastro "'.$divergencia['cadastro'].'", planilha "'.$divergencia['planilha'].'". Será gravado o valor da planilha (fonte oficial).',
+                        false,
+                    );
+                    $linha['divergencias'][] = $divergencia['rotulo'];
+                }
             }
 
             if (! $existente) {

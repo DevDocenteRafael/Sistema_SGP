@@ -6,13 +6,16 @@
     target="_blank"
     rel="noopener noreferrer"
     :title="titulo"
+    :aria-label="`${texto} — ${titulo} (abre em nova aba)`"
   >{{ texto }}</a>
   <span v-else>{{ texto || '—' }}</span>
 </template>
 
 <script>
-import { hrefProcessoSei, SEI_BASE_URL } from '../../utils/processoSei';
+import { hrefProcessoSei, seiLinkDireto } from '../../utils/processoSei';
+import { carregarSistemasExternos, sistemasExternos } from '../../utils/sistemasExternos';
 
+/** Processo SEI clicável (abre o SEI em nova aba quando a URL está configurada). */
 export default {
   name: 'ProcessoSeiLink',
   props: {
@@ -26,15 +29,16 @@ export default {
       return String(this.valor || '').trim();
     },
     href() {
-      return hrefProcessoSei(this.texto);
+      return hrefProcessoSei(this.texto, sistemasExternos);
     },
     titulo() {
-      if (/^https?:\/\//i.test(this.texto)) {
-        return 'Abrir processo SEI';
-      }
-
-      return `Abrir o portal SEI (${SEI_BASE_URL})`;
+      return seiLinkDireto(this.texto, sistemasExternos)
+        ? 'Abrir processo no SEI'
+        : 'Abrir o SEI (localize o processo pelo número)';
     },
+  },
+  mounted() {
+    carregarSistemasExternos();
   },
 };
 </script>
