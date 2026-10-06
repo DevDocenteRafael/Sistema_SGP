@@ -4,7 +4,7 @@
       <CrudPageHeader
         title="Visitas Técnicas"
         subtitle="Processos de visitas técnicas registradas — SENAC DF"
-        info="Consulte e filtre os processos de visita técnica por unidade, eixo, SEI, responsável, ano, status e prazo."
+        info="Consulte e filtre as visitas técnicas por unidade, curso, turma, eixo, SEI, responsável, ano, status e prazo."
         :show-novo="podeCadastrarVisita"
         novo-label="Nova Visita"
         :show-clear-filters="temFiltro"
@@ -21,7 +21,7 @@
             <input
               v-model="filtros.busca"
               type="search"
-              placeholder="Buscar por unidade, eixo, SEI ou responsável..."
+              placeholder="Buscar por curso, turma, local, SEI ou responsável..."
               aria-label="Buscar visita técnica"
               @input="aplicarFiltros"
             />
@@ -121,6 +121,7 @@
             <thead>
               <tr>
                 <th>Processo SEI</th>
+                <th>Curso / Turma</th>
                 <th>Estrutura</th>
                 <th>Eixo</th>
                 <th>Responsável</th>
@@ -133,7 +134,7 @@
             </thead>
             <tbody>
               <tr v-if="totalVisitas === 0">
-                <td colspan="9" class="tabela-vazia">
+                <td colspan="10" class="tabela-vazia">
                   Nenhuma visita encontrada para os filtros selecionados.
                 </td>
               </tr>
@@ -141,6 +142,11 @@
                 <td>
                   <strong class="visita-sei"><ProcessoSeiLink :valor="visita.processo_sei" /></strong>
                   <span v-if="visita.origem_svt" class="selo-svt" title="Visita recebida do SVT">SVT</span>
+                </td>
+                <td>
+                  <span class="visita-curso">{{ visita.curso || '—' }}</span>
+                  <small v-if="visita.turma" class="visita-sub">Turma {{ visita.turma }}</small>
+                  <small v-if="visita.local_visita" class="visita-sub">Local: {{ visita.local_visita }}</small>
                 </td>
                 <td>{{ visita.unidade || '—' }}</td>
                 <td>{{ visita.eixo || '—' }}</td>
@@ -230,13 +236,121 @@
                 <div class="detalhe-valor-box">{{ formatarData(visitaDetalhe.prazo_limite) }}</div>
               </div>
               <div class="detalhe-form-campo campo-full">
-                <span>Relatório</span>
-                <div class="detalhe-valor-box detalhe-valor-texto">{{ visitaDetalhe.relatorio || '—' }}</div>
-              </div>
-              <div class="detalhe-form-campo campo-full">
                 <span>Observação</span>
                 <div class="detalhe-valor-box detalhe-valor-texto">{{ visitaDetalhe.observacao || '—' }}</div>
               </div>
+
+              <h3 class="detalhe-bloco-titulo">Solicitação</h3>
+              <div class="detalhe-form-campo">
+                <span>Curso</span>
+                <div class="detalhe-valor-box">{{ visitaDetalhe.curso || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Tipo de curso</span>
+                <div class="detalhe-valor-box">{{ visitaDetalhe.tipo_curso || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Turma</span>
+                <div class="detalhe-valor-box">{{ visitaDetalhe.turma || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Instrutor</span>
+                <div class="detalhe-valor-box">{{ visitaDetalhe.instrutor || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Local da visita</span>
+                <div class="detalhe-valor-box">{{ visitaDetalhe.local_visita || '—' }}</div>
+              </div>
+
+              <h3 class="detalhe-bloco-titulo">Limite de visitas da turma</h3>
+              <div class="detalhe-form-campo campo-full">
+                <span>Visitas utilizadas</span>
+                <div class="detalhe-valor-box">
+                  {{ textoLimite(visitaDetalhe) }}
+                  <span v-if="limiteExcedido(visitaDetalhe)" class="selo-excedido">Acima do limite</span>
+                </div>
+              </div>
+              <div v-if="visitaDetalhe.justificativa_excedente" class="detalhe-form-campo campo-full">
+                <span>Justificativa (acima do limite)</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ visitaDetalhe.justificativa_excedente }}</div>
+              </div>
+
+              <h3 class="detalhe-bloco-titulo">Fluxo de aprovação</h3>
+              <div class="detalhe-form-campo campo-full">
+                <ol class="fluxo-etapas" aria-label="Decisões por etapa">
+                  <li v-if="!decisoesDe(visitaDetalhe).length" class="fluxo-vazio">Nenhuma decisão registrada ainda.</li>
+                  <li v-for="(d, i) in decisoesDe(visitaDetalhe)" :key="i" :class="decisaoClass(d.decisao)">
+                    <strong>{{ d.etapa || 'Etapa' }}</strong>
+                    <span class="fluxo-decisao">{{ d.decisao || '—' }}</span>
+                    <small v-if="d.responsavel || d.data">{{ [d.responsavel, formatarDataLivre(d.data)].filter(Boolean).join(' · ') }}</small>
+                    <p v-if="d.motivo" class="fluxo-motivo">{{ d.motivo }}</p>
+                  </li>
+                </ol>
+              </div>
+              <div v-if="visitaDetalhe.motivo_recusa" class="detalhe-form-campo campo-full">
+                <span>Motivo da recusa</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ visitaDetalhe.motivo_recusa }}</div>
+              </div>
+
+              <template v-if="temTransporte(visitaDetalhe)">
+                <h3 class="detalhe-bloco-titulo">Transporte (NULOG)</h3>
+                <div class="detalhe-form-campo">
+                  <span>Tipo</span>
+                  <div class="detalhe-valor-box">{{ visitaDetalhe.transporte.tipo || '—' }}</div>
+                </div>
+                <div class="detalhe-form-campo">
+                  <span>Veículo / placa</span>
+                  <div class="detalhe-valor-box">{{ [visitaDetalhe.transporte.veiculo, visitaDetalhe.transporte.placa].filter(Boolean).join(' · ') || '—' }}</div>
+                </div>
+                <div class="detalhe-form-campo">
+                  <span>Data e horário</span>
+                  <div class="detalhe-valor-box">{{ formatarDataLivre(visitaDetalhe.transporte.data_hora) || '—' }}</div>
+                </div>
+                <div class="detalhe-form-campo">
+                  <span>Motorista</span>
+                  <div class="detalhe-valor-box">{{ visitaDetalhe.transporte.motorista || '—' }}</div>
+                </div>
+                <div v-if="visitaDetalhe.transporte.observacao" class="detalhe-form-campo campo-full">
+                  <span>Observações do transporte</span>
+                  <div class="detalhe-valor-box detalhe-valor-texto">{{ visitaDetalhe.transporte.observacao }}</div>
+                </div>
+              </template>
+
+              <h3 class="detalhe-bloco-titulo">Relatório pós-visita</h3>
+              <div class="detalhe-form-campo campo-full">
+                <span>Arquivo</span>
+                <div class="detalhe-valor-box">
+                  <a v-if="visitaDetalhe.relatorio_url" :href="visitaDetalhe.relatorio_url" target="_blank" rel="noopener noreferrer">
+                    {{ visitaDetalhe.relatorio_arquivo_nome || 'Abrir relatório' }} ↗
+                  </a>
+                  <template v-else>{{ visitaDetalhe.relatorio_arquivo_nome || 'Ainda não enviado.' }}</template>
+                </div>
+              </div>
+              <div class="detalhe-form-campo campo-full">
+                <span>Resumo</span>
+                <div class="detalhe-valor-box detalhe-valor-texto">{{ visitaDetalhe.relatorio || '—' }}</div>
+              </div>
+
+              <template v-if="visitaDetalhe.turma">
+                <h3 class="detalhe-bloco-titulo">Histórico da turma {{ visitaDetalhe.turma }}</h3>
+                <div class="detalhe-form-campo campo-full">
+                  <p v-if="!(visitaDetalhe.historico_turma || []).length" class="fluxo-vazio">Nenhuma outra visita desta turma.</p>
+                  <table v-else class="historico-turma">
+                    <thead><tr><th>Data</th><th>Local</th><th>Situação</th><th>Relatório</th></tr></thead>
+                    <tbody>
+                      <tr v-for="h in visitaDetalhe.historico_turma" :key="h.id">
+                        <td>{{ formatarData(h.data) }}</td>
+                        <td>{{ h.local || '—' }}</td>
+                        <td><span class="badge-status" :class="statusClass(h.status)">{{ h.status || '—' }}</span></td>
+                        <td>
+                          <a v-if="h.relatorio_url" :href="h.relatorio_url" target="_blank" rel="noopener noreferrer">{{ h.relatorio_arquivo_nome || 'Abrir' }} ↗</a>
+                          <template v-else>—</template>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </template>
             </div>
           </div>
 

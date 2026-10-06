@@ -1,7 +1,7 @@
 /* Específicos de Visitas Técnicas — layout em crud-page.css */
 
 .crud-table {
-  min-width: 980px;
+  min-width: 1100px;
 }
 
 .visita-sei {
@@ -31,6 +31,105 @@
 .badge-cancelada {
   background: #f3f4f6;
   color: #4b5563;
+}
+
+.badge-aprovada {
+  background: #ecfeff;
+  color: #0e7490;
+}
+
+.badge-recusada {
+  background: #fdf2f8;
+  color: #be185d;
+}
+
+/* Campos da ATA de 30/09/2026 (curso/turma, fluxo, transporte, histórico) */
+.visita-curso {
+  display: block;
+  font-weight: 600;
+}
+
+.visita-sub {
+  display: block;
+  color: var(--sgp-text-muted, #6b7280);
+  font-size: 0.72rem;
+}
+
+.detalhe-bloco-titulo {
+  grid-column: 1 / -1;
+  margin: 0.75rem 0 0;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--sgp-border, #e5e7eb);
+  color: var(--sgp-text, #003f7d);
+  font-size: 0.9rem;
+}
+
+.selo-excedido {
+  margin-left: 0.5rem;
+  padding: 0 0.4rem;
+  border-radius: 0.3rem;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.fluxo-etapas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.fluxo-etapas li {
+  padding: 0.45rem 0.65rem;
+  border-left: 4px solid #9ca3af;
+  border-radius: 0.35rem;
+  background: var(--sgp-surface-muted, #f9fafb);
+  font-size: 0.82rem;
+}
+
+.fluxo-etapas li.fluxo-aprovada {
+  border-left-color: #0e7490;
+}
+
+.fluxo-etapas li.fluxo-recusada {
+  border-left-color: #be185d;
+}
+
+.fluxo-decisao {
+  margin-left: 0.5rem;
+  text-transform: capitalize;
+}
+
+.fluxo-etapas small {
+  display: block;
+  color: var(--sgp-text-muted, #6b7280);
+}
+
+.fluxo-motivo {
+  margin: 0.25rem 0 0;
+  white-space: pre-wrap;
+}
+
+.fluxo-vazio {
+  margin: 0;
+  color: var(--sgp-text-muted, #6b7280);
+  font-size: 0.82rem;
+}
+
+.historico-turma {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.historico-turma th,
+.historico-turma td {
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
+  text-align: left;
 }
 
 /* Integração com o SVT (SPEC 07) */

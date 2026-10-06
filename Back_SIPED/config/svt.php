@@ -3,7 +3,8 @@
 /**
  * Integração com o SVT — Sistema de Visitas Técnicas (SPEC 07).
  *
- * O SVT é um sistema separado (fluxo Instrutor → Coordenação → CPAD → DEP → NULOG).
+ * O SVT é um sistema separado (fluxo Instrutor → Núcleo Pedagógico → Coordenação DEP/CPED
+ * → Direção Pedagógica → NULOG), conforme a ATA de 30/09/2026.
  * O SIPED recebe as visitas por API e mostra a página de Visitas Técnicas para consulta.
  * Contrato: docs/integracao-svt.md
  */
@@ -27,8 +28,23 @@ return [
     // Máximo de visitas por chamada.
     'lote_maximo' => 500,
 
-    // Etapas do fluxo do SVT (informativo; o SVT é a fonte da verdade).
-    'etapas' => ['Instrutor', 'Coordenação', 'CPAD', 'DEP', 'NULOG'],
+    // Etapas do fluxo (ATA de 30/09/2026). Informativo: o SVT é a fonte da verdade.
+    'etapas' => [
+        'Instrutor',
+        'Núcleo Pedagógico da unidade',
+        'Coordenação/área DEP/CPED',
+        'Direção Pedagógica',
+        'NULOG',
+    ],
+
+    // Limites de visitas por tipo de curso apresentados na ATA (referência; a regra
+    // completa por curso ainda será fornecida e é aplicada no SVT).
+    'limites_referencia' => [
+        'Curso Técnico' => 4,
+        'Qualificação' => 2,
+        'Aperfeiçoamento' => 1,
+        'Aprendizagem' => 4,
+    ],
 
     // Identificador gravado em source_system.
     'sistema' => 'svt',

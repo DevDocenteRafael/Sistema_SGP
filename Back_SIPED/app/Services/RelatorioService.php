@@ -373,6 +373,7 @@ class RelatorioService
 
         $this->aplicarBusca($query, $filtros, [
             'unidade', 'eixo', 'processo_sei', 'responsavel', 'status', 'relatorio', 'observacao',
+            'curso', 'turma', 'instrutor', 'local_visita',
         ]);
 
         if (! empty($filtros['unidade'])) {

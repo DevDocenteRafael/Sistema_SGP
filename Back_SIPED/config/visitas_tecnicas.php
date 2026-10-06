@@ -4,6 +4,8 @@ return [
     'status' => [
         'Pendente',
         'Em andamento',
+        'Aprovada',
+        'Recusada',
         'Realizada',
         'Cancelada',
         'Atrasada',

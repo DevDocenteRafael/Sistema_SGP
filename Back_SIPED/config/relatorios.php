@@ -153,6 +153,9 @@ return [
             'filtros' => ['unidade', 'eixo', 'status'],
             'colunas' => [
                 ['key' => 'unidade', 'label' => 'Unidade'],
+                ['key' => 'curso', 'label' => 'Curso'],
+                ['key' => 'turma', 'label' => 'Turma'],
+                ['key' => 'local_visita', 'label' => 'Local'],
                 ['key' => 'processo_sei', 'label' => 'SEI'],
                 ['key' => 'eixo', 'label' => 'Eixo'],
                 ['key' => 'data_solicitacao', 'label' => 'Solicitação'],
@@ -161,7 +164,7 @@ return [
                 ['key' => 'status', 'label' => 'Status'],
                 ['key' => 'responsavel', 'label' => 'Responsável'],
             ],
-            'preview_keys' => ['unidade', 'processo_sei', 'eixo', 'status', 'responsavel', 'data_solicitacao'],
+            'preview_keys' => ['unidade', 'curso', 'turma', 'eixo', 'status', 'data_visita_prevista'],
         ],
         'horas-pedagogicas' => [
             'key' => 'horas-pedagogicas',

@@ -13,7 +13,7 @@ import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 
 const EIXOS = [...EIXOS_OFICIAIS];
 
-const STATUS_LISTA = ['Pendente', 'Em andamento', 'Realizada', 'Cancelada', 'Atrasada'];
+const STATUS_LISTA = ['Pendente', 'Em andamento', 'Aprovada', 'Recusada', 'Realizada', 'Cancelada', 'Atrasada'];
 const ANOS = ['2024', '2025', '2026', '2027'];
 const PRAZO_LISTA = [
   { value: 'dentro', label: 'Dentro do prazo' },
@@ -176,8 +176,44 @@ export default createCrudPage({
       const data = new Date(iso);
       return Number.isNaN(data.getTime()) ? '' : data.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
     },
+    /** Fluxo do SVT (ATA de 30/09/2026): limite por turma, decisões e transporte. */
+    textoLimite(visita) {
+      const usadas = visita?.visitas_utilizadas;
+      const limite = visita?.visitas_limite;
+      if (usadas == null && limite == null) return 'Não informado pelo SVT.';
+      if (limite == null) return `${usadas} visita(s) utilizada(s)`;
+      return `${usadas ?? 0} de ${limite} visita(s)`;
+    },
+    limiteExcedido(visita) {
+      const usadas = Number(visita?.visitas_utilizadas);
+      const limite = Number(visita?.visitas_limite);
+      return visita?.visitas_limite != null && visita?.visitas_utilizadas != null && usadas > limite;
+    },
+    decisoesDe(visita) {
+      return Array.isArray(visita?.decisoes) ? visita.decisoes : [];
+    },
+    decisaoClass(decisao) {
+      const chave = String(decisao || '').toLowerCase();
+      if (chave.startsWith('recus')) return 'fluxo-recusada';
+      if (chave.startsWith('aprov')) return 'fluxo-aprovada';
+      return 'fluxo-outra';
+    },
+    temTransporte(visita) {
+      const t = visita?.transporte;
+      return !!t && typeof t === 'object' && Object.values(t).some((v) => v);
+    },
+    /** Datas livres vindas do SVT (data ou data e hora). */
+    formatarDataLivre(valor) {
+      if (!valor) return '';
+      const texto = String(valor);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) return this.formatarData(texto);
+      const data = new Date(texto);
+      return Number.isNaN(data.getTime()) ? texto : data.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+    },
     statusClass(status) {
       const mapa = {
+        Aprovada: 'badge-aprovada',
+        Recusada: 'badge-recusada',
         Realizada: 'badge-realizada',
         'Em andamento': 'badge-andamento',
         Pendente: 'badge-pendente',

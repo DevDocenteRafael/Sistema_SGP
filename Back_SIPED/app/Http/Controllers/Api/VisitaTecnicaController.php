@@ -44,7 +44,11 @@ class VisitaTecnicaController extends Controller
                     ->orWhere('responsavel', 'like', "%{$busca}%")
                     ->orWhere('status', 'like', "%{$busca}%")
                     ->orWhere('relatorio', 'like', "%{$busca}%")
-                    ->orWhere('observacao', 'like', "%{$busca}%");
+                    ->orWhere('observacao', 'like', "%{$busca}%")
+                    ->orWhere('curso', 'like', "%{$busca}%")
+                    ->orWhere('turma', 'like', "%{$busca}%")
+                    ->orWhere('instrutor', 'like', "%{$busca}%")
+                    ->orWhere('local_visita', 'like', "%{$busca}%");
             });
         }
 
@@ -105,6 +109,35 @@ class VisitaTecnicaController extends Controller
         ]);
     }
 
+    /**
+     * Outras visitas da mesma turma/curso (ATA, item 13): datas, locais e situação.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function historicoTurma(VisitaTecnica $visita): array
+    {
+        if (! $visita->turma) {
+            return [];
+        }
+
+        return VisitaTecnica::query()
+            ->where('turma', $visita->turma)
+            ->when($visita->curso, fn ($q) => $q->where('curso', $visita->curso))
+            ->whereKeyNot($visita->getKey())
+            ->orderByDesc('data_visita_prevista')
+            ->limit(30)
+            ->get(['id', 'data_visita_prevista', 'local_visita', 'status', 'relatorio_url', 'relatorio_arquivo_nome'])
+            ->map(fn (VisitaTecnica $v) => [
+                'id' => $v->id,
+                'data' => $v->data_visita_prevista?->format('Y-m-d'),
+                'local' => $v->local_visita,
+                'status' => $v->status,
+                'relatorio_url' => $v->relatorio_url,
+                'relatorio_arquivo_nome' => $v->relatorio_arquivo_nome,
+            ])
+            ->all();
+    }
+
     private function bloqueioSvt(?VisitaTecnica $visita = null): ?JsonResponse
     {
         if ($visita && SvtIntegracaoService::ehDoSvt($visita)) {
@@ -143,7 +176,9 @@ class VisitaTecnicaController extends Controller
         }
 
         return response()->json([
-            'visitaTecnica' => $this->serializar($visitaTecnica),
+            'visitaTecnica' => array_merge($this->serializar($visitaTecnica), [
+                'historico_turma' => $this->historicoTurma($visitaTecnica),
+            ]),
         ]);
     }
 

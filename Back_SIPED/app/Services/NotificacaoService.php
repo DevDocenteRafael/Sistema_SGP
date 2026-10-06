@@ -283,7 +283,7 @@ class NotificacaoService
             ->when($cicloId, fn ($query) => $query->where('ciclo_id', $cicloId))
             ->where(function ($query) {
                 $query->whereNull('status')
-                    ->orWhereNotIn('status', ['Realizada', 'Cancelada']);
+                    ->orWhereNotIn('status', ['Realizada', 'Cancelada', 'Recusada']);
             })
             ->where(function ($query) use ($limiteAlerta) {
                 $query->whereRaw('LOWER(status) = ?', ['atrasada'])

@@ -1,7 +1,8 @@
 # Integração SIPED ← SVT (Sistema de Visitas Técnicas)
 
-O SVT é o sistema onde as visitas técnicas são solicitadas e aprovadas
-(Instrutor → Coordenação → CPAD → DEP → NULOG). O SIPED **recebe** as visitas do SVT
+O SVT é o sistema onde as visitas técnicas são solicitadas e aprovadas. Fluxo definido na
+ATA de 30/09/2026: Instrutor → Núcleo Pedagógico da unidade → Coordenação/área responsável
+na DEP/CPED → Direção Pedagógica → NULOG (transporte) → relatório pós-visita. O SIPED **recebe** as visitas do SVT
 e as mostra na página **Visitas Técnicas**, que continua no menu para consulta.
 
 O SVT é a fonte da verdade: visitas que vieram do SVT não podem ser editadas nem
@@ -46,11 +47,33 @@ não forem enviados ficam como estão.
       "data_solicitacao": "2026-10-01",
       "data_visita_prevista": "2026-10-20",
       "prazo_limite": "2026-10-15",
-      "status": "Em andamento",
-      "etapa": "CPAD",
-      "responsavel": "Coordenação de Gestão",
+      "status": "Aprovada",
+      "etapa": "NULOG",
+      "responsavel": "Coordenação de Gestão (DEP/CPED)",
       "relatorio": "",
-      "observacao": "Visita à empresa X"
+      "observacao": "Visita à empresa X",
+
+      "curso": "Técnico em Administração",
+      "tipo_curso": "Curso Técnico",
+      "turma": "ADM-2026-01",
+      "instrutor": "Nome do instrutor",
+      "local_visita": "Empresa X — SIA Trecho 3",
+
+      "visitas_utilizadas": 5,
+      "visitas_limite": 4,
+      "justificativa_excedente": "Atividade do projeto integrador",
+      "motivo_recusa": null,
+
+      "decisoes": [
+        { "etapa": "Núcleo Pedagógico da unidade", "decisao": "aprovada", "responsavel": "Fulana", "data": "2026-10-02", "motivo": null },
+        { "etapa": "Direção Pedagógica", "decisao": "aprovada", "responsavel": "Beltrano", "data": "2026-10-05T10:00:00-03:00" }
+      ],
+      "transporte": {
+        "tipo": "Micro-ônibus", "veiculo": "Micro-ônibus 24 lugares", "placa": "ABC1D23",
+        "data_hora": "2026-10-20T07:30:00-03:00", "motorista": "Nome do motorista", "observacao": "Saída da unidade"
+      },
+      "relatorio_url": "https://svt.df.senac.br/visitas/SVT-2026-000123/relatorio",
+      "relatorio_arquivo_nome": "relatorio-visita.pdf"
     },
     { "id": "SVT-2026-000099", "excluida": true }
   ]
@@ -60,9 +83,17 @@ não forem enviados ficam como estão.
 | Campo | Observação |
 |---|---|
 | `id` | Obrigatório. Id da visita no SVT (texto, até 120 caracteres). |
-| `status` | Pendente, Em andamento, Realizada, Cancelada ou Atrasada (grafias equivalentes são ajustadas). Outros valores são guardados como vieram. |
-| `etapa` | Etapa atual do fluxo no SVT (Instrutor, Coordenação, CPAD, DEP, NULOG). |
-| datas | Formato `AAAA-MM-DD`. |
+| `status` | Pendente, Em andamento, Aprovada, Recusada, Realizada, Cancelada ou Atrasada (grafias equivalentes são ajustadas). Outros valores são guardados como vieram. Visitas Recusadas, Realizadas ou Canceladas não geram alerta de prazo. |
+| `etapa` | Etapa atual do fluxo: Instrutor, Núcleo Pedagógico da unidade, Coordenação/área DEP/CPED, Direção Pedagógica ou NULOG. |
+| `responsavel` | Responsável na DEP/CPED atribuído pelo eixo/curso. |
+| `curso`, `tipo_curso`, `turma`, `instrutor`, `local_visita` | Dados da solicitação (ATA, item 5). `turma` (com `curso`) monta o histórico da turma no SIPED. |
+| `visitas_utilizadas`, `visitas_limite` | Contagem da turma e limite do tipo de curso (referência da ATA: Técnico 4, Qualificação até 2 conforme a carga horária, Aperfeiçoamento 1, Aprendizagem 4). O SVT aplica a regra; o SIPED só mostra e destaca quando passa do limite. |
+| `justificativa_excedente` | Justificativa quando a turma passa do limite (a solicitação não é bloqueada). |
+| `motivo_recusa` | Motivo quando alguma etapa recusa. |
+| `decisoes` | Lista com a decisão de cada etapa: `etapa`, `decisao` (aprovada, recusada, encaminhada…), `responsavel`, `motivo`, `data`. Enviar a lista completa a cada atualização (substitui a anterior). |
+| `transporte` | Definido pelo NULOG: `tipo`, `veiculo`, `placa`, `data_hora`, `motorista`, `observacao`. |
+| `relatorio_url`, `relatorio_arquivo_nome` | Link (http/https) para o relatório pós-visita em Word ou PDF guardado no SVT. Links que não sejam http/https são descartados. |
+| datas | `data_solicitacao`, `data_visita_prevista` (data pretendida) e `prazo_limite` no formato `AAAA-MM-DD`. |
 | `excluida` | `true` exclui a visita no SIPED (exclusão lógica, restaurável pela Auditoria). Reenviar a visita sem `excluida` a restaura. |
 
 Resposta `200`:
@@ -106,6 +137,11 @@ Importações do SIPED (tipo “integração”).
 
 - A página **Visitas Técnicas** continua no menu.
 - Visitas do SVT aparecem com o selo “SVT”, a etapa do fluxo e o link “Abrir no SVT”.
+- A tabela mostra curso, turma e local. O detalhe da visita mostra a solicitação, o limite
+  de visitas da turma (com destaque quando passa do limite e a justificativa), as decisões
+  de cada etapa, o transporte do NULOG, o relatório pós-visita e o histórico da turma
+  (outras visitas da mesma turma/curso, com datas, locais, situação e relatórios).
+- A busca e o relatório de Visitas Técnicas incluem curso, turma, instrutor e local.
 - Visitas do SVT não podem ser editadas nem excluídas no SIPED (`409`).
 - Com `VISITAS_TECNICAS_ORIGEM=svt`: sem “Nova Visita”, sem edição/exclusão e sem
   importação de planilha de visitas.
@@ -114,6 +150,8 @@ Importações do SIPED (tipo “integração”).
 
 ## Pendências
 
+- Regra completa de limite por curso/carga horária (ATA: “a regra completa ainda será fornecida”).
+- Integração do SVT com o SIG e o login educacional (decisão da ATA; é do SVT, não do SIPED).
 - Definir com a equipe do SVT o formato final dos campos (unidade, eixo, status).
 - Definir se o SVT envia tudo periodicamente ou só as alterações (o endpoint aceita os dois).
 - Definir o destino das visitas cadastradas no SIPED antes da integração (migrar para o SVT ou manter como histórico).
