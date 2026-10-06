@@ -34,6 +34,7 @@ class AcaoExtensivaController extends Controller
                     ->orWhere('assunto', 'like', "%{$busca}%")
                     ->orWhere('objetivo', 'like', "%{$busca}%")
                     ->orWhere('tipo', 'like', "%{$busca}%")
+                    ->orWhere('setor_atual', 'like', "%{$busca}%")
                     ->orWhere('status', 'like', "%{$busca}%");
             });
         }
@@ -46,8 +47,10 @@ class AcaoExtensivaController extends Controller
             CatalogoOficial::aplicarFiltroEixo($query, $request->eixo);
         }
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        // "setor" (e o antigo "status", para compatibilidade) filtram o setor/etapa atual.
+        $setor = $request->input('setor', $request->input('status'));
+        if (is_string($setor) && $setor !== '') {
+            $query->where('setor_atual', $setor);
         }
 
         if ($request->filled('tipo')) {
@@ -61,7 +64,10 @@ class AcaoExtensivaController extends Controller
             'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => AcaoExtensiva::query()->count(),
                 'priorizacoes' => config('acoes_extensivas.priorizacoes'),
-                'status' => config('acoes_extensivas.status'),
+                'setores' => config('acoes_extensivas.setores'),
+                // Compatibilidade (Relatórios): "status" agora lista os setores/etapas.
+                'status' => config('acoes_extensivas.setores'),
+                'status_execucao' => config('acoes_extensivas.status_execucao'),
                 'tipos' => config('acoes_extensivas.tipos'),
                 'eixos' => CatalogoOficial::eixos(),
             ]),

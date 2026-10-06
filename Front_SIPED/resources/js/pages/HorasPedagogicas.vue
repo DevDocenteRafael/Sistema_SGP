@@ -54,7 +54,7 @@
               id="filtro-status-hora"
               input-id="filtro-status-hora"
               v-model="filtros.status"
-              :options="statusLista"
+              :options="statusFiltro"
               empty-option="Todos os status"
               @change="aplicarFiltros"
             />
@@ -228,26 +228,28 @@
               <div class="form-group">
                 <label for="matricula"><FormLabel label="Matrícula" required /></label>
                 <input id="matricula" v-model="form.matricula" type="text" maxlength="50" required inputmode="numeric" placeholder="Ex: 2026001" @input="formatarMatricula" />
+              </div>              <div class="form-group">
+                <label for="eixo"><FormLabel label="Eixo" required /></label>
+                <SearchableSelect
+                  id="eixo"
+                  input-id="eixo"
+                  v-model="form.eixo"
+                  @change="segmentosDoEixo.includes(form.segmento) || (form.segmento = '')"
+                  :options="eixos"
+                  empty-option="Selecione o eixo"
+                  :required="true"
+                />
               </div>
+
               <div class="form-group">
                 <label for="segmento"><FormLabel label="Segmento" required /></label>
                 <SearchableSelect
                   id="segmento"
                   input-id="segmento"
                   v-model="form.segmento"
-                  :options="segmentos"
-                  empty-option="Selecione o segmento"
-                  :required="true"
-                />
-              </div>
-              <div class="form-group">
-                <label for="eixo"><FormLabel label="Eixo" required /></label>
-                <SearchableSelect
-                  id="eixo"
-                  input-id="eixo"
-                  v-model="form.eixo"
-                  :options="eixos"
-                  empty-option="Selecione o eixo"
+                  :options="segmentosDoEixo"
+                  :disabled="!form.eixo"
+                  :empty-option="form.eixo ? 'Selecione o segmento' : 'Escolha o eixo primeiro'"
                   :required="true"
                 />
               </div>
@@ -286,7 +288,7 @@
                   id="status"
                   input-id="status"
                   v-model="form.status"
-                  :options="statusLista"
+                  :options="statusFormulario"
                   empty-option="Selecione o status"
                   :required="true"
                 />

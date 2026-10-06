@@ -20,6 +20,8 @@ class Evento extends Model
     protected $fillable = [
         'ciclo_id',
         'nome',
+        'processo_sei',
+        'tipo_evento',
         'ano',
         'data',
         'unidade',

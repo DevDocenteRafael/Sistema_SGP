@@ -57,7 +57,7 @@ class AuditoriaCadastroTest extends TestCase
             'tipo' => 'Ação Extensiva',
             'assunto' => 'Ação com auditoria',
             'objetivo' => 'Validar log de criação.',
-            'status' => 'CPED',
+            'setor_atual' => 'CPED',
             'ultima_atualizacao' => '2026-07-20',
         ]);
 

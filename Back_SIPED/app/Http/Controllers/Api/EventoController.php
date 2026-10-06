@@ -38,6 +38,8 @@ class EventoController extends Controller
                     ->orWhere('equipe', 'like', "%{$busca}%")
                     ->orWhere('acao_vinculada', 'like', "%{$busca}%")
                     ->orWhere('status', 'like', "%{$busca}%")
+                    ->orWhere('processo_sei', 'like', "%{$busca}%")
+                    ->orWhere('tipo_evento', 'like', "%{$busca}%")
                     ->orWhere('observacao', 'like', "%{$busca}%");
             });
         }
@@ -90,6 +92,12 @@ class EventoController extends Controller
             'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => Evento::query()->count(),
                 'status' => config('eventos.status'),
+                'tipos_evento' => collect(config('eventos.tipos_sugeridos', []))
+                    ->merge(\App\Models\Evento::query()->whereNotNull('tipo_evento')->distinct()->pluck('tipo_evento'))
+                    ->unique(fn ($t) => \App\Support\CatalogoOficial::chave($t))
+                    ->sort()
+                    ->values()
+                    ->all(),
                 'anos' => $anos,
                 'eixos' => CatalogoOficial::eixos(),
                 'unidades' => UnidadeOferta::nomesAtivos(),

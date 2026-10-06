@@ -164,7 +164,10 @@ class DashboardService
                 'usuarios_inativos' => $totalUsuarios - $usuariosAtivos,
             ],
             'distribuicoes' => [
-                'horas' => $this->contarDistribuicao($horas, 'status', config('horas_pedagogicas.status', [])),
+                'horas' => $this->contarDistribuicao($horas, 'status', [
+                    ...config('horas_pedagogicas.status', []),
+                    ...config('horas_pedagogicas.status_legados', []),
+                ]),
                 'acoes' => $this->contarDistribuicao($acoesLeves->all(), 'priorizacao', config('acoes_extensivas.priorizacoes', [])),
                 'eventos' => $this->contarDistribuicao($eventosLeves->all(), 'status', config('eventos.status', [])),
                 'visitas' => $this->contarDistribuicao($visitas, 'status', config('visitas_tecnicas.status', [])),

@@ -423,12 +423,13 @@ class RelatorioService
         $this->aplicarFiltroCiclo($query, $filtros);
 
         $this->aplicarBusca($query, $filtros, [
-            'atribuido', 'eixo', 'numero_processo_sei', 'assunto', 'objetivo', 'tipo', 'status',
+            'atribuido', 'eixo', 'numero_processo_sei', 'assunto', 'objetivo', 'tipo', 'setor_atual', 'status',
         ]);
 
         $this->aplicarFiltroEixoOficial($query, $filtros);
+        // Filtro "status" do relatório = setor/etapa atual (SPEC 06).
         if (! empty($filtros['status'])) {
-            $query->where('status', $filtros['status']);
+            $query->where('setor_atual', $filtros['status']);
         }
 
         return $query;

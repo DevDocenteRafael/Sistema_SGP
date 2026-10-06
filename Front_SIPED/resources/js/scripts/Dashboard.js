@@ -240,7 +240,6 @@ export default {
             { key: 'alta', title: 'Alta', color: '#DC2626' },
             { key: 'media', title: 'Média', color: '#F59E0B' },
             { key: 'baixa', title: 'Baixa', color: '#16A34A' },
-            { key: 'resolvido', title: 'Resolvido', color: '#2563EB' },
           ]),
         },
         {

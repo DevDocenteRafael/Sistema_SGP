@@ -93,7 +93,7 @@ class HoraPedagogicaApiTest extends TestCase
         HoraPedagogica::create([
             'matricula' => '1002',
             'pessoa' => 'Inativa',
-            'segmento' => 'Gestão e Moda',
+            'segmento' => 'Gestão e Comércio',
             'eixo' => 'Gestão e Moda',
             'processo_sei' => '2026.2',
             'ano' => 2025,

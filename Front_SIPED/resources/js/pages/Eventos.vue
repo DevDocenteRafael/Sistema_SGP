@@ -111,6 +111,8 @@
             <thead>
               <tr>
                 <th>Evento</th>
+                <th>Tipo</th>
+                <th>Processo SEI</th>
                 <th>Data</th>
                 <th>Estrutura</th>
                 <th>Eixo</th>
@@ -124,7 +126,7 @@
             </thead>
             <tbody>
               <tr v-if="totalRegistros === 0">
-                <td colspan="10" class="tabela-vazia">
+                <td colspan="12" class="tabela-vazia">
                   Nenhum registro encontrado para os filtros selecionados.
                 </td>
               </tr>
@@ -132,6 +134,8 @@
                 <td class="col-evento" :title="item.nome || ''">
                   <strong class="evento-nome">{{ item.nome || '—' }}</strong>
                 </td>
+                <td>{{ item.tipo_evento || '—' }}</td>
+                <td><ProcessoSeiLink :valor="item.processo_sei" /></td>
                 <td>{{ formatarData(item.data) }}</td>
                 <td>{{ item.unidade || '—' }}</td>
                 <td>{{ item.eixo || '—' }}</td>
@@ -178,6 +182,14 @@
               <div class="detalhe-form-campo campo-full">
                 <span>Evento</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.nome || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Tipo do evento</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.tipo_evento || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Processo SEI</span>
+                <div class="detalhe-valor-box"><ProcessoSeiLink :valor="registroDetalhe.processo_sei" /></div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Ano</span>
@@ -254,6 +266,33 @@
                   required
                   placeholder="Ex: Feira de Profissões SENAC DF"
                 />
+              </div>
+              <div class="form-group">
+                <label for="processo_sei"><FormLabel label="Processo SEI" required /></label>
+                <input
+                  id="processo_sei"
+                  v-model="form.processo_sei"
+                  type="text"
+                  maxlength="100"
+                  required
+                  placeholder="Ex: 0001234.567890/2026-01"
+                  @input="formatarProcessoSei"
+                />
+              </div>
+              <div class="form-group">
+                <label for="tipo_evento"><FormLabel label="Tipo do evento" required /></label>
+                <input
+                  id="tipo_evento"
+                  v-model="form.tipo_evento"
+                  type="text"
+                  maxlength="100"
+                  required
+                  list="tipos-evento-lista"
+                  placeholder="Ex: Palestra, Oficina, Seminário"
+                />
+                <datalist id="tipos-evento-lista">
+                  <option v-for="tipo in tiposEvento" :key="tipo" :value="tipo" />
+                </datalist>
               </div>
               <div class="form-group">
                 <label for="data"><FormLabel label="Data" required /></label>

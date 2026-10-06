@@ -10,8 +10,9 @@ import {
 } from '../utils/validacao';
 import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 
-const PRIORIZACOES = ['Baixa', 'Média', 'Alta', 'Resolvido'];
-const STATUS_LISTA = ['CPED', 'DEP', 'DIREG', 'NC'];
+/** Prioridade (somente Baixa/Média/Alta) e setor/etapa atual são campos diferentes. */
+const PRIORIZACOES = ['Baixa', 'Média', 'Alta'];
+const SETORES = ['CPED', 'DEP', 'DIREG', 'NC'];
 const TIPOS = ['Ação Extensiva'];
 const EIXOS = [...EIXOS_OFICIAIS];
 
@@ -24,7 +25,7 @@ export default createCrudPage({
     busca: '',
     priorizacao: '',
     eixo: '',
-    status: '',
+    setor: '',
     tipo: '',
   },
   formVazio: () => ({
@@ -35,7 +36,7 @@ export default createCrudPage({
     tipo: 'Ação Extensiva',
     assunto: '',
     objetivo: '',
-    status: '',
+    setor_atual: '',
     ultima_atualizacao: '',
   }),
   normalizarRegistro(registro) {
@@ -48,7 +49,8 @@ export default createCrudPage({
       tipo: registro.tipo || 'Ação Extensiva',
       assunto: registro.assunto || '',
       objetivo: registro.objetivo || '',
-      status: registro.status || '',
+      setor_atual: registro.setor_atual || '',
+      situacao_legada: registro.situacao_legada || '',
       ultima_atualizacao: this.normalizarData(registro.ultima_atualizacao),
     };
   },
@@ -61,7 +63,7 @@ export default createCrudPage({
       tipo: registro.tipo || 'Ação Extensiva',
       assunto: registro.assunto ?? '',
       objetivo: registro.objetivo ?? '',
-      status: registro.status ?? '',
+      setor_atual: registro.setor_atual ?? '',
       ultima_atualizacao: this.normalizarData(registro.ultima_atualizacao),
     };
   },
@@ -76,7 +78,7 @@ export default createCrudPage({
       textoObrigatorio(form.tipo, 'O tipo é obrigatório.'),
       textoObrigatorio(form.assunto, 'O assunto é obrigatório.'),
       tamanhoMaximo(form.assunto, 500, 'O assunto deve ter no máximo 500 caracteres.'),
-      textoObrigatorio(form.status, 'O status é obrigatório.'),
+      textoObrigatorio(form.setor_atual, 'Informe o setor/etapa atual.'),
       form.objetivo
         ? tamanhoMaximo(form.objetivo, 2000, 'O objetivo deve ter no máximo 2000 caracteres.')
         : '',
@@ -92,7 +94,7 @@ export default createCrudPage({
       tipo: form.tipo || 'Ação Extensiva',
       assunto: form.assunto.trim(),
       objetivo: form.objetivo?.trim() || null,
-      status: form.status,
+      setor_atual: form.setor_atual,
       ultima_atualizacao: form.ultima_atualizacao || null,
     };
   },
@@ -108,13 +110,13 @@ export default createCrudPage({
   },
   aplicarMeta(meta) {
     if (Array.isArray(meta.priorizacoes) && meta.priorizacoes.length) this.priorizacoes = meta.priorizacoes;
-    if (Array.isArray(meta.status) && meta.status.length) this.statusLista = meta.status;
+    if (Array.isArray(meta.setores) && meta.setores.length) this.setores = meta.setores;
     if (Array.isArray(meta.tipos) && meta.tipos.length) this.tipos = meta.tipos;
     if (Array.isArray(meta.eixos) && meta.eixos.length) this.eixos = meta.eixos;
   },
   extraData: () => ({
     priorizacoes: PRIORIZACOES,
-    statusLista: STATUS_LISTA,
+    setores: SETORES,
     tipos: TIPOS,
     eixos: EIXOS,
   }),
@@ -125,7 +127,6 @@ export default createCrudPage({
         Baixa: 'badge-baixa',
         Média: 'badge-media',
         Alta: 'badge-alta',
-        Resolvido: 'badge-resolvido',
       };
       return mapa[valor] || 'badge-media';
     },

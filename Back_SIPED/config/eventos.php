@@ -12,4 +12,16 @@ return [
         'Não',
     ],
     'eixos' => require __DIR__.'/eixos.php',
+
+    // Tipo do evento: texto controlado enquanto o catálogo oficial não é definido.
+    // Estes são só sugestões; o formulário também oferece os tipos já usados.
+    'tipos_sugeridos' => [
+        'Jornada',
+        'Palestra',
+        'Oficina',
+        'Seminário',
+        'Feira',
+        'Formatura',
+        'Reunião',
+    ],
 ];

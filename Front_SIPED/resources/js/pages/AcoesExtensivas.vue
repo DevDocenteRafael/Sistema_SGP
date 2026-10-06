@@ -51,11 +51,11 @@
 
           <div class="filtro-campo">
             <SearchableSelect
-              id="filtro-status"
-              input-id="filtro-status"
-              v-model="filtros.status"
-              :options="statusLista"
-              empty-option="Todos os status"
+              id="filtro-setor"
+              input-id="filtro-setor"
+              v-model="filtros.setor"
+              :options="setores"
+              empty-option="Todos os setores/etapas"
               @change="aplicarFiltros"
             />
           </div>
@@ -101,7 +101,7 @@
                 <th>Tipo</th>
                 <th>Assunto</th>
                 <th>Objetivo</th>
-                <th>Status</th>
+                <th>Setor/etapa</th>
                 <th>Última atualização</th>
                 <th class="text-center">Ações</th>
               </tr>
@@ -127,8 +127,8 @@
                 <td class="col-assunto" :title="item.assunto || ''">{{ item.assunto || '—' }}</td>
                 <td class="col-objetivo" :title="item.objetivo || ''">{{ item.objetivo || '—' }}</td>
                 <td>
-                  <span class="badge-status" :class="badgeStatus(item.status)">
-                    {{ item.status || '—' }}
+                  <span class="badge-status" :class="badgeStatus(item.setor_atual)">
+                    {{ item.setor_atual || '—' }}
                   </span>
                 </td>
                 <td>{{ formatarData(item.ultima_atualizacao) }}</td>
@@ -182,8 +182,12 @@
                 <div class="detalhe-valor-box">{{ registroDetalhe.tipo || '—' }}</div>
               </div>
               <div class="detalhe-form-campo">
-                <span>Status</span>
-                <div class="detalhe-valor-box">{{ registroDetalhe.status || '—' }}</div>
+                <span>Setor/etapa atual</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.setor_atual || '—' }}</div>
+              </div>
+              <div v-if="registroDetalhe.situacao_legada" class="detalhe-form-campo">
+                <span>Situação anterior (legado)</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.situacao_legada }}</div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Última atualização</span>
@@ -272,12 +276,12 @@
                 />
               </div>
               <div class="form-group">
-                <label for="status"><FormLabel label="Status" required /></label>
+                <label for="setor_atual"><FormLabel label="Setor/etapa atual" required /></label>
                 <SearchableSelect
-                  id="status"
-                  input-id="status"
-                  v-model="form.status"
-                  :options="statusLista"
+                  id="setor_atual"
+                  input-id="setor_atual"
+                  v-model="form.setor_atual"
+                  :options="setores"
                   empty-option="Selecione..."
                   :required="true"
                 />

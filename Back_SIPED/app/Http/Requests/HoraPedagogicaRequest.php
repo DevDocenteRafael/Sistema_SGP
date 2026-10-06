@@ -15,6 +15,20 @@ class HoraPedagogicaRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        if ($this->filled('eixo')) {
+            $this->merge(['eixo' => \App\Support\CatalogoOficial::canonicalizarEixo((string) $this->input('eixo')) ?? $this->input('eixo')]);
+        }
+        // Segmento: só ajusta maiúsculas/acentos para a grafia oficial (não troca por eixo).
+        if ($this->filled('segmento')) {
+            $chave = \App\Support\CatalogoOficial::chave((string) $this->input('segmento'));
+            foreach (\App\Support\CatalogoOficial::segmentos() as $oficial) {
+                if (\App\Support\CatalogoOficial::chave($oficial) === $chave) {
+                    $this->merge(['segmento' => $oficial]);
+                    break;
+                }
+            }
+        }
+
         if ($this->has('ativo')) {
             $ativo = $this->input('ativo');
 
@@ -38,7 +52,23 @@ class HoraPedagogicaRequest extends FormRequest
         }
 
         $this->canonicalizarEixoInput();
-        $this->canonicalizarEixoInput('segmento');
+    }
+
+    /**
+     * Status legado (Cancelada) só continua aceito em registro que já o tinha.
+     *
+     * @return list<string>
+     */
+    private function statusPermitidos(): array
+    {
+        $permitidos = config('horas_pedagogicas.status', []);
+        $atual = $this->route('horaPedagogica');
+        $statusAtual = $atual instanceof \App\Models\HoraPedagogica ? $atual->status : null;
+        if ($statusAtual && in_array($statusAtual, config('horas_pedagogicas.status_legados', []), true)) {
+            $permitidos[] = $statusAtual;
+        }
+
+        return $permitidos;
     }
 
     public function rules(): array
@@ -47,12 +77,25 @@ class HoraPedagogicaRequest extends FormRequest
             'ciclo_id' => ['nullable', 'integer', Rule::exists('portfolio_ciclos', 'id')],
             'matricula' => ['required', 'string', 'max:50', 'regex:/^\d+$/'],
             'pessoa' => ['required', 'string', 'max:150'],
-            'segmento' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
+            // Segmento vem do catálogo de Segmentos e precisa pertencer ao Eixo escolhido.
+            'segmento' => [
+                'required',
+                'string',
+                'max:150',
+                Rule::in(\App\Support\CatalogoOficial::segmentos()),
+                function (string $atributo, mixed $valor, \Closure $falhar) {
+                    $eixo = (string) $this->input('eixo');
+                    $doEixo = \App\Support\CatalogoOficial::segmentosPorEixo()[$eixo] ?? null;
+                    if ($doEixo !== null && ! in_array($valor, $doEixo, true)) {
+                        $falhar('O segmento "'.$valor.'" não pertence ao eixo "'.$eixo.'".');
+                    }
+                },
+            ],
             'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
             'processo_sei' => ['required', 'string', 'max:100', new ProcessoSeiValido(obrigatorio: true)],
             'ano' => ['required', 'integer', Rule::in(array_map('intval', config('horas_pedagogicas.anos')))],
             'motivo' => ['required', 'string', 'max:255'],
-            'status' => ['required', 'string', 'max:50', Rule::in(config('horas_pedagogicas.status'))],
+            'status' => ['required', 'string', 'max:50', Rule::in($this->statusPermitidos())],
             'ativo' => ['required', 'boolean'],
             'observacao' => ['required', 'string', 'max:2000'],
         ];

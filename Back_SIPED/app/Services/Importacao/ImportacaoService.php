@@ -90,6 +90,9 @@ class ImportacaoService
             if ($modulo === 'plano-de-metas') {
                 $resultado = $this->canonicalizarAreasPlanejamento($resultado);
             }
+            if ($modulo === 'acoes-extensivas') {
+                $resultado = $this->separarPrioridadeSetorStatus($resultado);
+            }
         }
 
         $resultado = $this->avaliarCompletude($modulo, $def, $resultado);
@@ -225,6 +228,57 @@ class ImportacaoService
         $resultado['resumo_acoes'] = $resumo;
         $resultado['backup'] = $backup;
         $resultado['incompletos_registros'] = $incompletos;
+
+        return $resultado;
+    }
+
+    /**
+     * Ações Extensivas (SPEC 06): prioridade, setor/etapa e status separados.
+     * - "Resolvido" na prioridade vira situação legada;
+     * - a coluna "Status" da planilha traz o setor (CPED/DEP/DIREG/NC); outro valor
+     *   é preservado como status de execução, com aviso.
+     *
+     * @param  array<string, mixed>  $resultado
+     * @return array<string, mixed>
+     */
+    private function separarPrioridadeSetorStatus(array $resultado): array
+    {
+        $prioridades = config('acoes_extensivas.priorizacoes', []);
+        $setores = config('acoes_extensivas.setores', []);
+
+        foreach ($resultado['linhas'] as &$linha) {
+            $numero = (int) ($linha['linha_planilha'] ?? 0);
+
+            $prioridade = trim((string) ($linha['priorizacao'] ?? ''));
+            if ($prioridade !== '') {
+                $oficial = collect($prioridades)->first(fn ($p) => CatalogoOficial::chave($p) === CatalogoOficial::chave($prioridade));
+                if ($oficial) {
+                    $linha['priorizacao'] = $oficial;
+                } else {
+                    if (CatalogoOficial::chave($prioridade) === 'resolvido') {
+                        $linha['situacao_legada'] = 'Resolvido';
+                    }
+                    $resultado['erros'][] = $this->erroImportacao('', $numero, 'Priorização', $prioridade,
+                        'Prioridade "'.$prioridade.'" não é Baixa, Média ou Alta. Importado sem prioridade'
+                        .(isset($linha['situacao_legada']) ? ' (guardado como situação legada "Resolvido")' : '').'.', false);
+                    $linha['priorizacao'] = null;
+                }
+            }
+
+            $setor = trim((string) ($linha['setor_atual'] ?? ''));
+            if ($setor !== '') {
+                $oficial = collect($setores)->first(fn ($s) => mb_strtoupper($s) === mb_strtoupper($setor));
+                if ($oficial) {
+                    $linha['setor_atual'] = $oficial;
+                } else {
+                    $linha['status'] = $setor;
+                    $linha['setor_atual'] = null;
+                    $resultado['erros'][] = $this->erroImportacao('', $numero, 'Setor/etapa', $setor,
+                        '"'.$setor.'" não é um setor/etapa (CPED, DEP, DIREG, NC). Guardado como status e importado sem setor.', false);
+                }
+            }
+        }
+        unset($linha);
 
         return $resultado;
     }

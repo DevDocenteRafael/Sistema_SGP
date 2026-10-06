@@ -46,6 +46,8 @@ class EventoApiTest extends TestCase
 
         $payload = [
             'nome' => 'Evento de Teste da API',
+            'processo_sei' => '0001.123456/2026-01',
+            'tipo_evento' => 'palestra',
             'ano' => '2026',
             'data' => '2026-07-20',
             'unidade' => 'Sobradinho',
@@ -74,6 +76,8 @@ class EventoApiTest extends TestCase
         $updatePayload = [
             ...$payload,
             'nome' => 'Evento Atualizado',
+            'processo_sei' => '0001.123456/2026-01',
+            'tipo_evento' => 'Oficina',
             'status' => 'Realizado',
             'possui_acao_extensiva' => 'Sim',
             'acao_vinculada' => 'Oficina vinculada de teste',

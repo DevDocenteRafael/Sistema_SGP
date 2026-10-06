@@ -27,6 +27,8 @@ class AcaoExtensiva extends Model
         'assunto',
         'objetivo',
         'status',
+        'setor_atual',
+        'situacao_legada',
         'ultima_atualizacao',
         'criado_por',
         'atualizado_por',

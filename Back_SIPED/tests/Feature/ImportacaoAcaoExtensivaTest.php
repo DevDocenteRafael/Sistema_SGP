@@ -86,7 +86,7 @@ class ImportacaoAcaoExtensivaTest extends TestCase
             'tipo' => 'Ação Extensiva',
             'assunto' => 'Registro antigo',
             'objetivo' => null,
-            'status' => 'NC',
+            'setor_atual' => 'NC',
             'ultima_atualizacao' => '2020-01-01',
         ]);
 
@@ -113,12 +113,12 @@ class ImportacaoAcaoExtensivaTest extends TestCase
         $this->assertDatabaseHas('acao_extensivas', [
             'assunto' => 'Sabores Regionais',
             'atribuido' => 'ana.5041',
-            'status' => 'CPED',
+            'setor_atual' => 'CPED',
         ]);
         $this->assertDatabaseHas('acao_extensivas', [
             'assunto' => 'Cafezinho',
             'atribuido' => 'barbara.6003',
-            'status' => 'DEP',
+            'setor_atual' => 'DEP',
         ]);
     }
 

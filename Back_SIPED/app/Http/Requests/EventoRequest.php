@@ -15,7 +15,39 @@ class EventoRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        if ($this->filled('processo_sei')) {
+            $this->merge(['processo_sei' => \App\Rules\ProcessoSeiValido::sanitizar($this->input('processo_sei'))]);
+        }
+        if ($this->has('tipo_evento')) {
+            $this->merge(['tipo_evento' => self::normalizarTipo($this->input('tipo_evento'))]);
+        }
+
         $this->canonicalizarEixoInput();
+    }
+
+    /**
+     * Texto controlado: espaços normalizados e, se já existir um tipo igual
+     * (sem diferenciar maiúsculas/acentos), reaproveita a grafia existente.
+     */
+    public static function normalizarTipo(mixed $valor): ?string
+    {
+        $texto = trim(preg_replace('/\s+/u', ' ', (string) $valor) ?? '');
+        if ($texto === '') {
+            return null;
+        }
+
+        $chave = \App\Support\CatalogoOficial::chave($texto);
+        $conhecidos = array_merge(
+            config('eventos.tipos_sugeridos', []),
+            \App\Models\Evento::query()->whereNotNull('tipo_evento')->distinct()->pluck('tipo_evento')->all(),
+        );
+        foreach ($conhecidos as $conhecido) {
+            if (\App\Support\CatalogoOficial::chave($conhecido) === $chave) {
+                return $conhecido;
+            }
+        }
+
+        return mb_strtoupper(mb_substr($texto, 0, 1)).mb_substr($texto, 1);
     }
 
     public function rules(): array
@@ -23,6 +55,10 @@ class EventoRequest extends FormRequest
         return [
             'ciclo_id' => ['nullable', 'integer', Rule::exists('portfolio_ciclos', 'id')],
             'nome' => ['required', 'string', 'max:200'],
+            // Todo evento gera processo SEI (reunião com a CPED).
+            'processo_sei' => ['required', 'string', 'max:100', new \App\Rules\ProcessoSeiValido(obrigatorio: true)],
+            // Texto controlado até existir catálogo oficial de tipos.
+            'tipo_evento' => ['required', 'string', 'max:100'],
             'ano' => ['required', 'string', 'max:4', Rule::in(config('eventos.anos'))],
             'data' => ['required', 'date'],
             'unidade' => ['required', 'string', 'max:100', Rule::in(UnidadeOferta::nomesAtivos())],
@@ -44,6 +80,8 @@ class EventoRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'processo_sei.required' => 'Informe o processo SEI do evento.',
+            'tipo_evento.required' => 'Informe o tipo do evento.',
             'observacao.required' => 'Informe a observação.',
             'equipe.required' => 'Informe a equipe / responsáveis.',
             'quantidade_pessoas.required' => 'Informe a quantidade de pessoas.',

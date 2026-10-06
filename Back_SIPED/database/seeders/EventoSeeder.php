@@ -12,6 +12,8 @@ class EventoSeeder extends Seeder
         $registros = [
             [
                 'nome' => 'Semana Pedagógica CPED 2025',
+                'processo_sei' => '00004.000001/2026-01',
+                'tipo_evento' => 'Seminário',
                 'ano' => '2025',
                 'data' => '2025-08-12',
                 'unidade' => 'Sobradinho',
@@ -25,6 +27,8 @@ class EventoSeeder extends Seeder
             ],
             [
                 'nome' => 'Feira de Profissões SENAC DF',
+                'processo_sei' => '00004.000002/2026-01',
+                'tipo_evento' => 'Feira',
                 'ano' => '2025',
                 'data' => '2025-09-25',
                 'unidade' => 'Taguatinga',
@@ -38,6 +42,8 @@ class EventoSeeder extends Seeder
             ],
             [
                 'nome' => 'Mostra Gastronômica de Fim de Ano',
+                'processo_sei' => '00004.000003/2026-01',
+                'tipo_evento' => 'Oficina',
                 'ano' => '2025',
                 'data' => '2025-12-05',
                 'unidade' => 'Faculdade de Tecnologia e Inovação Senac-DF — Campus Taguatinga',

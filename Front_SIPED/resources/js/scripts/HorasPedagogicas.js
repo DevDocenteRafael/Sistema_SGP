@@ -11,10 +11,10 @@ import {
 } from '../utils/validacao';
 import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 
-const SEGMENTOS = [...EIXOS_OFICIAIS];
-
-const EIXOS = [...SEGMENTOS];
-const STATUS_LISTA = ['Pendente', 'Em andamento', 'Concluída', 'Cancelada'];
+const EIXOS = [...EIXOS_OFICIAIS];
+/** Status principais; "Cancelada" só aparece para registros que já o têm (legado). */
+const STATUS_LISTA = ['Pendente', 'Em andamento', 'Concluída'];
+const STATUS_LEGADOS = ['Cancelada'];
 const ANOS = ['2024', '2025', '2026', '2027'];
 
 export default createCrudPage({
@@ -115,12 +115,16 @@ export default createCrudPage({
     if (Array.isArray(meta.anos) && meta.anos.length) this.anos = meta.anos.map(String);
     if (Array.isArray(meta.eixos) && meta.eixos.length) this.eixos = meta.eixos;
     if (Array.isArray(meta.segmentos) && meta.segmentos.length) this.segmentos = meta.segmentos;
+    if (meta.segmentos_por_eixo) this.segmentosPorEixo = meta.segmentos_por_eixo;
     if (Array.isArray(meta.status) && meta.status.length) this.statusLista = meta.status;
+    if (Array.isArray(meta.status_legados)) this.statusLegados = meta.status_legados;
   },
   extraData: () => ({
-    segmentos: SEGMENTOS,
+    segmentos: [],
+    segmentosPorEixo: {},
     eixos: EIXOS,
     statusLista: STATUS_LISTA,
+    statusLegados: STATUS_LEGADOS,
     anos: ANOS,
   }),
   methodAliases: {
@@ -135,6 +139,19 @@ export default createCrudPage({
     horasFiltradas: 'listaFiltrada',
   },
   extraComputed: {
+    /** Segmentos do catálogo que pertencem ao eixo escolhido no formulário. */
+    segmentosDoEixo() {
+      const doEixo = this.segmentosPorEixo?.[this.form?.eixo];
+      return Array.isArray(doEixo) ? doEixo : [];
+    },
+    /** Filtro aceita também o status legado, para achar registros antigos. */
+    statusFiltro() {
+      return [...this.statusLista, ...this.statusLegados];
+    },
+    statusFormulario() {
+      const atual = this.form?.status;
+      return atual && this.statusLegados.includes(atual) ? [...this.statusLista, atual] : this.statusLista;
+    },
     totalAtivos() {
       return this.listaFiltrada.filter((hora) => hora.ativo === true).length;
     },

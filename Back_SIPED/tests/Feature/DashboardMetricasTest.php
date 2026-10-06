@@ -68,7 +68,9 @@ class DashboardMetricasTest extends TestCase
         $this->assertSame(1, $resumo['distribuicoes']['acoes']['alta']);
         $this->assertSame(1, $resumo['distribuicoes']['acoes']['media']);
         $this->assertSame(1, $resumo['distribuicoes']['acoes']['baixa']);
-        $this->assertSame(1, $resumo['distribuicoes']['acoes']['resolvido']);
+        // SPEC 06: "Resolvido" não é prioridade; valor legado gravado direto no banco cai em "outros".
+        $this->assertArrayNotHasKey('resolvido', $resumo['distribuicoes']['acoes']);
+        $this->assertSame(1, $resumo['distribuicoes']['acoes']['outros']);
         $this->assertSame(1, $resumo['distribuicoes']['acoes']['sem_classificacao']);
         $this->assertSame(1, $resumo['distribuicoes']['visitas']['atrasada']);
     }

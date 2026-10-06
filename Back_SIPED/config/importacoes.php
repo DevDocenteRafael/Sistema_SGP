@@ -317,7 +317,8 @@ return [
                 'tipo' => ['tipo'],
                 'assunto' => ['assunto'],
                 'objetivo' => ['objetivo'],
-                'status' => ['status'],
+                // Na planilha, a coluna "Status" traz o setor/etapa (CPED, DEP, DIREG, NC).
+                'setor_atual' => ['setor', 'etapa', 'setor/etapa', 'status'],
                 'ultima_atualizacao' => ['última atualização', 'ultima atualizacao', 'última atualizacao', 'ultima atualização'],
             ],
             'preview_columns' => [
@@ -327,12 +328,12 @@ return [
                 ['key' => 'numero_processo_sei', 'label' => 'SEI'],
                 ['key' => 'tipo', 'label' => 'Tipo'],
                 ['key' => 'assunto', 'label' => 'Assunto'],
-                ['key' => 'status', 'label' => 'Status'],
+                ['key' => 'setor_atual', 'label' => 'Setor/etapa'],
                 ['key' => 'ultima_atualizacao', 'label' => 'Atualização'],
             ],
             'db_fields' => [
                 'priorizacao', 'atribuido', 'eixo', 'numero_processo_sei', 'tipo',
-                'assunto', 'objetivo', 'status', 'ultima_atualizacao',
+                'assunto', 'objetivo', 'setor_atual', 'status', 'situacao_legada', 'ultima_atualizacao',
             ],
         ],
 
@@ -352,6 +353,8 @@ return [
             'date_fields' => ['data'],
             'columns' => [
                 'nome' => ['nome', 'evento', 'titulo', 'título'],
+                'processo_sei' => ['processo sei', 'número do processo sei', 'numero do processo sei', 'sei'],
+                'tipo_evento' => ['tipo do evento', 'tipo de evento', 'tipo'],
                 'ano' => ['ano'],
                 'data' => ['data'],
                 'unidade' => ['unidade'],
@@ -365,13 +368,15 @@ return [
             ],
             'preview_columns' => [
                 ['key' => 'nome', 'label' => 'Evento'],
+                ['key' => 'tipo_evento', 'label' => 'Tipo'],
+                ['key' => 'processo_sei', 'label' => 'SEI'],
                 ['key' => 'data', 'label' => 'Data'],
                 ['key' => 'unidade', 'label' => 'Unidade'],
                 ['key' => 'eixo', 'label' => 'Eixo'],
                 ['key' => 'status', 'label' => 'Status'],
             ],
             'db_fields' => [
-                'nome', 'ano', 'data', 'unidade', 'eixo', 'quantidade_pessoas',
+                'nome', 'processo_sei', 'tipo_evento', 'ano', 'data', 'unidade', 'eixo', 'quantidade_pessoas',
                 'equipe', 'possui_acao_extensiva', 'acao_vinculada', 'status', 'observacao',
             ],
         ],

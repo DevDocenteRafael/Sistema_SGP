@@ -50,7 +50,7 @@ class AcaoExtensivaApiTest extends TestCase
             'tipo' => 'Ação Extensiva',
             'assunto' => 'Ação extensiva de teste da API',
             'objetivo' => 'Validar CRUD completo da API de ações extensivas.',
-            'status' => 'CPED',
+            'setor_atual' => 'CPED',
             'ultima_atualizacao' => '2026-07-15',
         ];
 
@@ -69,16 +69,16 @@ class AcaoExtensivaApiTest extends TestCase
 
         $updatePayload = [
             ...$payload,
-            'priorizacao' => 'Resolvido',
-            'status' => 'NC',
+            'priorizacao' => 'Alta',
+            'setor_atual' => 'NC',
             'assunto' => 'Ação extensiva atualizada',
         ];
 
         $updateResponse = $this->putJson("/api/acoes-extensivas/{$id}", $updatePayload);
         $updateResponse->assertOk();
         $updateResponse->assertJsonPath('acaoExtensiva.assunto', 'Ação extensiva atualizada');
-        $updateResponse->assertJsonPath('acaoExtensiva.priorizacao', 'Resolvido');
-        $updateResponse->assertJsonPath('acaoExtensiva.status', 'NC');
+        $updateResponse->assertJsonPath('acaoExtensiva.priorizacao', 'Alta');
+        $updateResponse->assertJsonPath('acaoExtensiva.setor_atual', 'NC');
 
         $deleteResponse = $this->deleteJson("/api/acoes-extensivas/{$id}");
         $deleteResponse->assertOk();
@@ -107,7 +107,7 @@ class AcaoExtensivaApiTest extends TestCase
             'tipo' => 'Ação Extensiva',
             'assunto' => 'Registro alta CPED',
             'objetivo' => null,
-            'status' => 'CPED',
+            'setor_atual' => 'CPED',
             'ultima_atualizacao' => '2026-07-01',
         ]);
 
@@ -119,13 +119,13 @@ class AcaoExtensivaApiTest extends TestCase
             'tipo' => 'Ação Extensiva',
             'assunto' => 'Registro baixa DEP',
             'objetivo' => null,
-            'status' => 'DEP',
+            'setor_atual' => 'DEP',
             'ultima_atualizacao' => '2026-07-02',
         ]);
 
         $this->actingAs($usuario, 'sanctum');
 
-        $filtered = $this->getJson('/api/acoes-extensivas?status=CPED&priorizacao=Alta');
+        $filtered = $this->getJson('/api/acoes-extensivas?setor=CPED&priorizacao=Alta');
         $filtered->assertOk();
         $filtered->assertJsonPath('meta.total', 1);
         $filtered->assertJsonPath('data.0.numero_processo_sei', '2026.000000001-01');

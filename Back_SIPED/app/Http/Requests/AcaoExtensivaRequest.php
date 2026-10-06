@@ -35,7 +35,12 @@ class AcaoExtensivaRequest extends FormRequest
             'tipo' => ['required', 'string', 'max:100', Rule::in(config('acoes_extensivas.tipos'))],
             'assunto' => ['required', 'string', 'max:500'],
             'objetivo' => ['required', 'string', 'max:2000'],
-            'status' => ['required', 'string', 'max:50', Rule::in(config('acoes_extensivas.status'))],
+            // Setor/etapa atual (CPED, DEP, DIREG, NC) — separado da prioridade e do status.
+            'setor_atual' => ['required', 'string', 'max:50', Rule::in(config('acoes_extensivas.setores'))],
+            // Status de execução: só validado quando a lista for definida com o cliente.
+            'status' => config('acoes_extensivas.status_execucao')
+                ? ['nullable', 'string', 'max:50', Rule::in(config('acoes_extensivas.status_execucao'))]
+                : ['nullable', 'string', 'max:50'],
             'ultima_atualizacao' => ['required', 'date'],
         ];
     }
@@ -43,6 +48,9 @@ class AcaoExtensivaRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'setor_atual.required' => 'Informe o setor/etapa atual.',
+            'setor_atual.in' => 'Selecione um setor/etapa válido (CPED, DEP, DIREG ou NC).',
+            'priorizacao.in' => 'A prioridade deve ser Baixa, Média ou Alta.',
             'objetivo.required' => 'Informe o objetivo.',
             'ultima_atualizacao.required' => 'Informe a última atualização.',
             'priorizacao.required' => 'A priorização é obrigatória.',
@@ -55,8 +63,6 @@ class AcaoExtensivaRequest extends FormRequest
             'tipo.required' => 'O tipo é obrigatório.',
             'tipo.in' => 'Tipo inválido.',
             'assunto.required' => 'O assunto é obrigatório.',
-            'status.required' => 'O status é obrigatório.',
-            'status.in' => 'Status inválido.',
         ];
     }
 }

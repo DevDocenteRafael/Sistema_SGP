@@ -2,6 +2,9 @@ import { createCrudPage } from './createCrudPage';
 import {
   combinarValidacoes,
   formatarInteiroInput,
+  formatarProcessoSeiInput,
+  somenteAlfanumericoProcesso,
+  validarProcessoSei,
   tamanhoMaximo,
   textoObrigatorio,
   validarData,
@@ -32,6 +35,8 @@ export default createCrudPage({
   },
   formVazio: () => ({
     nome: '',
+    processo_sei: '',
+    tipo_evento: '',
     ano: '2025',
     data: '',
     unidade: '',
@@ -47,6 +52,8 @@ export default createCrudPage({
     return {
       ...registro,
       nome: registro.nome || '',
+      processo_sei: registro.processo_sei || '',
+      tipo_evento: registro.tipo_evento || '',
       ano: registro.ano ? String(registro.ano) : '',
       data: this.normalizarData(registro.data),
       unidade: registro.unidade || '',
@@ -62,6 +69,8 @@ export default createCrudPage({
   montarForm(registro) {
     return {
       nome: registro.nome ?? '',
+      processo_sei: registro.processo_sei ?? '',
+      tipo_evento: registro.tipo_evento ?? '',
       ano: registro.ano ? String(registro.ano) : '',
       data: this.normalizarData(registro.data),
       unidade: registro.unidade ?? '',
@@ -79,6 +88,9 @@ export default createCrudPage({
       textoObrigatorio(form.equipe, 'Informe a equipe / responsáveis.'),
       textoObrigatorio(form.observacao, 'Informe a observação.'),
       textoObrigatorio(form.nome, 'Preencha o nome do evento.'),
+      validarProcessoSei(form.processo_sei, { obrigatorio: true, rotulo: 'Processo SEI do evento' }),
+      textoObrigatorio(form.tipo_evento, 'Informe o tipo do evento.'),
+      tamanhoMaximo(form.tipo_evento, 100, 'O tipo do evento deve ter no máximo 100 caracteres.'),
       tamanhoMaximo(form.nome, 200, 'O nome deve ter no máximo 200 caracteres.'),
       validarData(form.data, { obrigatorio: true, rotulo: 'Data do evento' }),
       textoObrigatorio(form.unidade, 'A unidade é obrigatória.'),
@@ -101,6 +113,8 @@ export default createCrudPage({
   montarPayload(form) {
     return {
       nome: form.nome.trim(),
+      processo_sei: somenteAlfanumericoProcesso(form.processo_sei).trim(),
+      tipo_evento: form.tipo_evento?.trim() || null,
       ano: form.data.slice(0, 4),
       data: form.data,
       unidade: form.unidade,
@@ -134,6 +148,7 @@ export default createCrudPage({
     if (Array.isArray(meta.possui_acao_extensiva) && meta.possui_acao_extensiva.length) {
       this.opcoesAcao = meta.possui_acao_extensiva;
     }
+    if (Array.isArray(meta.tipos_evento)) this.tiposEvento = meta.tipos_evento;
     if (Array.isArray(meta.acoes_vinculaveis)) {
       this.acoesVinculaveis = meta.acoes_vinculaveis;
     }
@@ -145,9 +160,11 @@ export default createCrudPage({
     unidades: [],
     opcoesAcao: OPCOES_ACAO,
     acoesVinculaveis: [],
+    tiposEvento: [],
   }),
   extraMethods: {
     formatarQuantidadePessoas: formatarInteiroInput('quantidade_pessoas'),
+    formatarProcessoSei: formatarProcessoSeiInput('processo_sei'),
     onMudarAcao() {
       if (this.form.possui_acao_extensiva !== 'Sim') {
         this.form.acao_vinculada = '';
