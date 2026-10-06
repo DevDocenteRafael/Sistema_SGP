@@ -344,6 +344,25 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             'anexo' => \Illuminate\Http\UploadedFile::fake()->create('programacao-final.pdf', 100, 'application/pdf'),
         ])->assertOk()->assertJsonPath('jornada.status', 'Consolidado');
 
+        // Editar sem reenviar o anexo: o arquivo já enviado continua valendo.
+        $this->post("/api/jornadas-pedagogicas/{$id}", [
+            '_method' => 'PUT',
+            'titulo' => 'Jornada 2026 revisada',
+            'status' => 'Consolidado',
+            'tem_pre_jornada' => 'Sim',
+            'data_inicio' => '2026-02-01',
+            'data_fim' => '2026-02-03',
+            'data_pre_jornada' => '2026-01-28',
+            'local' => 'Asa Norte',
+            'espaco' => 'Auditório',
+            'verba' => 'R$ 5.000,00',
+            'custos' => 'Coffee break e material gráfico.',
+            'programacao' => 'Abertura e oficinas consolidadas',
+            'setores' => 'CPED, Secretaria Geral',
+            'observacoes' => 'Revisão sem novo anexo.',
+        ], ['Accept' => 'application/json'])->assertOk()->assertJsonPath('jornada.titulo', 'Jornada 2026 revisada');
+        $this->assertNotNull(\App\Models\JornadaPedagogica::find($id)->anexo_path);
+
         $pdf = $this->get("/api/jornadas-pedagogicas/{$id}/pdf");
         $pdf->assertOk();
         $this->assertStringContainsString('application/pdf', (string) $pdf->headers->get('content-type'));

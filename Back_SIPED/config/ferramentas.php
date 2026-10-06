@@ -19,7 +19,7 @@ return [
             'url' => null,
             'default_enabled' => true,
             'status' => 'available',
-            'profiles' => ['Administrador', 'Editor', 'Consultor'],
+            'profiles' => ['Root', 'Administrador', 'Editor', 'Consultor'],
             'icon' => 'kanban',
         ],
         [
@@ -31,7 +31,7 @@ return [
             'url' => null,
             'default_enabled' => true,
             'status' => 'available',
-            'profiles' => ['Administrador', 'Editor', 'Consultor'],
+            'profiles' => ['Root', 'Administrador', 'Editor', 'Consultor'],
             'icon' => 'organograma',
         ],
         [
@@ -43,7 +43,7 @@ return [
             'url' => null,
             'default_enabled' => true,
             'status' => 'available',
-            'profiles' => ['Administrador', 'Editor', 'Consultor'],
+            'profiles' => ['Root', 'Administrador', 'Editor', 'Consultor'],
             'icon' => 'carometro',
         ],
         [
@@ -55,7 +55,7 @@ return [
             'url' => null,
             'default_enabled' => true,
             'status' => 'available',
-            'profiles' => ['Administrador', 'Editor', 'Consultor'],
+            'profiles' => ['Root', 'Administrador', 'Editor', 'Consultor'],
             'icon' => 'fluxograma',
         ],
         [
@@ -67,7 +67,7 @@ return [
             'url' => 'https://loop.microsoft.com/',
             'default_enabled' => true,
             'status' => 'available',
-            'profiles' => ['Administrador', 'Editor', 'Consultor'],
+            'profiles' => ['Root', 'Administrador', 'Editor', 'Consultor'],
             'icon' => 'loop',
         ],
         [
@@ -79,7 +79,7 @@ return [
             'url' => 'https://www.canva.com/',
             'default_enabled' => true,
             'status' => 'available',
-            'profiles' => ['Administrador', 'Editor', 'Consultor'],
+            'profiles' => ['Root', 'Administrador', 'Editor', 'Consultor'],
             'icon' => 'canva',
         ],
     ],

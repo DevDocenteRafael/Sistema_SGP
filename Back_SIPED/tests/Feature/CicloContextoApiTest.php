@@ -54,6 +54,16 @@ class CicloContextoApiTest extends TestCase
         $this->getJson('/api/visitas-tecnicas?ciclo_id=99999')->assertStatus(422);
     }
 
+    public function test_ciclo_explicito_na_lixeira_volta_para_o_ciclo_atual(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+        $excluido = Ciclo::query()->create(['nome' => 'Ciclo excluído E2E', 'atual' => false]);
+        $excluido->delete();
+
+        $this->getJson('/api/visitas-tecnicas?ciclo_id='.$excluido->id)->assertOk();
+        $this->getJson('/api/jornadas-pedagogicas?ciclo_id='.$excluido->id)->assertOk();
+    }
+
     public function test_visitas_respeitam_header_de_ciclo(): void
     {
         $this->actingAs($this->editor(), 'sanctum');

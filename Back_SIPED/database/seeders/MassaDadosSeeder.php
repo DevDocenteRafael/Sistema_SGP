@@ -5,15 +5,20 @@ namespace Database\Seeders;
 use App\Models\PortfolioCiclo;
 use App\Support\CatalogoOficial;
 use Database\Seeders\Concerns\GeraMassa;
+use Database\Seeders\Concerns\SomenteForaDeProducao;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class MassaDadosSeeder extends Seeder
 {
     use GeraMassa;
+    use SomenteForaDeProducao;
 
     public function run(): void
     {
+        $this->bloquearEmProducao();
+
         $ciclos = PortfolioCiclo::query()->orderByDesc('atual')->orderBy('id')->get();
         $cicloAtualId = PortfolioCiclo::atual()?->id ?? $ciclos->first()?->id;
         $unidades = DB::table('unidades_oferta')->orderBy('id')->pluck('nome')->all();
@@ -72,6 +77,18 @@ class MassaDadosSeeder extends Seeder
                     'unidades_oferta' => json_encode([$unidade]),
                     'compativel_bolsa' => $cursoId % 4 === 0 ? 'NÃO' : 'SIM',
                     'comercial' => $cursoId % 5 === 0 ? 'NÃO' : 'SIM',
+                    'programa' => $cursoId % 10 === 0 ? 'Ensino Médio' : ($cursoId % 23 === 0 ? '60+' : null),
+                    'turmas' => (string) (1 + $cursoId % 6),
+                    'alunos' => (string) (15 + $cursoId % 25),
+                    'codigo_processo' => 'PROC-'.str_pad((string) $cursoId, 5, '0', STR_PAD_LEFT),
+                    'instrutor' => $this->item(['Ana Souza', 'Bruno Lima', 'Carla Mendes', 'Daniel Rego', 'Elena Prado'], $cursoId),
+                    'descricao' => 'Curso fictício de '.$par['segmento'].' para homologação do portfólio.',
+                    'data_inicio' => sprintf('2026-%02d-01', ($cursoId % 12) + 1),
+                    'data_fim' => sprintf('2026-%02d-28', ($cursoId % 12) + 1),
+                    'observacoes' => 'Curso fictício gerado pelo seeder.',
+                    'valores' => 'R$ '.number_format(300 + ($cursoId % 40) * 50, 2, ',', '.'),
+                    'pcn' => 'PCN-'.str_pad((string) ($cursoId % 300), 3, '0', STR_PAD_LEFT),
+                    'pcr' => 'PCR-'.str_pad((string) ($cursoId % 300), 3, '0', STR_PAD_LEFT),
                     'created_at' => $agora,
                     'updated_at' => $agora,
                 ]);
@@ -105,6 +122,7 @@ class MassaDadosSeeder extends Seeder
                 'instrutores' => $this->item(['Ana Souza', 'Bruno Lima', 'Carla Mendes', 'Daniel Rego', 'Elena Prado'], $i),
                 'status' => $this->statusPorPeso(['Ativo' => 60, 'Pendente' => 15, 'Inativo' => 15, 'Concluído' => 10], $i),
                 'is_novo' => $i % 9 === 0,
+                'programa' => $i % 10 === 0 ? 'Ensino Médio' : null,
                 'observacao' => $semVinculo ? 'Sem curso oficial correspondente.' : null,
                 'created_at' => $agora,
                 'updated_at' => $agora,
@@ -116,6 +134,30 @@ class MassaDadosSeeder extends Seeder
         $this->gerarProcessos($pares, $unidades, $ciclos, $cicloAtualId, $origem, $agora);
         $this->gerarDocumentos($pares, $origem, $agora);
         $this->gerarAuditoria($cicloAtualId, $agora);
+        $this->preencherAutoria();
+    }
+
+    /**
+     * Registros fictícios aparecem como cadastrados pelo Administrador e alterados pelo Editor demo.
+     */
+    private function preencherAutoria(): void
+    {
+        $admin = DB::table('usuarios')->where('email', 'administrador@df.senac.br')->value('id')
+            ?? DB::table('usuarios')->orderBy('id')->value('id');
+        $editor = DB::table('usuarios')->where('email', 'editor@df.senac.br')->value('id') ?? $admin;
+        if (! $admin) {
+            return;
+        }
+
+        foreach (['cursos', 'curso_por_eixos', 'plano_de_metas', 'pcas', 'visita_tecnicas', 'hora_pedagogicas', 'acao_extensivas',
+            'eventos', 'jornadas_pedagogicas', 'resolucoes', 'termos_referencia', 'cped_equipes', 'fluxogramas', 'kanban_cartoes'] as $tabela) {
+            if (Schema::hasColumn($tabela, 'criado_por')) {
+                DB::table($tabela)->whereNull('criado_por')->update(['criado_por' => $admin]);
+            }
+            if (Schema::hasColumn($tabela, 'atualizado_por')) {
+                DB::table($tabela)->whereNull('atualizado_por')->update(['atualizado_por' => $editor]);
+            }
+        }
     }
 
     private function gerarPlanejamento($cursosDb, array $unidades, ?int $cicloAtualId, array $origem, string $agora): void
@@ -134,6 +176,7 @@ class MassaDadosSeeder extends Seeder
                 'mes_entrega' => $this->item($meses, $i),
                 'status' => $this->statusPorPeso(['EM ANÁLISE' => 20, 'EM ANDAMENTO' => 40, 'CONCLUÍDO' => 30, 'CANCELADO' => 10], $i),
                 'origem' => 'Plano de Metas',
+                'area_planejamento' => $this->item(['Planejamento Estratégico', 'DN', 'DEF', 'CPED'], $i),
                 'status_final' => $this->item(['PENDENTE', 'ENTREGUE', 'PUBLICADO'], $i),
                 'observacao' => 'Registro fictício de planejamento.',
                 'ano' => 2024 + ($i % 4),
@@ -156,6 +199,14 @@ class MassaDadosSeeder extends Seeder
                 'unidade' => $this->item($unidades, $i),
                 'carga_horaria' => (string) (400 + ($i % 800)),
                 'valor' => 'R$ '.(1200 + ($i * 15)),
+                'precificacao' => $this->item(['Valor cheio', 'Modular', 'Promocional'], $i),
+                'valor_primeiro_modulo' => 'R$ '.(300 + ($i % 50) * 10),
+                'parcelas_boleto' => 1 + $i % 10,
+                'valor_parcela_boleto' => 'R$ '.round((1200 + $i * 15) / (1 + $i % 10), 2),
+                'parcelas_cartao' => 1 + $i % 12,
+                'valor_cartao' => 'R$ '.round((1200 + $i * 15) / (1 + $i % 12), 2),
+                'parcela_desc_20' => 'R$ '.round((1200 + $i * 15) * 0.8, 2),
+                'parcela_desc_15' => 'R$ '.round((1200 + $i * 15) * 0.85, 2),
                 'status' => $this->statusPorPeso(['Vigente' => 55, 'Em análise' => 25, 'Encerrado' => 15, 'Cancelado' => 5], $i),
                 'observacao' => 'PCA fictício para homologação.',
                 'ano' => 2024 + ($i % 4),
@@ -169,10 +220,50 @@ class MassaDadosSeeder extends Seeder
     private function gerarProcessos(array $pares, array $unidades, $ciclos, ?int $cicloAtualId, array $origem, string $agora): void
     {
         $visitas = [];
+        $limites = ['Curso Técnico' => 4, 'Qualificação' => 2, 'Aperfeiçoamento' => 1, 'Aprendizagem' => 4];
+        $etapas = ['Núcleo Pedagógico da unidade', 'Coordenação/área DEP/CPED', 'Direção Pedagógica'];
         for ($i = 1; $i <= 800; $i++) {
             $par = $this->item($pares ?: [['eixo' => 'Gestão e Moda']], $i);
             $ciclo = $this->item($ciclos->all(), $i);
+            $status = $this->statusPorPeso(['Pendente' => 15, 'Em andamento' => 20, 'Aprovada' => 15, 'Recusada' => 5, 'Realizada' => 35, 'Atrasada' => 5, 'Cancelada' => 5], $i);
+            $tipoCurso = $this->item(array_keys($limites), $i);
+            $limite = $limites[$tipoCurso];
+            $usadas = 1 + $i % ($limite + 2);
+            $aprovadasAte = match ($status) {
+                'Pendente' => 0,
+                'Em andamento' => 1 + $i % 2,
+                default => 3,
+            };
+            $decisoes = [];
+            foreach (array_slice($etapas, 0, $aprovadasAte) as $n => $etapa) {
+                $decisoes[] = ['etapa' => $etapa, 'decisao' => 'aprovada', 'responsavel' => $this->item(['Fernanda Alves', 'Gustavo Rocha', 'Helena Costa'], $i + $n),
+                    'motivo' => null, 'data' => sprintf('2026-%02d-%02d', ($i % 12) + 1, min(28, ($i % 20) + 2 + $n))];
+            }
+            if ($status === 'Recusada') {
+                $decisoes[count($decisoes) - 1]['decisao'] = 'recusada';
+                $decisoes[count($decisoes) - 1]['motivo'] = 'Sem transporte disponível na data solicitada.';
+            }
+            $comTransporte = in_array($status, ['Aprovada', 'Realizada'], true);
             $visitas[] = array_merge($origem, [
+                'turma' => sprintf('T%02d-2026-%02d', $i % 60, $i % 4 + 1),
+                'instrutor' => $this->item(['Ana Souza', 'Bruno Lima', 'Carla Mendes', 'Daniel Rego', 'Elena Prado'], $i),
+                'curso' => 'Curso de '.($par['segmento'] ?? $par['eixo']),
+                'tipo_curso' => $tipoCurso,
+                'local_visita' => $this->item(['Hospital Regional da Asa Norte', 'Hotel Nacional', 'Indústria Alimentícia DF', 'Centro de Convenções', 'Empresa de Tecnologia SIA'], $i),
+                'visitas_utilizadas' => $usadas,
+                'visitas_limite' => $limite,
+                'justificativa_excedente' => $usadas > $limite ? 'Visita necessária para o projeto integrador da turma.' : null,
+                'motivo_recusa' => $status === 'Recusada' ? 'Sem transporte disponível na data solicitada.' : null,
+                'decisoes' => json_encode($decisoes, JSON_UNESCAPED_UNICODE),
+                'transporte' => $comTransporte ? json_encode([
+                    'tipo' => $this->item(['Micro-ônibus', 'Ônibus', 'Van'], $i),
+                    'veiculo' => $this->item(['Micro-ônibus 24 lugares', 'Ônibus 44 lugares', 'Van 15 lugares'], $i),
+                    'placa' => sprintf('JK%s%d%s%02d', chr(65 + $i % 26), $i % 10, chr(65 + ($i * 3) % 26), $i % 100),
+                    'data_hora' => sprintf('2026-%02d-%02dT07:30:00-03:00', (($i + 1) % 12) + 1, ($i % 27) + 1),
+                    'motorista' => $this->item(['José Pereira', 'Marcos Silva', 'Paulo Henrique'], $i),
+                    'observacao' => 'Saída em frente à unidade.',
+                ], JSON_UNESCAPED_UNICODE) : null,
+                'relatorio' => $status === 'Realizada' ? 'Visita realizada conforme o planejado; turma participou das atividades previstas.' : null,
                 'ciclo_id' => $ciclo->id ?? $cicloAtualId,
                 'unidade' => $this->item($unidades, $i),
                 'eixo' => $par['eixo'],
@@ -180,8 +271,8 @@ class MassaDadosSeeder extends Seeder
                 'data_solicitacao' => sprintf('2026-%02d-%02d', ($i % 12) + 1, ($i % 27) + 1),
                 'data_visita_prevista' => sprintf('2026-%02d-%02d', (($i + 1) % 12) + 1, ($i % 27) + 1),
                 'prazo_limite' => sprintf('2026-%02d-%02d', (($i + 2) % 12) + 1, min(28, ($i % 27) + 1)),
-                'status' => $this->statusPorPeso(['Pendente' => 20, 'Em andamento' => 25, 'Realizada' => 40, 'Atrasada' => 10, 'Cancelada' => 5], $i),
-                'responsavel' => $this->item(['Ana Souza', 'Bruno Lima', 'Carla Mendes', 'Daniel Rego'], $i),
+                'status' => $status,
+                'responsavel' => $this->item(['Coordenação de Saúde (DEP/CPED)', 'Coordenação de Gestão (DEP/CPED)', 'Coordenação de Tecnologia (DEP/CPED)', 'Coordenação de Hospitalidade (DEP/CPED)'], $i),
                 'observacao' => 'Visita técnica fictícia.',
                 'created_at' => $agora,
                 'updated_at' => $agora,
@@ -248,6 +339,7 @@ class MassaDadosSeeder extends Seeder
                 'quantidade_pessoas' => 20 + ($i % 300),
                 'equipe' => 'Equipe CPED',
                 'possui_acao_extensiva' => $i % 3 === 0 ? 'Sim' : 'Não',
+                'acao_vinculada' => $i % 3 === 0 ? 'Ação extensiva fictícia '.$i : null,
                 'status' => $this->statusPorPeso(['Planejado' => 30, 'Realizado' => 50, 'Cancelado' => 20], $i),
                 'observacao' => 'Evento fictício.',
                 'created_at' => $agora,
@@ -265,6 +357,9 @@ class MassaDadosSeeder extends Seeder
                 'data_inicio' => sprintf('2026-%02d-%02d', ($i % 12) + 1, 10),
                 'data_fim' => sprintf('2026-%02d-%02d', ($i % 12) + 1, 12),
                 'tem_pre_jornada' => $i % 4 === 0 ? 'Sim' : 'Não',
+                'data_pre_jornada' => $i % 4 === 0 ? sprintf('2026-%02d-%02d', ($i % 12) + 1, 5) : null,
+                'custos' => 'Coffee break, material gráfico e certificados.',
+                'observacoes' => 'Jornada fictícia para homologação.',
                 'local' => $this->item($unidades, $i),
                 'espaco' => $this->item(['Auditório', 'Sala híbrida', 'Laboratório'], $i),
                 'verba' => 'R$ '.(3000 + $i * 20),
@@ -303,12 +398,20 @@ class MassaDadosSeeder extends Seeder
         $termos = [];
         for ($i = 1; $i <= 500; $i++) {
             $par = $this->item($pares ?: [['eixo' => 'Gestão e Moda']], $i);
+            $status = $this->statusPorPeso(['Planejamento' => 25, 'Em Andamento' => 40, 'Em tramitação (fora da CPED)' => 20, 'Concluído' => 15], $i);
+            $comAta = $i % 3 === 0;
             $termos[] = array_merge($origem, [
                 'nome' => 'TR — Documento pedagógico '.$i,
+                'numero_tr' => sprintf('TR-%03d/2026', $i),
+                'numero_ata' => $comAta ? sprintf('ATA-%03d/2026', $i) : null,
+                'data_vencimento_ata' => $comAta ? sprintf('202%d-%02d-%02d', 6 + $i % 2, ($i % 12) + 1, min(28, ($i % 27) + 1)) : null,
+                'ata_renovada' => $comAta && $i % 2 === 0,
+                'data_fim' => sprintf('2026-%02d-28', ($i % 12) + 1),
+                'concluido_em' => $status === 'Concluído' ? sprintf('2026-%02d-20 10:00:00', ($i % 12) + 1) : null,
                 'eixo' => $par['eixo'],
                 'processo_sei' => sprintf('2026.%02d.%05d-01', ($i % 12) + 1, $i),
                 'prazo_deadline' => sprintf('2026-%02d-%02d', ($i % 12) + 1, min(28, ($i % 27) + 1)),
-                'status' => $this->statusPorPeso(['Planejamento' => 25, 'Em Andamento' => 40, 'Em tramitação (fora da CPED)' => 20, 'Concluído' => 15], $i),
+                'status' => $status,
                 'observacao' => 'Termo de referência fictício.',
                 'data_inicio' => sprintf('2026-%02d-01', ($i % 12) + 1),
                 'created_at' => $agora,

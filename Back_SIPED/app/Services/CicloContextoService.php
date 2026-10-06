@@ -56,6 +56,10 @@ class CicloContextoService
     private function encontrarOuFalhar(int $id): Ciclo
     {
         $ciclo = Ciclo::query()->find($id);
+        // Ciclo na lixeira (ainda lembrado por algum navegador): volta para o ciclo atual.
+        if (! $ciclo && Ciclo::onlyTrashed()->whereKey($id)->exists()) {
+            $ciclo = Ciclo::atual();
+        }
         if (! $ciclo) {
             throw new HttpResponseException(response()->json([
                 'message' => 'Ciclo de gestão não encontrado.',

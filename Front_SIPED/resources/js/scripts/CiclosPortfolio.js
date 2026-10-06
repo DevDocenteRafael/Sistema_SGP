@@ -1,5 +1,5 @@
 import { podeEditarDados } from './auth';
-import { invalidarCacheCiclos, salvarCicloContexto } from './cicloContexto';
+import { idCicloContexto, invalidarCacheCiclos, limparCicloContexto, salvarCicloContexto } from './cicloContexto';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import CrudAlerts from '../components/crud/CrudAlerts.vue';
 import CrudFormShell from '../components/crud/CrudFormShell.vue';
@@ -429,6 +429,10 @@ export default {
       try {
         const { data } = await window.axios.delete(`${ENDPOINT}/${item.id}`);
         this.mensagemSucesso = data.message;
+        // O ciclo excluído não pode continuar como contexto das outras telas.
+        if (idCicloContexto() === String(item.id)) {
+          limparCicloContexto();
+        }
         invalidarCacheCiclos();
         this.fecharDetalhes();
         await this.carregarRegistros();

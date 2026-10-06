@@ -59,8 +59,16 @@ class JornadaPedagogicaRequest extends FormRequest
             'setores' => ['required', 'string', 'max:255'],
             'observacoes' => ['required', 'string', 'max:2000'],
             'status' => ['required', 'string', 'max:50', Rule::in(config('jornadas_pedagogicas.status'))],
-            'anexo' => ['required', 'file', 'max:5120', 'mimes:pdf,doc,docx,odt,jpg,jpeg,png'],
+            // Obrigatório no cadastro; na edição só se a jornada ainda não tiver anexo.
+            'anexo' => [$this->jornadaJaTemAnexo() ? 'nullable' : 'required', 'file', 'max:5120', 'mimes:pdf,doc,docx,odt,jpg,jpeg,png'],
         ];
+    }
+
+    private function jornadaJaTemAnexo(): bool
+    {
+        $jornada = $this->route('jornadaPedagogica');
+
+        return is_object($jornada) && filled($jornada->anexo_path);
     }
 
     public function messages(): array

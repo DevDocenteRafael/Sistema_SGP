@@ -273,7 +273,8 @@ export default {
         textoObrigatorio(this.form.custos, 'Informe os custos.'),
         textoObrigatorio(this.form.programacao, 'Informe a programação.'),
         textoObrigatorio(this.form.observacoes, 'Informe as observações.'),
-        textoObrigatorio(this.form.anexoFile, 'Informe o anexo.'),
+        // Na edição, o anexo já enviado continua valendo; só é exigido se ainda não existir.
+        this.modo === 'editar' && this.form.anexo_url ? '' : textoObrigatorio(this.form.anexoFile, 'Informe o anexo.'),
         textoObrigatorio(this.form.titulo, 'O título da jornada é obrigatório.'),
         tamanhoMaximo(this.form.titulo, 255, 'O título deve ter no máximo 255 caracteres.'),
         validarData(this.form.data_inicio, { rotulo: 'Data de início' }),

@@ -235,11 +235,12 @@
                 <textarea id="jornada-obs" v-model="form.observacoes" aria-required="true" rows="3" maxlength="2000" />
               </div>
               <div class="form-group full">
-                <label for="jornada-anexo"><FormLabel label="Anexo" required /></label>
-                <input id="jornada-anexo" aria-required="true" type="file" accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png" @change="aoEscolherAnexo" />
+                <label for="jornada-anexo"><FormLabel label="Anexo" :required="!form.anexo_url" /></label>
+                <input id="jornada-anexo" :aria-required="!form.anexo_url" type="file" accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png" @change="aoEscolherAnexo" />
                 <small v-if="form.anexo_url && !form.anexoFile" class="campo-ajuda">
                   Anexo atual:
                   <a :href="form.anexo_url" target="_blank" rel="noopener noreferrer">abrir arquivo</a>
+                  (envie outro arquivo só se quiser substituí-lo)
                 </small>
               </div>
             </div>
