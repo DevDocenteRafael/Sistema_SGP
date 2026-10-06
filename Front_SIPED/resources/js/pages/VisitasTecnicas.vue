@@ -5,7 +5,7 @@
         title="Visitas Técnicas"
         subtitle="Processos de visitas técnicas registradas — SENAC DF"
         info="Consulte e filtre os processos de visita técnica por unidade, eixo, SEI, responsável, ano, status e prazo."
-        :show-novo="podeEditarVisita"
+        :show-novo="podeCadastrarVisita"
         novo-label="Nova Visita"
         :show-clear-filters="temFiltro"
         @limpar-filtros="limparFiltros"
@@ -92,6 +92,21 @@
         :bloqueado="acessoBloqueado"
       />
 
+      <section v-if="modoSvt || origemVisitas.integracao_ativa || origemVisitas.visitas_do_svt" class="svt-aviso" aria-label="Origem das visitas">
+        <p v-if="modoSvt">
+          <strong>As visitas técnicas são cadastradas no SVT</strong> (Sistema de Visitas Técnicas) e chegam aqui por integração.
+          No SIPED elas ficam disponíveis para consulta.
+        </p>
+        <p v-else>
+          <strong>Integração com o SVT preparada.</strong> Visitas vindas do SVT aparecem com o selo “SVT” e só podem ser alteradas lá.
+        </p>
+        <p class="svt-aviso-meta">
+          <template v-if="origemVisitas.ultima_sincronizacao">Última sincronização: {{ formatarDataHoraSvt(origemVisitas.ultima_sincronizacao) }}.</template>
+          <template v-else>Ainda não houve sincronização com o SVT.</template>
+          <a v-if="origemVisitas.svt_url" :href="origemVisitas.svt_url" target="_blank" rel="noopener noreferrer">Abrir o SVT ↗</a>
+        </p>
+      </section>
+
       <PageTableCard :total="totalVisitas" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de visitas técnicas" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
@@ -124,7 +139,8 @@
               </tr>
               <tr v-for="visita in visitasFiltradas" :key="visita.id">
                 <td>
-                  <strong class="visita-sei">{{ visita.processo_sei || '—' }}</strong>
+                  <strong class="visita-sei"><ProcessoSeiLink :valor="visita.processo_sei" /></strong>
+                  <span v-if="visita.origem_svt" class="selo-svt" title="Visita recebida do SVT">SVT</span>
                 </td>
                 <td>{{ visita.unidade || '—' }}</td>
                 <td>{{ visita.eixo || '—' }}</td>
@@ -134,15 +150,25 @@
                 <td>{{ formatarData(visita.prazo_limite) }}</td>
                 <td>
                   <span class="badge-status" :class="statusClass(visita.status)">{{ visita.status }}</span>
+                  <small v-if="visita.etapa_svt" class="etapa-svt">Etapa: {{ visita.etapa_svt }}</small>
                 </td>
                 <td class="text-center acoes">
                   <button type="button" class="btn-icon btn-view" title="Visualizar" aria-label="Visualizar" @click="abrirDetalhes(visita)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
-                  <button v-if="podeEditarVisita" type="button" class="btn-icon btn-edit" title="Editar" aria-label="Editar" @click="abrirEdicao(visita)">
+                  <a
+                    v-if="visita.url_svt"
+                    :href="visita.url_svt"
+                    class="btn-icon btn-svt"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Abrir no SVT"
+                    aria-label="Abrir esta visita no SVT (nova aba)"
+                  >↗</a>
+                  <button v-if="podeAlterarVisita(visita)" type="button" class="btn-icon btn-edit" title="Editar" aria-label="Editar" @click="abrirEdicao(visita)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                   </button>
-                  <button v-if="podeEditarVisita" type="button" class="btn-icon btn-delete" title="Excluir" aria-label="Excluir" @click="excluirVisita(visita)">
+                  <button v-if="podeAlterarVisita(visita)" type="button" class="btn-icon btn-delete" title="Excluir" aria-label="Excluir" @click="excluirVisita(visita)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                   </button>
                 </td>
@@ -166,7 +192,14 @@
             <div class="detalhe-form-grid">
               <div class="detalhe-form-campo">
                 <span>Processo SEI</span>
-                <div class="detalhe-valor-box">{{ visitaDetalhe.processo_sei || '—' }}</div>
+                <div class="detalhe-valor-box"><ProcessoSeiLink :valor="visitaDetalhe.processo_sei" /></div>
+              </div>
+              <div v-if="visitaDetalhe.origem_svt" class="detalhe-form-campo">
+                <span>Origem</span>
+                <div class="detalhe-valor-box">
+                  SVT (id {{ visitaDetalhe.external_id }})<template v-if="visitaDetalhe.etapa_svt"> · etapa {{ visitaDetalhe.etapa_svt }}</template>
+                  <a v-if="visitaDetalhe.url_svt" :href="visitaDetalhe.url_svt" target="_blank" rel="noopener noreferrer">Abrir no SVT ↗</a>
+                </div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Status</span>

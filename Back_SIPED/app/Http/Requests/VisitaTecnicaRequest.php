@@ -16,6 +16,17 @@ class VisitaTecnicaRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // SPEC 07: visitas do SVT (e todas, no modo "svt") não são alteradas no SIPED.
+        $visita = $this->route('visitaTecnica');
+        $doSvt = $visita instanceof \App\Models\VisitaTecnica && \App\Services\SvtIntegracaoService::ehDoSvt($visita);
+        if ($doSvt || \App\Services\SvtIntegracaoService::modoSvt()) {
+            throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json([
+                'message' => $doSvt
+                    ? 'Esta visita vem do SVT (Sistema de Visitas Técnicas) e só pode ser alterada lá.'
+                    : 'As visitas técnicas são cadastradas no SVT. No SIPED elas ficam disponíveis para consulta.',
+            ], 409));
+        }
+
         if ($this->filled('processo_sei')) {
             $this->merge([
                 'processo_sei' => ProcessoSeiValido::sanitizar($this->input('processo_sei')),

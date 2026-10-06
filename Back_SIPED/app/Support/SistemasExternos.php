@@ -39,6 +39,7 @@ class SistemasExternos
                 'curso_url' => self::modelo('sig', 'curso_url', '{codigo}'),
             ],
             'sigin' => ['base_url' => self::url('sigin')],
+            'svt' => ['base_url' => self::url('svt')],
             'senac' => ['base_url' => self::url('senac')],
         ];
     }

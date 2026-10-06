@@ -25,6 +25,9 @@ return [
     'sigin' => [
         'base_url' => env('SIGIN_BASE_URL', env('SISTEMA_APOIO_SIGIN_URL', 'https://sigin.df.senac.br/')),
     ],
+    'svt' => [
+        'base_url' => env('SVT_BASE_URL'),
+    ],
     'senac' => [
         'base_url' => env('SENAC_SITE_URL', env('SISTEMA_APOIO_SENAC_URL', 'https://www.df.senac.br')),
     ],

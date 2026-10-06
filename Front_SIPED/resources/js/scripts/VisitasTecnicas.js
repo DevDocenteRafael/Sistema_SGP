@@ -134,6 +134,7 @@ export default createCrudPage({
     if (Array.isArray(meta.eixos) && meta.eixos.length) this.eixos = meta.eixos;
     if (Array.isArray(meta.status) && meta.status.length) this.statusLista = meta.status;
     if (Array.isArray(meta.prazos) && meta.prazos.length) this.prazoLista = meta.prazos;
+    if (meta.origem) this.origemVisitas = meta.origem;
   },
   extraData: () => ({
     unidades: [],
@@ -141,7 +142,18 @@ export default createCrudPage({
     statusLista: STATUS_LISTA,
     anosDisponiveis: ANOS,
     prazoLista: PRAZO_LISTA,
+    // Integração com o SVT (SPEC 07): modo local | svt
+    origemVisitas: { modo: 'local', integracao_ativa: false, svt_url: null, ultima_sincronizacao: null, visitas_do_svt: 0 },
   }),
+  extraComputed: {
+    modoSvt() {
+      return this.origemVisitas?.modo === 'svt';
+    },
+    /** Cadastrar visita no SIPED só no modo local. */
+    podeCadastrarVisita() {
+      return this.podeEditar && !this.modoSvt;
+    },
+  },
   methodAliases: {
     carregarVisitas: 'carregarRegistros',
     salvarVisita: 'salvarRegistro',
@@ -155,6 +167,15 @@ export default createCrudPage({
   },
   extraMethods: {
     formatarProcessoSei: formatarProcessoSeiInput('processo_sei'),
+    /** Visita do SVT (ou modo SVT) só pode ser alterada no SVT. */
+    podeAlterarVisita(visita) {
+      return this.podeEditar && visita?.editavel_no_siped !== false;
+    },
+    formatarDataHoraSvt(iso) {
+      if (!iso) return '';
+      const data = new Date(iso);
+      return Number.isNaN(data.getTime()) ? '' : data.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+    },
     statusClass(status) {
       const mapa = {
         Realizada: 'badge-realizada',

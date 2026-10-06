@@ -26,6 +26,7 @@ class VisitaTecnica extends Model
         'data_visita_prevista',
         'prazo_limite',
         'status',
+        'etapa_svt',
         'responsavel',
         'relatorio',
         'observacao',

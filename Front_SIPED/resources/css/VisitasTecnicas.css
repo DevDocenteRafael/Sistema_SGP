@@ -32,3 +32,53 @@
   background: #f3f4f6;
   color: #4b5563;
 }
+
+/* Integração com o SVT (SPEC 07) */
+.svt-aviso {
+  margin: 0 2rem 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--sgp-info-border, #bfdbfe);
+  border-radius: 0.65rem;
+  background: var(--sgp-info-bg, #eff6ff);
+  color: var(--sgp-info-text, #1e3a8a);
+  font-size: 0.85rem;
+}
+
+.svt-aviso p {
+  margin: 0.1rem 0;
+}
+
+.svt-aviso-meta a {
+  margin-left: 0.5rem;
+  font-weight: 600;
+}
+
+.selo-svt {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.35rem;
+  border-radius: 0.3rem;
+  background: #1e3a8a;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.etapa-svt {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--sgp-text-muted, #6b7280);
+  font-size: 0.72rem;
+}
+
+.btn-svt {
+  text-decoration: none;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .svt-aviso {
+    margin: 0 1rem 1rem;
+  }
+}

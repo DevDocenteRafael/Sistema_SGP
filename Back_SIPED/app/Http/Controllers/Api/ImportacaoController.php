@@ -132,6 +132,12 @@ class ImportacaoController extends Controller
 
     public function commit(Request $request, string $modulo): JsonResponse
     {
+        if ($modulo === 'visitas-tecnicas' && \App\Services\SvtIntegracaoService::modoSvt()) {
+            return response()->json([
+                'message' => 'As visitas técnicas vêm do SVT por integração; a importação por planilha está desativada.',
+            ], 409);
+        }
+
         if (! $request->user()?->podeImportarDados()) {
             return response()->json([
                 'message' => 'Você não tem permissão para importar dados.',

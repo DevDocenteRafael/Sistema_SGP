@@ -28,6 +28,13 @@ return [
             'placeholder' => false,
         ],
         [
+            'key' => 'svt',
+            'label' => 'SVT',
+            'descricao' => 'Sistema de Visitas Técnicas — solicitação e aprovação das visitas.',
+            'sistema' => 'svt', // URL em config/sistemas_externos.php (SVT_BASE_URL); oculto se vazio
+            'placeholder' => false,
+        ],
+        [
             'key' => 'senac',
             'label' => 'Site Senac DF',
             'descricao' => 'Portal institucional do Senac Distrito Federal.',

@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\ImportacaoController;
 use App\Http\Controllers\Api\JornadaPedagogicaController;
 use App\Http\Controllers\Api\CicloController;
 use App\Http\Controllers\Api\SistemaApoioController;
+use App\Http\Controllers\Api\SvtIntegracaoController;
 use App\Http\Controllers\Api\KanbanController;
 use App\Http\Controllers\Api\LixeiraController;
 use App\Http\Controllers\Api\NotificacaoController;
@@ -38,6 +39,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:login');
+
+// Integração com o SVT (Sistema de Visitas Técnicas) — autenticada por token próprio.
+Route::middleware('throttle:svt')->prefix('integracoes/svt')->group(function () {
+    Route::post('visitas', [SvtIntegracaoController::class, 'visitas']);
+    Route::get('situacao', [SvtIntegracaoController::class, 'situacao']);
+});
 
 Route::middleware(['auth:sanctum', 'usuario.ativo'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
