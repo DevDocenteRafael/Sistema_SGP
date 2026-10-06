@@ -28,14 +28,14 @@ class AuthSecurityTest extends TestCase
         ], $extra));
     }
 
-    private function criarAdmin(): Usuario
+    private function criarAdmin(string $perfil = Usuario::PERFIL_ADMINISTRADOR): Usuario
     {
         return Usuario::create([
             'nome' => 'Admin Segurança',
             'email' => 'admin-seg@teste.com',
             'senha' => Hash::make('senha123'),
             'cpf' => '12345678932',
-            'perfil' => Usuario::PERFIL_ADMINISTRADOR,
+            'perfil' => $perfil,
             'status' => true,
             'unidade' => 'Asa Norte',
             'area' => 'CPED',
@@ -124,7 +124,7 @@ class AuthSecurityTest extends TestCase
 
     public function test_inativar_usuario_revoga_tokens(): void
     {
-        $admin = $this->criarAdmin();
+        $admin = $this->criarAdmin(Usuario::PERFIL_ROOT);
         $alvo = $this->criarUsuario(['email' => 'revogar@teste.com', 'cpf' => '52998224725']);
         $alvo->createToken('sgp-api');
 

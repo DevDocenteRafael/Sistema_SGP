@@ -125,9 +125,9 @@ class NotificacaoEscopoEixoTest extends TestCase
         $this->assertSame('atencao', collect($resposta->json('itens'))->firstWhere('modulo', 'visitas-tecnicas')['nivel']);
     }
 
-    public function test_admin_associa_eixos_ao_usuario(): void
+    public function test_root_associa_eixos_ao_usuario(): void
     {
-        $this->actingAs($this->usuario(Usuario::PERFIL_ADMINISTRADOR, null, 'adm'), 'sanctum');
+        $this->actingAs($this->usuario(Usuario::PERFIL_ROOT, null, 'adm'), 'sanctum');
         $alvo = $this->usuario(Usuario::PERFIL_EDITOR, null, 'sau');
 
         $payload = [

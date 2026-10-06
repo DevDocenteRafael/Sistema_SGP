@@ -1,8 +1,8 @@
 /**
  * Perfis e permissões do front (espelha config/permissoes.php).
  *
- * Root — dono técnico/funcional: gerencia administradores, auditoria e restauração.
- * Administrador — gerencia usuários (exceto Root), auditoria e restauração.
+ * Root — dono do sistema: único que cadastra, edita, inativa e reativa usuários.
+ * Administrador — acesso a tudo (dados, auditoria e restauração); só consulta usuários.
  * Editor — altera dados do portfólio (sem usuários).
  * Consultor — apenas consulta.
  */
@@ -181,8 +181,9 @@ export function podeAcessarMenu(rota) {
   return perfil && permitidos.includes(perfil);
 }
 
+/** Só o Root cadastra, edita, inativa e reativa usuários; o Administrador só consulta. */
 export function podeGerenciarUsuarios() {
-  return temPerfilAdministrativo();
+  return isRoot();
 }
 
 export function podeEditarDados() {

@@ -13,14 +13,14 @@ class UsuarioApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function admin(): Usuario
+    private function admin(string $perfil = Usuario::PERFIL_ADMINISTRADOR): Usuario
     {
         return Usuario::create([
             'nome' => 'Admin Usuarios',
             'email' => 'admin-usuarios@teste.com',
             'senha' => Hash::make('senha123'),
             'cpf' => '11144477735',
-            'perfil' => Usuario::PERFIL_ADMINISTRADOR,
+            'perfil' => $perfil,
             'status' => true,
             'unidade' => 'Asa Norte',
             'area' => 'CPED',
@@ -28,9 +28,9 @@ class UsuarioApiTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_list_create_show_update_and_delete_usuario(): void
+    public function test_root_can_list_create_show_update_and_delete_usuario(): void
     {
-        $admin = $this->admin();
+        $admin = $this->admin(Usuario::PERFIL_ROOT);
         $this->actingAs($admin, 'sanctum');
 
         $this->getJson('/api/usuarios')
@@ -121,11 +121,11 @@ class UsuarioApiTest extends TestCase
         $this->assertCount(1, $filtered->json('data'));
     }
 
-    public function test_admin_can_upload_and_remove_usuario_foto(): void
+    public function test_root_can_upload_and_remove_usuario_foto(): void
     {
         Storage::fake('public');
 
-        $admin = $this->admin();
+        $admin = $this->admin(Usuario::PERFIL_ROOT);
         $this->actingAs($admin, 'sanctum');
 
         $jpegMinimo = base64_decode(

@@ -163,7 +163,7 @@ if errorlevel 1 (
   exit /b 1
 )
 echo        Usuarios demo e exemplos ok
-echo        Login: administrador@df.senac.br / senac2025
+echo        Login: root@df.senac.br / root2025
 
 echo.
 echo --- FRONT: Front_SIPED ---

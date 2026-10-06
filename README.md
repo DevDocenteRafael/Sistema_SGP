@@ -12,7 +12,8 @@ Lucas Leal, Pedro Comis, Hillary Oliveira, Paloma Leandro e Maria Stephanny.
 
 | Perfil | Papel |
 |---|---|
-| **Administrador** | Gestão do sistema, usuários e auditoria |
+| **Root** | Único que cadastra, edita, inativa e reativa usuários; tem também todo o acesso do Administrador |
+| **Administrador** | Gestão do sistema, importação, auditoria e restauração; só consulta os usuários |
 | **Editor** | Cadastro, edição, exclusão e importação |
 | **Consultor** | Consulta (sem alterar nem importar) |
 
@@ -77,12 +78,15 @@ Se o login falhar, a tela mostra a mensagem da API. Feche as janelas e rode `loc
 | Perfil | E-mail | Senha |
 |---|---|---|
 | Root | `root@df.senac.br` | `root2025` |
+| Root (substituto) | `root.substituto@df.senac.br` | `root2025` |
 | Administrador | `administrador@df.senac.br` | `senac2025` |
 | Editor | `editor@df.senac.br` | `editor2025` |
 | Consultor | `consultor@df.senac.br` | `consultor2025` |
 
 Esses usuários são só para desenvolvimento local. Em produção, crie o Root real com
 `php artisan siped:criar-root email@df.senac.br --gerar-senha` (a senha aparece uma única vez).
+Mantenha pelo menos dois Roots ativos: só o Root gerencia usuários, e o sistema não deixa
+inativar nem rebaixar o último Root ativo.
 
 ## Se preferir os comandos na mão
 

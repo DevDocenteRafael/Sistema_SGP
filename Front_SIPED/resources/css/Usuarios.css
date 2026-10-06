@@ -206,6 +206,10 @@
   display: block;
 }
 
+.avatar-root {
+  background: #5b21b6;
+}
+
 .avatar-admin {
   background: #003f7d;
 }
@@ -304,6 +308,11 @@
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
+}
+
+.badge-root {
+  background: #ede9fe;
+  color: #5b21b6;
 }
 
 .badge-admin {

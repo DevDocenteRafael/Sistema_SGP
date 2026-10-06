@@ -31,14 +31,14 @@ class ValidacaoCamposApiTest extends TestCase
         ]);
     }
 
-    private function admin(): Usuario
+    private function admin(string $perfil = Usuario::PERFIL_ADMINISTRADOR): Usuario
     {
         return Usuario::create([
             'nome' => 'Admin Validação',
             'email' => 'admin-validacao@teste.com',
             'senha' => Hash::make('senha123'),
             'cpf' => '11144477735',
-            'perfil' => Usuario::PERFIL_ADMINISTRADOR,
+            'perfil' => $perfil,
             'status' => true,
             'unidade' => 'Asa Norte',
             'area' => 'CPED',
@@ -48,7 +48,7 @@ class ValidacaoCamposApiTest extends TestCase
 
     public function test_usuario_rejeita_cpf_e_telefone_invalidos(): void
     {
-        $this->actingAs($this->admin(), 'sanctum');
+        $this->actingAs($this->admin(Usuario::PERFIL_ROOT), 'sanctum');
 
         $this->postJson('/api/usuarios', [
             'nome' => 'Teste CPF',
@@ -362,7 +362,7 @@ class ValidacaoCamposApiTest extends TestCase
 
     public function test_usuario_rejeita_nome_longo(): void
     {
-        $this->actingAs($this->admin(), 'sanctum');
+        $this->actingAs($this->admin(Usuario::PERFIL_ROOT), 'sanctum');
 
         $this->postJson('/api/usuarios', [
             'nome' => Str::repeat('U', 101),

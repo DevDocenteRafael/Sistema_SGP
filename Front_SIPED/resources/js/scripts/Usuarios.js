@@ -50,16 +50,12 @@ export default {
       return isRoot();
     },
     opcoesPerfil() {
-      const opcoes = [
-        { value: 'Administrador', label: 'Administrador — gestão de usuários, auditoria e restauração' },
+      return [
+        { value: 'Root', label: 'Root — dono do sistema: gerencia os usuários e tem todo o acesso' },
+        { value: 'Administrador', label: 'Administrador — acesso a tudo, inclusive auditoria e restauração; só consulta usuários' },
         { value: 'Editor', label: 'Editor — cria, altera e exclui dados do portfólio (com restauração)' },
         { value: 'Consultor', label: 'Consultor — somente leitura' },
       ];
-      // Só Root concede o perfil Root.
-      if (this.souRoot || this.form?.perfil === 'Root') {
-        opcoes.unshift({ value: 'Root', label: 'Root — dono do sistema (gerencia administradores)' });
-      }
-      return opcoes;
     },
     podeEditar() {
       return podeGerenciarUsuarios();
@@ -117,6 +113,7 @@ export default {
 
     avatarClass(perfil) {
       return {
+        'avatar-root': perfil === 'Root',
         'avatar-admin': perfil === 'Administrador',
         'avatar-editor': perfil === 'Editor',
         'avatar-consultor': perfil === 'Consultor',
@@ -125,6 +122,7 @@ export default {
 
     badgePerfil(perfil) {
       return {
+        'badge-root': perfil === 'Root',
         'badge-admin': perfil === 'Administrador',
         'badge-editor': perfil === 'Editor',
         'badge-consultor': perfil === 'Consultor',
@@ -432,9 +430,9 @@ export default {
       }
     },
 
-    /** Usuário Root só pode ser alterado por outro Root. */
-    podeAlterar(usuario) {
-      return this.podeEditar && (usuario?.perfil !== 'Root' || this.souRoot);
+    /** Só o Root altera usuários. */
+    podeAlterar() {
+      return this.podeEditar;
     },
 
     async inativarUsuario(usuario) {

@@ -5,7 +5,9 @@
       <CrudPageHeader
         title="Usuários"
         subtitle="Controle de acesso e perfis do SIPED — SENAC DF"
-        info="O administrador cadastra o colaborador e define o e-mail e a senha de acesso ao sistema."
+        :info="podeEditar
+          ? 'O Root cadastra o colaborador e define o e-mail e a senha de acesso ao sistema.'
+          : 'Consulta dos usuários. Somente o perfil Root cadastra, edita, inativa e reativa usuários.'"
         :show-novo="podeEditar"
         novo-label="Novo Usuário"
         :show-clear-filters="temFiltro"

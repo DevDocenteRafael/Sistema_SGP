@@ -3,9 +3,10 @@
 /**
  * Níveis de acesso do SIPED.
  *
- * Root — dono técnico/funcional: gerencia administradores, usuários, auditoria e restauração.
- *        Não pode ser alterado nem inativado por perfis inferiores.
- * Administrador — gerencia usuários (exceto Root), auditoria, importação e restauração.
+ * Root — dono do sistema: único perfil que cadastra, edita, inativa e reativa usuários.
+ *        Tem também todo o acesso do Administrador.
+ * Administrador — acesso a tudo (dados, importação, auditoria e restauração) e consulta
+ *        dos usuários, sem alterá-los.
  * Editor — cria e altera dados do portfólio (sem gerenciar usuários).
  * Consultor — apenas consulta (leitura).
  */
@@ -24,14 +25,15 @@ return [
     |--------------------------------------------------------------------------
     |
     | Cada ação lista os perfis autorizados. Funções não se sobrepõem:
-    | - só o Administrador gerencia usuários
+    | - só o Root cadastra, edita, inativa e reativa usuários
     | - só Administrador e Editor alteram dados
     | - Consultor apenas consulta
     |
     */
 
     'acoes' => [
-        'gerenciar_usuarios' => ['Root', 'Administrador'],
+        'gerenciar_usuarios' => ['Root'],
+        'consultar_usuarios' => ['Root', 'Administrador'],
         'gerenciar_root' => ['Root'],
         'editar_dados' => ['Root', 'Administrador', 'Editor'],
         'consultar_dados' => ['Root', 'Administrador', 'Editor', 'Consultor'],

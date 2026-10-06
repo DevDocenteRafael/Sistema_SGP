@@ -64,20 +64,52 @@ class Spec03UsuariosAuditoriaLixeiraTest extends TestCase
 
     // ---------- Perfis / Root ----------
 
-    public function test_administrador_nao_altera_nem_inativa_root_e_nao_concede_root(): void
+    public function test_administrador_so_consulta_usuarios_e_root_gerencia(): void
     {
         $root = $this->usuario(Usuario::PERFIL_ROOT);
         $admin = $this->usuario(Usuario::PERFIL_ADMINISTRADOR);
         $editor = $this->usuario(Usuario::PERFIL_EDITOR);
         $this->actingAs($admin, 'sanctum');
 
+        // Administrador vê a lista e o detalhe...
+        $this->getJson('/api/usuarios')->assertOk();
+        $this->getJson('/api/usuarios/'.$editor->id)->assertOk();
+        // ...mas não cadastra, edita, inativa nem reativa ninguém.
+        $this->postJson('/api/usuarios', $this->payload($editor, ['email' => 'novo-por-admin@teste.com']))->assertForbidden();
+        $this->putJson('/api/usuarios/'.$editor->id, $this->payload($editor, ['nome' => 'Alterado']))->assertForbidden();
         $this->putJson('/api/usuarios/'.$root->id, $this->payload($root, ['nome' => 'Hackeado']))->assertForbidden();
-        $this->deleteJson('/api/usuarios/'.$root->id)->assertForbidden();
-        $this->putJson('/api/usuarios/'.$editor->id, $this->payload($editor, ['perfil' => 'Root']))
-            ->assertStatus(422)->assertJsonValidationErrors(['perfil']);
-
+        $this->deleteJson('/api/usuarios/'.$editor->id)->assertForbidden();
+        $this->postJson('/api/usuarios/'.$editor->id.'/reativar')->assertForbidden();
         $this->assertSame('Root', $root->fresh()->perfil);
+        $this->assertTrue((bool) $editor->fresh()->status);
+
+        // Administrador continua com auditoria e restauração.
+        $this->getJson('/api/cadastros')->assertOk();
+        $this->getJson('/api/lixeira')->assertOk();
+    }
+
+    public function test_ultimo_root_ativo_nao_pode_ser_inativado_nem_rebaixado(): void
+    {
+        $root = $this->usuario(Usuario::PERFIL_ROOT);
+        $outroRoot = $this->usuario(Usuario::PERFIL_ROOT);
+        $this->actingAs($root, 'sanctum');
+
+        // Com dois Roots, um pode ser inativado.
+        $this->deleteJson('/api/usuarios/'.$outroRoot->id)->assertOk();
+        // Sobrando um só Root ativo, ele não pode perder o perfil.
+        $this->putJson('/api/usuarios/'.$root->id, $this->payload($root, ['perfil' => Usuario::PERFIL_ADMINISTRADOR]))
+            ->assertStatus(422)->assertJsonPath('message', 'Não é possível alterar o perfil do último Root ativo.');
+        $this->assertSame('Root', $root->fresh()->perfil);
+        // ...nem ser inativado.
+        $this->putJson('/api/usuarios/'.$root->id, $this->payload($root, ['status' => false]))
+            ->assertStatus(422)->assertJsonPath('message', 'Não é possível inativar o último Root ativo.');
         $this->assertTrue((bool) $root->fresh()->status);
+
+        // Reativado o segundo Root, a trava deixa de valer.
+        $this->postJson('/api/usuarios/'.$outroRoot->id.'/reativar')->assertOk();
+        $this->putJson('/api/usuarios/'.$root->id, $this->payload($root, ['perfil' => Usuario::PERFIL_ADMINISTRADOR]))
+            ->assertOk();
+        $this->assertSame('Administrador', $root->fresh()->perfil);
     }
 
     public function test_root_gerencia_administradores_e_concede_root(): void
@@ -110,7 +142,7 @@ class Spec03UsuariosAuditoriaLixeiraTest extends TestCase
 
     public function test_excluir_usuario_inativa_revoga_tokens_e_mantem_historico(): void
     {
-        $admin = $this->usuario(Usuario::PERFIL_ADMINISTRADOR);
+        $admin = $this->usuario(Usuario::PERFIL_ROOT);
         $editor = $this->usuario(Usuario::PERFIL_EDITOR, 'senha-editor');
         $token = $editor->createToken('teste')->plainTextToken;
         $this->actingAs($admin, 'sanctum');

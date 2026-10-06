@@ -106,25 +106,26 @@ class UsuarioController extends Controller
             unset($dados['senha']);
         }
 
+        // Sempre precisa existir um Root ativo: é o único perfil que gerencia usuários.
         if (
-            $usuario->temPerfilAdministrativo()
+            $usuario->isRoot()
             && isset($dados['perfil'])
-            && ! in_array($dados['perfil'], [Usuario::PERFIL_ROOT, Usuario::PERFIL_ADMINISTRADOR], true)
-            && $this->ehUltimoAdministradorAtivo($usuario)
+            && $dados['perfil'] !== Usuario::PERFIL_ROOT
+            && $this->ehUltimoRootAtivo($usuario)
         ) {
             return response()->json([
-                'message' => 'Não é possível alterar o perfil do último administrador ativo.',
+                'message' => 'Não é possível alterar o perfil do último Root ativo.',
             ], 422);
         }
 
         if (
-            $usuario->temPerfilAdministrativo()
+            $usuario->isRoot()
             && array_key_exists('status', $dados)
             && $dados['status'] === false
-            && $this->ehUltimoAdministradorAtivo($usuario)
+            && $this->ehUltimoRootAtivo($usuario)
         ) {
             return response()->json([
-                'message' => 'Não é possível inativar o último administrador ativo.',
+                'message' => 'Não é possível inativar o último Root ativo.',
             ], 422);
         }
 
@@ -194,9 +195,9 @@ class UsuarioController extends Controller
             return $negado;
         }
 
-        if ($usuario->temPerfilAdministrativo() && $this->ehUltimoAdministradorAtivo($usuario)) {
+        if ($usuario->isRoot() && $this->ehUltimoRootAtivo($usuario)) {
             return response()->json([
-                'message' => 'Não é possível inativar o último administrador ativo.',
+                'message' => 'Não é possível inativar o último Root ativo.',
             ], 422);
         }
 
@@ -240,11 +241,10 @@ class UsuarioController extends Controller
         ]);
     }
 
-    /** Root e Administrador contam como perfis administrativos. */
-    private function ehUltimoAdministradorAtivo(Usuario $usuario): bool
+    private function ehUltimoRootAtivo(Usuario $usuario): bool
     {
         return Usuario::query()
-            ->whereIn('perfil', [Usuario::PERFIL_ROOT, Usuario::PERFIL_ADMINISTRADOR])
+            ->where('perfil', Usuario::PERFIL_ROOT)
             ->where('status', true)
             ->where('id', '!=', $usuario->id)
             ->doesntExist();
