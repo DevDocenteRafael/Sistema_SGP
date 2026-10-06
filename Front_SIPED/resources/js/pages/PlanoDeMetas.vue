@@ -3,8 +3,8 @@
     <template v-if="modo === 'lista'">
       <CrudPageHeader
         title="Plano de Metas"
-        subtitle="Mapeamento de produção, produtividade e estratégias por ano"
-        info="Ajuste filtros para visualizar registros de produção, infraestrutura e indicadores do portfólio."
+        subtitle="Metas por área do planejamento: visão geral e por origem (Planejamento Estratégico, DN, DEF e CPED)"
+        info="Os registros vêm da planilha oficial aprovada (importação inicial) e depois são mantidos aqui. O sistema não calcula percentuais nem indicadores sem regra definida pela CPED."
         :show-novo="podeEditar"
         novo-label="Novo Registro"
         :show-clear-filters="temFiltro"
@@ -79,6 +79,21 @@
         :erro="mensagemErro"
       />
 
+      <nav class="areas-abas" aria-label="Áreas do planejamento">
+        <button
+          v-for="aba in [{ valor: '', rotulo: 'Visão geral' }, ...areasDisponiveis.map((a) => ({ valor: a, rotulo: a })), { valor: 'sem_area', rotulo: 'Sem área' }]"
+          :key="aba.valor || 'geral'"
+          type="button"
+          class="areas-aba"
+          :class="{ 'is-active': filtros.area === aba.valor }"
+          :aria-pressed="filtros.area === aba.valor ? 'true' : 'false'"
+          @click="selecionarArea(aba.valor)"
+        >
+          {{ aba.rotulo }}
+          <span class="areas-aba-qtd">{{ contagemArea(aba.valor) }}</span>
+        </button>
+      </nav>
+
       <PageTableCard :total="totalRegistros" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de Plano de Metas" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
         <div v-if="carregando" class="tabela-loading">Carregando...</div>
@@ -95,6 +110,7 @@
                 <th>Segmento</th>
                 <th>Curso</th>
                 <th>Tipo</th>
+                <th>Área</th>
                 <th>Número SEI</th>
                 <th>Código SIG</th>
                 <th>Mês de Entrega</th>
@@ -107,7 +123,7 @@
             </thead>
             <tbody>
               <tr v-if="totalRegistros === 0">
-                <td colspan="11" class="tabela-vazia">
+                <td colspan="12" class="tabela-vazia">
                   Nenhum registro encontrado para os filtros selecionados.
                 </td>
               </tr>
@@ -115,6 +131,7 @@
                 <td>{{ registro.segmento || '—' }}</td>
                 <td>{{ registro.curso || '—' }}</td>
                 <td>{{ registro.tipo || '—' }}</td>
+                <td>{{ registro.area_planejamento || '—' }}</td>
                 <td>{{ registro.sei || '—' }}</td>
                 <td>{{ registro.sig || '—' }}</td>
                 <td>{{ registro.mesEntrega || '—' }}</td>
@@ -164,6 +181,10 @@
               <div class="detalhe-form-campo">
                 <span>Tipo</span>
                 <div class="detalhe-valor-box">{{ registroDetalhe.tipo || '—' }}</div>
+              </div>
+              <div class="detalhe-form-campo">
+                <span>Área do planejamento</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.area_planejamento || 'Sem área' }}</div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Mês de Entrega</span>
@@ -255,6 +276,16 @@
                   maxlength="50"
                   placeholder="Ex.: Em andamento"
                   aria-required="true"
+                />
+              </label>
+
+              <label class="campo">
+                <FormLabel label="Área do planejamento" />
+                <SearchableSelect
+                  v-model="form.area_planejamento"
+                  :options="areasDisponiveis"
+                  empty-option="Sem área (classificar depois)"
+                  aria-label="Área do planejamento"
                 />
               </label>
 

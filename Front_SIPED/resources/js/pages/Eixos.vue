@@ -28,6 +28,19 @@
       </dl>
     </header>
 
+    <section v-if="!carregando && resumo.fontes" class="eixos-fontes" aria-label="Fonte dos números">
+      <p v-for="(fonte, chave) in resumo.fontes" :key="chave" :class="{ 'eixos-fonte--pendente': !fonte.ultima_importacao }">
+        <strong>{{ fonte.indicador }}:</strong> {{ fonte.descricao }}
+        <template v-if="fonte.ultima_importacao">
+          Última importação em {{ formatarDataHora(fonte.ultima_importacao.data) }}
+          ({{ fonte.ultima_importacao.arquivo }}<template v-if="fonte.ultima_importacao.usuario">, por {{ fonte.ultima_importacao.usuario }}</template>).
+        </template>
+        <template v-else>
+          Sem importação oficial registrada neste ciclo — não use estes números como dado institucional.
+        </template>
+      </p>
+    </section>
+
     <div v-if="erro" class="alert alert-error">{{ erro }}</div>
     <div v-if="carregando" class="eixos-vazio">Carregando eixos...</div>
 

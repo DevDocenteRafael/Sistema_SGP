@@ -27,6 +27,7 @@ class PlanoDeMeta extends Model
         'mes_entrega',
         'status',
         'origem',
+        'area_planejamento',
         'status_final',
         'observacao',
         'ano',

@@ -87,6 +87,9 @@ class ImportacaoService
             $resultado = $this->validarOfertasEixos($resultado);
         } else {
             $resultado = $this->canonicalizarEixosNasLinhas($resultado);
+            if ($modulo === 'plano-de-metas') {
+                $resultado = $this->canonicalizarAreasPlanejamento($resultado);
+            }
         }
 
         $resultado = $this->avaliarCompletude($modulo, $def, $resultado);
@@ -222,6 +225,39 @@ class ImportacaoService
         $resultado['resumo_acoes'] = $resumo;
         $resultado['backup'] = $backup;
         $resultado['incompletos_registros'] = $incompletos;
+
+        return $resultado;
+    }
+
+    /**
+     * Área do planejamento: grafias conhecidas viram a área oficial; valor não reconhecido
+     * é importado sem área, com aviso (valor original preservado na mensagem).
+     *
+     * @param  array<string, mixed>  $resultado
+     * @return array<string, mixed>
+     */
+    private function canonicalizarAreasPlanejamento(array $resultado): array
+    {
+        foreach ($resultado['linhas'] as &$linha) {
+            $bruto = $linha['area_planejamento'] ?? null;
+            if ($this->valorVazio($bruto)) {
+                continue;
+            }
+
+            $area = \App\Support\AreaPlanejamento::canonicalizar($bruto);
+            if ($area === null) {
+                $resultado['erros'][] = $this->erroImportacao(
+                    '',
+                    (int) ($linha['linha_planilha'] ?? 0),
+                    'Área',
+                    (string) $bruto,
+                    'Área do planejamento não reconhecida: "'.$bruto.'". Use Planejamento Estratégico, DN, DEF ou CPED. Importado sem área.',
+                    false,
+                );
+            }
+            $linha['area_planejamento'] = $area;
+        }
+        unset($linha);
 
         return $resultado;
     }

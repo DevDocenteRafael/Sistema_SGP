@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PlanoDeMetaRequest;
 use App\Models\PlanoDeMeta;
 use App\Models\PortfolioCiclo;
+use App\Support\AreaPlanejamento;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -35,6 +36,7 @@ class PlanoDeMetaController extends Controller
                     ->orWhere('mes_entrega', 'like', "%{$busca}%")
                     ->orWhere('status', 'like', "%{$busca}%")
                     ->orWhere('status_final', 'like', "%{$busca}%")
+                    ->orWhere('area_planejamento', 'like', "%{$busca}%")
                     ->orWhere('observacao', 'like', "%{$busca}%");
             });
         }
@@ -65,12 +67,36 @@ class PlanoDeMetaController extends Controller
             $query->where('status_final', $request->situacao);
         }
 
+        // Contagem por área: mesmos filtros, menos a própria área (para as abas).
+        $porArea = (clone $query)->reorder()
+            ->selectRaw('area_planejamento, COUNT(*) as total')
+            ->groupBy('area_planejamento')
+            ->pluck('total', 'area_planejamento');
+
+        // Abas por área do planejamento: "sem_area" = ainda não classificado.
+        if ($request->filled('area')) {
+            $area = (string) $request->area;
+            if ($area === 'sem_area') {
+                $query->whereNull('area_planejamento');
+            } else {
+                $query->where('area_planejamento', AreaPlanejamento::canonicalizar($area) ?? $area);
+            }
+        }
+
         $paginator = $this->paginar($query, $request);
 
         return response()->json([
             'data' => $paginator->items(),
             'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => PlanoDeMeta::query()->count(),
+                'areas' => AreaPlanejamento::areas(),
+                'contagens_area' => [
+                    'total' => (int) $porArea->sum(),
+                    'sem_area' => (int) ($porArea[''] ?? 0),
+                    'por_area' => collect(AreaPlanejamento::areas())
+                        ->mapWithKeys(fn (string $area) => [$area => (int) ($porArea[$area] ?? 0)])
+                        ->all(),
+                ],
                 'anos' => ['2024', '2025', '2026', '2027'],
                 'segmentos' => PlanoDeMeta::query()
                     ->whereNotNull('segmento')

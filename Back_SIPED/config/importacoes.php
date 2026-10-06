@@ -94,6 +94,7 @@ return [
                 'mes_entrega' => ['mes de entrega', 'mês de entrega'],
                 'status' => ['status'],
                 'origem' => ['origem'],
+                'area_planejamento' => ['area do planejamento', 'área do planejamento', 'origem do planejamento'],
                 'observacao' => ['observacao', 'observação'],
                 'status_final' => ['status final'],
                 'ano' => ['ano'],
@@ -104,12 +105,13 @@ return [
                 ['key' => 'tipo', 'label' => 'Tipo'],
                 ['key' => 'status', 'label' => 'Status'],
                 ['key' => 'mes_entrega', 'label' => 'Mês'],
+                ['key' => 'area_planejamento', 'label' => 'Área'],
                 ['key' => 'numero_sei', 'label' => 'SEI'],
             ],
             'unique_fields' => ['numero_sei', 'codigo_sig'],
             'db_fields' => [
                 'segmento', 'curso', 'tipo', 'numero_sei', 'codigo_sig',
-                'mes_entrega', 'status', 'origem', 'status_final', 'observacao', 'ano',
+                'mes_entrega', 'status', 'origem', 'area_planejamento', 'status_final', 'observacao', 'ano',
             ],
         ],
 

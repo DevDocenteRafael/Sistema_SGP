@@ -35,6 +35,15 @@ class PlanoDeMetaRequest extends FormRequest
             ]);
         }
 
+        if ($this->exists('area_planejamento')) {
+            $bruto = $this->input('area_planejamento');
+            $this->merge([
+                'area_planejamento' => trim((string) $bruto) === ''
+                    ? null
+                    : (\App\Support\AreaPlanejamento::canonicalizar($bruto) ?? trim((string) $bruto)),
+            ]);
+        }
+
         foreach (['status', 'status_final', 'tipo', 'mes_entrega', 'origem'] as $campo) {
             if (! $this->filled($campo)) {
                 continue;
@@ -70,6 +79,8 @@ class PlanoDeMetaRequest extends FormRequest
             'mes_entrega' => ['required', 'string', 'max:50'],
             'status' => ['required', 'string', 'max:50'],
             'origem' => ['nullable', 'string', 'max:100'],
+            // Área/origem do planejamento (opcional até o cliente classificar).
+            'area_planejamento' => ['nullable', 'string', Rule::in(\App\Support\AreaPlanejamento::areas())],
             'status_final' => ['required', 'string', 'max:50'],
             'observacao' => ['nullable', 'string', 'max:2000'],
             'ano' => ['nullable', 'integer', 'min:1900', 'max:2100'],
@@ -80,6 +91,7 @@ class PlanoDeMetaRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'area_planejamento.in' => 'Selecione uma área do planejamento válida (Planejamento Estratégico, DN, DEF ou CPED).',
             'segmento.required' => 'O segmento é obrigatório.',
             'curso.required' => 'O curso é obrigatório.',
             'tipo.required' => 'O tipo é obrigatório.',

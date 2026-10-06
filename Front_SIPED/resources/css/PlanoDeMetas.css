@@ -174,3 +174,55 @@
   font-weight: 400;
 }
 
+
+/* Abas por área do planejamento (SPEC 05) */
+.areas-abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 2rem 1rem;
+}
+
+@media (max-width: 640px) {
+  .areas-abas {
+    margin: 0 1rem 1rem;
+  }
+}
+
+.areas-aba {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--sgp-border, #d1d5db);
+  border-radius: 999px;
+  background: var(--sgp-surface, #fff);
+  color: var(--sgp-text, #374151);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.areas-aba.is-active {
+  border-color: var(--sgp-brand, #003f7d);
+  background: var(--sgp-brand, #003f7d);
+  color: #fff;
+}
+
+.areas-aba:focus-visible {
+  outline: 2px solid var(--sgp-brand, #003f7d);
+  outline-offset: 2px;
+}
+
+.areas-aba-qtd {
+  min-width: 1.4rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: rgba(0, 63, 125, 0.1);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.areas-aba.is-active .areas-aba-qtd {
+  background: rgba(255, 255, 255, 0.25);
+}

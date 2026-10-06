@@ -6,6 +6,7 @@ use App\Models\Ciclo;
 use App\Models\Curso;
 use App\Models\CursoExecucao;
 use App\Models\Eixo;
+use App\Models\ImportacaoHistorico;
 use App\Models\Segmento;
 use App\Support\CatalogoOficial;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -43,7 +44,53 @@ class EixoResumoService
                 'alunos' => array_sum(array_column($cards, 'alunos')),
             ],
             'eixos' => $cards,
+            'fontes' => $this->fontes($cicloFiltro, $ciclo?->nome),
         ];
+    }
+
+    /**
+     * De onde vêm os números (SPEC 05): a última importação oficial registrada no ciclo.
+     * Sem importação, os números não devem ser tratados como dado institucional.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function fontes(?int $cicloId, ?string $cicloNome = null): array
+    {
+        $ciclo = $cicloNome ? ' do ciclo '.$cicloNome : '';
+
+        return [
+            'cursos' => [
+                'indicador' => 'Cursos',
+                'descricao' => 'Catálogo de Cursos'.$ciclo.' (cursos oficiais classificados nos 5 eixos).',
+                'ultima_importacao' => $this->ultimaImportacao('cursos', $cicloId),
+            ],
+            'turmas_alunos' => [
+                'indicador' => 'Turmas e alunos',
+                'descricao' => 'Ofertas da planilha de quantidade de cursos por eixo'.$ciclo.'.',
+                'ultima_importacao' => $this->ultimaImportacao('eixos', $cicloId),
+            ],
+        ];
+    }
+
+    /**
+     * @return array{data: ?string, arquivo: string, usuario: ?string}|null
+     */
+    private function ultimaImportacao(string $modulo, ?int $cicloId): ?array
+    {
+        $historico = ImportacaoHistorico::query()
+            ->with('usuario')
+            ->where('tipo', ImportacaoHistorico::TIPO_PLANILHA)
+            ->where('modulo', $modulo)
+            ->where('situacao', ImportacaoHistorico::SITUACAO_CONCLUIDA)
+            ->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))
+            ->orderByDesc('id')
+            ->first();
+
+        return $historico ? [
+            'data' => $historico->created_at?->toISOString(),
+            'arquivo' => $historico->arquivo_nome,
+            'usuario' => $historico->usuario?->nome,
+        ] : null;
     }
 
     /**
@@ -84,6 +131,7 @@ class EixoResumoService
             'eixo' => $indicadores,
             'indicadores' => $indicadores,
             'segmentos' => $segmentos,
+            'fontes' => $this->fontes($cicloFiltro, $ciclo?->nome),
         ];
     }
 

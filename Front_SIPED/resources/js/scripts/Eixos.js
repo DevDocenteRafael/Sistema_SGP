@@ -1,4 +1,5 @@
 import { CICLO_CONTEXTO_EVENTO, lerCicloContexto } from './cicloContexto';
+import { formatarDataHora } from '../utils/documentos';
 
 const CLASSES_EIXO = [
   { teste: /gastronomia/i, classe: 'eixo-card--laranja' },
@@ -81,6 +82,8 @@ export default {
         this.carregando = false;
       }
     },
+
+    formatarDataHora,
 
     abrirDetalhe(eixo) {
       this.$router.push({
