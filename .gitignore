@@ -59,6 +59,11 @@ dump.sql
 # Documentos locais da raiz (planos, PDFs, HTML gerado)
 docs/
 
+# Documentos Word da raiz (specs, atas) e arquivos de bloqueio do Word
+/*.docx
+/*.doc
+~$*
+
 # Notas e saídas de agente / scripts pontuais de máquina
 .spec_eixos_from_transcript.txt
 /Claude outputs/
