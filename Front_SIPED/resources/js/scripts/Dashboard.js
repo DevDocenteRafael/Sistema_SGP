@@ -18,6 +18,10 @@ function corDoEixo(label) {
   return eixo ? CORES_POR_EIXO[eixo] : '#64748b';
 }
 
+function compararPorNome(a, b) {
+  return a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' });
+}
+
 export default {
   name: 'Dashboard',
 
@@ -298,7 +302,7 @@ export default {
           value: this.cursosParaGraficos.filter((curso) => eixosIguais(curso.eixo, label)).length,
           color: corDoEixo(label),
         })),
-      );
+      ).sort(compararPorNome);
     },
 
     chartTipos() {
@@ -313,7 +317,8 @@ export default {
         Object.entries(contagem)
           .map(([label, value]) => ({ label, value, color: '#FF7A00' }))
           .sort((a, b) => b.value - a.value)
-          .slice(0, 6),
+          .slice(0, 6)
+          .sort(compararPorNome),
       );
     },
 
@@ -385,8 +390,8 @@ export default {
           { title: 'Devolvidas', value: devolvidas, color: '#b91c1c', subtitle: `${this.percentual(devolvidas, total)}% do total` },
         ],
         porEixo: this.listaContagem(this.visitas, 'eixo'),
-        porStatus: this.listaContagem(this.visitas, 'status', { orange: true }).slice(0, 6),
-        porUnidade: this.listaContagem(this.visitas, 'unidade').slice(0, 8),
+        porStatus: this.listaContagem(this.visitas, 'status', { orange: true }).slice(0, 6).sort(compararPorNome),
+        porUnidade: this.listaContagem(this.visitas, 'unidade').slice(0, 8).sort(compararPorNome),
       };
     },
 
@@ -410,9 +415,8 @@ export default {
           { title: 'Inativas', value: inativas, color: '#6b7280', subtitle: `${this.percentual(inativas, total)}% do total` },
         ],
         porEixo: this.listaContagem(this.horas, 'eixo'),
-        porStatus: this.listaContagem(this.horas, 'status', { orange: true }).slice(0, 6),
-        porSegmento: this.listaContagem(this.horas, 'segmento').slice(0, 8),
-        porPessoa: this.listaContagem(this.horas, 'pessoa').slice(0, 8),
+        porStatus: this.listaContagem(this.horas, 'status', { orange: true }).slice(0, 6).sort(compararPorNome),
+        porSegmento: this.listaContagem(this.horas, 'segmento').slice(0, 8).sort(compararPorNome),
       };
     },
 
@@ -569,7 +573,7 @@ export default {
     listaContagem(lista, campo, opcoes = {}) {
       const contagem = this.contarPor(lista, campo);
 
-      return this.enriquecerBarras(
+      const barras = this.enriquecerBarras(
         Object.entries(contagem)
           .map(([label, value]) => ({
             label,
@@ -579,6 +583,8 @@ export default {
           .sort((a, b) => b.value - a.value),
         opcoes,
       );
+
+      return campo === 'eixo' ? barras.sort(compararPorNome) : barras;
     },
 
     enriquecerBarras(items, { orange = false } = {}) {
