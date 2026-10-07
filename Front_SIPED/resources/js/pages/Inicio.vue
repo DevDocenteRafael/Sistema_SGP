@@ -8,7 +8,7 @@
           <p class="inicio-hero-tag">SENAC DF · CPED</p>
           <h1 class="inicio-hero-title">SIPED — Sistema Integrado Pedagógico</h1>
           <p class="inicio-hero-desc">
-            Plataforma pedagógica (CPED/DEP) para gestão educacional
+            Plataforma pedagógica (CPED/DEP) para controle educacional
             e integração dos sistemas de apoio do SENAC DF.
           </p>
         </div>
