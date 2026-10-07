@@ -100,11 +100,37 @@ class Spec05PlanoMetasEixosTest extends TestCase
         $arquivo = fn () => new UploadedFile($path, 'metas.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
         $preview = $this->post('/api/importacoes/plano-de-metas/preview', ['arquivo' => $arquivo()])->assertOk();
-        $this->assertTrue(collect($preview->json('erros'))->contains(fn ($e) => str_contains($e['mensagem'], 'Área do planejamento não reconhecida: "Diretoria X"')));
+        $this->assertTrue(collect($preview->json('erros'))->contains(fn ($e) => str_contains($e['mensagem'], 'Origem do planejamento não reconhecida: "Diretoria X"')));
 
         $this->post('/api/importacoes/plano-de-metas/commit', ['arquivo' => $arquivo()])->assertOk();
         $this->assertSame('DN', PlanoDeMeta::where('curso', 'Meta DN')->value('area_planejamento'));
         $this->assertNull(PlanoDeMeta::where('curso', 'Meta área estranha')->value('area_planejamento'));
+    }
+
+    public function test_coluna_origem_da_planilha_vira_origem_oficial_sem_perder_texto_livre(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $ss = new Spreadsheet;
+        $sheet = $ss->getActiveSheet();
+        $sheet->setTitle('PLANO DE METAS 2025');
+        $sheet->fromArray([
+            ['Segmento', 'Curso', 'Tipo', 'Número SEI', 'Código SIG', 'Mês de entrega', 'Status', 'Origem', 'Status final'],
+            ['Gestão', 'Meta origem DEF', 'QUALIFICAÇÃO', 'SEI-ORI-1', 'SIG-ORI-1', 'Março', 'PLANEJADO', 'def', 'PENDENTE'],
+            ['Gestão', 'Meta origem livre', 'QUALIFICAÇÃO', 'SEI-ORI-2', 'SIG-ORI-2', 'Março', 'PLANEJADO', 'PCA', 'PENDENTE'],
+        ]);
+        $path = tempnam(sys_get_temp_dir(), 'siped-spec05-').'.xlsx';
+        (new Xlsx($ss))->save($path);
+        $arquivo = fn () => new UploadedFile($path, 'metas.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+        $preview = $this->post('/api/importacoes/plano-de-metas/preview', ['arquivo' => $arquivo()])->assertOk();
+        $this->assertFalse(collect($preview->json('erros'))->contains(fn ($e) => str_contains($e['mensagem'], 'Origem do planejamento')));
+
+        $this->post('/api/importacoes/plano-de-metas/commit', ['arquivo' => $arquivo()])->assertOk();
+        $this->assertSame('DEF', PlanoDeMeta::where('curso', 'Meta origem DEF')->value('area_planejamento'));
+        $livre = PlanoDeMeta::where('curso', 'Meta origem livre')->first();
+        $this->assertNull($livre->area_planejamento);
+        $this->assertSame('PCA', $livre->origem);
     }
 
     public function test_eixos_informam_a_fonte_e_avisam_quando_nao_ha_importacao(): void

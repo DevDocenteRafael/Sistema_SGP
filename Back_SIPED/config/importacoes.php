@@ -105,7 +105,7 @@ return [
                 ['key' => 'tipo', 'label' => 'Tipo'],
                 ['key' => 'status', 'label' => 'Status'],
                 ['key' => 'mes_entrega', 'label' => 'Mês'],
-                ['key' => 'area_planejamento', 'label' => 'Área'],
+                ['key' => 'area_planejamento', 'label' => 'Origem'],
                 ['key' => 'numero_sei', 'label' => 'SEI'],
             ],
             'unique_fields' => ['numero_sei', 'codigo_sig'],

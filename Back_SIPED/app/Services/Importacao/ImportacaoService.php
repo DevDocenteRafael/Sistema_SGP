@@ -284,8 +284,10 @@ class ImportacaoService
     }
 
     /**
-     * Área do planejamento: grafias conhecidas viram a área oficial; valor não reconhecido
-     * é importado sem área, com aviso (valor original preservado na mensagem).
+     * Origem do planejamento (Planejamento Estratégico, DN, DEF, CPED): grafias conhecidas viram
+     * a origem oficial; valor não reconhecido é importado sem origem, com aviso. Sem a coluna
+     * própria, a coluna "Origem" da planilha é aproveitada quando traz uma origem oficial
+     * (texto livre fica só no campo origem, sem aviso).
      *
      * @param  array<string, mixed>  $resultado
      * @return array<string, mixed>
@@ -295,6 +297,11 @@ class ImportacaoService
         foreach ($resultado['linhas'] as &$linha) {
             $bruto = $linha['area_planejamento'] ?? null;
             if ($this->valorVazio($bruto)) {
+                $origem = $linha['origem'] ?? null;
+                $linha['area_planejamento'] = $this->valorVazio($origem)
+                    ? null
+                    : \App\Support\AreaPlanejamento::canonicalizar($origem);
+
                 continue;
             }
 
@@ -303,9 +310,9 @@ class ImportacaoService
                 $resultado['erros'][] = $this->erroImportacao(
                     '',
                     (int) ($linha['linha_planilha'] ?? 0),
-                    'Área',
+                    'Origem',
                     (string) $bruto,
-                    'Área do planejamento não reconhecida: "'.$bruto.'". Use Planejamento Estratégico, DN, DEF ou CPED. Importado sem área.',
+                    'Origem do planejamento não reconhecida: "'.$bruto.'". Use Planejamento Estratégico, DN, DEF ou CPED. Importado sem origem.',
                     false,
                 );
             }

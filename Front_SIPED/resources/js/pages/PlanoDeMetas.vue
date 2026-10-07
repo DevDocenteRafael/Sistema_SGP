@@ -3,7 +3,7 @@
     <template v-if="modo === 'lista'">
       <CrudPageHeader
         title="Plano de Metas"
-        subtitle="Metas por área do planejamento: visão geral e por origem (Planejamento Estratégico, DN, DEF e CPED)"
+        subtitle="Metas por origem do planejamento (Planejamento Estratégico, DN, DEF e CPED)"
         info="Os registros vêm da planilha oficial aprovada (importação inicial) e depois são mantidos aqui. O sistema não calcula percentuais nem indicadores sem regra definida pela CPED."
         :show-novo="podeEditar"
         novo-label="Novo Registro"
@@ -70,6 +70,14 @@
           aria-label="Filtrar por situação final"
           @change="carregarRegistros"
         />
+
+        <SearchableSelect
+          v-model="filtros.area"
+          :options="[...areasDisponiveis, { value: 'sem_area', label: 'Sem origem' }]"
+          empty-option="Todas as origens"
+          aria-label="Filtrar por origem do planejamento"
+          @change="carregarRegistros"
+        />
                 </section>
         </template>
       </CrudPageHeader>
@@ -78,21 +86,6 @@
         :sucesso="mensagemSucesso"
         :erro="mensagemErro"
       />
-
-      <nav class="areas-abas" aria-label="Áreas do planejamento">
-        <button
-          v-for="aba in [{ valor: '', rotulo: 'Visão geral' }, ...areasDisponiveis.map((a) => ({ valor: a, rotulo: a })), { valor: 'sem_area', rotulo: 'Sem área' }]"
-          :key="aba.valor || 'geral'"
-          type="button"
-          class="areas-aba"
-          :class="{ 'is-active': filtros.area === aba.valor }"
-          :aria-pressed="filtros.area === aba.valor ? 'true' : 'false'"
-          @click="selecionarArea(aba.valor)"
-        >
-          {{ aba.rotulo }}
-          <span class="areas-aba-qtd">{{ contagemArea(aba.valor) }}</span>
-        </button>
-      </nav>
 
       <PageTableCard :total="totalRegistros" :pagination="meta" :pagination-disabled="carregando" aria-label="Tabela de Plano de Metas" @page-change="irParaPagina" @per-page-change="alterarRegistrosPorPagina">
 
@@ -110,7 +103,6 @@
                 <th>Segmento</th>
                 <th>Curso</th>
                 <th>Tipo</th>
-                <th>Área</th>
                 <th>Número SEI</th>
                 <th>Código SIG</th>
                 <th>Mês de Entrega</th>
@@ -123,7 +115,7 @@
             </thead>
             <tbody>
               <tr v-if="totalRegistros === 0">
-                <td colspan="12" class="tabela-vazia">
+                <td colspan="11" class="tabela-vazia">
                   Nenhum registro encontrado para os filtros selecionados.
                 </td>
               </tr>
@@ -131,12 +123,11 @@
                 <td>{{ registro.segmento || '—' }}</td>
                 <td>{{ registro.curso || '—' }}</td>
                 <td>{{ registro.tipo || '—' }}</td>
-                <td>{{ registro.area_planejamento || '—' }}</td>
                 <td>{{ registro.sei || '—' }}</td>
                 <td>{{ registro.sig || '—' }}</td>
                 <td>{{ registro.mesEntrega || '—' }}</td>
                 <td>{{ registro.status || '—' }}</td>
-                <td>{{ registro.origem || '—' }}</td>
+                <td>{{ registro.area_planejamento || 'Sem origem' }}</td>
                 <td>{{ registro.observacao || '—' }}</td>
                 <td>
                   <span class="badge" :class="statusClass(registro.statusFinal)">{{ registro.statusFinal || '—' }}</span>
@@ -183,8 +174,8 @@
                 <div class="detalhe-valor-box">{{ registroDetalhe.tipo || '—' }}</div>
               </div>
               <div class="detalhe-form-campo">
-                <span>Área do planejamento</span>
-                <div class="detalhe-valor-box">{{ registroDetalhe.area_planejamento || 'Sem área' }}</div>
+                <span>Origem</span>
+                <div class="detalhe-valor-box">{{ registroDetalhe.area_planejamento || 'Sem origem' }}</div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Mês de Entrega</span>
@@ -280,18 +271,13 @@
               </label>
 
               <label class="campo">
-                <FormLabel label="Área do planejamento" />
+                <FormLabel label="Origem" />
                 <SearchableSelect
                   v-model="form.area_planejamento"
                   :options="areasDisponiveis"
-                  empty-option="Sem área (classificar depois)"
-                  aria-label="Área do planejamento"
+                  empty-option="Sem origem (classificar depois)"
+                  aria-label="Origem do planejamento"
                 />
-              </label>
-
-              <label class="campo">
-                <FormLabel label="Origem" />
-                <input v-model="form.origem" type="text" maxlength="100" placeholder="Ex.: Plano de Metas" />
               </label>
 
               <label class="campo">
