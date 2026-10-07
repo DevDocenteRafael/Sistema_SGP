@@ -41,74 +41,6 @@
         </div>
 
         <template v-else>
-          <div class="imp-filtros">
-            <div class="imp-filtros-row">
-              <div class="imp-filtro-busca">
-                <input
-                  v-model="filtros.busca"
-                  type="search"
-                  placeholder="Filtrar prévia..."
-                  aria-label="Filtrar linhas da prévia"
-                  :disabled="etapa !== 'previa'"
-                />
-              </div>
-
-              <SearchableSelect
-                v-if="temFiltro('status')"
-                v-model="filtros.status"
-                class="imp-filtro-select"
-                :options="opcoesFiltro('status')"
-                empty-option="Todos os status"
-                :disabled="etapa !== 'previa'"
-              />
-
-              <SearchableSelect
-                v-if="temFiltro('eixo')"
-                v-model="filtros.eixo"
-                class="imp-filtro-select"
-                :options="opcoesFiltro('eixo')"
-                empty-option="Todos os eixos"
-                :disabled="etapa !== 'previa'"
-              />
-
-              <SearchableSelect
-                v-if="temFiltro('unidade')"
-                v-model="filtros.unidade"
-                class="imp-filtro-select"
-                :options="opcoesFiltro('unidade')"
-                empty-option="Todas as estruturas"
-                :disabled="etapa !== 'previa'"
-              />
-
-              <SearchableSelect
-                v-if="temFiltro('tipo')"
-                v-model="filtros.tipo"
-                class="imp-filtro-select"
-                :options="opcoesFiltro('tipo')"
-                empty-option="Todos os tipos"
-                :disabled="etapa !== 'previa'"
-              />
-
-              <SearchableSelect
-                v-if="temFiltro('ano')"
-                v-model="filtros.ano"
-                class="imp-filtro-select"
-                :options="opcoesFiltro('ano')"
-                empty-option="Todos os anos"
-                :disabled="etapa !== 'previa'"
-              />
-
-              <SearchableSelect
-                v-if="temFiltro('segmento')"
-                v-model="filtros.segmento"
-                class="imp-filtro-select"
-                :options="opcoesFiltro('segmento')"
-                empty-option="Todos os segmentos"
-                :disabled="etapa !== 'previa'"
-              />
-            </div>
-          </div>
-
           <div class="imp-upload-card">
             <div class="imp-painel-head">
               <p class="imp-kicker">{{ etapa === 'documento' ? 'Documento / anexo' : moduloAtivo.label }}</p>
@@ -131,6 +63,74 @@
                   {{ moduloAtivo.ajuda || moduloAtivo.description }}
                 </template>
               </p>
+            </div>
+
+            <div class="imp-filtros">
+              <div class="imp-filtros-row">
+                <div class="imp-filtro-busca">
+                  <input
+                    v-model="filtros.busca"
+                    type="search"
+                    placeholder="Filtrar prévia..."
+                    aria-label="Filtrar linhas da prévia"
+                    :disabled="etapa !== 'previa'"
+                  />
+                </div>
+
+                <SearchableSelect
+                  v-if="temFiltro('status')"
+                  v-model="filtros.status"
+                  class="imp-filtro-select"
+                  :options="opcoesFiltro('status')"
+                  empty-option="Todos os status"
+                  :disabled="etapa !== 'previa'"
+                />
+
+                <SearchableSelect
+                  v-if="temFiltro('eixo')"
+                  v-model="filtros.eixo"
+                  class="imp-filtro-select"
+                  :options="opcoesFiltro('eixo')"
+                  empty-option="Todos os eixos"
+                  :disabled="etapa !== 'previa'"
+                />
+
+                <SearchableSelect
+                  v-if="temFiltro('unidade')"
+                  v-model="filtros.unidade"
+                  class="imp-filtro-select"
+                  :options="opcoesFiltro('unidade')"
+                  empty-option="Todas as estruturas"
+                  :disabled="etapa !== 'previa'"
+                />
+
+                <SearchableSelect
+                  v-if="temFiltro('tipo')"
+                  v-model="filtros.tipo"
+                  class="imp-filtro-select"
+                  :options="opcoesFiltro('tipo')"
+                  empty-option="Todos os tipos"
+                  :disabled="etapa !== 'previa'"
+                />
+
+                <SearchableSelect
+                  v-if="temFiltro('ano')"
+                  v-model="filtros.ano"
+                  class="imp-filtro-select"
+                  :options="opcoesFiltro('ano')"
+                  empty-option="Todos os anos"
+                  :disabled="etapa !== 'previa'"
+                />
+
+                <SearchableSelect
+                  v-if="temFiltro('segmento')"
+                  v-model="filtros.segmento"
+                  class="imp-filtro-select"
+                  :options="opcoesFiltro('segmento')"
+                  empty-option="Todos os segmentos"
+                  :disabled="etapa !== 'previa'"
+                />
+              </div>
             </div>
 
             <template v-if="etapa === 'upload'">

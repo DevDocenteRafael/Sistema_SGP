@@ -158,10 +158,12 @@
 
 .app-main [class*="filtro"] .sgp-select__value.is-placeholder,
 .app-main [class*="filtro"] input::placeholder,
+.app-main .dashboard-toolbar .sgp-select__value,
 .app-main .dashboard-toolbar input::placeholder {
   color: #000 !important;
 }
 
-.app-main [class*="filtro"] .sgp-select__chevron {
+.app-main [class*="filtro"] .sgp-select__chevron,
+.app-main .dashboard-toolbar .sgp-select__chevron {
   color: #000 !important;
 }
