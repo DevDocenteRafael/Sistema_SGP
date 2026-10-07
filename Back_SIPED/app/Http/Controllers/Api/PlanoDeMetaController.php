@@ -37,6 +37,7 @@ class PlanoDeMetaController extends Controller
                     ->orWhere('status', 'like', "%{$busca}%")
                     ->orWhere('status_final', 'like', "%{$busca}%")
                     ->orWhere('area_planejamento', 'like', "%{$busca}%")
+                    ->orWhere('origem', 'like', "%{$busca}%")
                     ->orWhere('observacao', 'like', "%{$busca}%");
             });
         }
@@ -67,13 +68,13 @@ class PlanoDeMetaController extends Controller
             $query->where('status_final', $request->situacao);
         }
 
-        // Contagem por área: mesmos filtros, menos a própria área (para as abas).
+        // Contagem por origem: mesmos filtros, menos a própria origem.
         $porArea = (clone $query)->reorder()
             ->selectRaw('area_planejamento, COUNT(*) as total')
             ->groupBy('area_planejamento')
             ->pluck('total', 'area_planejamento');
 
-        // Abas por área do planejamento: "sem_area" = ainda não classificado.
+        // Filtro por origem do planejamento: "sem_area" = ainda não classificado.
         if ($request->filled('area')) {
             $area = (string) $request->area;
             if ($area === 'sem_area') {

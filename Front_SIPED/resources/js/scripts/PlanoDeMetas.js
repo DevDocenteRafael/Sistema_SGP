@@ -20,7 +20,7 @@ const FILTROS_VAZIOS = {
   area: '',
 };
 
-/** Áreas/origens do planejamento (espelha config/plano_de_metas.php). */
+/** Origens do planejamento (espelha config/plano_de_metas.php). */
 const AREAS_PLANEJAMENTO = ['Planejamento Estratégico', 'DN', 'DEF', 'CPED'];
 
 export default createCrudPage({
@@ -44,7 +44,6 @@ export default createCrudPage({
     numero_sei: '',
     codigo_sig: '',
     status: '',
-    origem: 'Plano de Metas',
     area_planejamento: '',
     status_final: '',
     observacao: '',
@@ -59,7 +58,6 @@ export default createCrudPage({
       sig: registro.codigo_sig || registro.sig || '—',
       mesEntrega: registro.mes_entrega || registro.mesEntrega || '—',
       status: registro.status || '—',
-      origem: registro.origem || 'Plano de Metas',
       area_planejamento: registro.area_planejamento || '',
       observacao: registro.observacao || '—',
       statusFinal: registro.status_final || registro.statusFinal || '—',
@@ -78,7 +76,6 @@ export default createCrudPage({
       numero_sei: registro.sei === '—' ? (registro.numero_sei || '') : registro.sei || '',
       codigo_sig: registro.sig === '—' ? (registro.codigo_sig || '') : registro.sig || '',
       status: registro.status === '—' ? '' : registro.status || '',
-      origem: registro.origem || 'Plano de Metas',
       area_planejamento: registro.area_planejamento || '',
       status_final: registro.statusFinal === '—'
         ? (registro.status_final || '')
@@ -102,9 +99,6 @@ export default createCrudPage({
       textoObrigatorio(form.mes_entrega, 'Informe o mês de entrega.'),
       textoObrigatorio(form.status, 'Informe o status do registro.'),
       textoObrigatorio(form.status_final, 'Informe o status final.'),
-      form.origem
-        ? tamanhoMaximo(form.origem, 100, 'A origem deve ter no máximo 100 caracteres.')
-        : '',
       form.observacao
         ? tamanhoMaximo(form.observacao, 2000, 'A observação deve ter no máximo 2000 caracteres.')
         : '',
@@ -120,7 +114,6 @@ export default createCrudPage({
       codigo_sig: form.codigo_sig.trim(),
       mes_entrega: form.mes_entrega,
       status: form.status?.trim() || '',
-      origem: form.origem?.trim() || 'Plano de Metas',
       area_planejamento: form.area_planejamento || null,
       observacao: form.observacao?.trim() || null,
       status_final: form.status_final?.trim() || '',
@@ -145,11 +138,9 @@ export default createCrudPage({
     if (Array.isArray(meta.status) && meta.status.length) this.statusDisponiveis = meta.status;
     if (Array.isArray(meta.situacoes) && meta.situacoes.length) this.situacoesDisponiveis = meta.situacoes;
     if (Array.isArray(meta.areas) && meta.areas.length) this.areasDisponiveis = meta.areas;
-    if (meta.contagens_area) this.contagensArea = meta.contagens_area;
   },
   extraData: () => ({
     areasDisponiveis: [...AREAS_PLANEJAMENTO],
-    contagensArea: { total: 0, sem_area: 0, por_area: {} },
     anosDisponiveis: ['2024', '2025', '2026', '2027'],
     segmentosDisponiveis: ['Infraestrutura', 'Educação'],
     tiposDisponiveis: ['QUALIFICAÇÃO', 'PRESENCIAL', 'HÍBRIDO'],
@@ -175,19 +166,6 @@ export default createCrudPage({
   }),
   extraMethods: {
     formatarNumeroSei: formatarProcessoSeiInput('numero_sei'),
-    /** Abas por área do planejamento ('' = visão geral, 'sem_area' = não classificados). */
-    selecionarArea(area) {
-      if (this.filtros.area === area) return;
-      this.filtros.area = area;
-      if (this.meta) this.meta.current_page = 1;
-      this.carregarRegistros();
-    },
-    contagemArea(area) {
-      const c = this.contagensArea || {};
-      if (area === '') return c.total ?? 0;
-      if (area === 'sem_area') return c.sem_area ?? 0;
-      return c.por_area?.[area] ?? 0;
-    },
     statusClass(status) {
       const chave = String(status || '')
         .normalize('NFD')

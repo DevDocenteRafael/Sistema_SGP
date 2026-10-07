@@ -22,6 +22,7 @@
   --sgp-footer: #ffffff;
   --sgp-text: #0f172a;
   --sgp-text-muted: #64748b;
+  --sgp-link: #1d4ed8;
   --sgp-border: #e2e8f0;
   --sgp-border-strong: #cbd5e1;
   --sgp-table-head: #003f7d;
@@ -78,6 +79,7 @@ html[data-theme='dark'] {
   --sgp-footer: #0e1626;
   --sgp-text: #e8eef8;
   --sgp-text-muted: #9aa8c0;
+  --sgp-link: #93c5fd;
   --sgp-border: #2a3650;
   --sgp-border-strong: #3b4a66;
   --sgp-table-head: #1a2f4d;

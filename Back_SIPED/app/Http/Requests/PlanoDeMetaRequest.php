@@ -79,7 +79,7 @@ class PlanoDeMetaRequest extends FormRequest
             'mes_entrega' => ['required', 'string', 'max:50'],
             'status' => ['required', 'string', 'max:50'],
             'origem' => ['nullable', 'string', 'max:100'],
-            // Área/origem do planejamento (opcional até o cliente classificar).
+            // Origem do planejamento (opcional até o cliente classificar).
             'area_planejamento' => ['nullable', 'string', Rule::in(\App\Support\AreaPlanejamento::areas())],
             'status_final' => ['required', 'string', 'max:50'],
             'observacao' => ['nullable', 'string', 'max:2000'],
@@ -91,7 +91,7 @@ class PlanoDeMetaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'area_planejamento.in' => 'Selecione uma área do planejamento válida (Planejamento Estratégico, DN, DEF ou CPED).',
+            'area_planejamento.in' => 'Selecione uma origem válida (Planejamento Estratégico, DN, DEF ou CPED).',
             'segmento.required' => 'O segmento é obrigatório.',
             'curso.required' => 'O curso é obrigatório.',
             'tipo.required' => 'O tipo é obrigatório.',
