@@ -143,3 +143,25 @@
   min-height: 2.4rem;
   background: var(--sgp-input-bg, #f9fafb);
 }
+
+.app-main [class*="filtro"] input:not([type="checkbox"]):not([type="radio"]),
+.app-main [class*="filtro"] select,
+.app-main [class*="filtro"] .sgp-select__trigger,
+.app-main [class*="filtro"] .sgp-select__option,
+.app-main [class*="filtro"] label,
+.app-main .dashboard-toolbar input:not([type="checkbox"]):not([type="radio"]),
+.app-main .dashboard-toolbar .sgp-select__trigger,
+.app-main .dashboard-toolbar .sgp-select__option {
+  font-weight: 600;
+  color: #000 !important;
+}
+
+.app-main [class*="filtro"] .sgp-select__value.is-placeholder,
+.app-main [class*="filtro"] input::placeholder,
+.app-main .dashboard-toolbar input::placeholder {
+  color: #000 !important;
+}
+
+.app-main [class*="filtro"] .sgp-select__chevron {
+  color: #000 !important;
+}
