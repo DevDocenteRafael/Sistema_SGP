@@ -293,11 +293,11 @@ body {
   color: var(--sgp-text);
 }
 
-/* Full-bleed (Início/CPED): sem padding e fundo da marca no overscroll */
+/* Full-bleed (Início/CPED): sem padding, mantendo a superfície principal */
 .app-main.app-main--flush {
   padding: 0 !important;
   overscroll-behavior-y: none;
-  background: var(--sgp-sidebar-bg, #003f7d) !important;
+  background: var(--sgp-surface, #fff) !important;
 }
 
 .sidebar,

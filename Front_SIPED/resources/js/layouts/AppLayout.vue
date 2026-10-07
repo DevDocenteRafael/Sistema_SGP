@@ -1,5 +1,9 @@
 <template>
-  <div class="app-layout" :class="{ 'menu-open': menuAberto, 'menu-collapsed': menuRecolhido }">
+  <div class="app-layout" :class="{
+    'menu-open': menuAberto,
+    'menu-collapsed': menuRecolhido,
+    'cabecalho-unificado': cabecalhoUnificado,
+  }">
     <a class="sgp-skip-link" href="#conteudo-principal">Ir para o conteúdo principal</a>
 
     <header class="app-topbar">

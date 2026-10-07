@@ -15,6 +15,31 @@ export default {
     };
   },
   computed: {
+    cabecalhoUnificado() {
+      return [
+        'inicio',
+        'dashboard',
+        'relatorios',
+        'importacoes',
+        'cursos',
+        'plano-de-metas',
+        'pca',
+        'eixos',
+        'controle-de-resolucoes',
+        'termos-de-referencia',
+        'visitas-tecnicas',
+        'horas-pedagogicas',
+        'acoes-extensivas',
+        'eventos',
+        'jornada-pedagogica',
+        'sistemas-apoio',
+        'estruturas-institucionais',
+        'ferramentas',
+        'cped',
+        'auditoria',
+        'usuarios',
+      ].includes(this.$route?.name);
+    },
     cicloBarraAzul() {
       const rota = this.$route?.name || this.$route?.meta?.menu || '';
       return rota === 'inicio' || rota === 'cped';

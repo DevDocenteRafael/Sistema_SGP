@@ -18,6 +18,7 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+  background: var(--sgp-surface, #fff);
 }
 
 .app-ciclo-bar {
@@ -82,7 +83,7 @@
   min-width: 0;
   min-height: 0;
   padding: 1.5rem;
-  background: var(--sgp-bg, #f8f9fa);
+  background: var(--sgp-surface, #fff);
   color: var(--sgp-text, #212529);
   overflow-x: hidden;
   overflow-y: auto;
@@ -91,7 +92,177 @@
 
 .app-main--flush {
   padding: 0 !important;
-  background: var(--sgp-sidebar-bg, #003f7d) !important;
+  background: var(--sgp-surface, #fff) !important;
+}
+
+.app-layout .app-main :deep(> *) {
+  background-color: var(--sgp-surface, #fff);
+}
+
+.app-layout.cabecalho-unificado .app-content-column {
+  position: relative;
+}
+
+.app-layout.cabecalho-unificado .app-ciclo-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 40;
+  padding: 0.75rem 2rem;
+  border: 0;
+  background: transparent;
+}
+
+.app-layout.cabecalho-unificado .app-ciclo-bar--brand {
+  border: 0;
+  background: transparent;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.crud-top-actions) {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.crud-top-row) {
+  column-gap: 0.75rem;
+  row-gap: 0.5rem;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.crud-top-row > div:first-child),
+.app-layout.cabecalho-unificado .app-main :deep(.dashboard-header > div:first-child),
+.app-layout.cabecalho-unificado .app-main :deep(.rel-header > div:first-child),
+.app-layout.cabecalho-unificado .app-main :deep(.imp-header > div:first-child),
+.app-layout.cabecalho-unificado .app-main :deep(.ferramentas-top-row > div:first-child),
+.app-layout.cabecalho-unificado .app-main :deep(.cped-hero-main) {
+  min-width: 0;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.crud-top-row > div:first-child) {
+  flex: 1 1 auto;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.crud-info) {
+  margin-top: 0.75rem;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.crud-toolbar) {
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.dashboard-toolbar) {
+  flex: 1 0 100%;
+  margin-top: 0;
+  row-gap: 0.25rem;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.dashboard-header) {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.dashboard-header),
+.app-layout.cabecalho-unificado .app-main :deep(.imp-header),
+.app-layout.cabecalho-unificado .app-main :deep(.rel-header) {
+  row-gap: 0.5rem;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.rel-header > button) {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  max-width: max-content;
+  margin-left: auto;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.eixos-header) {
+  flex-wrap: wrap;
+  row-gap: 0.75rem;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.eixos-header-texto) {
+  flex: 1 1 22rem;
+  min-width: min(100%, 20rem);
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.eixos-header > .eixos-totais) {
+  flex: 1 1 54rem;
+  min-width: 0;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.cped-hero-inner) {
+  row-gap: 0.75rem;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.cped-hero-side) {
+  flex: 1 0 100%;
+}
+
+@media (min-width: 769px) {
+  .app-layout.cabecalho-unificado .app-main :deep(.crud-top-row > div:first-child),
+  .app-layout.cabecalho-unificado .app-main :deep(.dashboard-header > div:first-child),
+  .app-layout.cabecalho-unificado .app-main :deep(.rel-header > div:first-child),
+  .app-layout.cabecalho-unificado .app-main :deep(.imp-header > div:first-child),
+  .app-layout.cabecalho-unificado .app-main :deep(.ferramentas-top-row > div:first-child),
+  .app-layout.cabecalho-unificado .app-main :deep(.cped-hero-main) {
+    max-width: calc(100% - 12rem);
+  }
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.crud-top),
+.app-layout.cabecalho-unificado .app-main :deep(.dashboard-header),
+.app-layout.cabecalho-unificado .app-main :deep(.cursos-top),
+.app-layout.cabecalho-unificado .app-main :deep(.eixos-header),
+.app-layout.cabecalho-unificado .app-main :deep(.ferramentas-top),
+.app-layout.cabecalho-unificado .app-main :deep(.cped-hero),
+.app-layout.cabecalho-unificado .app-main :deep(.auditoria-top),
+.app-layout.cabecalho-unificado .app-main :deep(.termos-top),
+.app-layout.cabecalho-unificado .app-main :deep(.usuarios-top),
+.app-layout.cabecalho-unificado .app-main :deep(.caro-top),
+.app-layout.cabecalho-unificado .app-main :deep(.flux-editor-top),
+.app-layout.cabecalho-unificado .app-main :deep(.flux-lista-top),
+.app-layout.cabecalho-unificado .app-main :deep(.kanban-top),
+.app-layout.cabecalho-unificado .app-main :deep(.kanban-quadros-top),
+.app-layout.cabecalho-unificado .app-main :deep(.org-top),
+.app-layout.cabecalho-unificado .app-main :deep(.revisao-header) {
+  margin-bottom: 2rem;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.rel-header),
+.app-layout.cabecalho-unificado .app-main :deep(.imp-header) {
+  margin-bottom: 0.75rem;
+}
+
+.app-layout.cabecalho-unificado .app-main :deep(.crud-top),
+.app-layout.cabecalho-unificado .app-main :deep(.dashboard-header),
+.app-layout.cabecalho-unificado .app-main :deep(.inicio-hero),
+.app-layout.cabecalho-unificado .app-main :deep(.rel-header),
+.app-layout.cabecalho-unificado .app-main :deep(.imp-header),
+.app-layout.cabecalho-unificado .app-main :deep(.cursos-top),
+.app-layout.cabecalho-unificado .app-main :deep(.eixos-header),
+.app-layout.cabecalho-unificado .app-main :deep(.ferramentas-top),
+.app-layout.cabecalho-unificado .app-main :deep(.cped-hero) {
+  box-sizing: border-box;
+  width: 100%;
+  background-color: var(--sgp-surface, #fff);
+  box-shadow: 0 -1.5rem 0 var(--sgp-surface, #fff);
+}
+
+.app-main :deep(.crud-top),
+.app-main :deep(.dashboard-header),
+.app-main :deep(.inicio-hero),
+.app-main :deep(.rel-header),
+.app-main :deep(.imp-header),
+.app-main :deep(.cursos-top),
+.app-main :deep(.eixos-header),
+.app-main :deep(.ferramentas-top),
+.app-main :deep(.cped-hero) {
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 
 .app-layout.menu-collapsed .sidebar {
@@ -106,6 +277,61 @@
   .app-ciclo-bar {
     justify-content: flex-end;
     padding: 0.45rem 0.85rem;
+  }
+
+  .app-layout.cabecalho-unificado .app-ciclo-bar {
+    padding: 0.45rem 0.85rem;
+  }
+
+  .app-layout.cabecalho-unificado .app-main :deep(.crud-top-actions) {
+    margin-top: 0;
+  }
+
+  .app-layout.cabecalho-unificado .app-main :deep(.crud-top-actions .btn-novo) {
+    width: auto !important;
+    max-width: 100%;
+  }
+
+  .app-layout.cabecalho-unificado .app-main :deep(.eixos-header) {
+    flex-direction: column;
+  }
+
+  .app-layout.cabecalho-unificado .app-main :deep(.eixos-header-texto),
+  .app-layout.cabecalho-unificado .app-main :deep(.eixos-header > .eixos-totais) {
+    flex: 0 1 auto;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .app-layout.cabecalho-unificado .app-main :deep(.crud-top-row > div:first-child),
+  .app-layout.cabecalho-unificado .app-main :deep(.dashboard-header > div:first-child),
+  .app-layout.cabecalho-unificado .app-main :deep(.rel-header > div:first-child),
+  .app-layout.cabecalho-unificado .app-main :deep(.imp-header > div:first-child),
+  .app-layout.cabecalho-unificado .app-main :deep(.ferramentas-top-row > div:first-child),
+  .app-layout.cabecalho-unificado .app-main :deep(.cped-hero-main) {
+    max-width: 100%;
+  }
+
+  .app-layout.cabecalho-unificado .app-main :deep(.crud-top),
+  .app-layout.cabecalho-unificado .app-main :deep(.dashboard-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.rel-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.imp-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.cursos-top),
+  .app-layout.cabecalho-unificado .app-main :deep(.eixos-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.ferramentas-top),
+  .app-layout.cabecalho-unificado .app-main :deep(.cped-hero) {
+    padding-top: 3.25rem;
+  }
+
+  .app-layout.cabecalho-unificado .app-main :deep(.crud-top),
+  .app-layout.cabecalho-unificado .app-main :deep(.dashboard-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.rel-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.imp-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.cursos-top),
+  .app-layout.cabecalho-unificado .app-main :deep(.eixos-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.ferramentas-top),
+  .app-layout.cabecalho-unificado .app-main :deep(.cped-hero) {
+    box-shadow: 0 -1rem 0 var(--sgp-surface, #fff);
   }
 
   .app-ciclo-bar :deep(.ciclo-seletor) {
@@ -131,6 +357,17 @@
 @media (max-width: 480px) {
   .app-main {
     padding: 0.75rem;
+  }
+
+  .app-layout.cabecalho-unificado .app-main :deep(.crud-top),
+  .app-layout.cabecalho-unificado .app-main :deep(.dashboard-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.rel-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.imp-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.cursos-top),
+  .app-layout.cabecalho-unificado .app-main :deep(.eixos-header),
+  .app-layout.cabecalho-unificado .app-main :deep(.ferramentas-top),
+  .app-layout.cabecalho-unificado .app-main :deep(.cped-hero) {
+    box-shadow: 0 -0.75rem 0 var(--sgp-surface, #fff);
   }
 
   .app-main--flush {

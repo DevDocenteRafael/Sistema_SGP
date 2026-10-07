@@ -22,33 +22,30 @@
     <div v-if="mensagem" class="alert alert-success">{{ mensagem }}</div>
 
     <section class="rel-painel">
-      <div class="rel-toolbar">
-        <SearchableSelect
-          id="relatorio-select"
-          v-model="relatorioKey"
-          class="rel-select-relatorio"
-          aria-label="Selecionar relatório"
-          placeholder="Selecione um relatório"
-          :options="opcoesRelatorios"
-          :disabled="carregandoCatalogo || !catalogo.length"
-          @change="aoTrocarRelatorio"
-        />
-        <p v-if="selecionado" class="rel-toolbar-desc">{{ selecionado.description }}</p>
-      </div>
-
-      <div v-if="carregandoCatalogo" class="rel-loading">Carregando relatórios...</div>
-
-      <template v-else-if="selecionado">
-        <div class="rel-filtros">
-          <p class="rel-filtros-titulo">
-            Filtros deste relatório
-            <SgpTooltip
-              text="Os filtros abaixo restringem apenas a prévia e o PDF do relatório selecionado."
-              mode="icon"
-              label="Explicar filtros do relatório"
+      <div class="rel-filtros">
+        <p v-if="selecionado" class="rel-filtros-titulo">
+          Filtros deste relatório
+          <SgpTooltip
+            text="Os filtros abaixo restringem apenas a prévia e o PDF do relatório selecionado."
+            mode="icon"
+            label="Explicar filtros do relatório"
+          />
+        </p>
+        <div class="rel-filtros-row">
+          <div class="rel-filtro-campo rel-filtro-relatorio">
+            <SearchableSelect
+              id="relatorio-select"
+              v-model="relatorioKey"
+              class="rel-select-relatorio"
+              aria-label="Selecionar relatório"
+              placeholder="Selecione um relatório"
+              :options="opcoesRelatorios"
+              :disabled="carregandoCatalogo || !catalogo.length"
+              @change="aoTrocarRelatorio"
             />
-          </p>
-          <div class="rel-filtros-row">
+          </div>
+
+          <template v-if="selecionado">
             <div class="rel-filtro-busca">
               <label class="rel-filtro-label" for="rel-busca">Busca</label>
               <input
@@ -139,9 +136,14 @@
             >
               Limpar filtros
             </button>
-          </div>
+          </template>
         </div>
+        <p v-if="selecionado" class="rel-toolbar-desc">{{ selecionado.description }}</p>
+      </div>
 
+      <div v-if="carregandoCatalogo" class="rel-loading">Carregando relatórios...</div>
+
+      <template v-else-if="selecionado">
         <div class="rel-tabela-card">
           <div class="rel-tabela-header">
             <div>

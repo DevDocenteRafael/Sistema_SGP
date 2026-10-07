@@ -76,39 +76,21 @@
   padding: 1.25rem 2rem 2rem;
 }
 
-.rel-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.65rem 1rem;
-  margin-bottom: 1.1rem;
-  padding: 0 0 1rem;
-  border: none;
-  border-bottom: 1px solid var(--sgp-border, #e5e7eb);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.rel-toolbar-label {
-  margin: 0;
-  color: var(--sgp-text, #374151);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
 .rel-select-relatorio {
-  min-width: min(100%, 22rem);
-  width: min(100%, 28rem);
-  flex: 1 1 18rem;
+  min-width: 0;
+  width: 100%;
+  flex: 1 1 auto;
 }
 
 .rel-toolbar-desc {
-  flex: 1 1 100%;
-  margin: 0;
+  margin: 0.85rem 0 0;
   color: var(--sgp-text-muted, #6b7280);
   font-size: 0.84rem;
   line-height: 1.4;
+}
+
+.rel-filtro-relatorio {
+  flex: 1 1 10.5rem;
 }
 
 .rel-kicker {
@@ -341,4 +323,3 @@
     flex-basis: 100%;
   }
 }
-
