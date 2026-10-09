@@ -46,7 +46,7 @@
 
     <section v-else class="eixos-grid" aria-label="Eixos oficiais">
       <button
-        v-for="eixo in resumo.eixos"
+        v-for="eixo in eixosOrdenados"
         :key="eixo.id"
         type="button"
         class="eixo-card"

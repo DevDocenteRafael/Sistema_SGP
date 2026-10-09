@@ -30,6 +30,10 @@ export default {
     cicloId() {
       return this.$route.query.ciclo_id || this.cicloContextoId || '';
     },
+
+    eixosOrdenados() {
+      return [...this.resumo.eixos].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }));
+    },
   },
 
   watch: {
