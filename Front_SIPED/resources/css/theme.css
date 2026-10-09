@@ -1548,3 +1548,15 @@ html[data-theme='dark'] .badge-tipo {
   border-color: var(--sgp-info-border) !important;
   color: var(--sgp-info-text) !important;
 }
+
+[class*='badge']:not([class*='badges']):not(.notif-sino-badge):not([class='ciclo-seletor__badge']) {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  line-height: inherit !important;
+}
