@@ -351,6 +351,19 @@
   font-weight: 700;
 }
 
+.modal-detalhes-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.modal-detalhes-header-actions .btn-icon {
+  width: 2rem;
+  height: 2rem;
+  margin: 0;
+}
+
 .btn-fechar-x {
   width: 2rem;
   height: 2rem;
@@ -366,6 +379,18 @@
 .btn-fechar-x:hover {
   background: #f3f4f6;
   color: #4b5563;
+}
+
+@media (max-width: 480px) {
+  .modal-detalhes-header {
+    gap: 0.5rem;
+    padding-right: 0.85rem;
+    padding-left: 0.85rem;
+  }
+
+  .modal-detalhes-header h2 {
+    font-size: 1rem;
+  }
 }
 
 .modal-detalhes-loading {

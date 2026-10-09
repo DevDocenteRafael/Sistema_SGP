@@ -170,7 +170,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(linha, index) in registros" :key="linha.id || index">
+                <tr v-for="(linha, index) in registrosDaPagina" :key="linha.id || index">
                   <td v-for="col in colunasPreview" :key="col.key">
                     {{ valorCelula(linha, col.key) }}
                   </td>
@@ -178,6 +178,16 @@
               </tbody>
             </table>
           </div>
+          <Pagination
+            :current-page="paginaAtual"
+            :total-pages="totalPaginas"
+            :total-records="totalRegistrosPreview"
+            :page-size="registrosPorPagina"
+            :disabled="carregandoPrevias"
+            aria-label="Paginação da prévia do relatório"
+            @change="irParaPagina"
+            @per-page-change="alterarRegistrosPorPagina"
+          />
         </div>
       </template>
 

@@ -5,7 +5,10 @@
         <h2 id="imp-historico-titulo">Histórico de importações</h2>
         <p class="imp-ajuda">Cada envio fica registrado com arquivo, usuário, data/hora, ciclo e contagens. Registros incompletos podem ser abertos para correção.</p>
       </div>
-      <button type="button" class="btn-secundario" :disabled="carregando" @click="carregar(1)">Atualizar</button>
+      <div class="imp-historico__head-acoes">
+        <TabelaContador :total="meta.total" />
+        <button type="button" class="btn-secundario" :disabled="carregando" @click="carregar(1)">Atualizar</button>
+      </div>
     </div>
 
     <p v-if="erro" class="alert alert-error">{{ erro }}</p>
@@ -25,7 +28,7 @@
             <th class="num">Ignorados</th>
             <th class="num">Erros</th>
             <th>Situação</th>
-            <th><span class="sr-only">Ações</span></th>
+            <th class="text-center imp-historico__acoes">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -54,19 +57,33 @@
                 {{ item.situacao === 'bloqueada' ? 'Bloqueada' : 'Concluída' }}
               </span>
             </td>
-            <td>
-              <button type="button" class="btn-secundario btn-sm" @click="abrir(item)">Detalhes</button>
+            <td class="text-center acoes imp-historico__acoes">
+              <button
+                type="button"
+                class="btn-icon btn-view"
+                title="Ver detalhes"
+                :aria-label="`Ver detalhes da importação ${item.id}`"
+                @click="abrir(item)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div v-if="meta.last_page > 1" class="imp-historico__paginacao">
-      <button type="button" class="btn-secundario btn-sm" :disabled="meta.current_page <= 1 || carregando" @click="carregar(meta.current_page - 1)">Anterior</button>
-      <span>Página {{ meta.current_page }} de {{ meta.last_page }}</span>
-      <button type="button" class="btn-secundario btn-sm" :disabled="meta.current_page >= meta.last_page || carregando" @click="carregar(meta.current_page + 1)">Próxima</button>
-    </div>
+    <Pagination
+      :current-page="meta.current_page"
+      :total-pages="meta.last_page"
+      :total-records="meta.total"
+      :page-size="perPage"
+      :page-size-options="[10, 20, 50]"
+      :disabled="carregando"
+      aria-label="Paginação do histórico de importações"
+      @change="carregar"
+      @per-page-change="alterarRegistrosPorPagina"
+    />
 
     <div v-if="detalhe" class="modal-overlay" @click.self="fechar">
       <div class="imp-modal" role="dialog" aria-modal="true" aria-labelledby="imp-detalhe-titulo">
@@ -81,15 +98,6 @@
           · {{ detalhe.arquivo_nome }}
         </p>
         <p v-if="detalhe.mensagem" class="imp-modal__mensagem">{{ detalhe.mensagem }}</p>
-
-        <button
-          v-if="detalhe.arquivo_disponivel"
-          type="button"
-          class="btn-secundario btn-sm"
-          @click="baixarArquivoImportado"
-        >
-          Baixar arquivo enviado
-        </button>
 
         <template v-if="detalhe.tipo === 'planilha'">
           <h3>Registros incompletos ({{ detalhe.incompletos }})</h3>
@@ -142,14 +150,18 @@
 </template>
 
 <script>
-import { baixarArquivo, formatarDataHora, rotaDoRegistro } from '../../utils/documentos';
+import Pagination from '../crud/Pagination.vue';
+import TabelaContador from '../crud/TabelaContador.vue';
+import { formatarDataHora, rotaDoRegistro } from '../../utils/documentos';
 
 export default {
   name: 'HistoricoImportacoes',
+  components: { Pagination, TabelaContador },
   data() {
     return {
       itens: [],
       meta: { current_page: 1, last_page: 1, total: 0 },
+      perPage: 10,
       carregando: false,
       erro: '',
       detalhe: null,
@@ -172,7 +184,9 @@ export default {
       this.carregando = true;
       this.erro = '';
       try {
-        const { data } = await window.axios.get('/api/importacoes/historico', { params: { page: pagina, per_page: 10 } });
+        const { data } = await window.axios.get('/api/importacoes/historico', {
+          params: { page: pagina, per_page: this.perPage },
+        });
         this.itens = Array.isArray(data.data) ? data.data : [];
         this.meta = { ...this.meta, ...(data.meta || {}) };
       } catch (error) {
@@ -180,6 +194,12 @@ export default {
       } finally {
         this.carregando = false;
       }
+    },
+    alterarRegistrosPorPagina(quantidade) {
+      const tamanho = Number(quantidade);
+      if (!Number.isInteger(tamanho) || tamanho < 1 || tamanho > 50 || this.carregando) return;
+      this.perPage = tamanho;
+      this.carregar(1);
     },
     async abrir(item) {
       try {
@@ -198,13 +218,6 @@ export default {
     },
     rota(registro) {
       return rotaDoRegistro(this.detalhe?.modulo, registro.id, this.detalhe?.ciclo_id);
-    },
-    async baixarArquivoImportado() {
-      try {
-        await baixarArquivo(`/api/importacoes/historico/${this.detalhe.id}/arquivo`, this.detalhe.arquivo_nome);
-      } catch {
-        this.erro = 'Não foi possível baixar o arquivo desta importação.';
-      }
     },
   },
 };

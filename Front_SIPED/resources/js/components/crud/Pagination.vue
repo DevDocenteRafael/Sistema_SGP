@@ -71,9 +71,9 @@
       <span class="sgp-pagination-separador" aria-hidden="true">|</span>
 
       <form class="sgp-pagination-field sgp-pagination-go" @submit.prevent="irParaPagina">
-        <label for="sgp-pagina-destino">Ir para página:</label>
+        <label :for="paginaDestinoId">Ir para página:</label>
         <input
-          id="sgp-pagina-destino"
+          :id="paginaDestinoId"
           v-model="paginaDestino"
           type="number"
           min="1"
@@ -93,6 +93,8 @@
 </template>
 
 <script>
+let paginationInstanceId = 0;
+
 export default {
   name: 'Pagination',
   emits: ['change', 'per-page-change'],
@@ -109,6 +111,7 @@ export default {
     return {
       paginaDestino: String(this.currentPage),
       mensagemPagina: '',
+      paginaDestinoId: `sgp-pagina-destino-${++paginationInstanceId}`,
     };
   },
   computed: {

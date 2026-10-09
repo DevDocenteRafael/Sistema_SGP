@@ -2,6 +2,7 @@ import { lerCicloContexto, CICLO_CONTEXTO_EVENTO } from './cicloContexto';
 import { hidratarUnidadesSelect } from './unidadesApi';
 import { podeConsultarDados } from './auth';
 import TabelaContador from '../components/crud/TabelaContador.vue';
+import Pagination from '../components/crud/Pagination.vue';
 import { mixinHistoricoCatalogo } from './formularioHistorico';
 import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 
@@ -37,7 +38,7 @@ function filtrosVazios() {
 export default {
   name: 'Relatorios',
   mixins: [mixinHistoricoCatalogo],
-  components: { TabelaContador },
+  components: { TabelaContador, Pagination },
 
   data() {
     return {
@@ -51,6 +52,8 @@ export default {
       relatorioKey: '',
       registros: [],
       metaApi: {},
+      paginaAtual: 1,
+      registrosPorPagina: 10,
       filtros: filtrosVazios(),
       unidadesBase: [],
       eixosBase: EIXOS_PADRAO,
@@ -85,6 +88,22 @@ export default {
       const keys = this.selecionado.preview_keys || [];
       const mapa = Object.fromEntries((this.selecionado.colunas || []).map((c) => [c.key, c]));
       return keys.map((key) => mapa[key] || { key, label: key });
+    },
+
+    totalRegistrosPreview() {
+      const totalExibido = Number(this.metaApi.total_exibido);
+      return Number.isInteger(totalExibido) && totalExibido >= 0
+        ? totalExibido
+        : this.registros.length;
+    },
+
+    totalPaginas() {
+      return Math.max(1, Math.ceil(this.totalRegistrosPreview / this.registrosPorPagina));
+    },
+
+    registrosDaPagina() {
+      const inicio = (this.paginaAtual - 1) * this.registrosPorPagina;
+      return this.registros.slice(inicio, inicio + this.registrosPorPagina);
     },
 
     anosDisponiveis() {
@@ -351,6 +370,7 @@ export default {
     async carregarPrevias() {
       if (!this.selecionado) return;
 
+      this.paginaAtual = 1;
       this.carregandoPrevias = true;
       this.erro = '';
 
@@ -368,10 +388,26 @@ export default {
         }
       } catch (error) {
         this.registros = [];
+        this.metaApi = {};
         this.erro = error.response?.data?.message || 'Não foi possível carregar a prévia do relatório.';
       } finally {
         this.carregandoPrevias = false;
       }
+    },
+
+    irParaPagina(pagina) {
+      const destino = Number(pagina);
+      if (!Number.isInteger(destino) || destino < 1 || destino > this.totalPaginas || this.carregandoPrevias) {
+        return;
+      }
+      this.paginaAtual = destino;
+    },
+
+    alterarRegistrosPorPagina(quantidade) {
+      const tamanho = Number(quantidade);
+      if (!Number.isInteger(tamanho) || tamanho < 1 || this.carregandoPrevias) return;
+      this.registrosPorPagina = tamanho;
+      this.paginaAtual = 1;
     },
 
     async exportarPdf() {
