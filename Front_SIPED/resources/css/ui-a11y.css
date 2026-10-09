@@ -66,6 +66,16 @@
   border-radius: 0.2rem;
 }
 
+.sgp-tooltip__trigger--text {
+  cursor: help;
+  outline: none;
+}
+
+.sgp-tooltip__trigger--text:focus-visible {
+  border-radius: 0.2rem;
+  box-shadow: 0 0 0 2px rgba(0, 63, 125, 0.18);
+}
+
 .sgp-tooltip__bubble {
   position: absolute;
   z-index: 80;
@@ -81,6 +91,20 @@
   text-align: left;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
   pointer-events: none;
+}
+
+.sgp-tooltip--text.sgp-tooltip--open {
+  z-index: 81;
+}
+
+.sgp-tooltip--text .sgp-tooltip-fade-enter-active,
+.sgp-tooltip--text .sgp-tooltip-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.sgp-tooltip--text .sgp-tooltip-fade-enter-from,
+.sgp-tooltip--text .sgp-tooltip-fade-leave-to {
+  opacity: 0;
 }
 
 .sgp-tooltip__bubble--top {
@@ -478,4 +502,3 @@ html[data-theme='dark'] .sgp-table-scroll__sticky-bar.is-floating {
     border-radius: 0;
   }
 }
-

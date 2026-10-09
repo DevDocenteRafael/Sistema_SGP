@@ -520,6 +520,7 @@
               <SearchableSelect
                 v-model="form.eixo_vinculado"
                 :options="eixos"
+                :sort-alphabetically="true"
                 empty-option="Selecione"
                 :required="true"
               />

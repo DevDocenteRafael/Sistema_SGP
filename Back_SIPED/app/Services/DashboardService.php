@@ -6,6 +6,7 @@ use App\Models\AcaoExtensiva;
 use App\Models\Curso;
 use App\Models\Evento;
 use App\Models\HoraPedagogica;
+use App\Models\JornadaPedagogica;
 use App\Models\Resolucao;
 use App\Models\TermoReferencia;
 use App\Models\UnidadeOferta;
@@ -130,6 +131,10 @@ class DashboardService
             ->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))
             ->get(['status']);
 
+        $jornadasLeves = JornadaPedagogica::query()
+            ->when($cicloId, fn ($q) => $q->where('ciclo_id', $cicloId))
+            ->get(['status']);
+
         $estruturas = UnidadeOferta::query()
             ->get(['nome', 'tipo', 'ativo']);
         $estruturasPorTipo = $estruturas
@@ -153,6 +158,7 @@ class DashboardService
                 'horas' => count($horas),
                 'acoes' => $acoesLeves->count(),
                 'eventos' => $eventosLeves->count(),
+                'jornadas_pedagogicas' => $jornadasLeves->count(),
                 'resolucoes' => $resolucoesLeves->count(),
                 'termos' => $termosLeves->count(),
                 'estruturas' => $estruturas->count(),
@@ -170,6 +176,11 @@ class DashboardService
                 ]),
                 'acoes' => $this->contarDistribuicao($acoesLeves->all(), 'priorizacao', config('acoes_extensivas.priorizacoes', [])),
                 'eventos' => $this->contarDistribuicao($eventosLeves->all(), 'status', config('eventos.status', [])),
+                'jornadas_pedagogicas' => $this->contarDistribuicao(
+                    $jornadasLeves->all(),
+                    'status',
+                    config('jornadas_pedagogicas.status', []),
+                ),
                 'visitas' => $this->contarDistribuicao($visitas, 'status', config('visitas_tecnicas.status', [])),
             ],
             'resolucoes_contagens' => ResolucaoVigenciaService::contarPorSemaforo($resolucoesLeves),

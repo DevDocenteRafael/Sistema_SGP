@@ -36,7 +36,7 @@
           role="option"
           @click="escolher('')"
         >
-          {{ emptyOption }}
+          {{ optionVaziaLabel }}
         </li>
         <li
           v-for="opcao in opcoesFiltradas"
@@ -55,6 +55,8 @@
 </template>
 
 <script>
+import { compareSelectLabels, formatSelectLabel } from '../utils/selectOptions.js';
+
 export default {
   name: 'SearchableSelect',
   props: {
@@ -67,6 +69,7 @@ export default {
     id: { type: String, default: '' },
     required: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
+    sortAlphabetically: { type: Boolean, default: false },
   },
   emits: ['update:modelValue', 'change', 'invalid'],
   data() {
@@ -78,16 +81,20 @@ export default {
   },
   computed: {
     opcoesNormalizadas() {
-      return (this.options || []).map((item) => {
+      const opcoes = (this.options || []).map((item) => {
         if (item != null && typeof item === 'object') {
           return {
             value: item.value ?? '',
-            label: item.label ?? String(item.value ?? ''),
+            label: formatSelectLabel(item.label ?? String(item.value ?? '')),
           };
         }
 
-        return { value: item, label: String(item) };
+        return { value: item, label: formatSelectLabel(item) };
       });
+
+      return this.sortAlphabetically
+        ? opcoes.sort((a, b) => compareSelectLabels(a.label, b.label))
+        : opcoes;
     },
     opcoesFiltradas() {
       const termo = this.termo.trim().toLowerCase();
@@ -100,16 +107,19 @@ export default {
     temValor() {
       return this.modelValue !== '' && this.modelValue != null;
     },
+    optionVaziaLabel() {
+      return formatSelectLabel(this.emptyOption);
+    },
     rotuloAtual() {
       if (!this.temValor) {
-        return this.emptyOption ?? this.placeholder;
+        return formatSelectLabel(this.emptyOption ?? this.placeholder);
       }
 
       const encontrada = this.opcoesNormalizadas.find(
         (item) => String(item.value) === String(this.modelValue),
       );
 
-      return encontrada?.label ?? String(this.modelValue);
+      return encontrada?.label ?? formatSelectLabel(this.modelValue);
     },
   },
   mounted() {

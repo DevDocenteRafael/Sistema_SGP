@@ -44,6 +44,7 @@
               input-id="filtro-eixo-hora"
               v-model="filtros.eixo"
               :options="eixos"
+              :sort-alphabetically="true"
               empty-option="Todos os eixos"
               @change="aplicarFiltros"
             />
@@ -236,6 +237,7 @@
                   v-model="form.eixo"
                   @change="segmentosDoEixo.includes(form.segmento) || (form.segmento = '')"
                   :options="eixos"
+                  :sort-alphabetically="true"
                   empty-option="Selecione o eixo"
                   :required="true"
                 />

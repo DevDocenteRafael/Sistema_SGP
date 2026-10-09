@@ -83,6 +83,7 @@
                 v-model="filtros.eixo"
                 class="rel-filtro-select"
                 :options="eixosDisponiveis"
+                :sort-alphabetically="true"
                 empty-option="Todos os eixos"
                 @change="carregarPrevias"
               />

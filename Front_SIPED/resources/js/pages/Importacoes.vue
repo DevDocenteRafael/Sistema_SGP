@@ -67,6 +67,7 @@
                 v-model="filtros.eixo"
                 class="imp-filtro-select"
                 :options="opcoesFiltro('eixo')"
+                :sort-alphabetically="true"
                 empty-option="Todos os eixos"
                 :disabled="etapa !== 'previa'"
               />

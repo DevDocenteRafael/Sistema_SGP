@@ -55,6 +55,7 @@
               input-id="filtro-eixo-visita"
               v-model="filtros.eixo"
               :options="eixos"
+              :sort-alphabetically="true"
               empty-option="Todos os eixos"
               @change="aplicarFiltros"
             />
@@ -411,6 +412,7 @@
                   input-id="eixo"
                   v-model="form.eixo"
                   :options="eixos"
+                  :sort-alphabetically="true"
                   empty-option="Selecione o eixo"
                   :required="true"
                 />

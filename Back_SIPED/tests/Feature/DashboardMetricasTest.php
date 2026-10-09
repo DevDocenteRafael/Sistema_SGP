@@ -34,6 +34,12 @@ class DashboardMetricasTest extends TestCase
             ['status' => 'Cancelado'],
         ]);
 
+        DB::table('jornadas_pedagogicas')->insert([
+            ['titulo' => 'Jornada em rascunho', 'status' => 'Rascunho'],
+            ['titulo' => 'Jornada consolidada', 'status' => 'Consolidado'],
+            ['titulo' => 'Jornada enviada', 'status' => 'Enviado'],
+        ]);
+
         DB::table('visita_tecnicas')->insert([
             ['status' => 'Pendente'],
             ['status' => 'Em andamento'],
@@ -53,6 +59,7 @@ class DashboardMetricasTest extends TestCase
         $this->assertSame(4, $resumo['contagens']['horas']);
         $this->assertSame(5, $resumo['contagens']['acoes']);
         $this->assertSame(3, $resumo['contagens']['eventos']);
+        $this->assertSame(3, $resumo['contagens']['jornadas_pedagogicas']);
         $this->assertSame(5, $resumo['contagens']['visitas']);
         $this->assertSame(2, $resumo['contagens']['estruturas']);
         $this->assertSame(1, $resumo['contagens']['estruturas_faculdade'] + $resumo['contagens']['estruturas_polo'] + $resumo['contagens']['estruturas_unidade']);
@@ -73,5 +80,12 @@ class DashboardMetricasTest extends TestCase
         $this->assertSame(1, $resumo['distribuicoes']['acoes']['outros']);
         $this->assertSame(1, $resumo['distribuicoes']['acoes']['sem_classificacao']);
         $this->assertSame(1, $resumo['distribuicoes']['visitas']['atrasada']);
+        $this->assertSame(
+            $resumo['contagens']['jornadas_pedagogicas'],
+            array_sum($resumo['distribuicoes']['jornadas_pedagogicas']),
+        );
+        $this->assertSame(1, $resumo['distribuicoes']['jornadas_pedagogicas']['rascunho']);
+        $this->assertSame(1, $resumo['distribuicoes']['jornadas_pedagogicas']['consolidado']);
+        $this->assertSame(1, $resumo['distribuicoes']['jornadas_pedagogicas']['enviado']);
     }
 }

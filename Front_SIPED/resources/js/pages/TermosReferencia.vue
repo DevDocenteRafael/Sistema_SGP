@@ -24,6 +24,7 @@
         <SearchableSelect
           v-model="filtros.eixo"
           :options="eixosDisponiveis"
+          :sort-alphabetically="true"
           empty-option="Todos os eixos"
           @change="aplicarFiltros"
         />
@@ -279,6 +280,7 @@
                     input-id="eixo-tr"
                     v-model="form.eixo"
                     :options="eixosDisponiveis"
+                    :sort-alphabetically="true"
                     empty-option="Selecione o eixo..."
                   />
                 </div>

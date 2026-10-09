@@ -52,7 +52,7 @@
             :class="{ 'is-active': cicloAtivo && String(cicloAtivo.id) === String(ciclo.id) }"
             @click="selecionarCiclo(ciclo)"
           >
-            <span class="ciclo-seletor__item-nome">{{ ciclo.nome }}</span>
+            <span class="ciclo-seletor__item-nome">{{ formatSelectLabel(ciclo.nome) }}</span>
             <span v-if="ciclo.atual" class="ciclo-seletor__badge">atual</span>
           </button>
         </li>
@@ -117,7 +117,7 @@
                 :key="ciclo.id"
                 :value="String(ciclo.id)"
               >
-                {{ ciclo.nome }}{{ ciclo.atual ? ' (atual)' : '' }}
+                {{ formatSelectLabel(ciclo.nome) }}{{ ciclo.atual ? ' (atual)' : '' }}
               </option>
             </select>
           </div>
@@ -196,6 +196,7 @@ import {
   tamanhoMaximo,
   textoObrigatorio,
 } from '../utils/validacao';
+import { formatSelectLabel } from '../utils/selectOptions.js';
 
 const ENDPOINT = '/api/ciclos';
 
@@ -230,7 +231,7 @@ export default {
       return podeEditarDados();
     },
     rotuloCiclo() {
-      return this.cicloAtivo?.nome || 'Selecionar';
+      return formatSelectLabel(this.cicloAtivo?.nome || 'Selecionar');
     },
     textoSalvarModal() {
       if (this.salvando) {

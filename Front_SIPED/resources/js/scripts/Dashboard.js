@@ -5,6 +5,18 @@ import { EIXOS_OFICIAIS, eixosIguais } from '../utils/catalogoOficial';
 const EIXOS_PADRAO = [...EIXOS_OFICIAIS];
 
 const CORES_EIXO = ['#003F7D', '#F57C00', '#0d9488', '#7c3aed', '#db2777', '#2563eb', '#ca8a04', '#64748b'];
+const ORDEM_CARDS_GERAIS = [
+  'Ações Extensivas',
+  'Eventos',
+  'Estruturas',
+  'Horas Pedagógicas',
+  'Jornada Pedagógica',
+  'Resoluções',
+  'Termos de Referência',
+  'Total de Cursos',
+  'Usuários',
+  'Visitas Técnicas',
+];
 const CORES_POR_EIXO = {
   'Gastronomia e Turismo': '#FF7A00',
   'Ambiente e Saúde': '#004B87',
@@ -38,6 +50,7 @@ export default {
         horas: 0,
         acoes: 0,
         eventos: 0,
+        jornadas_pedagogicas: 0,
         resolucoes: 0,
         termos: 0,
         estruturas: 0,
@@ -52,6 +65,7 @@ export default {
         horas: {},
         acoes: {},
         eventos: {},
+        jornadas_pedagogicas: {},
         visitas: {},
       },
       resolucoesContagens: {
@@ -204,14 +218,24 @@ export default {
           category: 'Portfólio',
           value: this.totalResolucoes,
           icon: this.iconResolucoes,
-          statuses: this.cardsResolucoesPrazo.filter((status) => status.value > 0),
+          statuses: this.cardsResolucoesPrazo
+            .filter((status) => status.value > 0)
+            .map((status) => ({
+              ...status,
+              tooltip: status.title === 'Vigente' ? `${status.subtitle}.` : '',
+            })),
         },
         {
           label: 'Termos de Referência',
           category: 'Portfólio',
           value: this.totalTermos,
           icon: this.iconPortfolio,
-          statuses: this.cardsTermosPrazo.filter((status) => status.value > 0),
+          statuses: this.cardsTermosPrazo
+            .filter((status) => status.value > 0)
+            .map((status) => ({
+              ...status,
+              tooltip: `${status.subtitle}.`,
+            })),
         },
         {
           label: 'Total de Cursos',
@@ -219,9 +243,9 @@ export default {
           value: this.totalCursos,
           icon: this.iconPortfolio,
           statuses: [
-            { title: 'Ativos', value: this.cursosAtivos, color: '#16A34A', term: 'ativo' },
-            { title: 'Inativos', value: this.cursosInativos, color: '#DC2626', term: 'inativo' },
-            { title: 'Em revisão', value: this.cursosEmRevisao, color: '#2563EB', term: 'em revisao' },
+            { title: 'Ativos', value: this.cursosAtivos, color: '#16A34A', tooltip: 'Curso disponível para oferta no portfólio.' },
+            { title: 'Inativos', value: this.cursosInativos, color: '#DC2626', tooltip: 'Curso fora de oferta.' },
+            { title: 'Em revisão', value: this.cursosEmRevisao, color: '#2563EB', tooltip: 'Curso em atualização ou revisão de conteúdo.' },
           ].filter((status) => status.value > 0),
         },
         {
@@ -241,10 +265,21 @@ export default {
           value: this.contagens.horas,
           icon: this.iconHoras,
           statuses: this.montarCardsDistribuicao(this.distribuicoes.horas, [
-            { key: 'em_andamento', title: 'Em andamento', color: '#2563EB' },
-            { key: 'pendente', title: 'Pendentes', color: '#F59E0B' },
-            { key: 'concluida', title: 'Concluídas', color: '#16A34A' },
+            { key: 'em_andamento', title: 'Em andamento', color: '#2563EB', tooltip: 'Execução em andamento.' },
+            { key: 'pendente', title: 'Pendentes', color: '#F59E0B', tooltip: 'Registros aguardando início ou análise.' },
+            { key: 'concluida', title: 'Concluídas', color: '#16A34A', tooltip: 'Registros finalizados com sucesso.' },
             { key: 'cancelada', title: 'Canceladas', color: '#DC2626' },
+          ]),
+        },
+        {
+          label: 'Jornada Pedagógica',
+          category: 'Planejamento',
+          value: this.contagens.jornadas_pedagogicas,
+          icon: this.iconEventos,
+          statuses: this.montarCardsDistribuicao(this.distribuicoes.jornadas_pedagogicas, [
+            { key: 'rascunho', title: 'Rascunho', color: '#6B7280' },
+            { key: 'consolidado', title: 'Consolidado', color: '#2563EB' },
+            { key: 'enviado', title: 'Enviado', color: '#16A34A' },
           ]),
         },
         {
@@ -275,9 +310,9 @@ export default {
           value: this.contagens.visitas,
           icon: this.iconVisitas,
           statuses: this.montarCardsDistribuicao(this.distribuicoes.visitas, [
-            { key: 'pendente', title: 'Pendentes', color: '#F59E0B' },
-            { key: 'em_andamento', title: 'Em andamento', color: '#2563EB' },
-            { key: 'realizada', title: 'Realizadas', color: '#16A34A' },
+            { key: 'pendente', title: 'Pendentes', color: '#F59E0B', tooltip: 'Registros aguardando início ou análise.' },
+            { key: 'em_andamento', title: 'Em andamento', color: '#2563EB', tooltip: 'Execução em andamento.' },
+            { key: 'realizada', title: 'Realizadas', color: '#16A34A', tooltip: 'Visitas concluídas com sucesso.' },
             { key: 'cancelada', title: 'Canceladas', color: '#DC2626' },
             { key: 'atrasada', title: 'Atrasadas', color: '#DC2626' },
           ]),
@@ -292,7 +327,7 @@ export default {
             { title: 'Inativos', value: this.contagens.usuarios_inativos, color: '#DC2626' },
           ].filter((status) => status.value > 0),
         },
-      ];
+      ].sort((a, b) => ORDEM_CARDS_GERAIS.indexOf(a.label) - ORDEM_CARDS_GERAIS.indexOf(b.label));
     },
 
     chartEixos() {
@@ -495,6 +530,7 @@ export default {
           horas: {},
           acoes: {},
           eventos: {},
+          jornadas_pedagogicas: {},
           visitas: {},
           ...(payload.distribuicoes || {}),
         };
@@ -520,6 +556,7 @@ export default {
           horas: 0,
           acoes: 0,
           eventos: 0,
+          jornadas_pedagogicas: 0,
           resolucoes: 0,
           termos: 0,
           estruturas: 0,

@@ -36,6 +36,7 @@
             aria-label="Eixo"
             empty-option="Todos os eixos"
             :options="meta.eixos"
+            :sort-alphabetically="true"
           />
 
           <SearchableSelect
@@ -68,7 +69,12 @@
               <span v-for="status in card.statuses" :key="status.title" class="dashboard-metric-status">
                 <span class="dashboard-metric-status-dot" :style="{ backgroundColor: status.color }" aria-hidden="true"></span>
                 <strong>{{ status.value }}</strong>
-                <SgpHelpLabel :label="status.title" :help="status.subtitle" :term="status.term" />
+                <SgpTooltip
+                  v-if="status.tooltip"
+                  :text="status.tooltip"
+                  mode="text"
+                >{{ status.title }}</SgpTooltip>
+                <span v-else>{{ status.title }}</span>
               </span>
             </div>
           </div>
@@ -80,7 +86,6 @@
           <div class="dashboard-chart-head">
             <div>
               <h3><SgpHelpLabel label="Eixos Tecnológicos" /></h3>
-              <p class="dashboard-chart-subtitle">Cursos por eixo · {{ totalEixos }} eixos no filtro</p>
               <p class="dashboard-chart-summary">{{ cursosParaGraficos.length }} cursos · {{ chartEixos.length }} eixos</p>
             </div>
           </div>
@@ -112,7 +117,6 @@
           <div class="dashboard-chart-head">
             <div>
               <h3><SgpHelpLabel label="Tipos de Curso" /></h3>
-              <p class="dashboard-chart-subtitle">Distribuição por tipo de oferta</p>
               <p class="dashboard-chart-summary">{{ cursosParaGraficos.length }} cursos · {{ chartTipos.length }} tipos</p>
             </div>
           </div>
@@ -150,7 +154,6 @@
           <div class="dashboard-chart-head">
             <div>
               <h3><SgpHelpLabel label="Faixas de Carga Horária" /></h3>
-              <p class="dashboard-chart-subtitle">Cursos agrupados por carga horária</p>
               <p class="dashboard-chart-summary">{{ cursosParaGraficos.length }} cursos · {{ chartCargaHoraria.length }} faixas</p>
             </div>
           </div>
@@ -197,7 +200,7 @@
               class="dashboard-metric-chip"
             >
               <strong :style="{ color: chip.color }">{{ chip.value }}</strong>
-              <SgpHelpLabel :label="chip.title" :help="chip.subtitle" />
+              <SgpTooltip :text="chip.subtitle" mode="text">{{ chip.title }}</SgpTooltip>
             </span>
           </div>
         </article>
@@ -207,8 +210,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3>Por Eixo Tecnológico</h3>
-              <p class="dashboard-chart-subtitle">Visitas realizadas por eixo</p>
+              <h3><SgpHelpLabel label="Por Eixo Tecnológico" help="Visitas realizadas por eixo" /></h3>
             </div>
           </div>
           <div v-if="indicadoresVisitas.porEixo.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
@@ -234,8 +236,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3>Por Status</h3>
-              <p class="dashboard-chart-subtitle">Distribuição das solicitações</p>
+              <h3><SgpHelpLabel label="Por Status" help="Distribuição das solicitações" /></h3>
             </div>
           </div>
           <div v-if="indicadoresVisitas.porStatus.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
@@ -270,8 +271,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3>Por Estrutura</h3>
-              <p class="dashboard-chart-subtitle">Estruturas que mais solicitaram</p>
+              <h3><SgpHelpLabel label="Por Estrutura" help="Estruturas que mais solicitaram" /></h3>
             </div>
           </div>
           <div v-if="indicadoresVisitas.porUnidade.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
@@ -318,7 +318,7 @@
               class="dashboard-metric-chip"
             >
               <strong :style="{ color: chip.color }">{{ chip.value }}</strong>
-              <SgpHelpLabel :label="chip.title" :help="chip.subtitle" />
+              <SgpTooltip :text="chip.subtitle" mode="text">{{ chip.title }}</SgpTooltip>
             </span>
           </div>
         </article>
@@ -328,8 +328,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3>Por Eixo Tecnológico</h3>
-              <p class="dashboard-chart-subtitle">Solicitações por eixo</p>
+              <h3><SgpHelpLabel label="Por Eixo Tecnológico" help="Solicitações por eixo" /></h3>
             </div>
           </div>
           <div v-if="indicadoresHoras.porEixo.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
@@ -355,8 +354,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3>Por Status</h3>
-              <p class="dashboard-chart-subtitle">Distribuição das solicitações</p>
+              <h3><SgpHelpLabel label="Por Status" help="Distribuição das solicitações" /></h3>
             </div>
           </div>
           <div v-if="indicadoresHoras.porStatus.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
@@ -391,8 +389,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3>Por Segmento</h3>
-              <p class="dashboard-chart-subtitle">Segmentos com maior volume</p>
+              <h3><SgpHelpLabel label="Por Segmento" help="Segmentos com maior volume" /></h3>
             </div>
           </div>
           <div v-if="indicadoresHoras.porSegmento.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
