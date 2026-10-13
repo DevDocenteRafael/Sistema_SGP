@@ -105,7 +105,7 @@
                   <div
                     class="dashboard-rank-fill"
                     :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"
-                    :title="`${item.label}: ${item.value} (${item.share}%)`"
+                    :title="`Valor de ${item.label}: ${item.value} (${item.share}%).`"
                   ></div>
                 </div>
               </div>
@@ -133,7 +133,7 @@
                     <div
                       class="dashboard-vbar-fill"
                       :style="{ height: `${Math.max(item.bar, 18)}%`, background: item.color }"
-                      :title="`${item.label}: ${item.value} (${item.share}%)`"
+                      :title="`Valor de ${item.label}: ${item.value} (${item.share}%).`"
                     >
                       <span class="dashboard-vbar-value">{{ item.value }}</span>
                     </div>
@@ -172,7 +172,7 @@
                   <div
                     class="dashboard-rank-fill"
                     :style="{ width: `${item.value ? Math.max(item.bar, 4) : 0}%` }"
-                    :title="`${item.label}: ${item.value} (${item.share}%)`"
+                    :title="`Valor de ${item.label}: ${item.value} (${item.share}%).`"
                   ></div>
                 </div>
               </div>
@@ -210,7 +210,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3><SgpHelpLabel label="Por Eixo Tecnológico" help="Visitas realizadas por eixo" /></h3>
+              <h3><SgpHelpLabel label="Por Eixo Tecnológico" help="Visitas realizadas por eixo." /></h3>
             </div>
           </div>
           <div v-if="indicadoresVisitas.porEixo.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
@@ -236,7 +236,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3><SgpHelpLabel label="Por Status" help="Distribuição das solicitações" /></h3>
+              <h3><SgpHelpLabel label="Por Status" help="Distribuição das solicitações." /></h3>
             </div>
           </div>
           <div v-if="indicadoresVisitas.porStatus.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
@@ -251,7 +251,7 @@
                     <div
                       class="dashboard-vbar-fill"
                       :style="{ height: `${Math.max(item.bar, 18)}%`, background: item.color }"
-                      :title="`${item.label}: ${item.value} (${item.share}%)`"
+                      :title="`Valor de ${item.label}: ${item.value} (${item.share}%).`"
                     >
                       <span class="dashboard-vbar-value">{{ item.value }}</span>
                     </div>
@@ -271,7 +271,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3><SgpHelpLabel label="Por Estrutura" help="Estruturas que mais solicitaram" /></h3>
+              <h3><SgpHelpLabel label="Por Estrutura" help="Estruturas que mais solicitaram." /></h3>
             </div>
           </div>
           <div v-if="indicadoresVisitas.porUnidade.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
@@ -328,7 +328,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3><SgpHelpLabel label="Por Eixo Tecnológico" help="Solicitações por eixo" /></h3>
+              <h3><SgpHelpLabel label="Por Eixo Tecnológico" help="Solicitações por eixo." /></h3>
             </div>
           </div>
           <div v-if="indicadoresHoras.porEixo.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
@@ -354,7 +354,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3><SgpHelpLabel label="Por Status" help="Distribuição das solicitações" /></h3>
+              <h3><SgpHelpLabel label="Por Status" help="Distribuição das solicitações." /></h3>
             </div>
           </div>
           <div v-if="indicadoresHoras.porStatus.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
@@ -369,7 +369,7 @@
                     <div
                       class="dashboard-vbar-fill"
                       :style="{ height: `${Math.max(item.bar, 18)}%`, background: item.color }"
-                      :title="`${item.label}: ${item.value} (${item.share}%)`"
+                      :title="`Valor de ${item.label}: ${item.value} (${item.share}%).`"
                     >
                       <span class="dashboard-vbar-value">{{ item.value }}</span>
                     </div>
@@ -389,7 +389,7 @@
         <article class="dashboard-chart-card">
           <div class="dashboard-chart-head">
             <div>
-              <h3><SgpHelpLabel label="Por Segmento" help="Segmentos com maior volume" /></h3>
+              <h3><SgpHelpLabel label="Por Segmento" help="Segmentos com maior volume." /></h3>
             </div>
           </div>
           <div v-if="indicadoresHoras.porSegmento.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>

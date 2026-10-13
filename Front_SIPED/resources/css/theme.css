@@ -557,8 +557,7 @@ textarea::placeholder {
 .dashboard-metric-title,
 .dashboard-metric-value,
 .dashboard-chart-card h3,
-.rel-tabela-header h2,
-.rel-filtros-titulo {
+.rel-tabela-header h2 {
   color: var(--sgp-text) !important;
 }
 
@@ -568,7 +567,6 @@ textarea::placeholder {
 .tabela-vazia,
 .rel-loading,
 .rel-vazio,
-.rel-filtro-label,
 .rel-resumo-label {
   color: var(--sgp-text-muted) !important;
 }

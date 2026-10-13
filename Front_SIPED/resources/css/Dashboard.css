@@ -150,6 +150,10 @@
   text-transform: uppercase;
 }
 
+.dashboard-metric-category :deep(.sgp-tooltip__bubble) {
+  text-transform: none;
+}
+
 .dashboard-metric-content {
   display: flex;
   flex-direction: column;

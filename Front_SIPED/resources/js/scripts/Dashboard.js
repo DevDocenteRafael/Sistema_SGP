@@ -222,7 +222,7 @@ export default {
             .filter((status) => status.value > 0)
             .map((status) => ({
               ...status,
-              tooltip: status.title === 'Vigente' ? `${status.subtitle}.` : '',
+              tooltip: status.title === 'Vigente' ? status.subtitle : '',
             })),
         },
         {
@@ -234,7 +234,7 @@ export default {
             .filter((status) => status.value > 0)
             .map((status) => ({
               ...status,
-              tooltip: `${status.subtitle}.`,
+              tooltip: status.subtitle,
             })),
         },
         {
@@ -418,12 +418,12 @@ export default {
       return {
         total,
         chipsFluxo: [
-          { title: 'Realizadas', value: realizadas, color: '#15803d', subtitle: `${this.percentual(realizadas, total)}% do total` },
-          { title: 'Pendentes', value: pendentes, color: '#a16207', subtitle: `${this.percentual(pendentes, total)}% do total` },
-          { title: 'No prazo', value: dentroPrazo, color: '#003F7D', subtitle: `${this.percentual(dentroPrazo, total)}% do total` },
-          { title: 'Fora do prazo', value: foraPrazo, color: '#c2410c', subtitle: `${this.percentual(foraPrazo, total)}% do total` },
-          { title: 'Devolvidas', value: devolvidas, color: '#b91c1c', subtitle: `${this.percentual(devolvidas, total)}% do total` },
-        ],
+          { title: 'Realizadas', value: realizadas, color: '#15803d', subtitle: `Representa ${this.percentual(realizadas, total)}% do total.` },
+          { title: 'Pendentes', value: pendentes, color: '#a16207', subtitle: `Representa ${this.percentual(pendentes, total)}% do total.` },
+          { title: 'No prazo', value: dentroPrazo, color: '#003F7D', subtitle: `Representa ${this.percentual(dentroPrazo, total)}% do total.` },
+          { title: 'Fora do prazo', value: foraPrazo, color: '#c2410c', subtitle: `Representa ${this.percentual(foraPrazo, total)}% do total.` },
+          { title: 'Devolvidas', value: devolvidas, color: '#b91c1c', subtitle: `Representa ${this.percentual(devolvidas, total)}% do total.` },
+        ].sort((a, b) => a.title.localeCompare(b.title, 'pt-BR', { sensitivity: 'base' })),
         porEixo: this.listaContagem(this.visitas, 'eixo'),
         porStatus: this.listaContagem(this.visitas, 'status', { orange: true }).slice(0, 6).sort(compararPorNome),
         porUnidade: this.listaContagem(this.visitas, 'unidade').slice(0, 8).sort(compararPorNome),
@@ -442,13 +442,13 @@ export default {
       return {
         total,
         chipsFluxo: [
-          { title: 'Concluídas', value: concluidas, color: '#15803d', subtitle: `${this.percentual(concluidas, total)}% do total` },
-          { title: 'Aprovadas', value: aprovadas, color: '#003F7D', subtitle: `${this.percentual(aprovadas, total)}% do total` },
-          { title: 'Em análise', value: emAnalise, color: '#a16207', subtitle: `${this.percentual(emAnalise, total)}% do total` },
-          { title: 'Solicitadas', value: solicitadas, color: '#F57C00', subtitle: `${this.percentual(solicitadas, total)}% do total` },
-          { title: 'Recusadas', value: recusadas, color: '#b91c1c', subtitle: `${this.percentual(recusadas, total)}% do total` },
-          { title: 'Inativas', value: inativas, color: '#6b7280', subtitle: `${this.percentual(inativas, total)}% do total` },
-        ],
+          { title: 'Concluídas', value: concluidas, color: '#15803d', subtitle: `Representa ${this.percentual(concluidas, total)}% do total.` },
+          { title: 'Aprovadas', value: aprovadas, color: '#003F7D', subtitle: `Representa ${this.percentual(aprovadas, total)}% do total.` },
+          { title: 'Em análise', value: emAnalise, color: '#a16207', subtitle: `Representa ${this.percentual(emAnalise, total)}% do total.` },
+          { title: 'Solicitadas', value: solicitadas, color: '#F57C00', subtitle: `Representa ${this.percentual(solicitadas, total)}% do total.` },
+          { title: 'Recusadas', value: recusadas, color: '#b91c1c', subtitle: `Representa ${this.percentual(recusadas, total)}% do total.` },
+          { title: 'Inativas', value: inativas, color: '#6b7280', subtitle: `Representa ${this.percentual(inativas, total)}% do total.` },
+        ].sort((a, b) => a.title.localeCompare(b.title, 'pt-BR', { sensitivity: 'base' })),
         porEixo: this.listaContagem(this.horas, 'eixo'),
         porStatus: this.listaContagem(this.horas, 'status', { orange: true }).slice(0, 6).sort(compararPorNome),
         porSegmento: this.listaContagem(this.horas, 'segmento').slice(0, 8).sort(compararPorNome),
@@ -680,7 +680,7 @@ export default {
         return {
           ...item,
           value,
-          subtitle: `${this.percentual(value, total)}% do total`,
+          subtitle: `Representa ${this.percentual(value, total)}% do total.`,
         };
       });
     },
