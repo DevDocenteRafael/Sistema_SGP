@@ -1,38 +1,40 @@
 <template>
   <div class="inicio-page">
-    <header class="inicio-hero">
-      <div class="inicio-hero-inner">
-        <img :src="logoSenac" alt="Senac" class="inicio-logo" />
+    <div class="inicio-hero-sticky">
+      <header class="inicio-hero">
+        <div class="inicio-hero-inner">
+          <img :src="logoSenac" alt="Senac" class="inicio-logo" />
 
-        <div class="inicio-hero-text">
-          <p class="inicio-hero-tag">SENAC DF · CPED</p>
-          <h1 class="inicio-hero-title">SIPED — Sistema Integrado Pedagógico</h1>
-          <p class="inicio-hero-desc">
-            Plataforma pedagógica (CPED/DEP) para controle educacional
-            e integração dos sistemas de apoio do SENAC DF.
-          </p>
+          <div class="inicio-hero-text">
+            <p class="inicio-hero-tag">SENAC DF · CPED</p>
+            <h1 class="inicio-hero-title">SIPED — Sistema Integrado Pedagógico</h1>
+            <p class="inicio-hero-desc">
+              Plataforma pedagógica (CPED/DEP) para controle educacional
+              e integração dos sistemas de apoio do SENAC DF.
+            </p>
+          </div>
+
+          <div class="inicio-stats">
+            <div class="inicio-stat">
+              <p class="inicio-stat-value">5</p>
+              <p class="inicio-stat-label">Eixos</p>
+            </div>
+            <span class="inicio-stat-divider" aria-hidden="true" />
+            <div class="inicio-stat">
+              <p class="inicio-stat-value">{{ cicloNome || '—' }}</p>
+              <p class="inicio-stat-label">Ciclo</p>
+            </div>
+            <span class="inicio-stat-divider" aria-hidden="true" />
+            <div class="inicio-stat">
+              <p class="inicio-stat-value">CPED</p>
+              <p class="inicio-stat-label">Unidade</p>
+            </div>
+          </div>
         </div>
+      </header>
 
-        <div class="inicio-stats">
-          <div class="inicio-stat">
-            <p class="inicio-stat-value">5</p>
-            <p class="inicio-stat-label">Eixos</p>
-          </div>
-          <span class="inicio-stat-divider" aria-hidden="true" />
-          <div class="inicio-stat">
-            <p class="inicio-stat-value">{{ cicloNome || '—' }}</p>
-            <p class="inicio-stat-label">Ciclo</p>
-          </div>
-          <span class="inicio-stat-divider" aria-hidden="true" />
-          <div class="inicio-stat">
-            <p class="inicio-stat-value">CPED</p>
-            <p class="inicio-stat-label">Unidade</p>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <div class="inicio-accent-bar" aria-hidden="true" />
+      <div class="inicio-accent-bar" aria-hidden="true" />
+    </div>
 
     <section class="inicio-content">
       <div class="inicio-section-head">

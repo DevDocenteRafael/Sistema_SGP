@@ -6,6 +6,12 @@
   background: var(--sgp-bg, #fff);
 }
 
+.inicio-hero-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
 .inicio-hero {
   padding: 1.25rem 1.5rem 1.5rem;
   background: linear-gradient(135deg, #003f7d 0%, #002a56 100%);

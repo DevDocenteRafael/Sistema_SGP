@@ -24,6 +24,17 @@
     <section class="rel-painel">
       <div class="rel-filtros">
         <div class="rel-filtros-row">
+          <div v-if="selecionado" class="rel-filtro-busca">
+            <input
+              id="rel-busca"
+              v-model="filtros.busca"
+              type="search"
+              placeholder="Buscar nos registros..."
+              aria-label="Buscar nos registros do relatório"
+              @input="aoBuscar"
+            />
+          </div>
+
           <div class="rel-filtro-campo rel-filtro-relatorio">
             <SearchableSelect
               id="relatorio-select"
@@ -38,17 +49,6 @@
           </div>
 
           <template v-if="selecionado">
-            <div class="rel-filtro-busca">
-              <input
-                id="rel-busca"
-                v-model="filtros.busca"
-                type="search"
-                placeholder="Buscar nos registros..."
-                aria-label="Buscar nos registros do relatório"
-                @input="aoBuscar"
-              />
-            </div>
-
             <div v-if="temFiltro('ano')" class="rel-filtro-campo">
               <SearchableSelect
                 v-model="filtros.ano"
