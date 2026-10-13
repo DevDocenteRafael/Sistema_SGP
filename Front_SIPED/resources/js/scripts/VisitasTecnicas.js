@@ -10,6 +10,7 @@ import {
   validarProcessoSei,
 } from '../utils/validacao';
 import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
+import { sortYearsDescending } from '../utils/selectOptions';
 
 const EIXOS = [...EIXOS_OFICIAIS];
 
@@ -146,6 +147,9 @@ export default createCrudPage({
     origemVisitas: { modo: 'local', integracao_ativa: false, svt_url: null, ultima_sincronizacao: null, visitas_do_svt: 0 },
   }),
   extraComputed: {
+    anosOrdenados() {
+      return sortYearsDescending(this.anosDisponiveis);
+    },
     modoSvt() {
       return this.origemVisitas?.modo === 'svt';
     },

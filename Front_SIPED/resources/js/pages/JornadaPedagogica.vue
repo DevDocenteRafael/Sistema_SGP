@@ -32,6 +32,7 @@
               input-id="filtro-status-jornada"
               v-model="filtros.status"
               :options="meta.status"
+              :sort-alphabetically="true"
               empty-option="Todos os status"
               @change="aplicarFiltros"
             />
@@ -97,7 +98,7 @@
         </div>
       </PageTableCard>
 
-      <div v-if="registroDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
+      <div v-if="registroDetalhe" class="modal-overlay modal-overlay--details" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-jornada-titulo">
           <div class="modal-detalhes-header">
             <h2 id="detalhe-jornada-titulo">Detalhes da Jornada Pedagógica</h2>
@@ -182,6 +183,7 @@
                   input-id="jornada-status"
                   v-model="form.status"
                   :options="meta.status"
+                  :sort-alphabetically="true"
                   :required="true"
                 />
               </div>
@@ -236,8 +238,24 @@
               </div>
               <div class="form-group full">
                 <label for="jornada-anexo"><FormLabel label="Anexo" :required="!form.anexo_url" /></label>
-                <input id="jornada-anexo" :aria-required="!form.anexo_url" type="file" accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png" @change="aoEscolherAnexo" />
-                <small v-if="form.anexo_url && !form.anexoFile" class="campo-ajuda">
+                <label class="btn-secondary jornada-anexo-botao" for="jornada-anexo">
+                  {{ modo === 'novo' ? 'Escolher arquivo' : form.anexo_url ? 'Substituir arquivo' : 'Adicionar arquivo' }}
+                  <input
+                    id="jornada-anexo"
+                    class="jornada-anexo-input"
+                    :aria-required="!form.anexo_url"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png"
+                    @change="aoEscolherAnexo"
+                  />
+                </label>
+                <small v-if="form.anexoFile" class="campo-ajuda">
+                  {{ form.anexoFile.name }}
+                </small>
+                <small v-else-if="!form.anexo_url" class="campo-ajuda">
+                  Nenhum arquivo adicionado.
+                </small>
+                <small v-else class="campo-ajuda">
                   Anexo atual:
                   <a :href="form.anexo_url" target="_blank" rel="noopener noreferrer">abrir arquivo</a>
                   (envie outro arquivo só se quiser substituí-lo)

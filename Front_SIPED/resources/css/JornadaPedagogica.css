@@ -27,3 +27,25 @@
   color: #6b7280;
   font-size: 0.8rem;
 }
+
+.jornada-anexo-botao {
+  position: relative;
+  width: fit-content;
+}
+
+.jornada-anexo-botao:focus-within {
+  outline: 2px solid var(--sgp-brand, #003f7d);
+  outline-offset: 2px;
+}
+
+.jornada-anexo-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

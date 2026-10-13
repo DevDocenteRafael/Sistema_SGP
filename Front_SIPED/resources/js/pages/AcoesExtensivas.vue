@@ -33,6 +33,7 @@
               input-id="filtro-priorizacao"
               v-model="filtros.priorizacao"
               :options="priorizacoes"
+              :sort-alphabetically="true"
               empty-option="Todas as priorizações"
               @change="aplicarFiltros"
             />
@@ -150,7 +151,7 @@
         </div>
       </PageTableCard>
 
-      <div v-if="registroDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
+      <div v-if="registroDetalhe" class="modal-overlay modal-overlay--details" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-acao-titulo">
           <div class="modal-detalhes-header">
             <div>
@@ -240,6 +241,7 @@
                   input-id="priorizacao"
                   v-model="form.priorizacao"
                   :options="priorizacoes"
+                  :sort-alphabetically="true"
                   empty-option="Selecione..."
                   :required="true"
                 />

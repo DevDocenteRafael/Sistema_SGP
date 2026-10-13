@@ -52,6 +52,12 @@ export default {
     temFiltro() {
       return Object.values(this.filtros).some((valor) => valor !== '' && valor != null && valor !== false);
     },
+    opcoesModulos() {
+      return this.meta.modulos.map((modulo) => ({
+        value: modulo,
+        label: this.labelModulo(modulo),
+      }));
+    },
   },
   methods: {
     limparFiltros() {
@@ -68,6 +74,10 @@ export default {
 
     labelAcao(acao) {
       return ACAO_LABEL[acao] ?? acao;
+    },
+
+    labelModulo(modulo) {
+      return modulo === 'autenticacao' ? 'Autenticação' : modulo;
     },
 
     formatarData(valor) {

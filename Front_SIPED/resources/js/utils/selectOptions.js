@@ -88,3 +88,7 @@ export function formatSelectLabel(value) {
 export function compareSelectLabels(a, b) {
   return a.localeCompare(b, 'pt-BR', { sensitivity: 'base', numeric: true });
 }
+
+export function sortYearsDescending(years) {
+  return [...years].sort((a, b) => Number(b) - Number(a));
+}
