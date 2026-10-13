@@ -99,7 +99,7 @@
                 <div class="dashboard-rank-track">
                   <div
                     class="dashboard-rank-fill"
-                    :style="{ width: `${Math.max(item.bar, 4)}%` }"
+                    :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"
                     :title="`${item.label}: ${item.value} (${item.share}%)`"
                   ></div>
                 </div>
@@ -128,7 +128,7 @@
                   <div class="dashboard-vbar-shaft">
                     <div
                       class="dashboard-vbar-fill"
-                      :style="{ height: `${Math.max(item.bar, 18)}%` }"
+                      :style="{ height: `${Math.max(item.bar, 18)}%`, background: item.color }"
                       :title="`${item.label}: ${item.value} (${item.share}%)`"
                     >
                       <span class="dashboard-vbar-value">{{ item.value }}</span>
@@ -294,32 +294,6 @@
           </div>
         </article>
 
-        <article class="dashboard-chart-card">
-          <div class="dashboard-chart-head">
-            <div>
-              <h3>Pessoas Mais Acionadas</h3>
-              <p class="dashboard-chart-subtitle">Quantas vezes cada pessoa foi chamada</p>
-            </div>
-          </div>
-          <div v-if="indicadoresVisitas.porResponsavel.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
-          <div v-else class="dashboard-rank-list">
-            <div v-for="(item, index) in indicadoresVisitas.porResponsavel" :key="item.label" class="dashboard-rank-item">
-              <span class="dashboard-rank-pos">{{ index + 1 }}</span>
-              <div class="dashboard-rank-body">
-                <div class="dashboard-rank-head">
-                  <span class="dashboard-rank-label" :title="item.label">{{ item.label }}</span>
-                  <span class="dashboard-rank-meta">
-                    <strong>{{ item.value }}</strong>
-                    <small>{{ item.share }}%</small>
-                  </span>
-                </div>
-                <div class="dashboard-rank-track">
-                  <div class="dashboard-rank-fill" :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
       </section>
     </template>
 
@@ -441,32 +415,6 @@
           </div>
         </article>
 
-        <article class="dashboard-chart-card">
-          <div class="dashboard-chart-head">
-            <div>
-              <h3>Pessoas Mais Acionadas</h3>
-              <p class="dashboard-chart-subtitle">Quantidade de solicitações por pessoa</p>
-            </div>
-          </div>
-          <div v-if="indicadoresHoras.porPessoa.length === 0" class="dashboard-chart-empty">Nenhum dado para exibir.</div>
-          <div v-else class="dashboard-rank-list">
-            <div v-for="(item, index) in indicadoresHoras.porPessoa" :key="item.label" class="dashboard-rank-item">
-              <span class="dashboard-rank-pos">{{ index + 1 }}</span>
-              <div class="dashboard-rank-body">
-                <div class="dashboard-rank-head">
-                  <span class="dashboard-rank-label" :title="item.label">{{ item.label }}</span>
-                  <span class="dashboard-rank-meta">
-                    <strong>{{ item.value }}</strong>
-                    <small>{{ item.share }}%</small>
-                  </span>
-                </div>
-                <div class="dashboard-rank-track">
-                  <div class="dashboard-rank-fill" :style="{ width: `${Math.max(item.bar, 4)}%`, background: item.color }"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
       </section>
     </template>
   </div>

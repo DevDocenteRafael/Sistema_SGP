@@ -161,7 +161,8 @@ export default {
             totalEquipe: equipe.length,
           };
         })
-        .filter((coluna) => coluna.responsavel || coluna.totalEquipe > 0);
+        .filter((coluna) => coluna.responsavel || coluna.totalEquipe > 0)
+        .sort((a, b) => a.eixo.localeCompare(b.eixo, 'pt-BR', { sensitivity: 'base' }));
     },
 
     gruposPorFuncao() {

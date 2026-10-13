@@ -5,6 +5,22 @@ import { EIXOS_OFICIAIS, eixosIguais } from '../utils/catalogoOficial';
 const EIXOS_PADRAO = [...EIXOS_OFICIAIS];
 
 const CORES_EIXO = ['#003F7D', '#F57C00', '#0d9488', '#7c3aed', '#db2777', '#2563eb', '#ca8a04', '#64748b'];
+const CORES_POR_EIXO = {
+  'Gastronomia e Turismo': '#FF7A00',
+  'Ambiente e Saúde': '#004B87',
+  'Gestão e Moda': '#7C3AED',
+  'Tecnologia e Economia Criativa': '#0F9D8A',
+  'Beleza e Cuidado Pessoal': '#E83E8C',
+};
+
+function corDoEixo(label) {
+  const eixo = EIXOS_PADRAO.find((item) => eixosIguais(label, item));
+  return eixo ? CORES_POR_EIXO[eixo] : '#64748b';
+}
+
+function compararPorNome(a, b) {
+  return a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' });
+}
 
 export default {
   name: 'Dashboard',
@@ -280,21 +296,13 @@ export default {
     },
 
     chartEixos() {
-      const cores = {
-        'Gastronomia e Turismo': '#F57C00',
-        'Ambiente e Saúde': '#0d9488',
-        'Gestão e Moda': '#003F7D',
-        'Tecnologia e Economia Criativa': '#7c3aed',
-        'Beleza e Cuidado Pessoal': '#db2777',
-      };
-
       return this.enriquecerBarras(
         EIXOS_PADRAO.map((label) => ({
           label,
           value: this.cursosParaGraficos.filter((curso) => eixosIguais(curso.eixo, label)).length,
-          color: cores[label] || '#64748b',
+          color: corDoEixo(label),
         })),
-      );
+      ).sort(compararPorNome);
     },
 
     chartTipos() {
@@ -307,10 +315,10 @@ export default {
 
       return this.enriquecerBarras(
         Object.entries(contagem)
-          .map(([label, value]) => ({ label, value }))
+          .map(([label, value]) => ({ label, value, color: '#FF7A00' }))
           .sort((a, b) => b.value - a.value)
-          .slice(0, 6),
-        { orange: true },
+          .slice(0, 6)
+          .sort(compararPorNome),
       );
     },
 
@@ -382,9 +390,8 @@ export default {
           { title: 'Devolvidas', value: devolvidas, color: '#b91c1c', subtitle: `${this.percentual(devolvidas, total)}% do total` },
         ],
         porEixo: this.listaContagem(this.visitas, 'eixo'),
-        porStatus: this.listaContagem(this.visitas, 'status', { orange: true }).slice(0, 6),
-        porUnidade: this.listaContagem(this.visitas, 'unidade').slice(0, 8),
-        porResponsavel: this.listaContagem(this.visitas, 'responsavel').slice(0, 8),
+        porStatus: this.listaContagem(this.visitas, 'status', { orange: true }).slice(0, 6).sort(compararPorNome),
+        porUnidade: this.listaContagem(this.visitas, 'unidade').slice(0, 8).sort(compararPorNome),
       };
     },
 
@@ -408,9 +415,8 @@ export default {
           { title: 'Inativas', value: inativas, color: '#6b7280', subtitle: `${this.percentual(inativas, total)}% do total` },
         ],
         porEixo: this.listaContagem(this.horas, 'eixo'),
-        porStatus: this.listaContagem(this.horas, 'status', { orange: true }).slice(0, 6),
-        porSegmento: this.listaContagem(this.horas, 'segmento').slice(0, 8),
-        porPessoa: this.listaContagem(this.horas, 'pessoa').slice(0, 8),
+        porStatus: this.listaContagem(this.horas, 'status', { orange: true }).slice(0, 6).sort(compararPorNome),
+        porSegmento: this.listaContagem(this.horas, 'segmento').slice(0, 8).sort(compararPorNome),
       };
     },
 
@@ -567,12 +573,18 @@ export default {
     listaContagem(lista, campo, opcoes = {}) {
       const contagem = this.contarPor(lista, campo);
 
-      return this.enriquecerBarras(
+      const barras = this.enriquecerBarras(
         Object.entries(contagem)
-          .map(([label, value]) => ({ label, value }))
+          .map(([label, value]) => ({
+            label,
+            value,
+            ...(campo === 'eixo' ? { color: corDoEixo(label) } : {}),
+          }))
           .sort((a, b) => b.value - a.value),
         opcoes,
       );
+
+      return campo === 'eixo' ? barras.sort(compararPorNome) : barras;
     },
 
     enriquecerBarras(items, { orange = false } = {}) {
