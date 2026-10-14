@@ -55,7 +55,7 @@ class OrigemDadosApiTest extends TestCase
             'alunos' => '10',
             'instrutor' => 'Instrutor Origem',
             'descricao' => 'Cadastro local.',
-            'identificacao' => '2026',
+            'identificacao' => '002026',
             'ultima_revisao' => '2026',
             'processo_sei' => '123.456/2026-01',
             'data_inicio' => '2026-01-01',

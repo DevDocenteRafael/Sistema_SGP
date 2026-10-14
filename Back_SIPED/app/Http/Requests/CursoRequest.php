@@ -41,13 +41,6 @@ class CursoRequest extends FormRequest
         }
 
         $this->canonicalizarEixoInput();
-        $this->canonicalizarModalidadeInput();
-        $this->canonicalizarSegmentoInput();
-        $this->canonicalizarProgramaInput();
-
-        if (! $this->filled('programa')) {
-            $this->merge(['programa' => null]);
-        }
     }
 
     public function rules(): array
@@ -56,11 +49,11 @@ class CursoRequest extends FormRequest
             'ciclo_id' => ['required', 'integer', Rule::exists('portfolio_ciclos', 'id')],
             'titulo' => ['required', 'string', 'max:255'],
             'eixo' => ['required', 'string', 'max:150', Rule::in(config('eixos'))],
-            'segmento' => ['required', 'string', 'max:150', Rule::in(config('eixos_tecnologicos'))],
-            'programa' => ['nullable', 'string', 'max:80', Rule::in(config('programas'))],
+            'segmento' => ['required', 'string', 'max:150'],
+            'programa' => ['nullable', 'string', 'max:80'],
             'eixo_id' => ['nullable', 'integer', Rule::exists('eixos', 'id')],
             'segmento_id' => ['nullable', 'integer', Rule::exists('segmentos', 'id')],
-            'modalidade' => ['required', 'string', 'max:100', Rule::in(config('cursos.modalidades'))],
+            'modalidade' => ['required', 'string', 'max:100'],
             'carga_horaria' => ['required', 'string', 'max:50', 'regex:/^\d+$/'],
             'turmas' => ['required', 'string', 'max:20', 'regex:/^\d*$/'],
             'codigo_processo' => ['required', 'string', 'max:100', 'regex:/^[0-9.-]+$/'],
@@ -69,7 +62,7 @@ class CursoRequest extends FormRequest
             'descricao' => ['required', 'string', 'max:5000'],
             'codigo_dn' => ['required', 'string', 'max:50', 'regex:/^[0-9.-]+$/'],
             'codigo_sig' => ['required', 'string', 'max:100', 'regex:/^[0-9.-]+$/'],
-            'identificacao' => ['required', 'string', 'max:50'],
+            'identificacao' => ['required', 'string', 'regex:/^\d{4,6}$/'],
             'tipo' => ['nullable', 'string', 'max:100', Rule::in(config('cursos.tipos'))],
             'status' => ['required', 'string', 'max:50', Rule::in(config('cursos.status'))],
             'ultima_revisao' => ['required', 'string', 'regex:/^\d{1,6}$/'],
@@ -89,7 +82,7 @@ class CursoRequest extends FormRequest
                         return;
                     }
 
-                    $fail('Informe um valor monetário válido, com até duas casas decimais.');
+                    $fail('Informe um valor monetário brasileiro válido, com até 12 algarismos inteiros e 2 decimais.');
                 },
             ],
             'compativel_bolsa' => ['required', 'string', 'max:10', Rule::in(config('cursos.sim_nao'))],
@@ -127,7 +120,6 @@ class CursoRequest extends FormRequest
             'titulo.required' => 'O título do curso é obrigatório.',
             'eixo.required' => 'Selecione o eixo.',
             'eixo.in' => 'Selecione um eixo válido. Use somente os 5 eixos oficiais.',
-            'programa.in' => 'Selecione um programa válido (60+ ou Ensino Médio).',
             'status.required' => 'O status é obrigatório.',
             'status.in' => 'Status inválido.',
             'carga_horaria.required' => 'A carga horária é obrigatória.',
@@ -137,10 +129,10 @@ class CursoRequest extends FormRequest
             'codigo_dn.regex' => 'O código DN deve conter somente números, ponto (.) e hífen (-).',
             'codigo_sig.regex' => 'O código SIG deve conter somente números, ponto (.) e hífen (-).',
             'ultima_revisao.regex' => 'Última atualização deve conter somente números e no máximo 6 algarismos.',
+            'identificacao.regex' => 'A Identificação deve conter de 4 a 6 algarismos.',
             'ciclo_id.exists' => 'Ciclo de gestão inválido.',
             'unidade.in' => 'Selecione uma unidade válida.',
             'unidades_oferta.*.in' => 'Selecione unidades válidas.',
-            'modalidade.in' => 'Selecione uma modalidade válida.',
             'tipo.in' => 'Selecione um tipo válido.',
             'compativel_bolsa.in' => 'Selecione SIM ou NÃO.',
             'comercial.in' => 'Selecione SIM ou NÃO.',
@@ -156,7 +148,13 @@ class CursoRequest extends FormRequest
 
     private function valorMonetarioValido(string $valor): bool
     {
-        return preg_match('/^(?:R\$\s*)?(?:\d+(?:[.,]\d{1,2})?|\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?)$/u', trim($valor)) === 1;
+        $texto = preg_replace('/^R\$\s*/iu', '', trim($valor)) ?? trim($valor);
+        $texto = preg_replace('/\s/u', '', $texto) ?? $texto;
+        $brasileiro = preg_match('/^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/', $texto) === 1
+            && strlen(preg_replace('/\D/', '', explode(',', $texto, 2)[0]) ?? '') <= 12;
+        $decimalApi = preg_match('/^\d{1,12}(?:\.\d{1,2})?$/', $texto) === 1;
+
+        return $brasileiro || $decimalApi;
     }
 
     private function opcoesComValorLegado(string $campo): array

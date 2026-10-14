@@ -68,13 +68,13 @@ export default {
       pcnLegado: '',
       pcrLegado: '',
       valoresLegado: false,
-      ultimoValorMonetarioValido: '',
-      digitosCentavosDigitados: 0,
       buscaTimeout: null,
       anosDisponiveis: ['2026', '2025', '2024', '2023'],
       unidades: [],
       unidadesOpcoes: [],
-      regiaoOfertaSelecionada: '',
+      seletorEstruturasAberto: false,
+      buscaEstrutura: '',
+      valorEmEdicao: '',
       detalheAberto: false,
       cursoDetalhe: null,
       carregandoDetalhe: false,
@@ -123,30 +123,81 @@ export default {
     ehUltimaAbaForm() {
       return this.indiceAbaForm >= this.abasForm.length - 1;
     },
-    opcoesRegiaoOferta() {
-      return this.unidadesOpcoes.map((opcao) => ({
-        value: this.valorOpcaoOferta(opcao),
-        label: opcao.nome,
-      }));
-    },
-    regiaoOfertaAtual() {
-      if (!this.regiaoOfertaSelecionada) {
-        return null;
+    gruposOferta() {
+      const grupos = [];
+      const adicionadas = new Set();
+      const adicionarEstrutura = (grupo, unidade) => {
+        if (!unidade?.nome || !this.unidades.includes(unidade.nome) || adicionadas.has(unidade.nome)) {
+          return;
+        }
+
+        grupo.unidades.push(unidade);
+        adicionadas.add(unidade.nome);
+      };
+
+      this.unidadesOpcoes.forEach((opcao) => {
+        if (Array.isArray(opcao.grupos)) {
+          opcao.grupos.forEach((grupo) => {
+            const novoGrupo = {
+              tipo: `${opcao.id ?? opcao.nome}-${grupo.tipo ?? grupo.label}`,
+              label: `${opcao.nome} — ${grupo.label}`,
+              unidades: [],
+            };
+            (grupo.unidades ?? []).forEach((unidade) => adicionarEstrutura(novoGrupo, unidade));
+            if (novoGrupo.unidades.length) grupos.push(novoGrupo);
+          });
+          return;
+        }
+
+        if (!opcao?.nome) return;
+        let grupo = grupos.find((item) => item.tipo === (opcao.tipo || 'outras'));
+        if (!grupo) {
+          grupo = {
+            tipo: opcao.tipo || 'outras',
+            label: opcao.tipo || 'Outras estruturas',
+            unidades: [],
+          };
+          grupos.push(grupo);
+        }
+        adicionarEstrutura(grupo, opcao);
+      });
+
+      const faltantes = this.unidades.filter((nome) => !adicionadas.has(nome));
+      if (faltantes.length) {
+        const grupo = { tipo: 'outras-estruturas', label: 'Outras estruturas', unidades: [] };
+        faltantes.forEach((nome) => adicionarEstrutura(grupo, { nome }));
+        grupos.push(grupo);
       }
-      return this.unidadesOpcoes.find((opcao) => (
-        Array.isArray(opcao.grupos)
-        && this.valorOpcaoOferta(opcao) === String(this.regiaoOfertaSelecionada)
-      )) || null;
+
+      return grupos;
+    },
+    gruposOfertaFiltrados() {
+      const termo = this.buscaEstrutura.trim().toLocaleLowerCase('pt-BR');
+      return this.gruposOferta
+        .map((grupo) => ({
+          ...grupo,
+          unidades: (grupo.unidades ?? []).filter((unidade) => (
+            !termo || unidade.nome.toLocaleLowerCase('pt-BR').includes(termo)
+          )),
+        }))
+        .filter((grupo) => grupo.unidades.length);
     },
     unidadesSelecionadasResumo() {
-      return [...this.form.unidades_oferta];
+      return [...new Set(this.form.unidades_oferta)];
     },
-    segmentosDoEixo() {
-      const mapa = this.meta.segmentos_por_eixo || {};
-      if (this.form.eixo && Array.isArray(mapa[this.form.eixo])) {
-        return mapa[this.form.eixo];
-      }
-      return this.meta.segmentos || [];
+    todasEstruturasSelecionadas() {
+      return this.unidades.length > 0
+        && this.unidades.every((nome) => this.form.unidades_oferta.includes(nome));
+    },
+    algumasEstruturasSelecionadas() {
+      return this.unidadesSelecionadasResumo.length > 0 && !this.todasEstruturasSelecionadas;
+    },
+    resumoEstruturasSelecionadas() {
+      if (!this.unidadesSelecionadasResumo.length) return '';
+      if (this.todasEstruturasSelecionadas) return 'Todas as estruturas selecionadas';
+      if (this.unidadesSelecionadasResumo.length === 1) return this.unidadesSelecionadasResumo[0];
+      const quantidade = this.unidadesSelecionadasResumo.length;
+      return `${quantidade} estruturas selecionadas`;
     },
     opcoesStatus() {
       return (this.meta.status || []).map((valor) => ({
@@ -164,6 +215,7 @@ export default {
   async mounted() {
     this.aplicarCicloInicial();
     window.addEventListener(CICLO_CONTEXTO_EVENTO, this.aoMudarCicloGlobal);
+    document.addEventListener('click', this.fecharSeletorEstruturasAoClicarFora);
     await Promise.all([
       this.carregarCursos(),
       this.carregarUnidadesOferta(),
@@ -172,17 +224,9 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener(CICLO_CONTEXTO_EVENTO, this.aoMudarCicloGlobal);
+    document.removeEventListener('click', this.fecharSeletorEstruturasAoClicarFora);
   },
   watch: {
-    'form.eixo'(novo, antigo) {
-      if (!antigo || novo === antigo) {
-        return;
-      }
-      const lista = this.segmentosDoEixo;
-      if (this.form.segmento && lista.length && !lista.includes(this.form.segmento)) {
-        this.form.segmento = '';
-      }
-    },
     '$route.query.ciclo_id'(id) {
       if (!id || String(id) === String(this.filtros.ciclo_id)) {
         return;
@@ -217,7 +261,6 @@ export default {
         ciclo_id: cicloId,
         ano: '',
         eixo: '',
-        programa: '',
         status: '',
         unidade: '',
       };
@@ -238,9 +281,6 @@ export default {
       ]);
       this.unidades = nomes;
       this.unidadesOpcoes = opcoes;
-      if (!this.regiaoOfertaSelecionada && opcoes.length) {
-        this.regiaoOfertaSelecionada = this.valorOpcaoOferta(opcoes[0]);
-      }
     },
     formVazio() {
       return {
@@ -248,7 +288,6 @@ export default {
         titulo: '',
         eixo: '',
         segmento: '',
-        programa: '',
         modalidade: '',
         status: 'ATIVO',
         unidade: '',
@@ -300,6 +339,21 @@ export default {
       this.form[campo] = permitido;
     },
 
+    validarIdentificacaoInput(evento) {
+      const valor = evento.target.value;
+      const permitido = valor.replace(/\D/g, '').slice(0, 6);
+      const caracterInvalido = valor.replace(/\d/g, '').length > 0;
+      if (valor !== permitido) {
+        evento.target.value = permitido;
+      }
+      this.form.identificacao = permitido;
+      this.errosCampo.identificacao = caracterInvalido || valor.length > 6
+        ? 'A Identificação deve conter somente números e de 4 a 6 algarismos.'
+        : permitido && permitido.length < 4
+          ? 'A Identificação deve conter de 4 a 6 algarismos.'
+          : '';
+    },
+
     validarUltimaAtualizacaoInput(evento) {
       const valor = evento.target.value;
       const permitido = valor.replace(/\D/g, '').slice(0, 6);
@@ -312,134 +366,104 @@ export default {
       this.form.ultima_revisao = permitido;
     },
 
-    aoFocarValor(evento) {
-      this.digitosCentavosDigitados = 0;
+    iniciarEdicaoValor(evento) {
       if (this.valoresLegado) {
         evento.target.select();
+        this.valorEmEdicao = String(this.form.valores ?? '');
+        return;
       }
+
+      const prefixoMoeda = this.valorEmEdicao.match(/^R\$\s*/i)?.[0] ?? '';
+      this.valorEmEdicao = this.valorEmEdicao.slice(prefixoMoeda.length);
+      evento.target.value = this.valorEmEdicao;
+      const cursor = Math.max(0, evento.target.selectionStart - prefixoMoeda.length);
+      evento.target.setSelectionRange(cursor, cursor);
     },
 
-    prepararEntradaValor(evento) {
-      const posicaoVirgula = evento.target.value.indexOf(',');
-      if (evento.key === ',' || evento.key === '.') {
-        if (posicaoVirgula < 0) return;
-        evento.preventDefault();
-        const parteInteira = evento.target.value.slice(0, posicaoVirgula);
-        const posicaoCentavos = posicaoVirgula + 1;
-        evento.target.value = `${parteInteira},`;
-        this.form.valores = evento.target.value;
-        this.ultimoValorMonetarioValido = evento.target.value;
-        this.valoresLegado = false;
-        this.digitosCentavosDigitados = 0;
-        evento.target.setSelectionRange(posicaoCentavos, posicaoCentavos);
+    aoEditarValor(evento) {
+      const valor = evento.target.value;
+      const prefixoMoeda = valor.match(/^R\$\s*/i)?.[0] ?? '';
+      const texto = valor.slice(prefixoMoeda.length);
+      const permitido = texto.replace(/[^0-9.,]/g, '');
+      const posicaoCursor = Math.max(0, evento.target.selectionStart - prefixoMoeda.length);
+      const cursorFiltrado = texto.slice(0, posicaoCursor).replace(/[^0-9.,]/g, '').length;
+      this.valorEmEdicao = permitido;
+      evento.target.value = permitido;
+      this.valoresLegado = false;
+      if (permitido !== texto) {
+        this.errosCampo.valores = 'Use somente números, ponto para milhar e vírgula para centavos.';
+        this.$nextTick(() => evento.target.setSelectionRange(cursorFiltrado, cursorFiltrado));
         return;
       }
 
-      if (/^\d$/.test(evento.key) && posicaoVirgula >= 0
-        && evento.target.selectionStart > posicaoVirgula
-        && this.digitosCentavosDigitados >= 2) {
-        evento.preventDefault();
-        this.errosCampo.valores = 'Informe no máximo 2 algarismos para os centavos.';
-      } else if (evento.key === 'Backspace' || evento.key === 'Delete') {
-        this.digitosCentavosDigitados = 0;
-      }
+      this.errosCampo.valores = '';
     },
 
-    formatarValorInput(evento) {
-      const entradaOriginal = evento.target.value;
-      if (!String(entradaOriginal).trim()) {
-        this.form.valores = '';
-        this.ultimoValorMonetarioValido = '';
-        this.valoresLegado = false;
-        this.digitosCentavosDigitados = 0;
-        this.errosCampo.valores = '';
-        return;
+    finalizarEdicaoValor() {
+      if (this.valoresLegado && this.valorEmEdicao === this.form.valores) {
+        return true;
       }
 
-      if (String(entradaOriginal).replace(/R\$\s*/i, '').replace(/[0-9.,\s]/g, '') !== '') {
-        this.errosCampo.valores = 'Use somente números e separadores monetários válidos.';
-        evento.target.value = this.ultimoValorMonetarioValido;
-        this.form.valores = this.ultimoValorMonetarioValido;
-        return;
+      const normalizado = this.normalizarValorMonetario(this.valorEmEdicao);
+      if (!normalizado) {
+        this.errosCampo.valores = this.valorEmEdicao
+          ? 'Informe um valor monetário brasileiro válido, com até 12 algarismos inteiros e 2 decimais.'
+          : 'Preencha o campo Valores.';
+        return false;
       }
 
-      const virgulaOriginal = entradaOriginal.indexOf(',');
-      const digitandoCentavos = evento.inputType === 'insertText'
-        && /^\d$/.test(evento.data || '')
-        && virgulaOriginal >= 0
-        && evento.target.selectionStart > virgulaOriginal;
-      if (digitandoCentavos) {
-        if (this.digitosCentavosDigitados >= 2) {
-          this.errosCampo.valores = 'Informe no máximo 2 algarismos para os centavos.';
-          evento.target.value = this.ultimoValorMonetarioValido;
-          this.form.valores = this.ultimoValorMonetarioValido;
-          return;
-        }
-        this.digitosCentavosDigitados += 1;
-      }
-
-      let entrada = entradaOriginal;
-      const centavosComPlaceholder = virgulaOriginal >= 0
-        ? entradaOriginal.slice(virgulaOriginal + 1).replace(/\D/g, '')
-        : '';
-      if (digitandoCentavos && centavosComPlaceholder.length > 2) {
-        entrada = `${entradaOriginal.slice(0, virgulaOriginal + 1)}${centavosComPlaceholder.slice(0, 2)}`;
-      }
-
-      const formatado = this.formatarMoedaBrasileira(entrada);
-      if (!formatado) {
-        this.errosCampo.valores = 'Informe um valor monetário válido, usando vírgula para os centavos.';
-        evento.target.value = this.ultimoValorMonetarioValido;
-        this.form.valores = this.ultimoValorMonetarioValido;
-        return;
-      }
-
-      const virgulaDigitada = entrada.indexOf(',');
-      const cursorNaParteDecimal = virgulaDigitada >= 0 && evento.target.selectionStart > virgulaDigitada;
-      const digitosDecimais = cursorNaParteDecimal
-        ? (entrada.slice(virgulaDigitada + 1).match(/\d/g) || []).length
-        : 0;
-      this.form.valores = formatado;
-      this.ultimoValorMonetarioValido = formatado;
+      this.form.valores = this.formatarValorMonetario(normalizado);
+      this.valorEmEdicao = this.form.valores;
       this.valoresLegado = false;
       this.errosCampo.valores = '';
-      if (digitandoCentavos || evento.inputType === 'insertFromPaste') {
-        this.digitosCentavosDigitados = cursorNaParteDecimal ? Math.min(digitosDecimais, 2) : 0;
-      } else if (evento.inputType?.startsWith('delete')) {
-        this.digitosCentavosDigitados = 0;
-      } else if (!cursorNaParteDecimal) {
-        this.digitosCentavosDigitados = 0;
-      }
-      evento.target.value = formatado;
+      return true;
+    },
 
-      const posicaoVirgula = formatado.indexOf(',');
-      const posicaoCursor = cursorNaParteDecimal
-        ? posicaoVirgula + 1 + Math.min(digitosDecimais, 2)
-        : posicaoVirgula;
-      this.$nextTick(() => evento.target.setSelectionRange(posicaoCursor, posicaoCursor));
+    normalizarValorMonetario(valor) {
+      const texto = String(valor ?? '').trim().replace(/^R\$\s*/i, '').replace(/\s/g, '');
+      const partes = texto.match(/^(\d+|\d{1,3}(?:\.\d{3})+)(?:,(\d{0,2}))?$/);
+      if (!partes) return '';
+      if (texto.includes(',') && partes[2] === '') return '';
+
+      const inteiro = partes[1].replace(/\./g, '').replace(/^0+(?=\d)/, '');
+      if (inteiro.length > 12) return '';
+      const centavos = (partes[2] ?? '').padEnd(2, '0');
+      return `${inteiro}.${centavos}`;
+    },
+
+    formatarValorMonetario(valor) {
+      const [inteiro, centavos] = String(valor).split('.');
+      const milhar = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      return `R$ ${milhar},${centavos}`;
     },
 
     formatarMoedaBrasileira(valor) {
       let texto = String(valor ?? '').trim().replace(/^R\$\s*/i, '').replace(/\s/g, '');
       if (!texto) return '';
 
-      let inteiro = '';
-      let centavos = '00';
-      const formatoBrasileiro = texto.match(/^(\d+|\d{1,3}(?:\.\d{3})+)(?:,(\d{0,2}))?$/);
-      const formatoNumerico = texto.match(/^(\d+)(?:\.(\d{1,2}))?$/);
-      const partes = formatoBrasileiro || formatoNumerico;
-      if (!partes) return '';
+      const normalizadoExistente = texto.match(/^(\d{1,12})(?:\.(\d{1,2}))?$/);
+      if (normalizadoExistente) {
+        return this.formatarValorMonetario(`${normalizadoExistente[1]}.${(normalizadoExistente[2] ?? '').padEnd(2, '0')}`);
+      }
 
-      inteiro = partes[1].replace(/\./g, '').replace(/^0+(?=\d)/, '');
-      centavos = (partes[2] ?? '').padEnd(2, '0').slice(0, 2);
-      inteiro = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-      return `R$ ${inteiro},${centavos}`;
+      const normalizado = this.normalizarValorMonetario(texto);
+      return normalizado ? this.formatarValorMonetario(normalizado) : '';
     },
 
     valorMonetarioPersistido(valor) {
-      const formatado = this.formatarMoedaBrasileira(valor);
-      if (!formatado) return valor;
-      return formatado.replace(/^R\$\s*/, '').replace(/\./g, '').replace(',', '.');
+      return this.normalizarValorMonetario(valor) || valor;
+    },
+
+    alternarTodasEstruturas() {
+      const todas = [...new Set(this.unidades)];
+      if (!todas.length) return;
+
+      if (this.todasEstruturasSelecionadas) {
+        this.form.unidades_oferta = this.form.unidades_oferta.filter((nome) => !todas.includes(nome));
+      } else {
+        this.form.unidades_oferta = todas;
+      }
+      this.form.unidade = this.form.unidades_oferta[0] ?? '';
     },
 
     aoSelecionarPcn(valor) {
@@ -537,11 +561,13 @@ export default {
       this.abaForm = 'basico';
       this.form = this.formVazio();
       this.form.ciclo_id = this.cicloFormPadrao();
+      this.valorEmEdicao = '';
+      this.seletorEstruturasAberto = false;
+      this.buscaEstrutura = '';
       this.errosCampo = {};
       this.pcnLegado = '';
       this.pcrLegado = '';
       this.valoresLegado = false;
-      this.ultimoValorMonetarioValido = '';
       this.erroFormulario = '';
       this.fecharDetalhes();
     },
@@ -553,7 +579,7 @@ export default {
 
     aplicarEstadoEdicaoLocal(curso) {
       const unidadesOferta = Array.isArray(curso.unidades_oferta) && curso.unidades_oferta.length
-        ? [...curso.unidades_oferta]
+        ? [...new Set(curso.unidades_oferta)]
         : curso.unidade
           ? [curso.unidade]
           : [];
@@ -567,14 +593,17 @@ export default {
       this.pcnLegado = curso.pcn && !valorPcn ? String(curso.pcn) : '';
       this.pcrLegado = curso.pcr && !valorPcr ? String(curso.pcr) : '';
       this.valoresLegado = Boolean(curso.valores) && !valorMonetario;
-      this.ultimoValorMonetarioValido = valorMonetario || String(curso.valores ?? '');
+      this.valorEmEdicao = valorMonetario
+        ? valorMonetario
+        : String(curso.valores ?? '');
+      this.seletorEstruturasAberto = false;
+      this.buscaEstrutura = '';
       this.errosCampo = {};
       this.form = {
         ciclo_id: curso.ciclo_id ? String(curso.ciclo_id) : this.cicloFormPadrao(),
         titulo: curso.titulo ?? '',
         eixo: curso.eixo ?? '',
         segmento: curso.segmento ?? '',
-        programa: curso.programa ?? '',
         modalidade: curso.modalidade ?? '',
         status: curso.status ?? 'ATIVO',
         unidade: curso.unidade ?? '',
@@ -635,15 +664,15 @@ export default {
       this.abaForm = 'basico';
       this.erroFormulario = '';
       this.form = this.formVazio();
+      this.valorEmEdicao = '';
       this.errosCampo = {};
       this.pcnLegado = '';
       this.pcrLegado = '';
       this.valoresLegado = false;
-      this.ultimoValorMonetarioValido = '';
     },
 
     toggleUnidade(unidade) {
-      const lista = [...this.form.unidades_oferta];
+      const lista = [...new Set(this.form.unidades_oferta)];
       const indice = lista.indexOf(unidade);
 
       if (indice >= 0) {
@@ -656,49 +685,41 @@ export default {
       this.form.unidade = lista[0] ?? '';
     },
 
+    definirUnidade(unidade, selecionada) {
+      const lista = [...new Set(this.form.unidades_oferta)];
+      const indice = lista.indexOf(unidade);
+      if (selecionada && indice === -1) {
+        lista.push(unidade);
+      } else if (!selecionada && indice !== -1) {
+        lista.splice(indice, 1);
+      }
+
+      this.form.unidades_oferta = lista;
+      this.form.unidade = lista[0] ?? '';
+    },
+
     unidadeSelecionada(unidade) {
       return this.form.unidades_oferta.includes(unidade);
     },
 
-    valorOpcaoOferta(opcao) {
-      return Array.isArray(opcao.grupos)
-        ? `regiao:${opcao.id}`
-        : `estrutura:${opcao.nome}`;
+    alternarSeletorEstruturas() {
+      this.seletorEstruturasAberto = !this.seletorEstruturasAberto;
+      if (!this.seletorEstruturasAberto) {
+        this.buscaEstrutura = '';
+      }
     },
 
-    selecionarEstruturaDaRegiao() {
-      const estruturaDireta = this.unidadesOpcoes.find((opcao) => (
-        !Array.isArray(opcao.grupos)
-        && this.valorOpcaoOferta(opcao) === String(this.regiaoOfertaSelecionada)
-      ));
-
-      if (estruturaDireta?.nome) {
-        const lista = this.form.unidades_oferta.includes(estruturaDireta.nome)
-          ? this.form.unidades_oferta
-          : [...this.form.unidades_oferta, estruturaDireta.nome];
-        this.form.unidades_oferta = lista;
-        this.form.unidade = lista[0] ?? '';
-        return;
+    fecharSeletorEstruturasAoClicarFora(evento) {
+      const seletor = this.$refs.seletorEstruturas;
+      if (this.seletorEstruturasAberto && seletor && !seletor.contains(evento.target)) {
+        this.seletorEstruturasAberto = false;
+        this.buscaEstrutura = '';
       }
-
-      const grupos = this.regiaoOfertaAtual?.grupos ?? [];
-      const estruturas = grupos.flatMap((grupo) => grupo.unidades ?? []);
-
-      if (estruturas.length !== 1) {
-        return;
-      }
-
-      const nome = estruturas[0].nome;
-      if (!this.form.unidades_oferta.includes(nome)) {
-        this.form.unidades_oferta = [...this.form.unidades_oferta, nome];
-      }
-      this.form.unidade = this.form.unidades_oferta[0] ?? '';
     },
 
     validarAba(abaId) {
       if (abaId === 'basico') {
         return combinarValidacoes(
-          textoObrigatorio(this.regiaoOfertaSelecionada, 'Selecione a localidade / região.'),
           textoObrigatorio(this.form.segmento, 'Preencha o campo Segmento.'),
           textoObrigatorio(this.form.ciclo_id, 'Preencha o campo Ciclo de gestão.'),
           textoObrigatorio(this.form.codigo_processo, 'Preencha o campo Código do processo.'),
@@ -707,7 +728,7 @@ export default {
             : '',
           textoObrigatorio(this.form.instrutor, 'Preencha o campo Instrutor(es).'),
           textoObrigatorio(this.form.descricao, 'Preencha o campo Descrição.'),
-          this.form.unidades_oferta?.length ? '' : 'Selecione ao menos uma estrutura de oferta.',
+          this.form.unidades_oferta?.length ? '' : 'Selecione ao menos uma localidade / região.',
           textoObrigatorio(this.form.eixo, 'Selecione o eixo.'),
           textoObrigatorio(this.form.titulo, 'O título do curso é obrigatório.'),
           tamanhoMaximo(this.form.titulo, 255, 'O título deve ter no máximo 255 caracteres.'),
@@ -734,6 +755,9 @@ export default {
             ? 'O código DN deve conter somente números, ponto (.) e hífen (-).'
             : '',
           textoObrigatorio(this.form.identificacao, 'Preencha o campo Identificação.'),
+            /^\d{4,6}$/.test(this.form.identificacao || '')
+            ? ''
+              : 'A Identificação deve conter de 4 a 6 algarismos.',
           textoObrigatorio(this.form.ultima_revisao, 'Preencha o campo Última revisão.'),
           this.form.ultima_revisao && !/^\d{1,6}$/.test(this.form.ultima_revisao)
             ? 'Última atualização deve conter somente números e no máximo 6 algarismos.'
@@ -748,9 +772,6 @@ export default {
           this.form.codigo_dn
             ? tamanhoMaximo(this.form.codigo_dn, 50, 'O código DN deve ter no máximo 50 caracteres.')
             : '',
-          this.form.identificacao
-            ? tamanhoMaximo(this.form.identificacao, 50, 'A identificação deve ter no máximo 50 caracteres.')
-            : '',
           validarProcessoSei(this.form.processo_sei, { obrigatorio: true }),
           validarData(this.form.data_inicio, { obrigatorio: true, rotulo: 'Data de início' }),
           validarData(this.form.data_fim, { obrigatorio: true, rotulo: 'Data de término' }),
@@ -764,9 +785,9 @@ export default {
 
       if (abaId === 'comercial') {
         return combinarValidacoes(
-          textoObrigatorio(this.form.valores, 'Preencha o campo Valores.'),
-          !this.valoresLegado && this.form.valores && !this.formatarMoedaBrasileira(this.form.valores)
-            ? 'Informe um valor monetário válido.'
+          textoObrigatorio(this.valorEmEdicao || this.form.valores, 'Preencha o campo Valores.'),
+          !this.valoresLegado && !this.normalizarValorMonetario(this.valorEmEdicao || this.form.valores)
+            ? 'Informe um valor monetário brasileiro válido, com até 12 algarismos inteiros e 2 decimais.'
             : '',
           textoObrigatorio(this.form.compativel_bolsa, 'Preencha o campo Compatível com bolsa.'),
           textoObrigatorio(this.form.comercial, 'Preencha o campo Comercial.'),
@@ -782,9 +803,6 @@ export default {
           this.form.observacoes
             ? tamanhoMaximo(this.form.observacoes, 2000, 'As observações devem ter no máximo 2000 caracteres.')
             : '',
-          this.form.valores
-            ? tamanhoMaximo(this.form.valores, 255, 'Valores deve ter no máximo 255 caracteres.')
-            : '',
         );
       }
 
@@ -797,27 +815,31 @@ export default {
         codigo_dn: /^[0-9.-]+$/.test(this.form.codigo_dn || ''),
         codigo_sig: /^[0-9.-]+$/.test(this.form.codigo_sig || ''),
         ultima_revisao: /^\d{1,6}$/.test(this.form.ultima_revisao || ''),
-        valores: Boolean(this.valoresLegado || !this.form.valores || this.formatarMoedaBrasileira(this.form.valores)),
+        identificacao: /^\d{4,6}$/.test(this.form.identificacao || ''),
+        valores: Boolean(this.valoresLegado || this.normalizarValorMonetario(this.valorEmEdicao || this.form.valores)),
       };
       const mensagensDeFormato = {
         codigo_processo: 'Use somente números, ponto (.) e hífen (-).',
         codigo_dn: 'Use somente números, ponto (.) e hífen (-).',
         codigo_sig: 'Use somente números, ponto (.) e hífen (-).',
         ultima_revisao: 'Use somente números, com no máximo 6 algarismos.',
-        valores: 'Informe um valor monetário válido, usando vírgula para os centavos.',
+        identificacao: 'A Identificação deve conter de 4 a 6 algarismos.',
+        valores: 'Informe um valor monetário brasileiro válido, com até 12 algarismos inteiros e 2 decimais.',
       };
       const abaPorCampo = {
         codigo_processo: 'basico',
         codigo_dn: 'tecnico',
         codigo_sig: 'tecnico',
         ultima_revisao: 'tecnico',
+        identificacao: 'tecnico',
         valores: 'comercial',
       };
 
       Object.entries(validacoesDeFormato).forEach(([campo, valido]) => {
         this.errosCampo[campo] = valido ? '' : mensagensDeFormato[campo];
       });
-      const campoInvalido = Object.keys(validacoesDeFormato).find((campo) => !validacoesDeFormato[campo]);
+      const campoInvalido = ['identificacao', 'codigo_processo', 'codigo_dn', 'codigo_sig', 'ultima_revisao', 'valores']
+        .find((campo) => !validacoesDeFormato[campo]);
       if (campoInvalido) {
         this.abaForm = abaPorCampo[campoInvalido];
         return mensagensDeFormato[campoInvalido];
@@ -891,6 +913,9 @@ export default {
         return;
       }
 
+      if (!this.valoresLegado || this.valorEmEdicao !== this.form.valores) {
+        this.finalizarEdicaoValor();
+      }
       const erroValidacao = this.validarFormulario();
 
       if (erroValidacao) {
@@ -902,16 +927,16 @@ export default {
       this.erroFormulario = '';
       this.mensagemSucesso = '';
 
+      const unidadesOferta = [...new Set(this.form.unidades_oferta)];
       const payload = {
         ciclo_id: this.form.ciclo_id || null,
         titulo: this.form.titulo,
         eixo: this.form.eixo,
         segmento: this.form.segmento || null,
-        programa: this.form.programa || null,
         modalidade: this.form.modalidade || null,
         status: this.form.status,
-        unidade: this.form.unidades_oferta[0] || this.form.unidade || null,
-        unidades_oferta: this.form.unidades_oferta.length ? this.form.unidades_oferta : null,
+        unidade: unidadesOferta[0] || this.form.unidade || null,
+        unidades_oferta: unidadesOferta.length ? unidadesOferta : null,
         carga_horaria: this.form.carga_horaria || null,
         turmas: this.form.turmas || null,
         codigo_processo: this.form.codigo_processo || null,
@@ -929,9 +954,7 @@ export default {
         data_fim: this.form.data_fim || null,
         valores: this.valoresLegado
           ? this.form.valores || null
-          : this.form.valores
-            ? this.valorMonetarioPersistido(this.form.valores)
-            : null,
+          : this.valorMonetarioPersistido(this.valorEmEdicao || this.form.valores) || null,
         compativel_bolsa: this.form.compativel_bolsa || null,
         comercial: this.form.comercial || null,
         pcn: this.form.pcn || this.pcnLegado || null,
