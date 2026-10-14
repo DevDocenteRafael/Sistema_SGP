@@ -20,6 +20,7 @@ import {
   validarOrdemDatas,
   validarProcessoSei,
 } from '../utils/validacao';
+import { formatSelectLabel } from '../utils/selectOptions';
 
 export default {
   name: 'Cursos',
@@ -187,6 +188,10 @@ export default {
     },
   },
   methods: {
+    formatarOpcaoSelect(valor) {
+      return formatSelectLabel(valor);
+    },
+
     limparFiltros() {
       const cicloId = this.filtros.ciclo_id;
       this.filtros = {

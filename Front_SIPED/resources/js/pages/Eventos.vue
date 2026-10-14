@@ -32,7 +32,7 @@
               id="filtro-ano"
               input-id="filtro-ano"
               v-model="filtros.ano"
-              :options="anos"
+              :options="anosOrdenados"
               empty-option="Todos os anos"
               aria-label="Ano"
               @change="aplicarFiltros"
@@ -45,6 +45,7 @@
               input-id="filtro-eixo"
               v-model="filtros.eixo"
               :options="eixos"
+              :sort-alphabetically="true"
               empty-option="Todos os eixos"
               aria-label="Eixo"
               @change="aplicarFiltros"
@@ -69,6 +70,7 @@
               input-id="filtro-status"
               v-model="filtros.status"
               :options="statusLista"
+              :sort-alphabetically="true"
               empty-option="Todos os status"
               aria-label="Status"
               @change="aplicarFiltros"
@@ -167,7 +169,7 @@
         </div>
       </PageTableCard>
 
-      <div v-if="registroDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
+      <div v-if="registroDetalhe" class="modal-overlay modal-overlay--details" @click.self="fecharDetalhes">
         <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-evento-titulo">
           <div class="modal-detalhes-header">
             <div>
@@ -317,6 +319,7 @@
                   input-id="eixo"
                   v-model="form.eixo"
                   :options="eixos"
+                  :sort-alphabetically="true"
                   empty-option="Selecione..."
                   aria-label="Eixo"
                   :required="true"
@@ -341,6 +344,7 @@
                   input-id="status"
                   v-model="form.status"
                   :options="statusLista"
+                  :sort-alphabetically="true"
                   empty-option="Selecione..."
                   aria-label="Status"
                   :required="true"

@@ -32,7 +32,7 @@
               id="filtro-ano-hora"
               input-id="filtro-ano-hora"
               v-model="filtros.ano"
-              :options="anos"
+              :options="anosOrdenados"
               empty-option="Todos os anos"
               @change="aplicarFiltros"
             />
@@ -44,6 +44,7 @@
               input-id="filtro-eixo-hora"
               v-model="filtros.eixo"
               :options="eixos"
+              :sort-alphabetically="true"
               empty-option="Todos os eixos"
               @change="aplicarFiltros"
             />
@@ -55,6 +56,7 @@
               input-id="filtro-status-hora"
               v-model="filtros.status"
               :options="statusFiltro"
+              :sort-alphabetically="true"
               empty-option="Todos os status"
               @change="aplicarFiltros"
             />
@@ -236,6 +238,7 @@
                   v-model="form.eixo"
                   @change="segmentosDoEixo.includes(form.segmento) || (form.segmento = '')"
                   :options="eixos"
+                  :sort-alphabetically="true"
                   empty-option="Selecione o eixo"
                   :required="true"
                 />
@@ -277,7 +280,7 @@
                   id="ano"
                   input-id="ano"
                   v-model="form.ano"
-                  :options="anos"
+                  :options="anosOrdenados"
                   empty-option="Selecione o ano"
                   :required="true"
                 />
@@ -289,6 +292,7 @@
                   input-id="status"
                   v-model="form.status"
                   :options="statusFormulario"
+                  :sort-alphabetically="true"
                   empty-option="Selecione o status"
                   :required="true"
                 />

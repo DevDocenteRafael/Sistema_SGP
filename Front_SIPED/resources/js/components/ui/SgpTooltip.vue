@@ -1,7 +1,11 @@
 <template>
   <span
     class="sgp-tooltip"
-    :class="{ 'sgp-tooltip--open': aberto, 'sgp-tooltip--block': block }"
+    :class="{
+      'sgp-tooltip--open': aberto,
+      'sgp-tooltip--block': block,
+      'sgp-tooltip--text': mode === 'text',
+    }"
     @mouseenter="abrirHover"
     @mouseleave="fecharHover"
     @focusin="abrirFocus"
@@ -26,6 +30,15 @@
     </button>
 
     <span
+      v-else-if="mode === 'text'"
+      class="sgp-tooltip__trigger sgp-tooltip__trigger--text"
+      tabindex="0"
+      :aria-describedby="aberto ? tooltipId : undefined"
+    >
+      <slot />
+    </span>
+
+    <span
       v-else
       class="sgp-tooltip__trigger sgp-tooltip__trigger--inline"
       tabindex="0"
@@ -40,15 +53,17 @@
       <slot />
     </span>
 
-    <span
-      v-show="aberto"
-      :id="tooltipId"
-      role="tooltip"
-      class="sgp-tooltip__bubble"
-      :class="`sgp-tooltip__bubble--${placement}`"
-    >
-      {{ text }}
-    </span>
+    <Transition name="sgp-tooltip-fade">
+      <span
+        v-show="aberto"
+        :id="tooltipId"
+        role="tooltip"
+        class="sgp-tooltip__bubble"
+        :class="`sgp-tooltip__bubble--${placement}`"
+      >
+        {{ text }}
+      </span>
+    </Transition>
   </span>
 </template>
 
@@ -59,7 +74,7 @@ export default {
   name: 'SgpTooltip',
   props: {
     text: { type: String, required: true },
-    /** icon = botão (i); wrap = envolve o conteúdo */
+    /** icon = botão (i); text = hover/foco sem ação; inline = interação por clique */
     mode: { type: String, default: 'icon' },
     placement: { type: String, default: 'top' },
     label: { type: String, default: 'Mais informações' },

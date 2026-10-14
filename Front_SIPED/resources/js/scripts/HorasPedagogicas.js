@@ -10,6 +10,7 @@ import {
   validarProcessoSei,
 } from '../utils/validacao';
 import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
+import { sortYearsDescending } from '../utils/selectOptions';
 
 const EIXOS = [...EIXOS_OFICIAIS];
 /** Status principais; "Cancelada" só aparece para registros que já o têm (legado). */
@@ -139,6 +140,9 @@ export default createCrudPage({
     horasFiltradas: 'listaFiltrada',
   },
   extraComputed: {
+    anosOrdenados() {
+      return sortYearsDescending(this.anos);
+    },
     /** Segmentos do catálogo que pertencem ao eixo escolhido no formulário. */
     segmentosDoEixo() {
       const doEixo = this.segmentosPorEixo?.[this.form?.eixo];

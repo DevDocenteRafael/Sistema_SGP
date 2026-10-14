@@ -11,6 +11,7 @@ import {
   validarInteiro,
 } from '../utils/validacao';
 import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
+import { sortYearsDescending } from '../utils/selectOptions';
 import DocumentosVinculados from '../components/documentos/DocumentosVinculados.vue';
 
 const STATUS_LISTA = ['Planejado', 'Realizado', 'Cancelado'];
@@ -162,6 +163,11 @@ export default createCrudPage({
     acoesVinculaveis: [],
     tiposEvento: [],
   }),
+  extraComputed: {
+    anosOrdenados() {
+      return sortYearsDescending(this.anos);
+    },
+  },
   extraMethods: {
     formatarQuantidadePessoas: formatarInteiroInput('quantidade_pessoas'),
     formatarProcessoSei: formatarProcessoSeiInput('processo_sei'),

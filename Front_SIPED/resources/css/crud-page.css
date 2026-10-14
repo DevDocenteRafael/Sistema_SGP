@@ -816,6 +816,10 @@
   background: rgba(15, 23, 42, 0.45);
 }
 
+.modal-overlay--details {
+  z-index: 1000;
+}
+
 .modal-detalhes {
   width: min(720px, 100%);
   max-height: calc(100vh - 2rem);

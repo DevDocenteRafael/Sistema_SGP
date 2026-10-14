@@ -30,6 +30,7 @@
         <SearchableSelect
           v-model="filtros.eixo"
           :options="meta.eixos"
+          :sort-alphabetically="true"
           empty-option="Todos os eixos"
           @change="aplicarFiltros"
         />
@@ -376,7 +377,7 @@
               <span class="detalhe-label">Unidade</span>
               <select v-model="formDadosCiclo.unidade">
                 <option value="">Selecione</option>
-                <option v-for="unidade in unidades" :key="unidade" :value="unidade">{{ unidade }}</option>
+                <option v-for="unidade in unidades" :key="unidade" :value="unidade">{{ formatarOpcaoSelect(unidade) }}</option>
               </select>
             </label>
             <label class="detalhe-campo">
@@ -451,6 +452,7 @@
                     input-id="eixo"
                     v-model="form.eixo"
                     :options="meta.eixos"
+                    :sort-alphabetically="true"
                     empty-option="Selecione o eixo..."
                     aria-required="true"
                   />

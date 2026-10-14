@@ -102,7 +102,7 @@
         <p>{{ classificando.nome }}</p>
         <label>
           Eixo
-          <SearchableSelect v-model="formClassificacao.eixo" :options="eixos" required aria-label="Eixo oficial" />
+          <SearchableSelect v-model="formClassificacao.eixo" :options="eixos" :sort-alphabetically="true" required aria-label="Eixo oficial" />
         </label>
         <label>
           Segmento

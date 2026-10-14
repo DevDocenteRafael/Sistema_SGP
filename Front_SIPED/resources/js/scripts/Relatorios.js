@@ -30,7 +30,6 @@ function filtrosVazios() {
     status: '',
     categoria: '',
     setor: '',
-    relator: '',
   };
 }
 
@@ -152,11 +151,6 @@ export default {
         ...(this.metaApi.setores || []),
         ...this.registros.map((r) => r.setor).filter(Boolean),
       ]);
-      return Array.from(set).sort();
-    },
-
-    relatoresDisponiveis() {
-      const set = new Set(this.registros.map((r) => r.relator).filter(Boolean));
       return Array.from(set).sort();
     },
 

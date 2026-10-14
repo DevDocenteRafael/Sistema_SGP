@@ -5,6 +5,18 @@ import { EIXOS_OFICIAIS, eixosIguais } from '../utils/catalogoOficial';
 const EIXOS_PADRAO = [...EIXOS_OFICIAIS];
 
 const CORES_EIXO = ['#003F7D', '#F57C00', '#0d9488', '#7c3aed', '#db2777', '#2563eb', '#ca8a04', '#64748b'];
+const ORDEM_CARDS_GERAIS = [
+  'Ações Extensivas',
+  'Eventos',
+  'Estruturas',
+  'Horas Pedagógicas',
+  'Jornada Pedagógica',
+  'Resoluções',
+  'Termos de Referência',
+  'Total de Cursos',
+  'Usuários',
+  'Visitas Técnicas',
+];
 const CORES_POR_EIXO = {
   'Gastronomia e Turismo': '#FF7A00',
   'Ambiente e Saúde': '#004B87',
@@ -38,6 +50,7 @@ export default {
         horas: 0,
         acoes: 0,
         eventos: 0,
+        jornadas_pedagogicas: 0,
         resolucoes: 0,
         termos: 0,
         estruturas: 0,
@@ -52,6 +65,7 @@ export default {
         horas: {},
         acoes: {},
         eventos: {},
+        jornadas_pedagogicas: {},
         visitas: {},
       },
       resolucoesContagens: {
@@ -204,14 +218,24 @@ export default {
           category: 'Portfólio',
           value: this.totalResolucoes,
           icon: this.iconResolucoes,
-          statuses: this.cardsResolucoesPrazo.filter((status) => status.value > 0),
+          statuses: this.cardsResolucoesPrazo
+            .filter((status) => status.value > 0)
+            .map((status) => ({
+              ...status,
+              tooltip: status.title === 'Vigente' ? status.subtitle : '',
+            })),
         },
         {
           label: 'Termos de Referência',
           category: 'Portfólio',
           value: this.totalTermos,
           icon: this.iconPortfolio,
-          statuses: this.cardsTermosPrazo.filter((status) => status.value > 0),
+          statuses: this.cardsTermosPrazo
+            .filter((status) => status.value > 0)
+            .map((status) => ({
+              ...status,
+              tooltip: status.subtitle,
+            })),
         },
         {
           label: 'Total de Cursos',
@@ -219,9 +243,9 @@ export default {
           value: this.totalCursos,
           icon: this.iconPortfolio,
           statuses: [
-            { title: 'Ativos', value: this.cursosAtivos, color: '#16A34A', term: 'ativo' },
-            { title: 'Inativos', value: this.cursosInativos, color: '#DC2626', term: 'inativo' },
-            { title: 'Em revisão', value: this.cursosEmRevisao, color: '#2563EB', term: 'em revisao' },
+            { title: 'Ativos', value: this.cursosAtivos, color: '#16A34A', tooltip: 'Curso disponível para oferta no portfólio.' },
+            { title: 'Inativos', value: this.cursosInativos, color: '#DC2626', tooltip: 'Curso fora de oferta.' },
+            { title: 'Em revisão', value: this.cursosEmRevisao, color: '#2563EB', tooltip: 'Curso em atualização ou revisão de conteúdo.' },
           ].filter((status) => status.value > 0),
         },
         {
@@ -241,10 +265,21 @@ export default {
           value: this.contagens.horas,
           icon: this.iconHoras,
           statuses: this.montarCardsDistribuicao(this.distribuicoes.horas, [
-            { key: 'em_andamento', title: 'Em andamento', color: '#2563EB' },
-            { key: 'pendente', title: 'Pendentes', color: '#F59E0B' },
-            { key: 'concluida', title: 'Concluídas', color: '#16A34A' },
+            { key: 'em_andamento', title: 'Em andamento', color: '#2563EB', tooltip: 'Execução em andamento.' },
+            { key: 'pendente', title: 'Pendentes', color: '#F59E0B', tooltip: 'Registros aguardando início ou análise.' },
+            { key: 'concluida', title: 'Concluídas', color: '#16A34A', tooltip: 'Registros finalizados com sucesso.' },
             { key: 'cancelada', title: 'Canceladas', color: '#DC2626' },
+          ]),
+        },
+        {
+          label: 'Jornada Pedagógica',
+          category: 'Planejamento',
+          value: this.contagens.jornadas_pedagogicas,
+          icon: this.iconEventos,
+          statuses: this.montarCardsDistribuicao(this.distribuicoes.jornadas_pedagogicas, [
+            { key: 'rascunho', title: 'Rascunho', color: '#6B7280' },
+            { key: 'consolidado', title: 'Consolidado', color: '#2563EB' },
+            { key: 'enviado', title: 'Enviado', color: '#16A34A' },
           ]),
         },
         {
@@ -275,9 +310,9 @@ export default {
           value: this.contagens.visitas,
           icon: this.iconVisitas,
           statuses: this.montarCardsDistribuicao(this.distribuicoes.visitas, [
-            { key: 'pendente', title: 'Pendentes', color: '#F59E0B' },
-            { key: 'em_andamento', title: 'Em andamento', color: '#2563EB' },
-            { key: 'realizada', title: 'Realizadas', color: '#16A34A' },
+            { key: 'pendente', title: 'Pendentes', color: '#F59E0B', tooltip: 'Registros aguardando início ou análise.' },
+            { key: 'em_andamento', title: 'Em andamento', color: '#2563EB', tooltip: 'Execução em andamento.' },
+            { key: 'realizada', title: 'Realizadas', color: '#16A34A', tooltip: 'Visitas concluídas com sucesso.' },
             { key: 'cancelada', title: 'Canceladas', color: '#DC2626' },
             { key: 'atrasada', title: 'Atrasadas', color: '#DC2626' },
           ]),
@@ -292,7 +327,7 @@ export default {
             { title: 'Inativos', value: this.contagens.usuarios_inativos, color: '#DC2626' },
           ].filter((status) => status.value > 0),
         },
-      ];
+      ].sort((a, b) => ORDEM_CARDS_GERAIS.indexOf(a.label) - ORDEM_CARDS_GERAIS.indexOf(b.label));
     },
 
     chartEixos() {
@@ -383,12 +418,12 @@ export default {
       return {
         total,
         chipsFluxo: [
-          { title: 'Realizadas', value: realizadas, color: '#15803d', subtitle: `${this.percentual(realizadas, total)}% do total` },
-          { title: 'Pendentes', value: pendentes, color: '#a16207', subtitle: `${this.percentual(pendentes, total)}% do total` },
-          { title: 'No prazo', value: dentroPrazo, color: '#003F7D', subtitle: `${this.percentual(dentroPrazo, total)}% do total` },
-          { title: 'Fora do prazo', value: foraPrazo, color: '#c2410c', subtitle: `${this.percentual(foraPrazo, total)}% do total` },
-          { title: 'Devolvidas', value: devolvidas, color: '#b91c1c', subtitle: `${this.percentual(devolvidas, total)}% do total` },
-        ],
+          { title: 'Realizadas', value: realizadas, color: '#15803d', subtitle: `Representa ${this.percentual(realizadas, total)}% do total.` },
+          { title: 'Pendentes', value: pendentes, color: '#a16207', subtitle: `Representa ${this.percentual(pendentes, total)}% do total.` },
+          { title: 'No prazo', value: dentroPrazo, color: '#003F7D', subtitle: `Representa ${this.percentual(dentroPrazo, total)}% do total.` },
+          { title: 'Fora do prazo', value: foraPrazo, color: '#c2410c', subtitle: `Representa ${this.percentual(foraPrazo, total)}% do total.` },
+          { title: 'Devolvidas', value: devolvidas, color: '#b91c1c', subtitle: `Representa ${this.percentual(devolvidas, total)}% do total.` },
+        ].sort((a, b) => a.title.localeCompare(b.title, 'pt-BR', { sensitivity: 'base' })),
         porEixo: this.listaContagem(this.visitas, 'eixo'),
         porStatus: this.listaContagem(this.visitas, 'status', { orange: true }).slice(0, 6).sort(compararPorNome),
         porUnidade: this.listaContagem(this.visitas, 'unidade').slice(0, 8).sort(compararPorNome),
@@ -407,13 +442,13 @@ export default {
       return {
         total,
         chipsFluxo: [
-          { title: 'Concluídas', value: concluidas, color: '#15803d', subtitle: `${this.percentual(concluidas, total)}% do total` },
-          { title: 'Aprovadas', value: aprovadas, color: '#003F7D', subtitle: `${this.percentual(aprovadas, total)}% do total` },
-          { title: 'Em análise', value: emAnalise, color: '#a16207', subtitle: `${this.percentual(emAnalise, total)}% do total` },
-          { title: 'Solicitadas', value: solicitadas, color: '#F57C00', subtitle: `${this.percentual(solicitadas, total)}% do total` },
-          { title: 'Recusadas', value: recusadas, color: '#b91c1c', subtitle: `${this.percentual(recusadas, total)}% do total` },
-          { title: 'Inativas', value: inativas, color: '#6b7280', subtitle: `${this.percentual(inativas, total)}% do total` },
-        ],
+          { title: 'Concluídas', value: concluidas, color: '#15803d', subtitle: `Representa ${this.percentual(concluidas, total)}% do total.` },
+          { title: 'Aprovadas', value: aprovadas, color: '#003F7D', subtitle: `Representa ${this.percentual(aprovadas, total)}% do total.` },
+          { title: 'Em análise', value: emAnalise, color: '#a16207', subtitle: `Representa ${this.percentual(emAnalise, total)}% do total.` },
+          { title: 'Solicitadas', value: solicitadas, color: '#F57C00', subtitle: `Representa ${this.percentual(solicitadas, total)}% do total.` },
+          { title: 'Recusadas', value: recusadas, color: '#b91c1c', subtitle: `Representa ${this.percentual(recusadas, total)}% do total.` },
+          { title: 'Inativas', value: inativas, color: '#6b7280', subtitle: `Representa ${this.percentual(inativas, total)}% do total.` },
+        ].sort((a, b) => a.title.localeCompare(b.title, 'pt-BR', { sensitivity: 'base' })),
         porEixo: this.listaContagem(this.horas, 'eixo'),
         porStatus: this.listaContagem(this.horas, 'status', { orange: true }).slice(0, 6).sort(compararPorNome),
         porSegmento: this.listaContagem(this.horas, 'segmento').slice(0, 8).sort(compararPorNome),
@@ -495,6 +530,7 @@ export default {
           horas: {},
           acoes: {},
           eventos: {},
+          jornadas_pedagogicas: {},
           visitas: {},
           ...(payload.distribuicoes || {}),
         };
@@ -520,6 +556,7 @@ export default {
           horas: 0,
           acoes: 0,
           eventos: 0,
+          jornadas_pedagogicas: 0,
           resolucoes: 0,
           termos: 0,
           estruturas: 0,
@@ -643,7 +680,7 @@ export default {
         return {
           ...item,
           value,
-          subtitle: `${this.percentual(value, total)}% do total`,
+          subtitle: `Representa ${this.percentual(value, total)}% do total.`,
         };
       });
     },

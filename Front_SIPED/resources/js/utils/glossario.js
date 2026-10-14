@@ -13,13 +13,13 @@ function normalizar(texto) {
 
 /** Indicadores e métricas do Dashboard / resumos */
 export const INDICADORES = {
-  resolucoes: 'Atos normativos que regulamentam cursos e procedimentos do SENAC DF.',
+  resolucoes: 'Atos normativos que regulamentam cursos e procedimentos do Senac DF.',
   'termos de referencia': 'Documentos que definem escopo e requisitos de cursos ou projetos em elaboração.',
   'termos de referência': 'Documentos que definem escopo e requisitos de cursos ou projetos em elaboração.',
   'total de cursos': 'Quantidade de cursos do portfólio no ciclo e filtros atuais.',
-  estruturas: 'Faculdades, polos e unidades do Senac DF cadastrados em Estruturas Institucionais (apenas ativas).',
-  unidades: 'Faculdades, polos e unidades do Senac DF cadastrados em Estruturas Institucionais (apenas ativas).',
-  'estrutura institucional': 'Local de oferta: Faculdade, Polo ou Unidade vinculados a uma localidade/região.',
+  estruturas: 'Faculdades, polos e unidades do Senac DF cadastrados em estruturas institucionais (apenas ativas).',
+  unidades: 'Faculdades, polos e unidades do Senac DF cadastrados em estruturas institucionais (apenas ativas).',
+  'estrutura institucional': 'Local de oferta: faculdade, polo ou unidade vinculados a uma localidade/região.',
   'estruturas institucionais': 'Cadastro de faculdades, polos e unidades usados nos formulários e filtros do sistema.',
   'horas pedagogicas': 'Registros de horas pedagógicas solicitadas ou realizadas por docentes/instrutores.',
   'horas pedagógicas': 'Registros de horas pedagógicas solicitadas ou realizadas por docentes/instrutores.',
@@ -28,8 +28,8 @@ export const INDICADORES = {
   eventos: 'Eventos acadêmicos e institucionais vinculados a eixos e unidades.',
   'visitas tecnicas': 'Solicitações e realização de visitas técnicas às unidades.',
   'visitas técnicas': 'Solicitações e realização de visitas técnicas às unidades.',
-  'eixos tecnologicos': 'Agrupamento dos cursos por área tecnológica do SENAC.',
-  'eixos tecnológicos': 'Agrupamento dos cursos por área tecnológica do SENAC.',
+  'eixos tecnologicos': 'Agrupamento dos cursos por área tecnológica do Senac.',
+  'eixos tecnológicos': 'Agrupamento dos cursos por área tecnológica do Senac.',
   'tipos de curso': 'Distribuição dos cursos por tipo de oferta (técnico, qualificação etc.).',
   'faixas de carga horaria': 'Cursos agrupados por faixa de carga horária total.',
   'faixas de carga horária': 'Cursos agrupados por faixa de carga horária total.',

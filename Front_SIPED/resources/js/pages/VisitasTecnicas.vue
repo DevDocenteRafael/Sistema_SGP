@@ -32,7 +32,7 @@
               id="filtro-ano-visita"
               input-id="filtro-ano-visita"
               v-model="filtros.ano"
-              :options="anosDisponiveis"
+              :options="anosOrdenados"
               empty-option="Todos os anos"
               @change="aplicarFiltros"
             />
@@ -55,6 +55,7 @@
               input-id="filtro-eixo-visita"
               v-model="filtros.eixo"
               :options="eixos"
+              :sort-alphabetically="true"
               empty-option="Todos os eixos"
               @change="aplicarFiltros"
             />
@@ -66,6 +67,7 @@
               input-id="filtro-status-visita"
               v-model="filtros.status"
               :options="statusLista"
+              :sort-alphabetically="true"
               empty-option="Todos os status"
               @change="aplicarFiltros"
             />
@@ -389,6 +391,7 @@
                   input-id="status"
                   v-model="form.status"
                   :options="statusLista"
+                  :sort-alphabetically="true"
                   empty-option="Selecione o status"
                   :required="true"
                 />
@@ -411,6 +414,7 @@
                   input-id="eixo"
                   v-model="form.eixo"
                   :options="eixos"
+                  :sort-alphabetically="true"
                   empty-option="Selecione o eixo"
                   :required="true"
                 />

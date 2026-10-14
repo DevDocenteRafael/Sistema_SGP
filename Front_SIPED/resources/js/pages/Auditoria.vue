@@ -21,7 +21,7 @@
           </div>
           <SearchableSelect
             v-model="filtros.modulo"
-            :options="meta.modulos"
+            :options="opcoesModulos"
             empty-option="Todos os módulos"
             aria-label="Filtrar por módulo"
             @change="carregar(1)"
@@ -86,7 +86,7 @@
               <td>
                 <span class="badge-acao" :class="`acao-${item.acao}`">{{ labelAcao(item.acao) }}</span>
               </td>
-              <td>{{ item.modulo }}</td>
+              <td>{{ labelModulo(item.modulo) }}</td>
               <td class="resumo-cell">{{ item.resumo }}</td>
               <td class="text-center">
                 <button type="button" class="btn-link" aria-label="Ver detalhes do evento" @click="abrirDetalhe(item)">Ver</button>
@@ -140,7 +140,7 @@
             </div>
             <div>
               <dt>Módulo</dt>
-              <dd>{{ detalhe.modulo }}</dd>
+              <dd>{{ labelModulo(detalhe.modulo) }}</dd>
             </div>
             <div>
               <dt>Resumo</dt>

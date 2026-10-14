@@ -23,14 +23,6 @@
 
     <section class="rel-painel">
       <div class="rel-filtros">
-        <p v-if="selecionado" class="rel-filtros-titulo">
-          Filtros deste relatório
-          <SgpTooltip
-            text="Os filtros abaixo restringem apenas a prévia e o PDF do relatório selecionado."
-            mode="icon"
-            label="Explicar filtros do relatório"
-          />
-        </p>
         <div class="rel-filtros-row">
           <div v-if="selecionado" class="rel-filtro-busca">
             <input
@@ -82,6 +74,7 @@
                 v-model="filtros.eixo"
                 class="rel-filtro-select"
                 :options="eixosDisponiveis"
+                :sort-alphabetically="true"
                 empty-option="Todos os eixos"
                 @change="carregarPrevias"
               />
@@ -113,16 +106,6 @@
                 class="rel-filtro-select"
                 :options="setoresDisponiveis"
                 empty-option="Todos os setores"
-                @change="carregarPrevias"
-              />
-            </div>
-
-            <div v-if="temFiltro('relator')" class="rel-filtro-campo">
-              <SearchableSelect
-                v-model="filtros.relator"
-                class="rel-filtro-select"
-                :options="relatoresDisponiveis"
-                empty-option="Todos os relatores"
                 @change="carregarPrevias"
               />
             </div>
