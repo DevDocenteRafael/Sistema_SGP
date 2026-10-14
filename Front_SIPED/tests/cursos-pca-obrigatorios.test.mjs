@@ -22,14 +22,22 @@ const abas = {
     data_inicio: '2026-09-01', data_fim: '2026-09-30',
   },
   comercial: {
-    valores: '0', compativel_bolsa: 'NÃO', comercial: 'NÃO', pcn: 'PCN', pcr: 'PCR', observacoes: 'Observações',
+    valores: '0', compativel_bolsa: 'NÃO', comercial: 'NÃO', pcn: 'SIM', pcr: 'NÃO', observacoes: 'Observações',
   },
 };
 const validarAba = carregarMetodo('Cursos', 'validarAba');
+const formatarMoedaBrasileira = carregarMetodo('Cursos', 'formatarMoedaBrasileira');
 let checks = 0;
 for (const [aba, values] of Object.entries(abas)) {
   // Uma aba preenchida deve permitir avançar, mesmo com as próximas abas vazias.
-  const context = { form: { ...values }, regiaoOfertaSelecionada: '1' };
+  const context = {
+    form: { ...values },
+    regiaoOfertaSelecionada: '1',
+    formatarMoedaBrasileira,
+    valoresLegado: false,
+    pcnLegado: '',
+    pcrLegado: '',
+  };
   assert.equal(validarAba.call(context, aba), '', `Cursos: ${aba} válida`);
   checks++;
   for (const [field, original] of Object.entries(values)) {

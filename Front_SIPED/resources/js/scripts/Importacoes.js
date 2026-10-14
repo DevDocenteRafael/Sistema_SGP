@@ -3,6 +3,7 @@ import { mixinHistoricoCatalogo } from './formularioHistorico';
 import { lerCicloContexto } from './cicloContexto';
 import HistoricoImportacoes from '../components/importacoes/HistoricoImportacoes.vue';
 import DocumentoPdfUpload from '../components/importacoes/DocumentoPdfUpload.vue';
+import Pagination from '../components/crud/Pagination.vue';
 import { ehPdf } from '../utils/documentos';
 
 const FILTROS_POR_MODULO = {
@@ -59,7 +60,7 @@ const ROTULOS_ACAO = {
 export default {
   name: 'Importacoes',
   mixins: [mixinHistoricoCatalogo],
-  components: { HistoricoImportacoes, DocumentoPdfUpload },
+  components: { HistoricoImportacoes, DocumentoPdfUpload, Pagination },
 
   data() {
     return {
@@ -73,8 +74,19 @@ export default {
       mensagem: '',
       filtros: filtrosVazios(),
       previa: previaVazia(),
+      paginaAtual: 1,
+      registrosPorPagina: 10,
       _trocandoModulo: false,
     };
+  },
+
+  watch: {
+    filtros: {
+      deep: true,
+      handler() {
+        this.paginaAtual = 1;
+      },
+    },
   },
 
   computed: {
@@ -153,6 +165,22 @@ export default {
         return CAMPOS_BUSCA.some((campo) => String(linha?.[campo] || '').toLowerCase().includes(busca));
       });
     },
+
+    totalPaginas() {
+      return Math.max(1, Math.ceil(this.linhasFiltradas.length / this.registrosPorPagina));
+    },
+
+    linhasDaPagina() {
+      const inicio = (this.paginaAtual - 1) * this.registrosPorPagina;
+      return this.linhasFiltradas.slice(inicio, inicio + this.registrosPorPagina);
+    },
+
+    intervaloLinhas() {
+      if (!this.linhasFiltradas.length) return `0 de ${this.previa.linhas.length}`;
+      const inicio = (this.paginaAtual - 1) * this.registrosPorPagina + 1;
+      const fim = Math.min(this.paginaAtual * this.registrosPorPagina, this.linhasFiltradas.length);
+      return `${inicio}-${fim} de ${this.linhasFiltradas.length}`;
+    },
   },
 
   async created() {
@@ -187,7 +215,6 @@ export default {
       try {
         const { data } = await window.axios.get('/api/importacoes');
         this.catalogo = data.data || [];
-
         const viewKey = this.$route?.query?.view;
         if (viewKey && this.catalogo.some((item) => this.chaveModulo(item) === String(viewKey))) {
           this.aplicarEstadoCatalogoDaRota(String(viewKey));
@@ -242,7 +269,6 @@ export default {
       this.previa = previaVazia(item.preview_columns || [], item.label);
       this.erro = '';
       this.mensagem = '';
-
       if (this.$refs.inputArquivo) {
         this.$refs.inputArquivo.value = '';
       }
@@ -362,6 +388,21 @@ export default {
       return valor === null || valor === undefined || valor === '' ? '—' : valor;
     },
 
+    irParaPaginaPrevia(pagina) {
+      const destino = Number(pagina);
+      if (!Number.isInteger(destino) || destino < 1 || destino > this.totalPaginas || this.processando) {
+        return;
+      }
+      this.paginaAtual = destino;
+    },
+
+    alterarRegistrosPorPaginaPrevia(quantidade) {
+      const tamanho = Number(quantidade);
+      if (!Number.isInteger(tamanho) || tamanho < 1 || this.processando) return;
+      this.registrosPorPagina = tamanho;
+      this.paginaAtual = 1;
+    },
+
     async gerarPrevia() {
       if (!this.arquivo || this.processando || !this.moduloAtivo) return;
 
@@ -377,6 +418,7 @@ export default {
         );
 
         this.filtros = filtrosVazios();
+        this.paginaAtual = 1;
         this.previa = {
           aba: data.aba || '',
           total: data.total || 0,

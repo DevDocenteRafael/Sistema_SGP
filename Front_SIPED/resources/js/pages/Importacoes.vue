@@ -4,7 +4,7 @@
       <div>
         <h1>Importações</h1>
         <p class="imp-subtitle">
-          Selecione o módulo, envie a planilha (.xlsx/.xls) e confira a prévia antes de confirmar.
+          Selecione um módulo, envie a planilha (.xlsx/.xls) e confira a prévia antes de confirmar.
           Linhas incompletas são importadas com aviso; PDFs entram como documento anexado a um registro.
         </p>
       </div>
@@ -19,32 +19,29 @@
       </div>
 
       <template v-else>
-        <div class="imp-toolbar">
-          <label class="imp-toolbar-label" for="importacao-select">Módulo</label>
-          <SearchableSelect
-            id="importacao-select"
-            v-model="moduloKey"
-            class="imp-select-modulo"
-            aria-label="Selecionar módulo de importação"
-            placeholder="Selecione o módulo"
-            :options="opcoesModulos"
-            :disabled="processando || !catalogo.length"
-            @change="aoTrocarModulo"
-          />
-          <p v-if="moduloAtivo" class="imp-toolbar-desc">
-            {{ moduloAtivo.ajuda || moduloAtivo.description }}
-          </p>
-        </div>
+        <div class="imp-upload-card">
+          <div class="imp-modulo-selector">
+            <label class="imp-toolbar-label" for="importacao-select">Módulos</label>
+            <SearchableSelect
+              id="importacao-select"
+              v-model="moduloKey"
+              class="imp-select-modulo"
+              aria-label="Selecionar módulo de importação"
+              placeholder="Selecione um módulo"
+              :options="opcoesModulos"
+              :disabled="processando || !catalogo.length"
+              @change="aoTrocarModulo"
+            />
+          </div>
 
-        <div v-if="!moduloAtivo" class="imp-vazio">
-          {{ catalogo.length ? 'Selecione um módulo para iniciar a importação.' : 'Carregando módulos...' }}
-        </div>
+          <div v-if="!moduloAtivo" class="imp-vazio">
+            {{ catalogo.length ? 'Selecione um módulo para iniciar a importação.' : 'Carregando módulos...' }}
+          </div>
 
-        <template v-else>
-          <div class="imp-upload-card">
+          <template v-else>
             <div class="imp-painel-head">
-              <p class="imp-kicker">{{ etapa === 'documento' ? 'Documento / anexo' : moduloAtivo.label }}</p>
-              <h2>{{ etapa === 'previa' ? 'Confirmar importação' : etapa === 'documento' ? 'Vincular documento PDF' : 'Enviar arquivo' }}</h2>
+              <p class="imp-kicker">{{ moduloAtivo.label }}</p>
+              <h2>{{ etapa === 'previa' ? 'Confirmar importação' : 'Enviar arquivo' }}</h2>
               <p class="imp-ajuda">
                 <template v-if="etapa === 'previa'">
                   {{ linhasValidas }} registro(s) a importar
@@ -55,15 +52,25 @@
                   e <strong>não apaga</strong> registros de outros ciclos.
                   <template v-if="resumoAcoesTexto"> {{ resumoAcoesTexto }}</template>
                 </template>
-                <template v-else-if="etapa === 'documento'">
-                  Escolha o módulo e o registro ao qual o PDF pertence.
-                </template>
                 <template v-else>
                   Aceita <code>.xlsx</code> / <code>.xls</code> para dados estruturados e <code>.pdf</code> como documento anexado.
-                  {{ moduloAtivo.ajuda || moduloAtivo.description }}
+                  Usa as abas de portfólio por eixo. A coluna Segmento é preservada. A aba Saúde vira Ambiente e Saúde. 60+ e Ensino Médio são programas, não eixos: cada linha precisa de um segmento (ou outro dado) que resolva um dos 5 eixos oficiais. A confirmação faz upsert no ciclo selecionado no seletor.
                 </template>
               </p>
             </div>
+
+            <template v-if="etapa === 'upload'">
+              <label class="imp-dropzone" :class="{ 'has-file': !!arquivo }">
+                <input
+                  ref="inputArquivo"
+                  type="file"
+                  accept=".xlsx,.xls,.pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/pdf"
+                  @change="onArquivoSelecionado"
+                />
+                <span v-if="!arquivo">Clique para selecionar a planilha Excel ou o documento PDF</span>
+                <span v-else>{{ arquivo.name }}</span>
+              </label>
+            </template>
 
             <div class="imp-filtros">
               <div class="imp-filtros-row">
@@ -134,17 +141,6 @@
             </div>
 
             <template v-if="etapa === 'upload'">
-              <label class="imp-dropzone" :class="{ 'has-file': !!arquivo }">
-                <input
-                  ref="inputArquivo"
-                  type="file"
-                  accept=".xlsx,.xls,.pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/pdf"
-                  @change="onArquivoSelecionado"
-                />
-                <span v-if="!arquivo">Clique para selecionar a planilha Excel ou o documento PDF</span>
-                <span v-else>{{ arquivo.name }}</span>
-              </label>
-
               <div class="imp-acoes">
                 <button
                   type="button"
@@ -187,7 +183,7 @@
                 <div class="imp-tabela-meta">
                   <span>
                     Prévia · {{ previa.aba || moduloAtivo.label }}
-                    · {{ linhasFiltradas.length }} de {{ previa.linhas.length }} linha(s)
+                    · {{ intervaloLinhas }} linha(s)
                   </span>
                 </div>
                 <div class="imp-tabela-wrap">
@@ -203,7 +199,7 @@
                           Nenhuma linha correspondente aos filtros.
                         </td>
                       </tr>
-                      <tr v-for="(linha, index) in linhasFiltradas.slice(0, 50)" :key="index">
+                      <tr v-for="(linha, index) in linhasDaPagina" :key="(paginaAtual - 1) * registrosPorPagina + index">
                         <td
                           v-for="col in previa.colunas_preview"
                           :key="col.key"
@@ -215,9 +211,17 @@
                     </tbody>
                   </table>
                 </div>
-                <p v-if="linhasFiltradas.length > 50" class="imp-tabela-nota">
-                  Mostrando as primeiras 50 linhas filtradas de {{ linhasFiltradas.length }}.
-                </p>
+                <Pagination
+                  v-if="linhasFiltradas.length"
+                  :current-page="paginaAtual"
+                  :total-pages="totalPaginas"
+                  :total-records="linhasFiltradas.length"
+                  :page-size="registrosPorPagina"
+                  :disabled="processando"
+                  aria-label="Paginação da análise da planilha importada"
+                  @change="irParaPaginaPrevia"
+                  @per-page-change="alterarRegistrosPorPaginaPrevia"
+                />
               </div>
 
               <div class="imp-acoes">
@@ -234,8 +238,8 @@
                 </button>
               </div>
             </template>
-          </div>
-        </template>
+          </template>
+        </div>
       </template>
     </section>
 
