@@ -269,6 +269,40 @@
 }
 
 @media (max-width: 768px) {
+  .app-layout {
+    height: auto;
+    max-height: none;
+    min-height: 100dvh;
+    overflow: visible;
+    overscroll-behavior-y: auto;
+  }
+
+  .app-topbar {
+    flex: 0 0 var(--app-topbar-height);
+  }
+
+  .app-content-column {
+    flex: 1 0 auto;
+    overflow: visible;
+  }
+
+  .app-main {
+    flex: 0 0 auto;
+    height: auto;
+    overflow: visible;
+  }
+
+  .app-main :deep(.crud-top),
+  .app-main :deep(.dashboard-header),
+  .app-main :deep(.rel-header),
+  .app-main :deep(.imp-header),
+  .app-main :deep(.cursos-top),
+  .app-main :deep(.eixos-header),
+  .app-main :deep(.ferramentas-top),
+  .app-main :deep(.cped-hero) {
+    position: static;
+  }
+
   .app-layout.menu-collapsed .sidebar {
     width: min(var(--sidebar-width, 260px), 86vw);
   }
@@ -279,6 +313,7 @@
   }
 
   .app-layout.cabecalho-unificado .app-ciclo-bar {
+    position: static;
     padding: 0.45rem 0.85rem;
   }
 
@@ -319,7 +354,7 @@
   .app-layout.cabecalho-unificado .app-main :deep(.eixos-header),
   .app-layout.cabecalho-unificado .app-main :deep(.ferramentas-top),
   .app-layout.cabecalho-unificado .app-main :deep(.cped-hero) {
-    padding-top: 3.25rem;
+    padding-top: 1rem;
   }
 
   .app-layout.cabecalho-unificado .app-main :deep(.crud-top),
