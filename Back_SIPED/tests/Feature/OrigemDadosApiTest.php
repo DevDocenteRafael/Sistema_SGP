@@ -47,11 +47,11 @@ class OrigemDadosApiTest extends TestCase
             'programa' => '60+',
             'modalidade' => 'Qualificação Profissional',
             'status' => 'ATIVO',
-            'codigo_sig' => 'SIG-ORIGEM-001',
-            'codigo_dn' => 'DN-ORIGEM-001',
+            'codigo_sig' => '123.456-1',
+            'codigo_dn' => '2437.1',
             'carga_horaria' => '40',
             'turmas' => '1',
-            'codigo_processo' => 'PROC-ORIGEM-001',
+            'codigo_processo' => '2026.001-1',
             'alunos' => '10',
             'instrutor' => 'Instrutor Origem',
             'descricao' => 'Cadastro local.',
@@ -66,8 +66,8 @@ class OrigemDadosApiTest extends TestCase
             'valores' => '0',
             'compativel_bolsa' => 'NÃO',
             'comercial' => 'NÃO',
-            'pcn' => 'PCN.',
-            'pcr' => 'PCR.',
+            'pcn' => 'SIM',
+            'pcr' => 'NÃO',
         ], $sobrescreve);
     }
 
@@ -103,7 +103,7 @@ class OrigemDadosApiTest extends TestCase
 
         $payload = $this->payloadValido([
             'titulo' => 'Curso da massa',
-            'codigo_sig' => 'SIG-SEEDER-001',
+            'codigo_sig' => '123.456-1',
             'source_type' => 'seeder',
         ]);
         $curso = Curso::create($payload);

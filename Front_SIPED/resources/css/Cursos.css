@@ -87,6 +87,20 @@
   color: #b91c1c;
 }
 
+.campo-ajuda-erro {
+  display: block;
+  margin-top: 0.3rem;
+  color: #b91c1c;
+  font-size: 0.78rem;
+}
+
+.campo-hint-legado {
+  display: block;
+  margin-top: 0.3rem;
+  color: #6b7280;
+  font-size: 0.78rem;
+}
+
 .filtros-bar {
   display: flex;
   flex-wrap: wrap;

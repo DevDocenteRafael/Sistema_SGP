@@ -203,12 +203,12 @@ class CrudFormulariosCompletoTest extends TestCase
             'programa' => '60+',
             'modalidade' => 'Qualificação Profissional',
             'status' => 'ATIVO',
-            'codigo_sig' => 'SIG-MASK-001',
-            'codigo_dn' => 'DN-MASK-001',
+            'codigo_sig' => '129-820.1',
+            'codigo_dn' => '2.437-1',
             'processo_sei' => 'SEI#2026.00001-1',
             'carga_horaria' => '160',
             'turmas' => '1',
-            'codigo_processo' => 'PROC-MASK-001',
+            'codigo_processo' => '2025.12-85',
             'alunos' => '10',
             'instrutor' => 'Instrutor Teste',
             'descricao' => 'Descrição de teste.',
@@ -222,8 +222,8 @@ class CrudFormulariosCompletoTest extends TestCase
             'valores' => '0',
             'compativel_bolsa' => 'NÃO',
             'comercial' => 'NÃO',
-            'pcn' => 'PCN de teste.',
-            'pcr' => 'PCR de teste.',
+            'pcn' => 'SIM',
+            'pcr' => 'NÃO',
         ]);
         $curso->assertCreated();
         $curso->assertJsonPath('curso.processo_sei', '2026.00001-1');

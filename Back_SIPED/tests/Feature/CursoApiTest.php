@@ -48,11 +48,11 @@ class CursoApiTest extends TestCase
             'programa' => '60+',
             'modalidade' => 'Qualificação Profissional',
             'status' => 'ATIVO',
-            'codigo_sig' => 'SIG-TEST-001',
-            'codigo_dn' => 'DN-TEST-001',
+            'codigo_sig' => '123-001',
+            'codigo_dn' => '456.001',
             'carga_horaria' => '40',
             'turmas' => '1',
-            'codigo_processo' => 'PROC-TEST-001',
+            'codigo_processo' => '789.001-1',
             'alunos' => '10',
             'instrutor' => 'Instrutor Teste',
             'descricao' => 'Descrição de teste.',
@@ -67,8 +67,8 @@ class CursoApiTest extends TestCase
             'valores' => '0',
             'compativel_bolsa' => 'NÃO',
             'comercial' => 'NÃO',
-            'pcn' => 'PCN de teste.',
-            'pcr' => 'PCR de teste.',
+            'pcn' => 'SIM',
+            'pcr' => 'NÃO',
         ], $sobrescreve);
     }
 
@@ -96,7 +96,7 @@ class CursoApiTest extends TestCase
 
         $this->getJson("/api/cursos/{$id}")
             ->assertOk()
-            ->assertJsonPath('curso.codigo_sig', 'SIG-TEST-001');
+            ->assertJsonPath('curso.codigo_sig', '123-001');
 
         $this->putJson("/api/cursos/{$id}", [
             ...$payload,
@@ -109,6 +109,80 @@ class CursoApiTest extends TestCase
 
         $this->deleteJson("/api/cursos/{$id}")->assertOk();
         $this->assertSoftDeleted('cursos', ['id' => $id]);
+    }
+
+    public function test_valida_codigos_atualizacao_valores_e_opcoes_sim_nao(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        $payload = $this->payloadValido([
+            'codigo_processo' => '1.-2.3--4',
+            'codigo_dn' => '564-564.1651-41.45445',
+            'codigo_sig' => '1533.75-1',
+            'valores' => '1533.75',
+            'compativel_bolsa' => 'sim',
+            'comercial' => 'não',
+            'pcn' => 'sim',
+            'pcr' => 'não',
+        ]);
+        $create = $this->postJson('/api/cursos', $payload)->assertCreated();
+        $create->assertJsonPath('curso.codigo_processo', '1.-2.3--4')
+            ->assertJsonPath('curso.codigo_dn', '564-564.1651-41.45445')
+            ->assertJsonPath('curso.valores', '1533.75')
+            ->assertJsonPath('curso.pcn', 'SIM')
+            ->assertJsonPath('curso.pcr', 'NÃO');
+
+        $id = $create->json('curso.id');
+        $this->putJson('/api/cursos/'.$id, [
+            ...$payload,
+            'pcn' => 'não',
+            'pcr' => 'sim',
+        ])->assertOk()
+            ->assertJsonPath('curso.pcn', 'NÃO')
+            ->assertJsonPath('curso.pcr', 'SIM');
+        $this->getJson('/api/cursos/'.$id)->assertOk()
+            ->assertJsonPath('curso.pcn', 'NÃO')
+            ->assertJsonPath('curso.pcr', 'SIM');
+
+        foreach (['codigo_processo', 'codigo_dn', 'codigo_sig'] as $campo) {
+            $this->postJson('/api/cursos', $this->payloadValido([$campo => '12ABC']))
+                ->assertUnprocessable()
+                ->assertJsonValidationErrors([$campo]);
+        }
+
+        foreach (['1234567', '12-34'] as $atualizacao) {
+            $this->postJson('/api/cursos', $this->payloadValido(['ultima_revisao' => $atualizacao]))
+                ->assertUnprocessable()
+                ->assertJsonValidationErrors(['ultima_revisao']);
+        }
+
+        $this->postJson('/api/cursos', $this->payloadValido(['valores' => 'R$ 12,345']))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['valores']);
+        $this->postJson('/api/cursos', $this->payloadValido(['pcn' => 'Plano de curso']))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['pcn']);
+    }
+
+    public function test_preserva_valores_legados_inalterados_durante_edicao(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+        $curso = Curso::create($this->payloadValido());
+        $curso->update([
+            'valores' => '2025 | R$ 1.200,00',
+            'pcn' => 'PCN Gastronomia 2024',
+            'pcr' => 'PCR DF Gastronomia',
+        ]);
+
+        $this->putJson('/api/cursos/'.$curso->id, $this->payloadValido([
+            'valores' => '2025 | R$ 1.200,00',
+            'pcn' => 'PCN Gastronomia 2024',
+            'pcr' => 'PCR DF Gastronomia',
+            'titulo' => 'Curso legado editado',
+        ]))->assertOk()
+            ->assertJsonPath('curso.valores', '2025 | R$ 1.200,00')
+            ->assertJsonPath('curso.pcn', 'PCN Gastronomia 2024')
+            ->assertJsonPath('curso.pcr', 'PCR DF Gastronomia');
     }
 
     public function test_filters_cursos_by_status_and_eixo(): void
@@ -180,7 +254,7 @@ class CursoApiTest extends TestCase
                 'segmento' => $segmentoPorEixo[$eixo],
                 'modalidade' => 'Aperfeiçoamento',
                 'status' => 'ATIVO',
-                'codigo_sig' => 'SIG-EIXO-'.substr(md5($eixo), 0, 6),
+                'codigo_sig' => substr((string) hexdec(substr(md5($eixo), 0, 6)), 0, 6),
                 'processo_sei' => sprintf('123.%03d/2026-01', $indice),
                 'carga_horaria' => '40',
             ]))->assertCreated()->assertJsonPath('curso.eixo', $eixo);
@@ -192,7 +266,7 @@ class CursoApiTest extends TestCase
             'segmento' => 'Enfermagem',
             'modalidade' => 'Oficina',
             'status' => 'ATIVO',
-            'codigo_sig' => 'SIG-ALIAS-SAUDE',
+            'codigo_sig' => '123456',
             'processo_sei' => '123.999/2026-01',
             'carga_horaria' => '40',
         ]));
@@ -205,7 +279,7 @@ class CursoApiTest extends TestCase
             'segmento' => 'Enfermagem',
             'modalidade' => 'Oficina',
             'status' => 'ATIVO',
-            'codigo_sig' => 'SIG-INVALID-EIXO',
+            'codigo_sig' => '123456',
             'carga_horaria' => '40',
         ]))
             ->assertStatus(422)
@@ -217,7 +291,7 @@ class CursoApiTest extends TestCase
             'segmento' => 'Gestão e Comércio',
             'modalidade' => 'Presencial',
             'status' => 'ATIVO',
-            'codigo_sig' => 'SIG-INVALID-MOD',
+            'codigo_sig' => '123456',
             'carga_horaria' => '40',
         ]))
             ->assertStatus(422)

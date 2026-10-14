@@ -41,7 +41,7 @@
         />
         <SearchableSelect
           v-model="filtros.status"
-          :options="meta.status"
+          :options="opcoesStatus"
           empty-option="Todos os status"
           @change="aplicarFiltros"
         />
@@ -337,23 +337,23 @@
               <div class="detalhe-grid">
                 <div class="detalhe-campo">
                   <span class="detalhe-label">Valores</span>
-                  <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.valores) }}</span>
+                  <span class="detalhe-valor">{{ formatarValorExibicao(cursoDetalhe.valores) }}</span>
                 </div>
                 <div class="detalhe-campo">
                   <span class="detalhe-label">Compatível com bolsa</span>
-                  <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.compativel_bolsa) }}</span>
+                  <span class="detalhe-valor">{{ rotuloSimNao(cursoDetalhe.compativel_bolsa) }}</span>
                 </div>
                 <div class="detalhe-campo">
                   <span class="detalhe-label">Comercial</span>
-                  <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.comercial) }}</span>
+                  <span class="detalhe-valor">{{ rotuloSimNao(cursoDetalhe.comercial) }}</span>
                 </div>
                 <div class="detalhe-campo">
                   <span class="detalhe-label">PCN</span>
-                  <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.pcn) }}</span>
+                  <span class="detalhe-valor">{{ rotuloSimNao(cursoDetalhe.pcn) }}</span>
                 </div>
                 <div class="detalhe-campo">
                   <span class="detalhe-label">PCR</span>
-                  <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.pcr) }}</span>
+                  <span class="detalhe-valor">{{ rotuloSimNao(cursoDetalhe.pcr) }}</span>
                 </div>
                 <div class="detalhe-campo detalhe-campo-full">
                   <span class="detalhe-label">Observações</span>
@@ -550,7 +550,10 @@
                     type="text"
                     placeholder="Ex: 2025.12.85"
                     maxlength="100"
+                    :aria-describedby="errosCampo.codigo_processo ? 'erro-codigo-processo' : undefined"
+                    @input="validarCodigoInput($event, 'codigo_processo')"
                   />
+                  <small v-if="errosCampo.codigo_processo" id="erro-codigo-processo" class="campo-ajuda-erro" role="alert">{{ errosCampo.codigo_processo }}</small>
                 </div>
                 <div class="form-group">
                   <label for="alunos"><FormLabel label="Alunos (matrículas)" required /></label>
@@ -655,7 +658,7 @@
                     id="status"
                     input-id="status"
                     v-model="form.status"
-                    :options="meta.status"
+                    :options="opcoesStatus"
                     aria-required="true"
                   />
                 </div>
@@ -672,7 +675,17 @@
                 </div>
                 <div class="form-group">
                   <label for="codigo_dn"><FormLabel label="Cód. DN" required /></label>
-                  <input id="codigo_dn" v-model="form.codigo_dn" aria-required="true" type="text" placeholder="Ex: 2437" maxlength="50" />
+                  <input
+                    id="codigo_dn"
+                    v-model="form.codigo_dn"
+                    aria-required="true"
+                    type="text"
+                    placeholder="Ex: 2437"
+                    maxlength="50"
+                    :aria-describedby="errosCampo.codigo_dn ? 'erro-codigo-dn' : undefined"
+                    @input="validarCodigoInput($event, 'codigo_dn')"
+                  />
+                  <small v-if="errosCampo.codigo_dn" id="erro-codigo-dn" class="campo-ajuda-erro" role="alert">{{ errosCampo.codigo_dn }}</small>
                 </div>
                 <div class="form-group">
                   <label for="codigo_sig"><FormLabel label="Cód. SIG" required /></label>
@@ -683,7 +696,10 @@
                     placeholder="Ex: 129820"
                     maxlength="100"
                     aria-required="true"
+                    :aria-describedby="errosCampo.codigo_sig ? 'erro-codigo-sig' : undefined"
+                    @input="validarCodigoInput($event, 'codigo_sig')"
                   />
+                  <small v-if="errosCampo.codigo_sig" id="erro-codigo-sig" class="campo-ajuda-erro" role="alert">{{ errosCampo.codigo_sig }}</small>
                 </div>
                 <div class="form-group">
                   <label for="identificacao"><FormLabel label="Ident." required /></label>
@@ -696,14 +712,18 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="ultima_revisao"><FormLabel label="Última revisão" required /></label>
+                  <label for="ultima_revisao"><FormLabel label="Última atualização" required /></label>
                   <input
                     id="ultima_revisao"
                     v-model="form.ultima_revisao" aria-required="true"
                     type="text"
+                    inputmode="numeric"
                     placeholder="Ex: 2025"
                     maxlength="50"
+                    :aria-describedby="errosCampo.ultima_revisao ? 'erro-ultima-revisao' : undefined"
+                    @input="validarUltimaAtualizacaoInput"
                   />
+                  <small v-if="errosCampo.ultima_revisao" id="erro-ultima-revisao" class="campo-ajuda-erro" role="alert">{{ errosCampo.ultima_revisao }}</small>
                 </div>
                 <div class="form-group">
                   <label for="processo_sei"><FormLabel label="Processo SEI" required /></label>
@@ -738,9 +758,16 @@
                     id="valores"
                     v-model="form.valores" aria-required="true"
                     type="text"
-                    placeholder="Ex: 2025 | R$ 2.405,00"
+                    inputmode="decimal"
+                    placeholder="Ex: R$ 2.405,00"
                     maxlength="255"
+                    :aria-describedby="errosCampo.valores ? 'erro-valores' : undefined"
+                    @focus="aoFocarValor"
+                    @keydown="prepararEntradaValor"
+                    @input="formatarValorInput"
                   />
+                  <small v-if="errosCampo.valores" id="erro-valores" class="campo-ajuda-erro" role="alert">{{ errosCampo.valores }}</small>
+                  <small v-if="valoresLegado" class="campo-hint-legado">Este valor antigo será preservado se você não o substituir.</small>
                 </div>
                 <div class="form-group">
                   <label for="compativel_bolsa"><FormLabel label="Compatível com bolsa" required /></label>
@@ -748,7 +775,7 @@
                     id="compativel_bolsa"
                     input-id="compativel_bolsa"
                     v-model="form.compativel_bolsa" aria-required="true"
-                    :options="meta.sim_nao"
+                    :options="opcoesSimNao"
                     empty-option="Selecione..."
                   />
                 </div>
@@ -758,29 +785,35 @@
                     id="comercial"
                     input-id="comercial"
                     v-model="form.comercial" aria-required="true"
-                    :options="meta.sim_nao"
+                    :options="opcoesSimNao"
                     empty-option="Selecione..."
                   />
                 </div>
                 <div class="form-group">
                   <label for="pcn"><FormLabel label="PCN" required /></label>
-                  <input
+                  <SearchableSelect
                     id="pcn"
-                    v-model="form.pcn" aria-required="true"
-                    type="text"
-                    placeholder="Plano de Curso Nacional"
-                    maxlength="255"
+                    input-id="pcn"
+                    :model-value="form.pcn"
+                    :options="opcoesSimNao"
+                    empty-option="Selecione..."
+                    aria-required="true"
+                    @update:model-value="aoSelecionarPcn"
                   />
+                  <small v-if="pcnLegado" class="campo-hint-legado">Valor antigo preservado: {{ pcnLegado }}. Selecione Sim ou Não para substituí-lo.</small>
                 </div>
                 <div class="form-group">
                   <label for="pcr"><FormLabel label="PCR" required /></label>
-                  <input
+                  <SearchableSelect
                     id="pcr"
-                    v-model="form.pcr" aria-required="true"
-                    type="text"
-                    placeholder="Plano de Curso Regional"
-                    maxlength="255"
+                    input-id="pcr"
+                    :model-value="form.pcr"
+                    :options="opcoesSimNao"
+                    empty-option="Selecione..."
+                    aria-required="true"
+                    @update:model-value="aoSelecionarPcr"
                   />
+                  <small v-if="pcrLegado" class="campo-hint-legado">Valor antigo preservado: {{ pcrLegado }}. Selecione Sim ou Não para substituí-lo.</small>
                 </div>
                 <div class="form-group full">
                   <label for="observacoes"><FormLabel label="Observações" required /></label>

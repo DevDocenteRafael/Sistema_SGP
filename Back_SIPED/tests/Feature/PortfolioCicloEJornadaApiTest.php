@@ -64,12 +64,12 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             'programa' => '60+',
             'modalidade' => 'Qualificação Profissional',
             'status' => 'ATIVO',
-            'codigo_sig' => 'SIG-DUP-001',
-            'codigo_dn' => 'DN-DUP-001',
+            'codigo_sig' => '123.456-1',
+            'codigo_dn' => '2437.1',
             'processo_sei' => '2026.SEI.001',
             'carga_horaria' => '40',
             'turmas' => '1',
-            'codigo_processo' => 'PROC-DUP-001',
+            'codigo_processo' => '2026.001-1',
             'alunos' => '10',
             'instrutor' => 'Instrutor Teste',
             'descricao' => 'Descrição de teste.',
@@ -83,8 +83,8 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             'valores' => '0',
             'compativel_bolsa' => 'NÃO',
             'comercial' => 'NÃO',
-            'pcn' => 'PCN de teste.',
-            'pcr' => 'PCR de teste.',
+            'pcn' => 'SIM',
+            'pcr' => 'NÃO',
         ];
 
         $this->postJson('/api/cursos', $payload)->assertCreated();
