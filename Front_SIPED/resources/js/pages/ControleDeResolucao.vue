@@ -69,6 +69,9 @@
               @change="aplicarFiltros"
             />
           </div>
+          <button v-if="temFiltroAtivo" type="button" class="btn-limpar-filtros" @click="limparFiltros">
+            Limpar filtros
+          </button>
         </div>
 
         <div class="filtros-rodape">
@@ -78,9 +81,6 @@
             <span v-if="filtros.prazo" class="resumo-chip">Prazo: {{ labelStatus(filtros.prazo) }}</span>
             <span v-if="filtros.ano" class="resumo-chip">Ano: {{ filtros.ano }}</span>
           </div>
-          <button v-if="temFiltroAtivo" type="button" class="btn-limpar-filtros" @click="limparFiltros">
-            Limpar filtros
-          </button>
         </div>
                 </section>
         </template>

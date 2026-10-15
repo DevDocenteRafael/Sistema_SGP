@@ -13,8 +13,7 @@ import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
 import { sortYearsDescending } from '../utils/selectOptions';
 
 const EIXOS = [...EIXOS_OFICIAIS];
-/** Status principais; "Cancelada" só aparece para registros que já o têm (legado). */
-const STATUS_LISTA = ['Pendente', 'Em andamento', 'Concluída'];
+const STATUS_LISTA = ['Pendente', 'Em andamento', 'Concluída', 'Cancelada'];
 const STATUS_LEGADOS = ['Cancelada'];
 const ANOS = ['2024', '2025', '2026', '2027'];
 
@@ -150,11 +149,15 @@ export default createCrudPage({
     },
     /** Filtro aceita também o status legado, para achar registros antigos. */
     statusFiltro() {
-      return [...this.statusLista, ...this.statusLegados];
+      return [...new Set([...this.statusLista, ...this.statusLegados])];
     },
     statusFormulario() {
       const atual = this.form?.status;
-      return atual && this.statusLegados.includes(atual) ? [...this.statusLista, atual] : this.statusLista;
+      const opcoes = atual && this.statusLegados.includes(atual)
+        ? [...this.statusLista, atual]
+        : this.statusLista;
+
+      return [...new Set(opcoes)];
     },
     totalAtivos() {
       return this.listaFiltrada.filter((hora) => hora.ativo === true).length;
@@ -174,6 +177,14 @@ export default createCrudPage({
         Cancelada: 'badge-cancelada',
       };
       return mapa[status] || 'badge-pendente';
+    },
+    statusSelectClass(status) {
+      return {
+        'status-select-pendente': status === 'Pendente',
+        'status-select-andamento': status === 'Em andamento' || status === 'Em Andamento',
+        'status-select-concluida': status === 'Concluída',
+        'status-select-cancelada': status === 'Cancelada',
+      };
     },
   },
 });

@@ -1,5 +1,94 @@
 /* Específicos de Visitas Técnicas — layout em crud-page.css */
 
+.filtros-row.visitas-filtros-row {
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.visitas-filtros-row > .filtro-busca {
+  flex: 2 1 14rem;
+  min-width: 13rem;
+}
+
+.visitas-filtros-row > .filtro-campo {
+  flex: 1 1 8.5rem;
+  min-width: 8rem;
+}
+
+.visitas-filtros-row > .filtro-campo-eixo {
+  flex: 1.25 1 10rem;
+  min-width: 9rem;
+}
+
+.visitas-filtros-row > .btn-limpar-filtros {
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+@media (max-width: 768px) {
+  .filtros-row.visitas-filtros-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .visitas-filtros-row > .filtro-busca,
+  .visitas-filtros-row > .filtro-campo,
+  .visitas-filtros-row > .filtro-campo-eixo {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+}
+
+:global(body:has(.visita-detalhe-overlay)) {
+  overflow: hidden;
+}
+
+.modal-overlay.visita-detalhe-overlay {
+  z-index: 1200;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.4) !important;
+  overscroll-behavior: contain;
+}
+
+.visita-detalhe-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(720px, 100%);
+  max-height: min(95vh, 95dvh);
+  overflow: hidden;
+}
+
+.visita-detalhe-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.visita-detalhe-conteudo {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 768px) {
+  .modal-overlay.visita-detalhe-overlay {
+    align-items: center !important;
+    padding: 0.5rem;
+  }
+
+  .visita-detalhe-modal {
+    width: 100%;
+    max-height: 95dvh;
+    border-radius: 0.85rem;
+  }
+
+  .visita-detalhe-conteudo {
+    padding: 1rem;
+  }
+}
+
 .crud-table {
   min-width: 1100px;
 }
@@ -29,18 +118,39 @@
 }
 
 .badge-cancelada {
-  background: #f3f4f6;
-  color: #4b5563;
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
 .badge-aprovada {
-  background: #ecfeff;
-  color: #0e7490;
+  background: #ecfdf5;
+  color: #047857;
 }
 
 .badge-recusada {
   background: #fdf2f8;
   color: #be185d;
+}
+
+.crud-page :deep(.status-select-aprovada .sgp-select__value),
+.crud-page form :deep(.status-select-aprovada .sgp-select__value) {
+  color: #047857 !important;
+}
+
+.crud-page :deep(.status-select-cancelada .sgp-select__value),
+.crud-page form :deep(.status-select-cancelada .sgp-select__value) {
+  color: #b91c1c !important;
+}
+
+.crud-page :deep(.status-select-andamento .sgp-select__value),
+.crud-page form :deep(.status-select-andamento .sgp-select__value) {
+  color: #1d4ed8 !important;
+}
+
+html[data-theme='dark'] .badge-aprovada {
+  border-color: #166534 !important;
+  background: #0b2a1c !important;
+  color: #86efac !important;
 }
 
 /* Campos da ATA de 30/09/2026 (curso/turma, fluxo, transporte, histórico) */

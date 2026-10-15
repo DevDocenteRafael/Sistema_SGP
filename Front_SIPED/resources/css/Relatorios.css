@@ -159,7 +159,7 @@
 .rel-filtros-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   gap: 0.65rem;
 }
 

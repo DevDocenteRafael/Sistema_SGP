@@ -7,13 +7,11 @@
         info="Consulte e filtre as visitas técnicas por unidade, curso, turma, eixo, SEI, responsável, ano, status e prazo."
         :show-novo="podeCadastrarVisita"
         novo-label="Nova Visita"
-        :show-clear-filters="temFiltro"
-        @limpar-filtros="limparFiltros"
         @novo="abrirNovo"
       >
         <template #filters>
 <section class="filtros-panel" aria-label="Filtros de visitas técnicas">
-        <div class="filtros-row">
+        <div class="filtros-row visitas-filtros-row">
           <div class="filtro-busca">
             <span class="filtro-busca-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -67,6 +65,7 @@
               input-id="filtro-status-visita"
               v-model="filtros.status"
               :options="statusLista"
+              :class="statusSelectClass(filtros.status)"
               :sort-alphabetically="true"
               empty-option="Todos os status"
               @change="aplicarFiltros"
@@ -83,6 +82,15 @@
               @change="aplicarFiltros"
             />
           </div>
+
+          <button
+            v-if="temFiltro"
+            type="button"
+            class="btn-limpar-filtros"
+            @click="limparFiltros"
+          >
+            Limpar filtros
+          </button>
         </div>
                 </section>
         </template>
@@ -186,17 +194,22 @@
         </div>
       </PageTableCard>
 
-      <div v-if="visitaDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
-        <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-visita-titulo">
-          <div class="modal-detalhes-header">
-            <div>
-              <h2 id="detalhe-visita-titulo">Detalhes do Registro</h2>
-              <p class="modal-detalhes-subtitle">Informações resumidas da visita técnica selecionada.</p>
+      <Teleport to="body">
+        <div
+          v-if="visitaDetalhe"
+          class="modal-overlay modal-overlay--details visita-detalhe-overlay"
+          @click.self="fecharDetalhes"
+        >
+          <div class="modal-detalhes visita-detalhe-modal" role="dialog" aria-modal="true" aria-labelledby="detalhe-visita-titulo">
+            <div class="modal-detalhes-header visita-detalhe-header">
+              <div>
+                <h2 id="detalhe-visita-titulo">Detalhes do Registro</h2>
+                <p class="modal-detalhes-subtitle">Informações resumidas da visita técnica selecionada.</p>
+              </div>
+              <button type="button" class="btn-fechar-x" title="Fechar" aria-label="Fechar" @click="fecharDetalhes">×</button>
             </div>
-            <button type="button" class="btn-fechar-x" title="Fechar" aria-label="Fechar" @click="fecharDetalhes">×</button>
-          </div>
 
-          <div class="modal-form-wrap">
+            <div class="modal-form-wrap visita-detalhe-conteudo">
             <div class="detalhe-form-grid">
               <div class="detalhe-form-campo">
                 <span>Processo SEI</span>
@@ -211,7 +224,11 @@
               </div>
               <div class="detalhe-form-campo">
                 <span>Status</span>
-                <div class="detalhe-valor-box">{{ visitaDetalhe.status || '—' }}</div>
+                <div class="detalhe-valor-box">
+                  <span class="badge-status" :class="statusClass(visitaDetalhe.status)">
+                    {{ visitaDetalhe.status || '—' }}
+                  </span>
+                </div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Estrutura</span>
@@ -354,10 +371,10 @@
                 </div>
               </template>
             </div>
+            </div>
           </div>
-
         </div>
-      </div>
+      </Teleport>
     </template>
 
     <template v-else>
@@ -390,7 +407,8 @@
                   id="status"
                   input-id="status"
                   v-model="form.status"
-                  :options="statusLista"
+                  :options="statusFormulario"
+                  :class="statusSelectClass(form.status)"
                   :sort-alphabetically="true"
                   empty-option="Selecione o status"
                   :required="true"

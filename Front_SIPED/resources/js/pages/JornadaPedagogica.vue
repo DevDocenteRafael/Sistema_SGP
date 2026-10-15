@@ -4,7 +4,7 @@
       <CrudPageHeader
         title="Jornada Pedagógica"
         subtitle="Planejamento documental da jornada: período, local, verba, programação e anexos"
-        info="MVP documental. Status leve: rascunho, consolidado ou enviado. Gere o PDF com os dados do plano."
+        info="MVP documental. Status: consolidado, realizado ou cancelado. Gere o PDF com os dados do plano."
         :show-novo="podeEditar"
         novo-label="Nova Jornada"
         :show-clear-filters="temFiltro"
@@ -32,6 +32,7 @@
               input-id="filtro-status-jornada"
               v-model="filtros.status"
               :options="meta.status"
+              :class="statusSelectClass(filtros.status)"
               :sort-alphabetically="true"
               empty-option="Todos os status"
               @change="aplicarFiltros"
@@ -79,7 +80,7 @@
                 <td>{{ item.local || '—' }}</td>
                 <td>{{ item.verba || '—' }}</td>
                 <td>
-                  <span class="badge-status" :class="classeStatus(item.status)">{{ item.status }}</span>
+                  <span class="badge-status" :class="classeStatus(item.status)">{{ rotuloStatus(item.status) }}</span>
                 </td>
                 <td class="text-center acoes">
                   <button type="button" class="btn-icon btn-view" title="Visualizar" aria-label="Visualizar" @click="abrirDetalhes(item)">
@@ -111,7 +112,11 @@
             </div>
             <div class="detalhe-campo">
               <span class="detalhe-label">Status</span>
-              <span class="detalhe-valor">{{ registroDetalhe.status }}</span>
+              <span class="detalhe-valor">
+                <span class="badge-status" :class="classeStatus(registroDetalhe.status)">
+                  {{ rotuloStatus(registroDetalhe.status) }}
+                </span>
+              </span>
             </div>
             <div class="detalhe-campo">
               <span class="detalhe-label">Período</span>
@@ -183,6 +188,7 @@
                   input-id="jornada-status"
                   v-model="form.status"
                   :options="meta.status"
+                  :class="statusSelectClass(form.status)"
                   :sort-alphabetically="true"
                   :required="true"
                 />
@@ -210,7 +216,15 @@
               </div>
               <div class="form-group">
                 <label for="jornada-local"><FormLabel label="Local" required /></label>
-                <input id="jornada-local" v-model="form.local" aria-required="true" type="text" maxlength="255" />
+                <SearchableSelect
+                  id="jornada-local"
+                  input-id="jornada-local"
+                  v-model="form.local"
+                  :options="unidades"
+                  empty-option="Selecione..."
+                  aria-label="Local"
+                  :required="true"
+                />
               </div>
               <div class="form-group">
                 <label for="jornada-espaco"><FormLabel label="Espaço" required /></label>
@@ -237,25 +251,52 @@
                 <textarea id="jornada-obs" v-model="form.observacoes" aria-required="true" rows="3" maxlength="2000" />
               </div>
               <div class="form-group full">
-                <label for="jornada-anexo"><FormLabel label="Anexo" :required="!form.anexo_url" /></label>
-                <label class="btn-secondary jornada-anexo-botao" for="jornada-anexo">
-                  {{ modo === 'novo' ? 'Escolher arquivo' : form.anexo_url ? 'Substituir arquivo' : 'Adicionar arquivo' }}
-                  <input
-                    id="jornada-anexo"
-                    class="jornada-anexo-input"
-                    :aria-required="!form.anexo_url"
-                    type="file"
-                    accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png"
-                    @change="aoEscolherAnexo"
-                  />
+                <label for="jornada-anexo">
+                  <FormLabel label="Anexo" :required="modo === 'novo' || (!form.anexo_url && !form.removerAnexo)" />
                 </label>
-                <small v-if="form.anexoFile" class="campo-ajuda">
+                <input
+                  id="jornada-anexo"
+                  ref="anexoInput"
+                  class="jornada-anexo-input"
+                  :aria-required="modo === 'novo' || (!form.anexo_url && !form.removerAnexo)"
+                  type="file"
+                  accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  @change="aoEscolherAnexo"
+                />
+                <div class="jornada-anexo-controles">
+                  <button
+                    type="button"
+                    class="btn-secondary jornada-anexo-botao jornada-anexo-adicionar"
+                    aria-label="Selecionar arquivo do Anexo"
+                    @click="abrirSeletorAnexo"
+                  >
+                    {{ modo === 'novo' ? 'Escolher arquivo' : form.anexo_url ? 'Substituir arquivo' : 'Adicionar arquivo' }}
+                  </button>
+                  <button
+                    v-if="form.anexoFile || form.anexo_url"
+                    type="button"
+                    class="jornada-anexo-remover"
+                    aria-label="Remover anexo"
+                    title="Remover anexo"
+                    @click="removerAnexo"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4h8v2" />
+                      <path d="m19 6-1 14H6L5 6" />
+                      <path d="M10 11v5M14 11v5" />
+                    </svg>
+                  </button>
+                </div>
+                <small v-if="form.anexoFile" class="campo-ajuda jornada-anexo-status" aria-live="polite">
                   {{ form.anexoFile.name }}
                 </small>
-                <small v-else-if="!form.anexo_url" class="campo-ajuda">
+                <small v-else-if="!form.anexo_url" class="campo-ajuda jornada-anexo-status" aria-live="polite">
                   Nenhum arquivo adicionado.
                 </small>
-                <small v-else class="campo-ajuda">
+                <small v-if="form.anexo_url && !form.anexoFile" class="campo-ajuda">
                   Anexo atual:
                   <a :href="form.anexo_url" target="_blank" rel="noopener noreferrer">abrir arquivo</a>
                   (envie outro arquivo só se quiser substituí-lo)

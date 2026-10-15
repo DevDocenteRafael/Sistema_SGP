@@ -362,6 +362,19 @@ export default {
       return valor === null || valor === undefined || valor === '' ? '—' : valor;
     },
 
+    statusPreviewClass(valor) {
+      const status = String(valor || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      if (/cancel|recus|atras|inativ|bloquead|erro/.test(status)) return 'imp-status--erro';
+      if (/aprov|conclu|realiz|publicad|entregue|ativo/.test(status)) return 'imp-status--sucesso';
+      if (/andamento/.test(status)) return 'imp-status--andamento';
+      if (/penden|planejad|analise|aguard/.test(status)) return 'imp-status--alerta';
+      return 'imp-status--padrao';
+    },
+
     async gerarPrevia() {
       if (!this.arquivo || this.processando || !this.moduloAtivo) return;
 

@@ -322,6 +322,7 @@ export default {
           category: 'Acesso',
           value: this.contagens.usuarios,
           icon: this.iconUsuarios,
+          help: 'Controle de acesso dos usuários.',
           statuses: [
             { title: 'Ativos', value: this.contagens.usuarios_ativos, color: '#16A34A' },
             { title: 'Inativos', value: this.contagens.usuarios_inativos, color: '#DC2626' },

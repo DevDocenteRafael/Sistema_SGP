@@ -180,7 +180,7 @@ class CrudFormulariosCompletoTest extends TestCase
             'data_solicitacao' => '2026-07-01',
             'data_visita_prevista' => '2026-07-10',
             'prazo_limite' => '2026-07-20',
-            'status' => 'Pendente',
+            'status' => 'Aprovada',
             'responsavel' => 'Equipe',
             'relatorio' => 'Relatório de teste.',
             'observacao' => 'Observação de teste.',

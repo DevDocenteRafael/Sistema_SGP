@@ -7,13 +7,11 @@
         info="Nenhuma planilha oficial de Eventos foi disponibilizada ainda. Os cadastros seguem o modelo do protótipo."
         :show-novo="podeEditar"
         novo-label="Novo Evento"
-        :show-clear-filters="temFiltro"
-        @limpar-filtros="limparFiltros"
         @novo="abrirNovo"
       >
         <template #filters>
 <section class="filtros-panel" aria-label="Filtros de eventos">
-        <div class="filtros-row">
+        <div class="filtros-row eventos-filtros-row">
           <div class="filtro-busca">
             <span class="filtro-busca-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -70,6 +68,7 @@
               input-id="filtro-status"
               v-model="filtros.status"
               :options="statusLista"
+              :class="statusSelectClass(filtros.status)"
               :sort-alphabetically="true"
               empty-option="Todos os status"
               aria-label="Status"
@@ -88,6 +87,14 @@
               @change="aplicarFiltros"
             />
           </div>
+          <button
+            v-if="temFiltro"
+            type="button"
+            class="btn-limpar-filtros"
+            @click="limparFiltros"
+          >
+            Limpar filtros
+          </button>
         </div>
                 </section>
         </template>
@@ -219,7 +226,11 @@
               </div>
               <div class="detalhe-form-campo">
                 <span>Status</span>
-                <div class="detalhe-valor-box">{{ registroDetalhe.status || '—' }}</div>
+                <div class="detalhe-valor-box">
+                  <span class="badge-status" :class="badgeStatus(registroDetalhe.status)">
+                    {{ registroDetalhe.status || '—' }}
+                  </span>
+                </div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Possui Ação Extensiva</span>
@@ -344,6 +355,7 @@
                   input-id="status"
                   v-model="form.status"
                   :options="statusLista"
+                  :class="statusSelectClass(form.status)"
                   :sort-alphabetically="true"
                   empty-option="Selecione..."
                   aria-label="Status"

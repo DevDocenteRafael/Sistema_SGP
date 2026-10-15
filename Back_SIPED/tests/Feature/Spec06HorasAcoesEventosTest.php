@@ -63,20 +63,24 @@ class Spec06HorasAcoesEventosTest extends TestCase
         $this->assertNotContains('Ambiente e Saúde', $meta['segmentos']);
     }
 
-    public function test_status_cancelada_fica_so_como_legado(): void
+    public function test_status_cancelada_pode_ser_criado_e_editado(): void
     {
         $this->actingAs($this->editor(), 'sanctum');
 
-        $this->postJson('/api/horas-pedagogicas', $this->hora(['status' => 'Cancelada']))
-            ->assertStatus(422)->assertJsonValidationErrors(['status']);
+        $criada = $this->postJson('/api/horas-pedagogicas', $this->hora(['status' => 'Cancelada']))
+            ->assertCreated()
+            ->assertJsonPath('horaPedagogica.status', 'Cancelada');
 
-        $legado = HoraPedagogica::create($this->hora(['status' => 'Cancelada']));
-        $this->putJson('/api/horas-pedagogicas/'.$legado->id, $this->hora(['status' => 'Cancelada', 'motivo' => 'Ajuste']))
+        $this->putJson('/api/horas-pedagogicas/'.$criada->json('horaPedagogica.id'), $this->hora(['status' => 'Cancelada', 'motivo' => 'Ajuste']))
             ->assertOk();
 
         $meta = $this->getJson('/api/horas-pedagogicas')->json('meta');
-        $this->assertSame(['Pendente', 'Em andamento', 'Concluída'], $meta['status']);
+        $this->assertSame(['Pendente', 'Em andamento', 'Concluída', 'Cancelada'], $meta['status']);
         $this->assertSame(['Cancelada'], $meta['status_legados']);
+
+        $this->getJson('/api/horas-pedagogicas?status=Cancelada')
+            ->assertOk()
+            ->assertJsonPath('data.0.status', 'Cancelada');
     }
 
     // ---------- Ações Extensivas ----------

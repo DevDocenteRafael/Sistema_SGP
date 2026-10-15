@@ -8,9 +8,14 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.badge-rascunho {
-  background: #f3f4f6;
-  color: #4b5563;
+.badge-cancelado {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.badge-planejado {
+  background: #fff7ed;
+  color: #c2410c;
 }
 
 .badge-consolidado {
@@ -21,6 +26,50 @@
 .badge-enviado {
   background: #ecfdf5;
   color: #047857;
+}
+
+html[data-theme='dark'] .crud-page .badge-cancelado {
+  border-color: #7f1d1d;
+  background: #450a0a;
+  color: #fca5a5;
+}
+
+html[data-theme='dark'] .crud-page .badge-planejado {
+  border-color: #9a3412;
+  background: #431407;
+  color: #fdba74;
+}
+
+.crud-page :deep(.status-select-cancelado .sgp-select__value) {
+  color: #b91c1c !important;
+}
+
+.crud-page :deep(.status-select-planejado .sgp-select__value) {
+  color: #c2410c !important;
+}
+
+.crud-page :deep(.status-select-consolidado .sgp-select__value) {
+  color: #1d4ed8 !important;
+}
+
+.crud-page :deep(.status-select-realizado .sgp-select__value) {
+  color: #047857 !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-cancelado .sgp-select__value) {
+  color: #fca5a5 !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-planejado .sgp-select__value) {
+  color: #fdba74 !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-consolidado .sgp-select__value) {
+  color: #93c5fd !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-realizado .sgp-select__value) {
+  color: #86efac !important;
 }
 
 .campo-ajuda {
@@ -48,4 +97,42 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.jornada-anexo-controles {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.jornada-anexo-adicionar {
+  height: 2.25rem;
+  padding: 0 0.85rem;
+  font-size: 0.8rem;
+}
+
+.jornada-anexo-remover {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--sgp-border, #d1d5db);
+  border-radius: 0.5rem;
+  background: var(--sgp-surface, #fff);
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.jornada-anexo-remover:hover,
+.jornada-anexo-remover:focus-visible {
+  border-color: #dc2626;
+  background: #fef2f2;
+  outline: none;
+}
+
+.jornada-anexo-status {
+  display: block;
+  margin-top: 0.35rem;
 }

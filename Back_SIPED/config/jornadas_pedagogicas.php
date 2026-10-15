@@ -7,6 +7,12 @@ return [
         'Enviado',
     ],
 
+    'status_tela' => [
+        'Consolidado',
+        'Realizado',
+        'Cancelado',
+    ],
+
     'sim_nao' => [
         'Sim',
         'Não',

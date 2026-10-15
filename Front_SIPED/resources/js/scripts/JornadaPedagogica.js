@@ -14,6 +14,7 @@ import CrudFormShell from '../components/crud/CrudFormShell.vue';
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import Pagination from '../components/crud/Pagination.vue';
 import { mixinHistoricoFormulario } from './formularioHistorico';
+import { carregarUnidadesNomes } from './unidadesApi';
 
 const ENDPOINT = '/api/jornadas-pedagogicas';
 
@@ -31,9 +32,10 @@ function formVazio() {
     programacao: '',
     setores: '',
     observacoes: '',
-    status: 'Rascunho',
+    status: 'Cancelado',
     anexoFile: null,
     anexo_url: '',
+    removerAnexo: false,
   };
 }
 
@@ -63,6 +65,7 @@ export default {
       registroDetalhe: null,
       editandoId: null,
       form: formVazio(),
+      unidades: [],
       meta: {
         total: 0,
         per_page: 10,
@@ -70,7 +73,7 @@ export default {
         last_page: 1,
         from: 0,
         to: 0,
-        status: ['Rascunho', 'Consolidado', 'Enviado'],
+        status: ['Consolidado', 'Realizado', 'Cancelado'],
         sim_nao: ['Sim', 'Não'],
       },
       buscaTimeout: null,
@@ -89,12 +92,17 @@ export default {
   },
   mounted() {
     window.addEventListener(CICLO_CONTEXTO_EVENTO, this.aoTrocarCiclo);
+    this.carregarUnidades();
     this.carregarRegistros();
   },
   beforeUnmount() {
     window.removeEventListener(CICLO_CONTEXTO_EVENTO, this.aoTrocarCiclo);
   },
   methods: {
+    async carregarUnidades() {
+      this.unidades = await carregarUnidadesNomes({ forcar: true });
+    },
+
     aoTrocarCiclo() {
       this.carregarRegistros();
     },
@@ -204,9 +212,10 @@ export default {
         programacao: item.programacao ?? '',
         setores: item.setores ?? '',
         observacoes: item.observacoes ?? '',
-        status: item.status || 'Rascunho',
+        status: this.normalizarStatus(item.status),
         anexoFile: null,
         anexo_url: item.anexo_url || '',
+        removerAnexo: false,
       };
       this.erroFormulario = '';
       this.registroDetalhe = null;
@@ -260,8 +269,25 @@ export default {
       this.registroDetalhe = null;
     },
 
+    abrirSeletorAnexo() {
+      this.$refs.anexoInput.click();
+    },
+
     aoEscolherAnexo(event) {
       this.form.anexoFile = event.target.files?.[0] || null;
+    },
+
+    removerAnexo() {
+      if (this.form.anexoFile) {
+        this.form.anexoFile = null;
+        this.$refs.anexoInput.value = '';
+        return;
+      }
+
+      if (this.form.anexo_url) {
+        this.form.anexo_url = '';
+        this.form.removerAnexo = true;
+      }
     },
 
     validarFormulario() {
@@ -273,8 +299,10 @@ export default {
         textoObrigatorio(this.form.custos, 'Informe os custos.'),
         textoObrigatorio(this.form.programacao, 'Informe a programação.'),
         textoObrigatorio(this.form.observacoes, 'Informe as observações.'),
-        // Na edição, o anexo já enviado continua valendo; só é exigido se ainda não existir.
-        this.modo === 'editar' && this.form.anexo_url ? '' : textoObrigatorio(this.form.anexoFile, 'Informe o anexo.'),
+        // A edição pode manter, substituir ou remover o anexo existente.
+        this.modo === 'editar' && (this.form.anexo_url || this.form.removerAnexo)
+          ? ''
+          : textoObrigatorio(this.form.anexoFile, 'Informe o anexo.'),
         textoObrigatorio(this.form.titulo, 'O título da jornada é obrigatório.'),
         tamanhoMaximo(this.form.titulo, 255, 'O título deve ter no máximo 255 caracteres.'),
         validarData(this.form.data_inicio, { rotulo: 'Data de início' }),
@@ -345,6 +373,9 @@ export default {
 
       if (this.form.anexoFile) {
         formData.append('anexo', this.form.anexoFile);
+      }
+      if (this.form.removerAnexo) {
+        formData.append('remover_anexo', '1');
       }
 
       try {
@@ -427,13 +458,38 @@ export default {
     },
 
     classeStatus(status) {
-      const valor = String(status || '').toLowerCase();
+      const valor = this.normalizarStatus(status).toLowerCase();
 
       return {
-        'badge-rascunho': valor === 'rascunho',
+        'badge-cancelado': valor === 'cancelado',
+        'badge-planejado': valor === 'planejado',
         'badge-consolidado': valor === 'consolidado',
-        'badge-enviado': valor === 'enviado',
+        'badge-enviado': valor === 'realizado',
       };
+    },
+
+    statusSelectClass(status) {
+      const valor = this.normalizarStatus(status).toLowerCase();
+
+      return {
+        'status-select-cancelado': valor === 'cancelado',
+        'status-select-planejado': valor === 'planejado',
+        'status-select-consolidado': valor === 'consolidado',
+        'status-select-realizado': valor === 'realizado',
+      };
+    },
+
+    rotuloStatus(status) {
+      return this.normalizarStatus(status);
+    },
+
+    normalizarStatus(status) {
+      const equivalencias = {
+        Rascunho: 'Cancelado',
+        Enviado: 'Realizado',
+      };
+
+      return equivalencias[status] || status || '';
     },
 
     normalizarData(valor) {

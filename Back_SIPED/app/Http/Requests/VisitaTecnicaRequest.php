@@ -46,11 +46,31 @@ class VisitaTecnicaRequest extends FormRequest
             'data_solicitacao' => ['required', 'date'],
             'data_visita_prevista' => ['required', 'date', 'after_or_equal:data_solicitacao'],
             'prazo_limite' => ['required', 'date', 'after_or_equal:data_solicitacao'],
-            'status' => ['required', 'string', 'max:50', Rule::in(config('visitas_tecnicas.status'))],
+            'status' => ['required', 'string', 'max:50', Rule::in($this->statusPermitidos())],
             'responsavel' => ['required', 'string', 'max:150'],
             'relatorio' => ['required', 'string', 'max:2000'],
             'observacao' => ['required', 'string', 'max:2000'],
         ];
+    }
+
+    /**
+     * Keep old statuses valid only when preserving an existing visit's status.
+     *
+     * @return list<string>
+     */
+    private function statusPermitidos(): array
+    {
+        $permitidos = config('visitas_tecnicas.status_tela', config('visitas_tecnicas.status', []));
+        $visita = $this->route('visitaTecnica');
+
+        if (
+            $visita instanceof \App\Models\VisitaTecnica
+            && in_array($visita->status, config('visitas_tecnicas.status_legados', []), true)
+        ) {
+            $permitidos[] = $visita->status;
+        }
+
+        return array_values(array_unique($permitidos));
     }
 
     public function messages(): array

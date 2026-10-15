@@ -36,7 +36,8 @@ class VisitaTecnicaApiTest extends TestCase
             ->assertJsonStructure([
                 'data',
                 'meta' => ['total', 'total_geral', 'eixos', 'status', 'anos', 'unidades', 'prazos'],
-            ]);
+            ])
+            ->assertJsonPath('meta.status', ['Aprovada', 'Cancelada', 'Em Andamento']);
 
         $payload = [
             'unidade' => 'Asa Norte',
@@ -45,7 +46,7 @@ class VisitaTecnicaApiTest extends TestCase
             'data_solicitacao' => '2026-07-01',
             'data_visita_prevista' => '2026-07-10',
             'prazo_limite' => '2026-07-20',
-            'status' => 'Pendente',
+            'status' => 'Aprovada',
             'responsavel' => 'Equipe CPED',
             'relatorio' => 'Relatório de teste.',
             'observacao' => 'Visita de teste',
@@ -63,11 +64,11 @@ class VisitaTecnicaApiTest extends TestCase
 
         $this->putJson("/api/visitas-tecnicas/{$id}", [
             ...$payload,
-            'status' => 'Realizada',
+            'status' => 'Em Andamento',
             'observacao' => 'Concluída',
         ])
             ->assertOk()
-            ->assertJsonPath('visitaTecnica.status', 'Realizada');
+            ->assertJsonPath('visitaTecnica.status', 'Em Andamento');
 
         $this->deleteJson("/api/visitas-tecnicas/{$id}")->assertOk();
         $this->assertSoftDeleted('visita_tecnicas', ['id' => $id]);
@@ -84,7 +85,7 @@ class VisitaTecnicaApiTest extends TestCase
             'data_solicitacao' => '2026-07-01',
             'data_visita_prevista' => '2026-07-05',
             'prazo_limite' => '2026-07-15',
-            'status' => 'Pendente',
+            'status' => 'Aprovada',
             'responsavel' => 'Ana',
         ]);
         VisitaTecnica::create([
@@ -98,9 +99,71 @@ class VisitaTecnicaApiTest extends TestCase
             'responsavel' => 'Bia',
         ]);
 
-        $filtered = $this->getJson('/api/visitas-tecnicas?status=Pendente');
+        $filtered = $this->getJson('/api/visitas-tecnicas?status=Aprovada');
         $filtered->assertOk();
         $filtered->assertJsonPath('meta.total', 1);
         $filtered->assertJsonPath('data.0.processo_sei', '2026.000000001-01');
+
+        VisitaTecnica::create([
+            'unidade' => 'Asa Norte',
+            'eixo' => 'Gastronomia',
+            'processo_sei' => '2026.000000003-03',
+            'data_solicitacao' => '2026-07-03',
+            'data_visita_prevista' => '2026-07-07',
+            'prazo_limite' => '2026-07-17',
+            'status' => 'Em andamento',
+            'responsavel' => 'Caio',
+        ]);
+
+        $legacyFiltered = $this->getJson('/api/visitas-tecnicas?status=Em%20Andamento');
+        $legacyFiltered->assertOk();
+        $legacyFiltered->assertJsonPath('meta.total', 1);
+        $legacyFiltered->assertJsonPath('data.0.processo_sei', '2026.000000003-03');
+    }
+
+    public function test_removed_statuses_are_rejected_for_new_visits(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+
+        foreach (['Pendente', 'Recusada', 'Realizada', 'Atrasada', 'Em andamento'] as $status) {
+            $this->postJson('/api/visitas-tecnicas', [
+                'unidade' => 'Asa Norte',
+                'eixo' => 'Gastronomia',
+                'processo_sei' => '2026.000011111-11',
+                'data_solicitacao' => '2026-07-01',
+                'data_visita_prevista' => '2026-07-10',
+                'prazo_limite' => '2026-07-20',
+                'status' => $status,
+                'responsavel' => 'Equipe CPED',
+                'relatorio' => 'Relatório de teste.',
+                'observacao' => 'Visita de teste',
+            ])->assertUnprocessable()->assertJsonValidationErrors(['status']);
+        }
+
+        $legada = VisitaTecnica::create([
+            'unidade' => 'Asa Norte',
+            'eixo' => 'Gastronomia',
+            'processo_sei' => '2026.000011112-12',
+            'data_solicitacao' => '2026-07-01',
+            'data_visita_prevista' => '2026-07-10',
+            'prazo_limite' => '2026-07-20',
+            'status' => 'Pendente',
+            'responsavel' => 'Equipe CPED',
+            'relatorio' => 'Relatório legado.',
+            'observacao' => 'Visita legada',
+        ]);
+
+        $this->putJson('/api/visitas-tecnicas/'.$legada->id, [
+            'unidade' => 'Asa Norte',
+            'eixo' => 'Gastronomia',
+            'processo_sei' => '2026.000011112-12',
+            'data_solicitacao' => '2026-07-01',
+            'data_visita_prevista' => '2026-07-10',
+            'prazo_limite' => '2026-07-20',
+            'status' => 'Pendente',
+            'responsavel' => 'Equipe CPED',
+            'relatorio' => 'Relatório legado atualizado.',
+            'observacao' => 'Visita legada',
+        ])->assertOk()->assertJsonPath('visitaTecnica.status', 'Pendente');
     }
 }

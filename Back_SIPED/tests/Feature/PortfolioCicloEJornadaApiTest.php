@@ -303,6 +303,13 @@ class PortfolioCicloEJornadaApiTest extends TestCase
         \Illuminate\Support\Facades\Storage::fake('public');
         $this->actingAs($this->editor(), 'sanctum');
 
+        $this->postJson('/api/jornadas-pedagogicas', [
+            'titulo' => 'Jornada sem anexo',
+            'status' => 'Rascunho',
+            'tem_pre_jornada' => 'Não',
+            'remover_anexo' => '1',
+        ])->assertUnprocessable()->assertJsonValidationErrors('anexo');
+
         $this->getJson('/api/jornadas-pedagogicas')
             ->assertOk()
             ->assertJsonStructure(['data', 'meta' => ['total', 'status']]);
@@ -362,6 +369,31 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             'observacoes' => 'Revisão sem novo anexo.',
         ], ['Accept' => 'application/json'])->assertOk()->assertJsonPath('jornada.titulo', 'Jornada 2026 revisada');
         $this->assertNotNull(\App\Models\JornadaPedagogica::find($id)->anexo_path);
+
+        $anexoPath = \App\Models\JornadaPedagogica::find($id)->anexo_path;
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($anexoPath);
+
+        $this->post("/api/jornadas-pedagogicas/{$id}", [
+            '_method' => 'PUT',
+            'titulo' => 'Jornada 2026 sem anexo',
+            'status' => 'Consolidado',
+            'tem_pre_jornada' => 'Sim',
+            'data_inicio' => '2026-02-01',
+            'data_fim' => '2026-02-03',
+            'data_pre_jornada' => '2026-01-28',
+            'local' => 'Asa Norte',
+            'espaco' => 'Auditório',
+            'verba' => 'R$ 5.000,00',
+            'custos' => 'Coffee break e material gráfico.',
+            'programacao' => 'Abertura e oficinas consolidadas',
+            'setores' => 'CPED, Secretaria Geral',
+            'observacoes' => 'Anexo removido.',
+            'remover_anexo' => '1',
+        ], ['Accept' => 'application/json'])
+            ->assertOk()
+            ->assertJsonPath('jornada.anexo_url', null);
+        $this->assertNull(\App\Models\JornadaPedagogica::find($id)->anexo_path);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($anexoPath);
 
         $pdf = $this->get("/api/jornadas-pedagogicas/{$id}/pdf");
         $pdf->assertOk();

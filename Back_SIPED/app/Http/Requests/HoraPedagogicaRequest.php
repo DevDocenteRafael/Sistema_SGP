@@ -61,7 +61,10 @@ class HoraPedagogicaRequest extends FormRequest
      */
     private function statusPermitidos(): array
     {
-        $permitidos = config('horas_pedagogicas.status', []);
+        $permitidos = config(
+            'horas_pedagogicas.status_cadastro',
+            config('horas_pedagogicas.status', []),
+        );
         $atual = $this->route('horaPedagogica');
         $statusAtual = $atual instanceof \App\Models\HoraPedagogica ? $atual->status : null;
         if ($statusAtual && in_array($statusAtual, config('horas_pedagogicas.status_legados', []), true)) {

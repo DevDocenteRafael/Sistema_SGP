@@ -10,6 +10,12 @@ return [
         'Em andamento',
         'Concluída',
     ],
+    'status_cadastro' => [
+        'Pendente',
+        'Em andamento',
+        'Concluída',
+        'Cancelada',
+    ],
     // Status legado: continua aceito em registros que já o têm, mas não é oferecido
     // para novos registros até o cliente decidir se ele deve existir.
     'status_legados' => [

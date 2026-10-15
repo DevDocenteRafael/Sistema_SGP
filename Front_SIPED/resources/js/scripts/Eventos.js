@@ -190,5 +190,12 @@ export default createCrudPage({
       };
       return mapa[valor] || 'badge-planejado';
     },
+    statusSelectClass(status) {
+      return {
+        'status-select-planejado': status === 'Planejado',
+        'status-select-realizado': status === 'Realizado',
+        'status-select-cancelado': status === 'Cancelado',
+      };
+    },
   },
 });

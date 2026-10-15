@@ -42,7 +42,12 @@ class JornadaPedagogicaController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = match ($request->status) {
+                'Cancelado' => ['Cancelado', 'Rascunho'],
+                'Realizado' => ['Realizado', 'Enviado'],
+                default => [$request->status],
+            };
+            $query->whereIn('status', $status);
         }
 
         $paginator = $this->paginar($query, $request);
@@ -52,7 +57,7 @@ class JornadaPedagogicaController extends Controller
             'data' => $registros,
             'meta' => array_merge($this->metaPaginacao($paginator), [
                 'total_geral' => JornadaPedagogica::query()->count(),
-                'status' => config('jornadas_pedagogicas.status'),
+                'status' => config('jornadas_pedagogicas.status_tela'),
                 'sim_nao' => config('jornadas_pedagogicas.sim_nao'),
             ]),
         ]);
@@ -136,9 +141,12 @@ class JornadaPedagogicaController extends Controller
                 $this->anexos->apagar($existente->anexo_path);
             }
             $payload['anexo_path'] = $this->anexos->salvar($request->file('anexo'));
+        } elseif ($request->boolean('remover_anexo') && $existente?->anexo_path) {
+            $this->anexos->apagar($existente->anexo_path);
+            $payload['anexo_path'] = null;
         }
 
-        unset($payload['anexo']);
+        unset($payload['anexo'], $payload['remover_anexo']);
 
         return $payload;
     }

@@ -14,7 +14,7 @@ import { sortYearsDescending } from '../utils/selectOptions';
 
 const EIXOS = [...EIXOS_OFICIAIS];
 
-const STATUS_LISTA = ['Pendente', 'Em andamento', 'Aprovada', 'Recusada', 'Realizada', 'Cancelada', 'Atrasada'];
+const STATUS_LISTA = ['Aprovada', 'Cancelada', 'Em Andamento'];
 const ANOS = ['2024', '2025', '2026', '2027'];
 const PRAZO_LISTA = [
   { value: 'dentro', label: 'Dentro do prazo' },
@@ -134,6 +134,7 @@ export default createCrudPage({
     if (Array.isArray(meta.anos) && meta.anos.length) this.anosDisponiveis = meta.anos;
     if (Array.isArray(meta.eixos) && meta.eixos.length) this.eixos = meta.eixos;
     if (Array.isArray(meta.status) && meta.status.length) this.statusLista = meta.status;
+    if (Array.isArray(meta.status_legados)) this.statusLegados = meta.status_legados;
     if (Array.isArray(meta.prazos) && meta.prazos.length) this.prazoLista = meta.prazos;
     if (meta.origem) this.origemVisitas = meta.origem;
   },
@@ -141,12 +142,19 @@ export default createCrudPage({
     unidades: [],
     eixos: EIXOS,
     statusLista: STATUS_LISTA,
+    statusLegados: [],
     anosDisponiveis: ANOS,
     prazoLista: PRAZO_LISTA,
     // Integração com o SVT (SPEC 07): modo local | svt
     origemVisitas: { modo: 'local', integracao_ativa: false, svt_url: null, ultima_sincronizacao: null, visitas_do_svt: 0 },
   }),
   extraComputed: {
+    statusFormulario() {
+      const statusAtual = this.form?.status;
+      return statusAtual && this.statusLegados.includes(statusAtual)
+        ? [...this.statusLista, statusAtual]
+        : this.statusLista;
+    },
     anosOrdenados() {
       return sortYearsDescending(this.anosDisponiveis);
     },
@@ -219,12 +227,21 @@ export default createCrudPage({
         Aprovada: 'badge-aprovada',
         Recusada: 'badge-recusada',
         Realizada: 'badge-realizada',
+        'Em Andamento': 'badge-andamento',
         'Em andamento': 'badge-andamento',
         Pendente: 'badge-pendente',
         Atrasada: 'badge-atrasada',
         Cancelada: 'badge-cancelada',
       };
       return mapa[status] || 'badge-pendente';
+    },
+    statusSelectClass(status) {
+      return {
+        'status-select-aprovada': status === 'Aprovada',
+        'status-select-cancelada': status === 'Cancelada',
+        'status-select-andamento': status === 'Em Andamento' || status === 'Em andamento',
+        'status-select-legado': this.statusLegados.includes(status),
+      };
     },
   },
 });

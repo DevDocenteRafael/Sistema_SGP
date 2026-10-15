@@ -98,6 +98,17 @@
   min-width: 9.5rem;
 }
 
+.crud-toolbar--clear > .filtros-panel,
+.crud-toolbar--clear > .filtros-bar {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.crud-toolbar--clear > .btn-limpar-filtros {
+  flex: 0 0 auto;
+  align-self: center;
+}
+
 .btn-limpar-filtros {
   display: inline-flex;
   align-items: center;
@@ -118,6 +129,23 @@
   background: var(--sgp-surface-muted, #f9fafb);
   color: var(--sgp-brand, #003f7d);
   border-color: var(--sgp-brand, #003f7d);
+}
+
+@media (max-width: 768px) {
+  .crud-toolbar--clear {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .crud-toolbar--clear > .filtros-panel,
+  .crud-toolbar--clear > .filtros-bar {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .crud-toolbar--clear > .btn-limpar-filtros {
+    align-self: flex-start;
+  }
 }
 
 .btn-novo {

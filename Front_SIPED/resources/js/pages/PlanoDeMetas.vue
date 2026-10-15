@@ -126,7 +126,7 @@
                 <td>{{ registro.sei || '—' }}</td>
                 <td>{{ registro.sig || '—' }}</td>
                 <td>{{ registro.mesEntrega || '—' }}</td>
-                <td>{{ registro.status || '—' }}</td>
+                <td><span class="badge" :class="statusClass(registro.status)">{{ registro.status || '—' }}</span></td>
                 <td>{{ registro.area_planejamento || 'Sem origem' }}</td>
                 <td>{{ registro.observacao || '—' }}</td>
                 <td>
@@ -191,11 +191,15 @@
               </div>
               <div class="detalhe-form-campo">
                 <span>Status Final</span>
-                <div class="detalhe-valor-box">{{ registroDetalhe.statusFinal || '—' }}</div>
+                <div class="detalhe-valor-box">
+                  <span class="badge" :class="statusClass(registroDetalhe.statusFinal)">{{ registroDetalhe.statusFinal || '—' }}</span>
+                </div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Status</span>
-                <div class="detalhe-valor-box">{{ registroDetalhe.status || '—' }}</div>
+                <div class="detalhe-valor-box">
+                  <span class="badge" :class="statusClass(registroDetalhe.status)">{{ registroDetalhe.status || '—' }}</span>
+                </div>
               </div>
               <div class="detalhe-form-campo campo-full">
                 <span>Observação</span>

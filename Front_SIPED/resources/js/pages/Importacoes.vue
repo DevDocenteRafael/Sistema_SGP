@@ -209,7 +209,14 @@
                           :key="col.key"
                           :class="{ 'col-assunto': col.key === 'assunto' || col.key === 'titulo' || col.key === 'curso' || col.key === 'nome' }"
                         >
-                          {{ celula(linha, col.key) }}
+                          <span
+                            v-if="col.key === 'status' || col.key === 'status_importacao'"
+                            class="imp-status"
+                            :class="statusPreviewClass(celula(linha, col.key))"
+                          >
+                            {{ celula(linha, col.key) }}
+                          </span>
+                          <template v-else>{{ celula(linha, col.key) }}</template>
                         </td>
                       </tr>
                     </tbody>
