@@ -58,9 +58,22 @@ class JornadaPedagogicaRequest extends FormRequest
             'programacao' => ['required', 'string', 'max:2000'],
             'setores' => ['required', 'string', 'max:255'],
             'observacoes' => ['required', 'string', 'max:2000'],
-            'status' => ['required', 'string', 'max:50', Rule::in(config('jornadas_pedagogicas.status'))],
-            // Obrigatório no cadastro; na edição só se a jornada ainda não tiver anexo.
-            'anexo' => [$this->jornadaJaTemAnexo() ? 'nullable' : 'required', 'file', 'max:5120', 'mimes:pdf,doc,docx,odt,jpg,jpeg,png'],
+            'status' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::in([
+                    ...config('jornadas_pedagogicas.status', []),
+                    ...config('jornadas_pedagogicas.status_tela', []),
+                ]),
+            ],
+            'remover_anexo' => ['sometimes', 'boolean'],
+            'anexo' => [
+                $this->jornadaJaTemAnexo() || $this->anexoExistenteSeraRemovido() ? 'nullable' : 'required',
+                'file',
+                'max:5120',
+                'mimes:pdf,doc,docx,odt,jpg,jpeg,png',
+            ],
         ];
     }
 
@@ -69,6 +82,11 @@ class JornadaPedagogicaRequest extends FormRequest
         $jornada = $this->route('jornadaPedagogica');
 
         return is_object($jornada) && filled($jornada->anexo_path);
+    }
+
+    private function anexoExistenteSeraRemovido(): bool
+    {
+        return $this->jornadaJaTemAnexo() && $this->boolean('remover_anexo');
     }
 
     public function messages(): array

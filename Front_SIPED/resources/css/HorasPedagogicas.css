@@ -1,5 +1,54 @@
 /* Específicos de Horas Pedagógicas — layout em crud-page.css */
 
+:global(body:has(.hora-detalhe-overlay)) {
+  overflow: hidden;
+}
+
+.modal-overlay.hora-detalhe-overlay {
+  z-index: 1200;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.4) !important;
+  overscroll-behavior: contain;
+}
+
+.hora-detalhe-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(720px, 100%);
+  max-height: min(95vh, 95dvh);
+  overflow: hidden;
+}
+
+.hora-detalhe-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.hora-detalhe-conteudo {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 768px) {
+  .modal-overlay.hora-detalhe-overlay {
+    align-items: center !important;
+    padding: 0.5rem;
+  }
+
+  .hora-detalhe-modal {
+    width: 100%;
+    max-height: 95dvh;
+    border-radius: 0.85rem;
+  }
+
+  .hora-detalhe-conteudo {
+    padding: 1rem;
+  }
+}
+
 .crud-table {
   min-width: 1100px;
 }
@@ -30,10 +79,54 @@
 
 .badge-pendente {
   background: #fff7ed;
-  color: #c2410c;
+  color: #f57c00;
 }
 
 .badge-cancelada {
-  background: #f3f4f6;
-  color: #4b5563;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.crud-page :deep(.status-select-pendente .sgp-select__value) {
+  color: #f57c00 !important;
+}
+
+.crud-page :deep(.status-select-andamento .sgp-select__value) {
+  color: #1d4ed8 !important;
+}
+
+.crud-page :deep(.status-select-concluida .sgp-select__value) {
+  color: #047857 !important;
+}
+
+.crud-page :deep(.status-select-cancelada .sgp-select__value) {
+  color: #b91c1c !important;
+}
+
+html[data-theme='dark'] .crud-page .badge-pendente {
+  border-color: #f57c00 !important;
+  background: #3a240f !important;
+  color: #f57c00 !important;
+}
+
+html[data-theme='dark'] .crud-page .badge-cancelada {
+  border-color: #7f1d1d !important;
+  background: #3f1212 !important;
+  color: #fecaca !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-pendente .sgp-select__value) {
+  color: #f57c00 !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-andamento .sgp-select__value) {
+  color: #93c5fd !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-concluida .sgp-select__value) {
+  color: #86efac !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-cancelada .sgp-select__value) {
+  color: #fca5a5 !important;
 }

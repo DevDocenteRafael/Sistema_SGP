@@ -593,6 +593,14 @@ textarea::placeholder {
   color: var(--sgp-text) !important;
 }
 
+.btn-limpar,
+.btn-limpar-filtros,
+.caro-limpar,
+.notif-limpar {
+  color: #000 !important;
+  font-weight: 600 !important;
+}
+
 .btn-fechar-x,
 .btn-icon {
   color: var(--sgp-text-muted) !important;

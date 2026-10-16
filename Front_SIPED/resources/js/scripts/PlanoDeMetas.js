@@ -173,6 +173,9 @@ export default createCrudPage({
         .toUpperCase()
         .trim();
       const mapa = {
+        PLANEJADO: 'badge-revisao',
+        'EM ANDAMENTO': 'badge-andamento',
+        CONCLUIDO: 'badge-ativo',
         PUBLICADO: 'badge-ativo',
         ENTREGUE: 'badge-revisao',
         'EM ANALISE': 'badge-suspenso',

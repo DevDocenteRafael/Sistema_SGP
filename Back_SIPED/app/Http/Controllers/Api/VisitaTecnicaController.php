@@ -65,7 +65,11 @@ class VisitaTecnicaController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->status === 'Em Andamento') {
+                $query->whereIn('status', ['Em Andamento', 'Em andamento']);
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
         if ($request->filled('prazo')) {
@@ -87,7 +91,8 @@ class VisitaTecnicaController extends Controller
                 'etapas_svt' => config('svt.etapas', []),
                 'total_geral' => VisitaTecnica::query()->count(),
                 'eixos' => CatalogoOficial::eixos(),
-                'status' => config('visitas_tecnicas.status'),
+                'status' => config('visitas_tecnicas.status_tela', config('visitas_tecnicas.status')),
+                'status_legados' => config('visitas_tecnicas.status_legados', []),
                 'anos' => config('visitas_tecnicas.anos'),
                 'unidades' => UnidadeOferta::nomesAtivos(),
                 'prazos' => config('visitas_tecnicas.prazos'),

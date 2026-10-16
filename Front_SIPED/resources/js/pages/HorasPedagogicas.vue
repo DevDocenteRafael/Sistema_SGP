@@ -56,6 +56,7 @@
               input-id="filtro-status-hora"
               v-model="filtros.status"
               :options="statusFiltro"
+              :class="statusSelectClass(filtros.status)"
               :sort-alphabetically="true"
               empty-option="Todos os status"
               @change="aplicarFiltros"
@@ -152,17 +153,22 @@
         </div>
       </PageTableCard>
 
-      <div v-if="horaDetalhe" class="modal-overlay" @click.self="fecharDetalhes">
-        <div class="modal-detalhes" role="dialog" aria-modal="true" aria-labelledby="detalhe-hora-titulo">
-          <div class="modal-detalhes-header">
-            <div>
-              <h2 id="detalhe-hora-titulo">Detalhes do Registro</h2>
-              <p class="modal-detalhes-subtitle">Informações resumidas da hora pedagógica selecionada.</p>
+      <Teleport to="body">
+        <div
+          v-if="horaDetalhe"
+          class="modal-overlay modal-overlay--details hora-detalhe-overlay"
+          @click.self="fecharDetalhes"
+        >
+          <div class="modal-detalhes hora-detalhe-modal" role="dialog" aria-modal="true" aria-labelledby="detalhe-hora-titulo">
+            <div class="modal-detalhes-header hora-detalhe-header">
+              <div>
+                <h2 id="detalhe-hora-titulo">Detalhes do Registro</h2>
+                <p class="modal-detalhes-subtitle">Informações resumidas da hora pedagógica selecionada.</p>
+              </div>
+              <button type="button" class="btn-fechar-x" title="Fechar" aria-label="Fechar" @click="fecharDetalhes">×</button>
             </div>
-            <button type="button" class="btn-fechar-x" title="Fechar" aria-label="Fechar" @click="fecharDetalhes">×</button>
-          </div>
 
-          <div class="modal-form-wrap">
+            <div class="modal-form-wrap hora-detalhe-conteudo">
             <div class="detalhe-form-grid">
               <div class="detalhe-form-campo">
                 <span>Pessoa</span>
@@ -190,7 +196,9 @@
               </div>
               <div class="detalhe-form-campo">
                 <span>Status</span>
-                <div class="detalhe-valor-box">{{ horaDetalhe.status || '—' }}</div>
+                <div class="detalhe-valor-box">
+                  <span class="badge-status" :class="statusClass(horaDetalhe.status)">{{ horaDetalhe.status || '—' }}</span>
+                </div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Ativo</span>
@@ -205,10 +213,10 @@
                 <div class="detalhe-valor-box detalhe-valor-texto">{{ horaDetalhe.observacao || '—' }}</div>
               </div>
             </div>
+            </div>
           </div>
-
         </div>
-      </div>
+      </Teleport>
     </template>
 
     <template v-else>
@@ -292,6 +300,7 @@
                   input-id="status"
                   v-model="form.status"
                   :options="statusFormulario"
+                  :class="statusSelectClass(form.status)"
                   :sort-alphabetically="true"
                   empty-option="Selecione o status"
                   :required="true"

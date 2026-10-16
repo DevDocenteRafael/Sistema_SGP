@@ -46,7 +46,7 @@
             :options="meta.status"
           />
 
-          <button v-if="temFiltro" type="button" class="btn-limpar" @click="limparFiltros">Limpar</button>
+          <button v-if="temFiltro" type="button" class="btn-limpar" @click="limparFiltros">Limpar filtros</button>
         </template>
       </div>
     </header>
@@ -58,7 +58,7 @@
         <article v-for="card in metricCards" :key="card.label" class="dashboard-kpi-tile dashboard-kpi-tile--standard">
           <div class="dashboard-kpi-tile-head">
             <div class="dashboard-metric-icon" v-html="card.icon"></div>
-            <span class="dashboard-metric-category"><SgpHelpLabel :label="card.label" /></span>
+            <span class="dashboard-metric-category"><SgpHelpLabel :label="card.label" :help="card.help" /></span>
           </div>
           <div class="dashboard-metric-content">
             <div class="dashboard-metric-primary">

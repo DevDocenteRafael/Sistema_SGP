@@ -95,6 +95,18 @@
   color: #b91c1c;
 }
 
+.badge-andamento {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+html[data-theme='dark'] .badge-andamento {
+  border-color: #1e3a5f;
+  background: #10233f;
+  color: #93c5fd;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

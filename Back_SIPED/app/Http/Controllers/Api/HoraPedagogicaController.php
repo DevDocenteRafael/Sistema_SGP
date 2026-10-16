@@ -71,7 +71,7 @@ class HoraPedagogicaController extends Controller
                 'eixos' => CatalogoOficial::eixos(),
                 'segmentos' => CatalogoOficial::segmentos(),
                 'segmentos_por_eixo' => CatalogoOficial::segmentosPorEixo(),
-                'status' => config('horas_pedagogicas.status'),
+                'status' => config('horas_pedagogicas.status_cadastro', config('horas_pedagogicas.status')),
                 'status_legados' => config('horas_pedagogicas.status_legados', []),
                 'anos' => config('horas_pedagogicas.anos'),
             ]),

@@ -202,7 +202,11 @@
               </div>
               <div class="detalhe-form-campo">
                 <span>Status</span>
-                <div class="detalhe-valor-box">{{ registroDetalhe.status || '—' }}</div>
+                <div class="detalhe-valor-box">
+                  <span class="badge-status" :class="badgeStatus(registroDetalhe.status)">
+                    {{ registroDetalhe.status || '—' }}
+                  </span>
+                </div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Precificação</span>

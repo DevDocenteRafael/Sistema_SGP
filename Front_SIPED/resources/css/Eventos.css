@@ -1,5 +1,50 @@
 /* Específicos de Eventos — layout compartilhado em crud-page.css */
 
+.eventos-filtros-row {
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.eventos-filtros-row > .filtro-busca {
+  flex: 2 1 13rem;
+  min-width: 12rem;
+}
+
+.eventos-filtros-row > .filtro-campo {
+  flex: 1 1 7.5rem;
+  min-width: 7rem;
+}
+
+.eventos-filtros-row > .filtro-campo-eixo {
+  flex: 1.25 1 9rem;
+  min-width: 8.5rem;
+}
+
+.eventos-filtros-row .sgp-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.eventos-filtros-row > .btn-limpar-filtros {
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+@media (max-width: 768px) {
+  .eventos-filtros-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .eventos-filtros-row > .filtro-busca,
+  .eventos-filtros-row > .filtro-campo,
+  .eventos-filtros-row > .filtro-campo-eixo {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+}
+
 .crud-table {
   min-width: 1180px;
 }
@@ -30,8 +75,15 @@
 }
 
 .badge-planejado {
-  background: #eff6ff;
-  color: #1d4ed8;
+  border: 1px solid #f57c00;
+  background: #fff7ed;
+  color: #f57c00;
+}
+
+html[data-theme='dark'] .crud-page .badge-planejado {
+  border-color: #f57c00;
+  background: #431407;
+  color: #f57c00;
 }
 
 .badge-realizado {
@@ -40,8 +92,15 @@
 }
 
 .badge-cancelado {
-  background: #f3f4f6;
-  color: #4b5563;
+  border: 1px solid #ef4444;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+html[data-theme='dark'] .crud-page .badge-cancelado {
+  border-color: #ef4444;
+  background: #991b1b;
+  color: #fee2e2;
 }
 
 .badge-sim {
@@ -52,4 +111,28 @@
 .badge-nao {
   background: #f3f4f6;
   color: #4b5563;
+}
+
+.crud-page :deep(.status-select-planejado .sgp-select__value) {
+  color: #f57c00 !important;
+}
+
+.crud-page :deep(.status-select-realizado .sgp-select__value) {
+  color: #047857 !important;
+}
+
+.crud-page :deep(.status-select-cancelado .sgp-select__value) {
+  color: #991b1b !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-planejado .sgp-select__value) {
+  color: #f57c00 !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-realizado .sgp-select__value) {
+  color: #86efac !important;
+}
+
+html[data-theme='dark'] .crud-page :deep(.status-select-cancelado .sgp-select__value) {
+  color: #fee2e2 !important;
 }

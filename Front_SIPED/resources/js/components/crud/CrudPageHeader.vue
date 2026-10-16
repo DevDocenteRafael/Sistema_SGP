@@ -17,7 +17,13 @@
 
     <div v-if="info" class="crud-info">{{ info }}</div>
 
-    <div v-if="$slots.filters" class="crud-toolbar" role="search" :aria-label="filtersAriaLabel">
+    <div
+      v-if="$slots.filters"
+      class="crud-toolbar"
+      :class="{ 'crud-toolbar--clear': showClearFilters }"
+      role="search"
+      :aria-label="filtersAriaLabel"
+    >
       <slot name="filters" />
       <button
         v-if="showClearFilters"

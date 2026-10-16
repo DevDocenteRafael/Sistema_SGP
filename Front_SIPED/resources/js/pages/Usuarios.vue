@@ -192,7 +192,11 @@
               </div>
               <div class="detalhe-form-campo">
                 <span>Status</span>
-                <div class="detalhe-valor-box">{{ usuarioDetalhe.status ? 'Ativo' : 'Inativo' }}</div>
+                <div class="detalhe-valor-box">
+                  <span class="badge" :class="usuarioDetalhe.status ? 'badge-ativo' : 'badge-inativo'">
+                    {{ usuarioDetalhe.status ? 'Ativo' : 'Inativo' }}
+                  </span>
+                </div>
               </div>
               <div class="detalhe-form-campo">
                 <span>Telefone</span>
