@@ -18,7 +18,7 @@ const abas = {
   },
   tecnico: {
     status: 'Ativo', modalidade: 'Presencial', codigo_dn: '123', codigo_sig: '456',
-    identificacao: '2026', ultima_revisao: '2026', processo_sei: '123.456/2026-01',
+    identificacao: '002026', ultima_revisao: '2026', processo_sei: '123.456/2026-01',
     data_inicio: '2026-09-01', data_fim: '2026-09-30',
   },
   comercial: {
@@ -27,13 +27,14 @@ const abas = {
 };
 const validarAba = carregarMetodo('Cursos', 'validarAba');
 const formatarMoedaBrasileira = carregarMetodo('Cursos', 'formatarMoedaBrasileira');
+const normalizarValorMonetario = carregarMetodo('Cursos', 'normalizarValorMonetario');
 let checks = 0;
 for (const [aba, values] of Object.entries(abas)) {
   // Uma aba preenchida deve permitir avançar, mesmo com as próximas abas vazias.
   const context = {
     form: { ...values },
-    regiaoOfertaSelecionada: '1',
     formatarMoedaBrasileira,
+    normalizarValorMonetario,
     valoresLegado: false,
     pcnLegado: '',
     pcrLegado: '',
@@ -49,7 +50,7 @@ for (const [aba, values] of Object.entries(abas)) {
     context.form[field] = original;
   }
 }
-assert(validarAba.call({ form: abas.basico, regiaoOfertaSelecionada: '' }, 'basico'));
+assert(validarAba.call({ form: { ...abas.basico, unidades_oferta: [] } }, 'basico'));
 checks++;
 
 const validarPca = carregarMetodo('Pca', 'validarFormulario');

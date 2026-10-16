@@ -467,7 +467,7 @@
             <div class="form-card">
               <h2>Informações principais</h2>
               <div class="form-grid">
-                <div class="form-group full">
+                <div class="form-group">
                   <label for="eixo"><FormLabel label="Eixo" required /></label>
                   <SearchableSelect
                     id="eixo"
@@ -481,22 +481,12 @@
                 </div>
                 <div class="form-group">
                   <label for="segmento"><FormLabel label="Segmento" required /></label>
-                  <SearchableSelect
+                  <input
                     id="segmento"
-                    input-id="segmento"
-                    v-model="form.segmento" aria-required="true"
-                    :options="segmentosDoEixo"
-                    empty-option="Selecione o segmento..."
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="programa"><FormLabel label="Programa / categoria" /></label>
-                  <SearchableSelect
-                    id="programa"
-                    input-id="programa"
-                    v-model="form.programa"
-                    :options="meta.programas"
-                    empty-option="Nenhum"
+                    v-model="form.segmento"
+                    type="text"
+                    maxlength="150"
+                    aria-required="true"
                   />
                 </div>
                 <div class="form-group full">
@@ -569,7 +559,7 @@
                     @input="formatarAlunos"
                   />
                 </div>
-                <div class="form-group full">
+                <div class="form-group">
                   <label for="instrutor"><FormLabel label="Instrutor(es)" required /></label>
                   <input
                     id="instrutor"
@@ -584,54 +574,75 @@
 
             <div class="form-card">
               <h2 id="estruturas-oferta-label"><FormLabel label="Estruturas de oferta" required /></h2>
-              <p class="form-card-hint">Escolha a localidade/região e marque Faculdade, Polo ou Unidade onde o curso será oferecido.</p>
+              <p class="form-card-hint">Pesquise e selecione as faculdades, polos ou unidades onde o curso será oferecido.</p>
 
               <div class="form-group">
                 <label for="regiao-oferta"><FormLabel label="Localidade / Região" required /></label>
-                <SearchableSelect
-                  id="regiao-oferta"
-                  input-id="regiao-oferta"
-                  v-model="regiaoOfertaSelecionada" aria-required="true"
-                  :options="opcoesRegiaoOferta"
-                  empty-option="Selecione a região..."
-                  @change="selecionarEstruturaDaRegiao"
-                />
-              </div>
-
-              <div v-if="unidadesSelecionadasResumo.length" class="unidades-selecionadas">
-                <span class="unidades-selecionadas-label">Selecionadas:</span>
-                <button
-                  v-for="nome in unidadesSelecionadasResumo"
-                  :key="'sel-' + nome"
-                  type="button"
-                  class="unidade-chip selected"
-                  @click="toggleUnidade(nome)"
-                >
-                  <span>{{ nome }}</span>
-                  <span class="unidade-chip-check">✓</span>
-                </button>
-              </div>
-
-              <div v-if="regiaoOfertaAtual" class="unidades-grupos" role="group" aria-labelledby="estruturas-oferta-label">
-                <div v-for="grupo in regiaoOfertaAtual.grupos" :key="grupo.tipo" class="unidade-grupo">
-                  <h3>{{ grupo.label }}</h3>
-                  <div class="unidades-grid">
-                    <button
-                      v-for="unidade in grupo.unidades"
-                      :key="unidade.id"
-                      type="button"
-                      class="unidade-chip"
-                      :class="{ selected: unidadeSelecionada(unidade.nome) }"
-                      @click="toggleUnidade(unidade.nome)"
-                    >
-                      <span>{{ unidade.nome }}</span>
-                      <span v-if="unidadeSelecionada(unidade.nome)" class="unidade-chip-check">✓</span>
-                    </button>
+                <div ref="seletorEstruturas" class="estruturas-controles">
+                  <button
+                    id="regiao-oferta"
+                    type="button"
+                    class="estruturas-dropdown-trigger"
+                    :aria-expanded="seletorEstruturasAberto"
+                    aria-controls="estruturas-oferta-opcoes"
+                    aria-required="true"
+                    :disabled="!unidades.length"
+                    @click.stop="alternarSeletorEstruturas"
+                    @keydown.esc.prevent="alternarSeletorEstruturas"
+                  >
+                    <span class="estruturas-dropdown-conteudo">
+                      <span v-if="!resumoEstruturasSelecionadas" class="estruturas-dropdown-placeholder">Selecione a região...</span>
+                      <span
+                        v-if="resumoEstruturasSelecionadas"
+                        class="estruturas-dropdown-resumo"
+                        :title="resumoEstruturasSelecionadas"
+                        aria-live="polite"
+                      >{{ resumoEstruturasSelecionadas }}</span>
+                    </span>
+                    <span class="estruturas-dropdown-chevron" aria-hidden="true">{{ seletorEstruturasAberto ? '▴' : '▾' }}</span>
+                  </button>
+                  <div v-if="seletorEstruturasAberto" id="estruturas-oferta-opcoes" class="estruturas-dropdown">
+                    <label class="estruturas-busca">
+                      <span class="visually-hidden">Pesquisar estruturas</span>
+                      <input
+                        v-model="buscaEstrutura"
+                        type="search"
+                        placeholder="Pesquisar estruturas..."
+                        autocomplete="off"
+                        @keydown.esc.prevent="alternarSeletorEstruturas"
+                      />
+                    </label>
+                    <label class="estrutura-opcao estrutura-opcao-todas">
+                      <input
+                        type="checkbox"
+                        :checked="todasEstruturasSelecionadas"
+                        :indeterminate="algumasEstruturasSelecionadas"
+                        :aria-checked="algumasEstruturasSelecionadas ? 'mixed' : todasEstruturasSelecionadas"
+                        @change="alternarTodasEstruturas"
+                      />
+                      <span class="estrutura-opcao-texto">
+                        <strong>Todas as estruturas</strong>
+                        <small>Selecionar todas as unidades, polos e faculdades</small>
+                      </span>
+                    </label>
+                    <div class="unidades-grupos" role="group" aria-labelledby="estruturas-oferta-label">
+                      <div v-for="grupo in gruposOfertaFiltrados" :key="grupo.tipo" class="unidade-grupo">
+                        <h3>{{ grupo.label }}</h3>
+                        <label v-for="unidade in grupo.unidades" :key="unidade.id || unidade.nome" class="estrutura-opcao">
+                          <input
+                            type="checkbox"
+                            :checked="unidadeSelecionada(unidade.nome)"
+                            @change="definirUnidade(unidade.nome, $event.target.checked)"
+                          />
+                          <span>{{ unidade.nome }}</span>
+                        </label>
+                      </div>
+                      <p v-if="!gruposOfertaFiltrados.length" class="estruturas-sem-resultados">
+                        {{ gruposOferta.length ? 'Nenhuma estrutura encontrada.' : 'Nenhuma estrutura disponível.' }}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <p v-if="!regiaoOfertaAtual.grupos?.length" class="form-card-hint">
-                  Nenhuma unidade ativa nesta região.
-                </p>
               </div>
             </div>
 
@@ -666,12 +677,11 @@
                 </div>
                 <div class="form-group">
                   <label for="modalidade"><FormLabel label="Modalidade" required /></label>
-                  <SearchableSelect
+                  <input
                     id="modalidade"
-                    input-id="modalidade"
                     v-model="form.modalidade"
-                    :options="meta.modalidades"
-                    empty-option="Selecione a modalidade"
+                    type="text"
+                    maxlength="100"
                     aria-required="true"
                   />
                 </div>
@@ -709,9 +719,13 @@
                     id="identificacao"
                     v-model="form.identificacao" aria-required="true"
                     type="text"
-                    placeholder="Ex: 2018"
-                    maxlength="50"
+                    inputmode="numeric"
+                    placeholder="Ex: 1234"
+                    maxlength="6"
+                    :aria-describedby="errosCampo.identificacao ? 'erro-identificacao' : undefined"
+                    @input="validarIdentificacaoInput"
                   />
+                  <small v-if="errosCampo.identificacao" id="erro-identificacao" class="campo-ajuda-erro" role="alert">{{ errosCampo.identificacao }}</small>
                 </div>
                 <div class="form-group">
                   <label for="ultima_revisao"><FormLabel label="Última atualização" required /></label>
@@ -758,15 +772,15 @@
                   <label for="valores"><FormLabel label="Valores" required /></label>
                   <input
                     id="valores"
-                    v-model="form.valores" aria-required="true"
+                    :value="valorEmEdicao" aria-required="true"
                     type="text"
                     inputmode="decimal"
-                    placeholder="Ex: R$ 2.405,00"
-                    maxlength="255"
+                    placeholder="Ex: 2.405,00"
+                    maxlength="24"
                     :aria-describedby="errosCampo.valores ? 'erro-valores' : undefined"
-                    @focus="aoFocarValor"
-                    @keydown="prepararEntradaValor"
-                    @input="formatarValorInput"
+                    @focus="iniciarEdicaoValor"
+                    @input="aoEditarValor"
+                    @blur="finalizarEdicaoValor"
                   />
                   <small v-if="errosCampo.valores" id="erro-valores" class="campo-ajuda-erro" role="alert">{{ errosCampo.valores }}</small>
                   <small v-if="valoresLegado" class="campo-hint-legado">Este valor antigo será preservado se você não o substituir.</small>

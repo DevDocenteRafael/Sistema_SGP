@@ -2,6 +2,7 @@
 
 namespace App\Models\Concerns;
 
+use App\Models\Curso;
 use App\Support\CatalogoInstitucional;
 use App\Support\CatalogoOficial;
 
@@ -25,6 +26,14 @@ trait SyncsEixoSegmento
 
             if ($resolvido['eixo'] !== null) {
                 $model->eixo = $resolvido['eixo'];
+            }
+
+            if ($model instanceof Curso && $resolvido['erro'] !== null && $resolvido['eixo'] !== null) {
+                $ids = CatalogoInstitucional::ids($resolvido['eixo'], null);
+                $model->eixo_id = $ids['eixo_id'];
+                $model->segmento_id = null;
+
+                return;
             }
 
             if (in_array('segmento', $model->getFillable(), true)) {

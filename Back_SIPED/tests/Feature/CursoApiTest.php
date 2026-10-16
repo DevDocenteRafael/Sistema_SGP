@@ -56,7 +56,7 @@ class CursoApiTest extends TestCase
             'alunos' => '10',
             'instrutor' => 'Instrutor Teste',
             'descricao' => 'Descrição de teste.',
-            'identificacao' => '2026',
+            'identificacao' => '002026',
             'ultima_revisao' => '2026',
             'processo_sei' => '123.456/2026-01',
             'data_inicio' => '2026-01-01',
@@ -128,6 +128,7 @@ class CursoApiTest extends TestCase
         $create = $this->postJson('/api/cursos', $payload)->assertCreated();
         $create->assertJsonPath('curso.codigo_processo', '1.-2.3--4')
             ->assertJsonPath('curso.codigo_dn', '564-564.1651-41.45445')
+            ->assertJsonPath('curso.identificacao', '002026')
             ->assertJsonPath('curso.valores', '1533.75')
             ->assertJsonPath('curso.pcn', 'SIM')
             ->assertJsonPath('curso.pcr', 'NÃO');
@@ -162,6 +163,65 @@ class CursoApiTest extends TestCase
         $this->postJson('/api/cursos', $this->payloadValido(['pcn' => 'Plano de curso']))
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['pcn']);
+
+        foreach (['123', '1234567', '12A45', '123.4'] as $identificacao) {
+            $this->postJson('/api/cursos', $this->payloadValido(['identificacao' => $identificacao]))
+                ->assertUnprocessable()
+                ->assertJsonValidationErrors(['identificacao']);
+        }
+
+        foreach (['1234', '12345', '123456'] as $indice => $identificacao) {
+            $this->postJson('/api/cursos', $this->payloadValido([
+                'identificacao' => $identificacao,
+                'titulo' => "Curso com identificação válida {$indice}",
+                'codigo_sig' => (string) (991000 + $indice),
+                'codigo_processo' => '991.000-'.$indice,
+                'justificativa_duplicidade' => 'Curso isolado para validar os comprimentos de Identificação.',
+            ]))->assertCreated()
+                ->assertJsonPath('curso.identificacao', $identificacao);
+        }
+
+        foreach (['150', '150,50', '1.500,75', '150.000,00', '1.000.000,00', '1.000.000.000,00', '9.999.999.999,99'] as $indice => $valor) {
+            $criado = $this->postJson('/api/cursos', $this->payloadValido([
+                'valores' => $valor,
+                'titulo' => "Curso com valor alto {$indice}",
+                'codigo_sig' => (string) (100000 + $indice),
+                'codigo_processo' => '789.001-'.$indice,
+                'justificativa_duplicidade' => 'Curso isolado para validar valores monetários distintos.',
+            ]))->assertCreated();
+            $id = $criado->json('curso.id');
+            $this->getJson("/api/cursos/{$id}")
+                ->assertOk()
+                ->assertJsonPath('curso.valores', $valor);
+        }
+
+        $this->postJson('/api/cursos', $this->payloadValido(['valores' => '10.000.000.000.000,00']))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['valores']);
+    }
+
+    public function test_segmento_e_modalidade_livres_e_programa_historico_preservado(): void
+    {
+        $this->actingAs($this->editor(), 'sanctum');
+        $payload = $this->payloadValido([
+            'segmento' => 'Segmento digitado pela pessoa',
+            'modalidade' => 'Formato experimental livre',
+            'programa' => 'Ensino Médio',
+        ]);
+        $curso = $this->postJson('/api/cursos', $payload)
+            ->assertCreated()
+            ->assertJsonPath('curso.segmento', 'Segmento digitado pela pessoa')
+            ->assertJsonPath('curso.modalidade', 'Formato experimental livre')
+            ->json('curso');
+
+        unset($payload['programa']);
+        $this->putJson('/api/cursos/'.$curso['id'], [
+            ...$payload,
+            'titulo' => 'Curso sem campo programa no formulário',
+        ])->assertOk()
+            ->assertJsonPath('curso.programa', 'Ensino Médio')
+            ->assertJsonPath('curso.segmento', 'Segmento digitado pela pessoa')
+            ->assertJsonPath('curso.modalidade', 'Formato experimental livre');
     }
 
     public function test_preserva_valores_legados_inalterados_durante_edicao(): void
@@ -286,16 +346,17 @@ class CursoApiTest extends TestCase
             ->assertJsonValidationErrors(['eixo']);
 
         $this->postJson('/api/cursos', $this->payloadValido([
-            'titulo' => 'Curso modalidade inválida',
+            'titulo' => 'Curso modalidade livre',
             'eixo' => 'Gestão e Moda',
             'segmento' => 'Gestão e Comércio',
             'modalidade' => 'Presencial',
             'status' => 'ATIVO',
-            'codigo_sig' => '123456',
+            'codigo_sig' => '654321',
+            'codigo_processo' => '789.123-1',
             'carga_horaria' => '40',
         ]))
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['modalidade']);
+            ->assertCreated()
+            ->assertJsonPath('curso.modalidade', 'Presencial');
 
         $meta = $this->getJson('/api/cursos')->json('meta.eixos');
         $this->assertSame(config('eixos'), $meta);

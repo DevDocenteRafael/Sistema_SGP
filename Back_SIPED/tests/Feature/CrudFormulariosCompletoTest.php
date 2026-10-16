@@ -212,7 +212,7 @@ class CrudFormulariosCompletoTest extends TestCase
             'alunos' => '10',
             'instrutor' => 'Instrutor Teste',
             'descricao' => 'Descrição de teste.',
-            'identificacao' => '2026',
+            'identificacao' => '002026',
             'ultima_revisao' => '2026',
             'data_inicio' => '2026-01-01',
             'data_fim' => '2026-12-31',
