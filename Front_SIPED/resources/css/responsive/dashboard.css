@@ -143,8 +143,17 @@
 }
 
 @media (max-width: 639px) {
+  .dashboard-metrics-grid,
+  .dashboard-kpi-strip,
+  .dashboard-kpi-grid,
+  .dashboard-analytics,
+  .dashboard-charts-grid,
+  .dashboard-split-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
   .dashboard-kpi-strip:not(.dashboard-kpi-strip--single) {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 
   .dashboard-kpi-tile--standard {

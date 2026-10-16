@@ -55,6 +55,7 @@ export default {
       this.fecharMenu();
     },
     menuAberto(aberto) {
+      document.documentElement.style.overflow = aberto ? 'hidden' : '';
       document.body.style.overflow = aberto ? 'hidden' : '';
     },
   },
@@ -63,6 +64,7 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.onResize);
+    document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
   },
   methods: {
