@@ -286,6 +286,7 @@ export default {
       return {
         ciclo_id: '',
         titulo: '',
+        programa: '',
         eixo: '',
         segmento: '',
         modalidade: '',
@@ -602,6 +603,7 @@ export default {
       this.form = {
         ciclo_id: curso.ciclo_id ? String(curso.ciclo_id) : this.cicloFormPadrao(),
         titulo: curso.titulo ?? '',
+        programa: curso.programa ?? '',
         eixo: curso.eixo ?? '',
         segmento: curso.segmento ?? '',
         modalidade: curso.modalidade ?? '',
@@ -931,6 +933,7 @@ export default {
       const payload = {
         ciclo_id: this.form.ciclo_id || null,
         titulo: this.form.titulo,
+        programa: this.form.programa || null,
         eixo: this.form.eixo,
         segmento: this.form.segmento || null,
         modalidade: this.form.modalidade || null,

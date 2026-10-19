@@ -259,7 +259,7 @@
                   <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.segmento) }}</span>
                 </div>
                 <div class="detalhe-campo">
-                  <span class="detalhe-label">Programa / categoria</span>
+                  <span class="detalhe-label">Tipo de Curso</span>
                   <span class="detalhe-valor">{{ valorCampo(cursoDetalhe.programa) }}</span>
                 </div>
                 <div class="detalhe-campo">
@@ -489,16 +489,28 @@
                     aria-required="true"
                   />
                 </div>
-                <div class="form-group full">
-                  <label for="titulo"><FormLabel label="Título do curso" required /></label>
-                  <input
-                    id="titulo"
-                    v-model="form.titulo"
-                    type="text"
-                    placeholder="Ex: Técnico em Gastronomia"
-                    maxlength="255"
-                    aria-required="true"
-                  />
+                <div class="curso-titulo-tipo">
+                  <div class="form-group">
+                    <label for="titulo"><FormLabel label="Título do curso" required /></label>
+                    <input
+                      id="titulo"
+                      v-model="form.titulo"
+                      type="text"
+                      placeholder="Ex: Técnico em Gastronomia"
+                      maxlength="255"
+                      aria-required="true"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="programa">Tipo de Curso</label>
+                    <input
+                      id="programa"
+                      v-model="form.programa"
+                      type="text"
+                      placeholder="Ex.: QUALIFICAÇÃO PROFISSIONAL"
+                      maxlength="80"
+                    />
+                  </div>
                 </div>
                 <div class="form-group">
                   <label for="ciclo"><FormLabel label="Ciclo de gestão" required /></label>
