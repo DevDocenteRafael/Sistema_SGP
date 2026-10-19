@@ -78,7 +78,7 @@ class AtaVisitasTecnicasSvtTest extends TestCase
             ->assertJsonPath('visitaTecnica.historico_turma.0.local', 'Laboratório X');
 
         $this->getJson('/api/visitas-tecnicas?busca=Hospital Regional')->assertOk()->assertJsonCount(1, 'data');
-        $this->assertContains('Recusada', $this->getJson('/api/visitas-tecnicas')->json('meta.status'));
+        $this->assertContains('Recusada', $this->getJson('/api/visitas-tecnicas')->json('meta.status_legados'));
         $this->assertContains('Direção Pedagógica', $this->getJson('/api/visitas-tecnicas')->json('meta.etapas_svt'));
     }
 }
