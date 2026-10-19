@@ -216,7 +216,7 @@ assert.match(estilosResponsivos, /@media \(max-width: 768px\)[\s\S]*?\.cursos-pa
 assert.match(estilos, /\.estruturas-dropdown\s*\{[^}]*position:\s*absolute/s);
 assert.match(estilos, /\.estruturas-dropdown\s*\{[^}]*overflow-y:\s*auto/s);
 assert.doesNotMatch(page, /Selecionar estruturas/);
-assert.doesNotMatch(page, /id="programa"/);
+assert.match(page, /<label for="programa">Tipo de Curso<\/label>[\s\S]*?id="programa"[\s\S]*?v-model="form\.programa"/);
 assert.match(page, /id="segmento"[\s\S]*?type="text"/);
 assert.match(page, /id="modalidade"[\s\S]*?type="text"/);
 
