@@ -722,7 +722,10 @@
 }
 
 .form-body {
+  box-sizing: border-box;
+  width: 100%;
   max-width: 72rem;
+  margin: 0 auto;
   padding: 2rem;
 }
 
@@ -972,6 +975,13 @@
   gap: 1rem;
 }
 
+.curso-titulo-tipo {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -980,6 +990,12 @@
 
 .form-group.full {
   grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .curso-titulo-tipo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .form-group label {
