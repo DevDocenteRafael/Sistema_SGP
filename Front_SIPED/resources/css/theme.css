@@ -1120,6 +1120,49 @@ html[data-theme='dark'] .dashboard-vchart-grid span {
   border-color: var(--sgp-border) !important;
 }
 
+html[data-theme='dark'] .dashboard-page .dashboard-chart-card h3,
+html[data-theme='dark'] .dashboard-page .dashboard-chart-summary,
+html[data-theme='dark'] .dashboard-page .dashboard-chart-subtitle,
+html[data-theme='dark'] .dashboard-page .dashboard-chart-empty,
+html[data-theme='dark'] .dashboard-page .dashboard-rank-pos,
+html[data-theme='dark'] .dashboard-page .dashboard-rank-label,
+html[data-theme='dark'] .dashboard-page .dashboard-rank-meta strong,
+html[data-theme='dark'] .dashboard-page .dashboard-rank-meta small,
+html[data-theme='dark'] .dashboard-page .dashboard-vbar-value,
+html[data-theme='dark'] .dashboard-page .dashboard-vbar-label,
+html[data-theme='dark'] .dashboard-page .dashboard-vbar-share,
+html[data-theme='dark'] .dashboard-page .dashboard-bar-label,
+html[data-theme='dark'] .dashboard-page .dashboard-bar-meta strong,
+html[data-theme='dark'] .dashboard-page .dashboard-bar-meta small,
+html[data-theme='dark'] .dashboard-page .dashboard-status-value,
+html[data-theme='dark'] .dashboard-page .dashboard-status-label,
+html[data-theme='dark'] .dashboard-page .dashboard-status-share,
+html[data-theme='dark'] .dashboard-page .dashboard-summary-name,
+html[data-theme='dark'] .dashboard-page .dashboard-summary-meta strong,
+html[data-theme='dark'] .dashboard-page .dashboard-summary-meta small,
+html[data-theme='dark'] .dashboard-page .dashboard-kpi-value,
+html[data-theme='dark'] .dashboard-page .dashboard-kpi-title,
+html[data-theme='dark'] .dashboard-page .dashboard-kpi-subtitle,
+html[data-theme='dark'] .dashboard-page .dashboard-metric-category,
+html[data-theme='dark'] .dashboard-page .dashboard-metric-value,
+html[data-theme='dark'] .dashboard-page .dashboard-metric-detail,
+html[data-theme='dark'] .dashboard-page .dashboard-metric-status,
+html[data-theme='dark'] .dashboard-page .dashboard-metric-status strong,
+html[data-theme='dark'] .dashboard-page .dashboard-metric-chip,
+html[data-theme='dark'] .dashboard-page .dashboard-metric-chip strong,
+html[data-theme='dark'] .dashboard-page .dashboard-metric-sub,
+html[data-theme='dark'] .dashboard-page .dashboard-metric-share,
+html[data-theme='dark'] .dashboard-page .dashboard-metric-title {
+  color: #fff !important;
+}
+
+html[data-theme='dark'] .dashboard-page .dashboard-note,
+html[data-theme='dark'] .dashboard-page .dashboard-group-intro p,
+html[data-theme='dark'] .inicio-page .inicio-section-head p,
+html[data-theme='dark'] .inicio-page .inicio-modulo-desc {
+  color: #fff !important;
+}
+
 html[data-theme='dark'] .ferramentas-top,
 html[data-theme='dark'] .ferramentas-page,
 html[data-theme='dark'] .sistemas-apoio-page,

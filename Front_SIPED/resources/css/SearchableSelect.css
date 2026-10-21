@@ -153,17 +153,22 @@
 .app-main .dashboard-toolbar .sgp-select__trigger,
 .app-main .dashboard-toolbar .sgp-select__option {
   font-weight: 600;
-  color: #000 !important;
 }
 
-.app-main [class*="filtro"] .sgp-select__value.is-placeholder,
-.app-main [class*="filtro"] input::placeholder,
-.app-main .dashboard-toolbar .sgp-select__value,
-.app-main .dashboard-toolbar input::placeholder {
-  color: #000 !important;
+html[data-theme='dark'] .sgp-select__trigger,
+html[data-theme='dark'] .sgp-select__value,
+html[data-theme='dark'] .sgp-select__value.is-placeholder,
+html[data-theme='dark'] .sgp-select__option,
+html[data-theme='dark'] .sgp-select__search,
+html[data-theme='dark'] .sgp-select__empty {
+  color: #fff !important;
+  font-weight: 600;
 }
 
-.app-main [class*="filtro"] .sgp-select__chevron,
-.app-main .dashboard-toolbar .sgp-select__chevron {
-  color: #000 !important;
+html[data-theme='dark'] .sgp-select__search::placeholder {
+  color: #fff !important;
+}
+
+html[data-theme='dark'] .app-main .sgp-select__dropdown input.sgp-select__search {
+  color: #fff !important;
 }
