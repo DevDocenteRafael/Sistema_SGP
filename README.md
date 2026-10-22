@@ -142,6 +142,20 @@ Não use `php artisan serve` nem `npm run dev` como servidor definitivo.
 - Aplicação: IIS/Apache/Nginx aponta para `Back_SIPED/public`. Com `APP_DEBUG=false`, o Laravel serve o Vue compilado e encaminha as rotas da SPA; `/api`, `/up`, `/storage` e `/IMG` preservam seus destinos.
 - Produção: `APP_DEBUG=false` e `LOG_LEVEL=warning`.
 
+## Documentação
+
+- [docs/README.md](docs/README.md) — índice geral da documentação
+- [docs/manual-usuario.md](docs/manual-usuario.md) — fluxos de uso e perfis
+- [docs/manual-tecnico.md](docs/manual-tecnico.md) — arquitetura, setup e homologação
+- [docs/banco-dados.md](docs/banco-dados.md) — tabelas e relacionamentos
+- [docs/api.md](docs/api.md) — rotas e autenticação da API
+- [docs/producao.md](docs/producao.md) — checklist de preparação, backup e restauração
+- [docs/trello-sprints.md](docs/trello-sprints.md) — cartões e acompanhamento das Sprints 9 e 10
+- [docs/apresentacao.md](docs/apresentacao.md) — roteiro para apresentação e demonstração
+- [docs/integracao-svt.md](docs/integracao-svt.md) — integração com o SVT e regras de sincronização
+- [docs/PLANEJAMENTO.md](docs/PLANEJAMENTO.md) — planejamento e organização inicial do projeto
+- [Back_SIPED/README.md](Back_SIPED/README.md) — referência técnica do backend Laravel
+
 ## Estrutura
 
 - `Back_SIPED/` — API Laravel

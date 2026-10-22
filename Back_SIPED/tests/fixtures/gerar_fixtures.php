@@ -5,7 +5,7 @@
  * Uso: php tests/fixtures/gerar_fixtures.php
  */
 
-require __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -157,5 +157,23 @@ sheetComCabecalho($ss, 'Quantidade de cursos por eixo', [
     ['Gestão', '1', 'Gestão de Pessoas', '200', '1', 'EIX-20', '30', 'Ana'],
 ], 1);
 salvar($ss, 'eixos-duas-abas.xlsx');
+
+// --- Ações Extensivas ---
+$ss = new Spreadsheet;
+sheetComCabecalho($ss, 'Ações extensivas', [
+    'Priorização', 'Atribuído', 'Eixo', 'Número do processo SEI', 'Tipo', 'Assunto', 'Objetivo', 'Setor', 'Última atualização',
+], [
+    ['Alta', 'ana.5041', 'Gestão e Moda', '2026.000001381-46', 'Ação Extensiva', 'Sabores Regionais', 'Objetivo teste', 'CPED', '2026-05-06'],
+    ['Baixa', 'barbara.6003', 'Gestão e Moda', '2026.000001382-47', 'Ação Extensiva', 'Cafezinho', 'Objetivo teste 2', 'DEP', '2026-05-06'],
+]);
+salvar($ss, 'acoes-extensivas-sample.xlsx');
+
+$ss = new Spreadsheet;
+sheetComCabecalho($ss, 'Dados aleatórios', [
+    'Nome', 'Valor', 'Status',
+], [
+    ['Sem relação', 'abc', 'ok'],
+]);
+salvar($ss, 'sem-aba-acoes.xlsx');
 
 echo "Fixtures geradas.\n";
