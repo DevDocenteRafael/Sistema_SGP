@@ -92,3 +92,20 @@ export function compareSelectLabels(a, b) {
 export function sortYearsDescending(years) {
   return [...years].sort((a, b) => Number(b) - Number(a));
 }
+
+export function formatFilterOptionLabel(value) {
+  const label = String(value ?? '').toLocaleLowerCase('pt-BR')
+    .replace(/\bead\b/gi, 'EAD');
+
+  return label.replace(/^(\s*)(\p{L})/u, (_, espacos, primeiraLetra) => (
+    `${espacos}${primeiraLetra.toLocaleUpperCase('pt-BR')}`
+  ));
+}
+
+export function formatTableTypeLabel(value) {
+  const label = String(value ?? '').toLocaleLowerCase('pt-BR');
+
+  return label.replace(/^(\s*)(\p{L})/u, (_, espacos, primeiraLetra) => (
+    `${espacos}${primeiraLetra.toLocaleUpperCase('pt-BR')}`
+  ));
+}

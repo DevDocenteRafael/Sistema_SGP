@@ -25,7 +25,7 @@
 
         <SearchableSelect
           v-model="filtros.ano"
-          :options="anosDisponiveis"
+          :options="anosOrdenados"
           empty-option="Todos os anos"
           aria-label="Filtrar por ano"
           @change="carregarRegistros"
@@ -41,7 +41,7 @@
 
         <SearchableSelect
           v-model="filtros.tipo"
-          :options="tiposDisponiveis"
+          :options="tiposFiltroDisponiveis"
           empty-option="Todos os tipos"
           aria-label="Filtrar por tipo"
           @change="carregarRegistros"
@@ -57,7 +57,7 @@
 
         <SearchableSelect
           v-model="filtros.status"
-          :options="statusDisponiveis"
+          :options="statusFiltroDisponiveis"
           empty-option="Todos os status"
           aria-label="Filtrar por status do registro"
           @change="carregarRegistros"
@@ -65,7 +65,7 @@
 
         <SearchableSelect
           v-model="filtros.situacao"
-          :options="situacoesDisponiveis"
+          :options="situacoesFiltroDisponiveis"
           empty-option="Todas as situações"
           aria-label="Filtrar por situação final"
           @change="carregarRegistros"
@@ -122,15 +122,15 @@
               <tr v-for="registro in registros" :key="registro.id">
                 <td>{{ registro.segmento || '—' }}</td>
                 <td>{{ registro.curso || '—' }}</td>
-                <td>{{ registro.tipo || '—' }}</td>
+                <td>{{ registro.tipoExibicao || '—' }}</td>
                 <td>{{ registro.sei || '—' }}</td>
                 <td>{{ registro.sig || '—' }}</td>
                 <td>{{ registro.mesEntrega || '—' }}</td>
-                <td><span class="badge" :class="statusClass(registro.status)">{{ registro.status || '—' }}</span></td>
+                <td><span class="badge" :class="statusClass(registro.status)">{{ registro.statusExibicao || '—' }}</span></td>
                 <td>{{ registro.area_planejamento || 'Sem origem' }}</td>
                 <td>{{ registro.observacao || '—' }}</td>
                 <td>
-                  <span class="badge" :class="statusClass(registro.statusFinal)">{{ registro.statusFinal || '—' }}</span>
+                  <span class="badge" :class="statusClass(registro.statusFinal)">{{ registro.statusFinalExibicao || '—' }}</span>
                 </td>
                 <td class="text-center acoes">
                   <button type="button" class="btn-icon btn-view" title="Visualizar" aria-label="Visualizar" @click="abrirDetalhes(registro)">

@@ -8,6 +8,11 @@ import {
   validarInteiro,
   validarProcessoSei,
 } from '../utils/validacao';
+import {
+  formatFilterOptionLabel,
+  formatTableTypeLabel,
+  sortYearsDescending,
+} from '../utils/selectOptions';
 
 const FILTROS_VAZIOS = {
   busca: '',
@@ -54,13 +59,18 @@ export default createCrudPage({
       segmento: registro.segmento || '—',
       curso: registro.curso || '—',
       tipo: registro.tipo || '—',
+      tipoExibicao: registro.tipo ? formatTableTypeLabel(registro.tipo) : '—',
       sei: registro.numero_sei || registro.sei || '—',
       sig: registro.codigo_sig || registro.sig || '—',
       mesEntrega: registro.mes_entrega || registro.mesEntrega || '—',
       status: registro.status || '—',
+      statusExibicao: registro.status ? formatTableTypeLabel(registro.status) : '—',
       area_planejamento: registro.area_planejamento || '',
       observacao: registro.observacao || '—',
       statusFinal: registro.status_final || registro.statusFinal || '—',
+      statusFinalExibicao: (registro.status_final || registro.statusFinal)
+        ? formatTableTypeLabel(registro.status_final || registro.statusFinal)
+        : '—',
       numero_sei: registro.numero_sei || registro.sei || '',
       codigo_sig: registro.codigo_sig || registro.sig || '',
       mes_entrega: registro.mes_entrega || registro.mesEntrega || '',
@@ -138,6 +148,32 @@ export default createCrudPage({
     if (Array.isArray(meta.status) && meta.status.length) this.statusDisponiveis = meta.status;
     if (Array.isArray(meta.situacoes) && meta.situacoes.length) this.situacoesDisponiveis = meta.situacoes;
     if (Array.isArray(meta.areas) && meta.areas.length) this.areasDisponiveis = meta.areas;
+  },
+  extraComputed: {
+    anosOrdenados() {
+      return sortYearsDescending(this.anosDisponiveis);
+    },
+    tiposFiltroDisponiveis() {
+      return this.tiposDisponiveis.map((tipo) => ({
+        value: tipo,
+        label: formatFilterOptionLabel(tipo),
+        preserveLabel: true,
+      }));
+    },
+    statusFiltroDisponiveis() {
+      return this.statusDisponiveis.map((status) => ({
+        value: status,
+        label: formatFilterOptionLabel(status),
+        preserveLabel: true,
+      }));
+    },
+    situacoesFiltroDisponiveis() {
+      return this.situacoesDisponiveis.map((situacao) => ({
+        value: situacao,
+        label: formatFilterOptionLabel(situacao),
+        preserveLabel: true,
+      }));
+    },
   },
   extraData: () => ({
     areasDisponiveis: [...AREAS_PLANEJAMENTO],

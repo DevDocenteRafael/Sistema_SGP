@@ -83,9 +83,10 @@ export default {
     opcoesNormalizadas() {
       const opcoes = (this.options || []).map((item) => {
         if (item != null && typeof item === 'object') {
+          const label = item.label ?? String(item.value ?? '');
           return {
             value: item.value ?? '',
-            label: formatSelectLabel(item.label ?? String(item.value ?? '')),
+            label: item.preserveLabel ? String(label) : formatSelectLabel(label),
           };
         }
 
