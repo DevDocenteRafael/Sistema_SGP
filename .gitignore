@@ -58,6 +58,16 @@ dump.sql
 
 # Documentos locais da raiz (planos, PDFs, HTML gerado)
 docs/
+!docs/
+docs/*
+!docs/README.md
+!docs/manual-usuario.md
+!docs/manual-tecnico.md
+!docs/banco-dados.md
+!docs/api.md
+!docs/producao.md
+!docs/trello-sprints.md
+!docs/apresentacao.md
 
 # Documentos Word da raiz (specs, atas) e arquivos de bloqueio do Word
 /*.docx
