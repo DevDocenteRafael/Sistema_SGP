@@ -2,12 +2,14 @@
 
 return [
     'status' => [
+        'Planejamento',
         'Rascunho',
         'Consolidado',
         'Enviado',
     ],
 
     'status_tela' => [
+        'Planejamento',
         'Consolidado',
         'Realizado',
         'Cancelado',

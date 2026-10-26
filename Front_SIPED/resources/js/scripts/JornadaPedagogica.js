@@ -73,7 +73,7 @@ export default {
         last_page: 1,
         from: 0,
         to: 0,
-        status: ['Consolidado', 'Realizado', 'Cancelado'],
+        status: ['Planejamento', 'Consolidado', 'Realizado', 'Cancelado'],
         sim_nao: ['Sim', 'Não'],
       },
       buscaTimeout: null,
@@ -462,7 +462,7 @@ export default {
 
       return {
         'badge-cancelado': valor === 'cancelado',
-        'badge-planejado': valor === 'planejado',
+        'badge-planejado': ['planejado', 'planejamento'].includes(valor),
         'badge-consolidado': valor === 'consolidado',
         'badge-enviado': valor === 'realizado',
       };
@@ -473,7 +473,7 @@ export default {
 
       return {
         'status-select-cancelado': valor === 'cancelado',
-        'status-select-planejado': valor === 'planejado',
+        'status-select-planejado': ['planejado', 'planejamento'].includes(valor),
         'status-select-consolidado': valor === 'consolidado',
         'status-select-realizado': valor === 'realizado',
       };

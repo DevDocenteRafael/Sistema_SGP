@@ -4,7 +4,7 @@
       <CrudPageHeader
         title="Jornada Pedagógica"
         subtitle="Planejamento documental da jornada: período, local, verba, programação e anexos"
-        info="MVP documental. Status: consolidado, realizado ou cancelado. Gere o PDF com os dados do plano."
+        info="MVP documental. Status: planejamento, consolidado, realizado ou cancelado. Gere o PDF com os dados do plano."
         :show-novo="podeEditar"
         novo-label="Nova Jornada"
         :show-clear-filters="temFiltro"
