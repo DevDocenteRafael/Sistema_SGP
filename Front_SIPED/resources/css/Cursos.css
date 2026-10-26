@@ -260,13 +260,13 @@
 .badge-revisao {
   border-color: #fde68a;
   background: #fffbeb;
-  color: #b45309;
+  color: #f57c00;
 }
 
 .badge-inativo {
   border-color: #e5e7eb;
   background: #f3f4f6;
-  color: #6b7280;
+  color: #1d4ed8;
 }
 
 .badge-suspenso {

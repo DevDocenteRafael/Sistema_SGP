@@ -312,7 +312,8 @@ class PortfolioCicloEJornadaApiTest extends TestCase
 
         $this->getJson('/api/jornadas-pedagogicas')
             ->assertOk()
-            ->assertJsonStructure(['data', 'meta' => ['total', 'status']]);
+            ->assertJsonStructure(['data', 'meta' => ['total', 'status']])
+            ->assertJsonPath('meta.status.0', 'Planejamento');
 
         $create = $this->post('/api/jornadas-pedagogicas', [
             'titulo' => 'Jornada 2026',
@@ -336,7 +337,7 @@ class PortfolioCicloEJornadaApiTest extends TestCase
         $this->post("/api/jornadas-pedagogicas/{$id}", [
             '_method' => 'PUT',
             'titulo' => 'Jornada 2026 consolidada',
-            'status' => 'Consolidado',
+            'status' => 'Planejamento',
             'tem_pre_jornada' => 'Sim',
             'data_inicio' => '2026-02-01',
             'data_fim' => '2026-02-03',
@@ -349,7 +350,7 @@ class PortfolioCicloEJornadaApiTest extends TestCase
             'setores' => 'CPED, Secretaria Geral',
             'observacoes' => 'Observações consolidadas.',
             'anexo' => \Illuminate\Http\UploadedFile::fake()->create('programacao-final.pdf', 100, 'application/pdf'),
-        ])->assertOk()->assertJsonPath('jornada.status', 'Consolidado');
+        ])->assertOk()->assertJsonPath('jornada.status', 'Planejamento');
 
         // Editar sem reenviar o anexo: o arquivo já enviado continua valendo.
         $this->post("/api/jornadas-pedagogicas/{$id}", [
