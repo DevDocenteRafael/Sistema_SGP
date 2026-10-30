@@ -15,6 +15,7 @@ export default {
       detalhes: { eixo: null, ciclo_nome: '', segmentos: [] },
       cursos: [],
       busca: '',
+      distribuicaoAberta: false,
       buscaTimeout: null,
       meta: {
         total: 0,

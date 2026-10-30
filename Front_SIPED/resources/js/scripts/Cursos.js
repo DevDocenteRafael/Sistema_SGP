@@ -20,7 +20,7 @@ import {
   validarOrdemDatas,
   validarProcessoSei,
 } from '../utils/validacao';
-import { formatSelectLabel } from '../utils/selectOptions';
+import { compareSelectLabels, formatSelectLabel } from '../utils/selectOptions';
 
 export default {
   name: 'Cursos',
@@ -203,7 +203,7 @@ export default {
       return (this.meta.status || []).map((valor) => ({
         value: valor,
         label: this.textoPadronizado(valor),
-      }));
+      })).sort((a, b) => compareSelectLabels(a.label, b.label));
     },
     opcoesSimNao() {
       return (this.meta.sim_nao || ['SIM', 'NÃO']).map((valor) => ({

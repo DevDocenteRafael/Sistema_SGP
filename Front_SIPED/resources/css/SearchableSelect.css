@@ -15,7 +15,7 @@
   border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.5rem;
   background: var(--sgp-input-bg, #fff);
-  color: var(--sgp-text, #374151);
+  color: var(--sgp-filter-text, var(--sgp-text, #374151));
   font-size: 0.875rem;
   text-align: left;
   cursor: pointer;
@@ -95,7 +95,7 @@
   border-radius: 0.4rem;
   cursor: pointer;
   font-size: 0.875rem;
-  color: var(--sgp-text, #374151);
+  color: var(--sgp-filter-text, var(--sgp-text, #374151));
 }
 
 .sgp-select__option:hover,
@@ -157,18 +157,16 @@
 
 html[data-theme='dark'] .sgp-select__trigger,
 html[data-theme='dark'] .sgp-select__value,
-html[data-theme='dark'] .sgp-select__value.is-placeholder,
 html[data-theme='dark'] .sgp-select__option,
-html[data-theme='dark'] .sgp-select__search,
-html[data-theme='dark'] .sgp-select__empty {
-  color: #fff !important;
+html[data-theme='dark'] .sgp-select__search {
+  color: var(--sgp-filter-text, var(--sgp-text)) !important;
   font-weight: 600;
 }
 
 html[data-theme='dark'] .sgp-select__search::placeholder {
-  color: #fff !important;
+  color: var(--sgp-text-muted) !important;
 }
 
 html[data-theme='dark'] .app-main .sgp-select__dropdown input.sgp-select__search {
-  color: #fff !important;
+  color: var(--sgp-filter-text, var(--sgp-text)) !important;
 }

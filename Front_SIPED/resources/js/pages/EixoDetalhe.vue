@@ -27,32 +27,8 @@
     <div v-if="carregando" class="eixos-vazio">Carregando detalhe...</div>
 
     <template v-else>
-      <section class="eixos-secao" aria-label="Distribuição por segmento">
-        <h2>Distribuição por segmento</h2>
-        <div v-if="!detalhes.segmentos?.length" class="eixos-vazio-bloco">Nenhum segmento neste eixo.</div>
-        <table v-else class="eixos-table">
-          <thead>
-            <tr>
-              <th>Segmento</th>
-              <th>Cursos</th>
-              <th>Turmas</th>
-              <th>Alunos</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="segmento in detalhes.segmentos" :key="segmento.id">
-              <td>{{ segmento.nome }}</td>
-              <td>{{ segmento.cursos }}</td>
-              <td>{{ segmento.turmas }}</td>
-              <td>{{ segmento.alunos }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
       <section class="eixos-secao" aria-label="Cursos do eixo">
         <div class="eixos-toolbar">
-          <h2>Cursos do eixo</h2>
           <input
             v-model="busca"
             type="search"
@@ -61,10 +37,51 @@
             aria-label="Buscar cursos do eixo"
             @input="agendarBusca"
           />
+          <button
+            type="button"
+            class="eixos-distribuicao-toggle"
+            :aria-expanded="distribuicaoAberta"
+            aria-controls="eixos-distribuicao-conteudo"
+            @click="distribuicaoAberta = !distribuicaoAberta"
+          >
+            <span>Distribuição por segmento</span>
+            <span class="eixos-distribuicao-seta" aria-hidden="true"></span>
+          </button>
           <button v-if="podeEditar" type="button" class="btn-primary" @click="cadastrarCurso">
             + Cadastrar curso neste Eixo
           </button>
         </div>
+
+        <section class="eixos-secao-distribuicao" aria-label="Distribuição por segmento">
+          <div
+            id="eixos-distribuicao-conteudo"
+            class="eixos-distribuicao-conteudo"
+            :class="{ 'eixos-distribuicao-conteudo-aberto': distribuicaoAberta }"
+            :aria-hidden="!distribuicaoAberta"
+          >
+            <div class="eixos-distribuicao-interior">
+              <div v-if="!detalhes.segmentos?.length" class="eixos-vazio-bloco">Nenhum segmento neste eixo.</div>
+              <table v-else class="eixos-table">
+                <thead>
+                  <tr>
+                    <th>Segmento</th>
+                    <th>Cursos</th>
+                    <th>Turmas</th>
+                    <th>Alunos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="segmento in detalhes.segmentos" :key="segmento.id">
+                    <td>{{ segmento.nome }}</td>
+                    <td>{{ segmento.cursos }}</td>
+                    <td>{{ segmento.turmas }}</td>
+                    <td>{{ segmento.alunos }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
 
         <div v-if="carregandoCursos" class="eixos-vazio-bloco">Carregando cursos...</div>
         <div v-else-if="!cursos.length" class="eixos-vazio-bloco">Nenhum curso deste eixo no ciclo.</div>

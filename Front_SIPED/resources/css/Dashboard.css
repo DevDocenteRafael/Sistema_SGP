@@ -46,13 +46,12 @@
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   background: #fff;
-  color: #374151;
+  color: var(--sgp-filter-text, #374151);
   font-size: 0.875rem;
 }
 
 .btn-limpar {
   cursor: pointer;
-  color: #6b7280;
 }
 
 .btn-limpar:hover {

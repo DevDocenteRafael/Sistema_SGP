@@ -186,20 +186,16 @@
 }
 
 .eixos-toolbar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) auto auto;
   gap: 0.6rem;
   align-items: center;
   margin-bottom: 0.85rem;
 }
 
-.eixos-toolbar h2 {
-  margin: 0 auto 0 0;
-}
-
 .eixos-busca {
-  min-width: 14rem;
-  flex: 1;
+  width: 100%;
+  min-width: 0;
   height: 2.3rem;
   padding: 0 0.75rem;
   border: 1px solid var(--sgp-border, #e5e7eb);
@@ -210,6 +206,72 @@
 
 .eixos-busca::placeholder {
   color: var(--sgp-text-muted, #6b7280);
+}
+
+.eixos-distribuicao-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.3rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--sgp-border, #e5e7eb);
+  border-radius: 0.5rem;
+  background: var(--sgp-surface, #fff);
+  color: var(--sgp-brand, #003f7d);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.eixos-distribuicao-toggle:hover {
+  background: var(--sgp-surface-muted, #f8fafc);
+}
+
+.eixos-distribuicao-toggle:focus-visible {
+  outline: 3px solid var(--sgp-link, #93c5fd);
+  outline-offset: 2px;
+}
+
+.eixos-distribuicao-seta {
+  width: 0.55rem;
+  height: 0.55rem;
+  flex: 0 0 auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-0.15rem) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.eixos-distribuicao-toggle[aria-expanded="true"] .eixos-distribuicao-seta {
+  transform: translateY(0.15rem) rotate(225deg);
+}
+
+.eixos-secao-distribuicao {
+  padding: 0;
+}
+
+.eixos-distribuicao-conteudo {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.25s ease, opacity 0.2s ease;
+}
+
+.eixos-distribuicao-conteudo-aberto {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.eixos-distribuicao-interior {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.eixos-distribuicao-interior .eixos-table {
+  margin-bottom: 0.85rem;
 }
 
 .eixos-table {
@@ -309,6 +371,31 @@
   .eixos-totais-3 {
     width: 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .eixos-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .eixos-busca {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 520px) {
+  .eixos-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .eixos-busca {
+    grid-column: auto;
+  }
+
+  .eixos-distribuicao-toggle,
+  .eixos-toolbar .btn-primary {
+    width: 100%;
   }
 }
 

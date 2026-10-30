@@ -15,11 +15,38 @@ import {
   tamanhoMaximo,
 } from '../utils/validacao';
 import { EIXOS_OFICIAIS } from '../utils/catalogoOficial';
+import { sortYearsDescending } from '../utils/selectOptions';
 
 const STATUS_LISTA = ['Vigente', 'Em análise', 'Suspenso', 'Previsto', 'Publicado', 'Ativo', 'Aprovado'];
 const ANOS = ['2025', '2026'];
 const SEMESTRES = ['2025/1', '2025/2', '2026/1', '2026/2'];
 const EIXOS = [...EIXOS_OFICIAIS];
+
+function partesSemestre(opcao) {
+  const valor = opcao && typeof opcao === 'object'
+    ? opcao.value ?? opcao.label ?? ''
+    : opcao;
+  const texto = String(valor ?? '');
+  const ano = Number(texto.match(/\b(?:19|20|21)\d{2}\b/)?.[0] ?? 0);
+  const semestre = Number(
+    texto.match(/([12])\s*(?:º|°|o)?\s*semestre/i)?.[1]
+      ?? texto.match(/semestre\s*([12])/i)?.[1]
+      ?? texto.match(/\/\s*([12])\b/)?.[1]
+      ?? (ano ? '' : texto.match(/\b([12])\b/)?.[1])
+      ?? 0,
+  );
+  return { ano, semestre, texto };
+}
+
+function ordenarSemestresDecrescente(semestres) {
+  return [...semestres].sort((a, b) => {
+    const partesA = partesSemestre(a);
+    const partesB = partesSemestre(b);
+    return partesB.ano - partesA.ano
+      || partesB.semestre - partesA.semestre
+      || partesB.texto.localeCompare(partesA.texto, 'pt-BR', { numeric: true });
+  });
+}
 
 export default createCrudPage({
   name: 'Pca',
@@ -204,6 +231,14 @@ export default createCrudPage({
     eixos: EIXOS,
     statusLista: STATUS_LISTA,
   }),
+  extraComputed: {
+    anosFiltro() {
+      return sortYearsDescending(this.anos);
+    },
+    semestresFiltro() {
+      return ordenarSemestresDecrescente(this.semestres);
+    },
+  },
   extraMethods: {
     formatarNumeroSei: formatarProcessoSeiInput('numero_sei'),
     formatarCargaHoraria: formatarInteiroInput('carga_horaria', { maxDigitos: 5 }),

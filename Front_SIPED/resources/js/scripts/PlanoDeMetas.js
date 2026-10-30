@@ -153,6 +153,23 @@ export default createCrudPage({
     anosOrdenados() {
       return sortYearsDescending(this.anosDisponiveis);
     },
+    origensFiltroDisponiveis() {
+      const ordem = ['DEF', 'DN', 'CPED', 'PLANEJAMENTO ESTRATEGICO', 'SEM ORIGEM'];
+      const normalizar = (origem) => String(
+        origem && typeof origem === 'object' ? origem.label ?? origem.value : origem ?? '',
+      ).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleUpperCase('pt-BR');
+
+      return [...this.areasDisponiveis, { value: 'sem_area', label: 'Sem origem' }]
+        .sort((a, b) => {
+          const origemA = normalizar(a);
+          const origemB = normalizar(b);
+          const ordemA = ordem.indexOf(origemA);
+          const ordemB = ordem.indexOf(origemB);
+          const prioridadeA = ordemA === -1 ? ordem.length : ordemA;
+          const prioridadeB = ordemB === -1 ? ordem.length : ordemB;
+          return prioridadeA - prioridadeB || origemA.localeCompare(origemB, 'pt-BR');
+        });
+    },
     tiposFiltroDisponiveis() {
       return this.tiposDisponiveis.map((tipo) => ({
         value: tipo,

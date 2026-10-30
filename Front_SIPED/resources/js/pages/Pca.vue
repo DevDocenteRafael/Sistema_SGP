@@ -31,7 +31,7 @@
               id="filtro-ano"
               input-id="filtro-ano"
               v-model="filtros.ano"
-              :options="anos"
+              :options="anosFiltro"
               empty-option="Todos os anos"
               @change="aplicarFiltros"
             />
@@ -42,7 +42,7 @@
               id="filtro-semestre"
               input-id="filtro-semestre"
               v-model="filtros.semestre"
-              :options="semestres"
+              :options="semestresFiltro"
               empty-option="Todos os semestres"
               @change="aplicarFiltros"
             />

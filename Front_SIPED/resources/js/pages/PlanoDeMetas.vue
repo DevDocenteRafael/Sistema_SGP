@@ -73,7 +73,7 @@
 
         <SearchableSelect
           v-model="filtros.area"
-          :options="[...areasDisponiveis, { value: 'sem_area', label: 'Sem origem' }]"
+          :options="origensFiltroDisponiveis"
           empty-option="Todas as origens"
           aria-label="Filtrar por origem do planejamento"
           @change="carregarRegistros"
