@@ -52,10 +52,12 @@
   grid-template-columns: repeat(3, minmax(5.5rem, 1fr));
 }
 
-.eixos-header-detalhe {
+.eixos-page .eixos-header.eixos-header-detalhe {
   flex-direction: column;
   align-items: stretch;
   gap: 1.15rem;
+  top: -1.5rem;
+  z-index: 31;
 }
 
 .eixos-header-detalhe .eixos-totais-3 {
@@ -205,6 +207,8 @@
 .eixo-card--rosa { border-top: 3px solid #be185d; }
 
 .eixos-secao {
+  position: relative;
+  z-index: 0;
   padding: 1.25rem 2rem 0.5rem;
 }
 
@@ -316,6 +320,45 @@
   border-spacing: 0;
 }
 
+.eixos-table-cursos {
+  table-layout: fixed;
+}
+
+.eixos-table-cursos .eixos-col-curso {
+  width: 40%;
+}
+
+.eixos-table-cursos .eixos-col-segmento {
+  width: 28%;
+}
+
+.eixos-table-cursos .eixos-col-num {
+  width: 9%;
+}
+
+.eixos-table-cursos .eixos-col-acao {
+  width: 14%;
+}
+
+.eixos-table-cursos th:nth-child(3),
+.eixos-table-cursos td:nth-child(3),
+.eixos-table-cursos th:nth-child(4),
+.eixos-table-cursos td:nth-child(4) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.eixos-table-cursos th:nth-child(5),
+.eixos-table-cursos td:nth-child(5) {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.eixos-table-cursos td:nth-child(1),
+.eixos-table-cursos td:nth-child(2) {
+  overflow-wrap: anywhere;
+}
+
 .eixos-table th,
 .eixos-table td {
   padding: 0.6rem 0.75rem;
@@ -400,6 +443,14 @@
   .eixos-totais-3 {
     width: 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .eixos-secao {
+    overflow-x: auto;
+  }
+
+  .eixos-table-cursos {
+    min-width: 40rem;
   }
 }
 

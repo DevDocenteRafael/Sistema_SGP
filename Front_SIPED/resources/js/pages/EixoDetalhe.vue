@@ -85,7 +85,14 @@
 
         <div v-if="carregandoCursos" class="eixos-vazio-bloco">Carregando cursos...</div>
         <div v-else-if="!cursos.length" class="eixos-vazio-bloco">Nenhum curso deste eixo no ciclo.</div>
-        <table v-else class="eixos-table">
+        <table v-else class="eixos-table eixos-table-cursos">
+          <colgroup>
+            <col class="eixos-col-curso">
+            <col class="eixos-col-segmento">
+            <col class="eixos-col-num">
+            <col class="eixos-col-num">
+            <col class="eixos-col-acao">
+          </colgroup>
           <thead>
             <tr>
               <th>Curso</th>
