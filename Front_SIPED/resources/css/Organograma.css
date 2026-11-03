@@ -7,7 +7,7 @@
   --org-fundo: var(--sgp-bg, #eef3f9);
   --org-card: var(--sgp-surface, #ffffff);
 
-  margin: -1.5rem;
+  margin: calc(-1 * var(--sgp-page-padding-y, 1.5rem));
   min-height: calc(100vh - 0px);
   background:
     radial-gradient(ellipse 80% 50% at 0% -10%, rgba(0, 63, 125, 0.08), transparent 55%),

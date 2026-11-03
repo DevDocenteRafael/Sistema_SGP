@@ -1,5 +1,5 @@
 .flux-editor-page {
-  margin: -1.5rem;
+  margin: calc(-1 * var(--sgp-page-padding-y, 1.5rem));
   min-height: calc(100vh - 0px);
   display: flex;
   flex-direction: column;

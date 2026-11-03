@@ -34,7 +34,7 @@
   }
 
   .inicio-content {
-    padding: 1.25rem 1.5rem 2rem !important;
+    padding: var(--sgp-page-header-gap, 1.75rem) var(--sgp-page-padding-x, 2rem) var(--sgp-page-footer-gap, 2.5rem) !important;
   }
 
   .ferramentas-grid {
@@ -57,7 +57,7 @@
   .ferramentas-top,
   .imp-header,
   .rel-header {
-    padding: 1rem 1rem 0.9rem !important;
+    padding: var(--sgp-page-padding-y, 1rem) var(--sgp-page-padding-x, 1.25rem) var(--sgp-page-section-gap, 1.25rem) !important;
   }
 
   .cursos-top h1,
@@ -114,35 +114,35 @@
   .importacoes-page .imp-painel,
   .relatorios-page .rel-header,
   .relatorios-page .rel-painel {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: var(--sgp-page-padding-x, 1.25rem) !important;
+    padding-right: var(--sgp-page-padding-x, 1.25rem) !important;
   }
 
   .importacoes-page .alert,
   .relatorios-page .alert {
-    margin-left: 1rem !important;
-    margin-right: 1rem !important;
+    margin-left: var(--sgp-page-padding-x, 1.25rem) !important;
+    margin-right: var(--sgp-page-padding-x, 1.25rem) !important;
   }
 
   .auditoria-top,
   .auditoria-page .tabela-card {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: var(--sgp-page-padding-x, 1.25rem) !important;
+    padding-right: var(--sgp-page-padding-x, 1.25rem) !important;
   }
 
   .auditoria-page .tabela-card {
-    margin-left: 1rem !important;
-    margin-right: 1rem !important;
+    margin-left: var(--sgp-page-padding-x, 1.25rem) !important;
+    margin-right: var(--sgp-page-padding-x, 1.25rem) !important;
   }
 
   .ferramentas-page .alert {
-    margin-left: 1rem !important;
-    margin-right: 1rem !important;
+    margin-left: var(--sgp-page-padding-x, 1.25rem) !important;
+    margin-right: var(--sgp-page-padding-x, 1.25rem) !important;
   }
 
   .ferramentas-content {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: var(--sgp-page-padding-x, 1.25rem) !important;
+    padding-right: var(--sgp-page-padding-x, 1.25rem) !important;
   }
 
   .inicio-hero {
@@ -154,7 +154,7 @@
   }
 
   .inicio-content {
-    padding: 0.85rem 1rem 1.25rem !important;
+    padding: var(--sgp-page-header-gap, 1.25rem) var(--sgp-page-padding-x, 1.25rem) var(--sgp-page-footer-gap, 1.75rem) !important;
   }
 
   .inicio-footer {

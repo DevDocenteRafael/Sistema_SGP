@@ -1,5 +1,5 @@
 .relatorios-page {
-  margin: -1.5rem;
+  margin: calc(-1 * var(--sgp-page-padding-y, 1.5rem));
   min-height: calc(100vh - 0px);
   background: var(--sgp-bg, #f5f7fa);
 }
@@ -12,7 +12,7 @@
   gap: 1rem;
   border-bottom: 1px solid var(--sgp-border, #e5e7eb);
   background: var(--sgp-surface, #fff);
-  padding: 1.5rem 2rem 1.25rem;
+  padding: var(--sgp-page-padding-y, 1.5rem) var(--sgp-page-padding-x, 2rem) var(--sgp-page-section-gap, 1.5rem);
 }
 
 .rel-header h1 {
@@ -73,7 +73,7 @@
 }
 
 .rel-painel {
-  padding: 1.25rem 2rem 2rem;
+  padding: var(--sgp-page-header-gap, 3rem) var(--sgp-page-padding-x, 2rem) var(--sgp-page-footer-gap, 2.5rem);
 }
 
 .rel-select-relatorio {

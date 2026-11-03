@@ -1,0 +1,165 @@
+/**
+ * Ritmo de espaçamento das páginas do SIPED.
+ * Tokens em theme.css (--sgp-page-*). Aplica só o shell de página.
+ * Fora de escopo: modal, drawer, dropdown, popover, tooltip.
+ */
+
+.app-main {
+  padding: var(--sgp-page-padding-y);
+}
+
+.app-main.app-main--flush {
+  padding: 0 !important;
+}
+
+.app-main > [class$='-page']:not(.login-page):not(.inicio-page):not(.cped-page),
+.app-main > .crud-page,
+.app-main > .form-page {
+  margin: calc(-1 * var(--sgp-page-padding-y));
+  padding-bottom: var(--sgp-page-footer-gap);
+}
+
+.app-main :is(
+  .crud-top,
+  .dashboard-header,
+  .cursos-top,
+  .eixos-header,
+  .ferramentas-top,
+  .imp-header,
+  .rel-header,
+  .usuarios-top,
+  .auditoria-top,
+  .termos-top,
+  .revisao-header,
+  .caro-top,
+  .kanban-top,
+  .kanban-quadros-top,
+  .flux-lista-top,
+  .flux-editor-top,
+  .org-top,
+  .form-header
+) {
+  padding: var(--sgp-page-padding-y) var(--sgp-page-padding-x) var(--sgp-page-section-gap);
+  margin-bottom: 0;
+}
+
+.app-main :is(
+  .tabela-card,
+  .rel-tabela-card,
+  .dashboard-metrics-grid,
+  .dashboard-kpi-strip,
+  .dashboard-content-grid,
+  .auditoria-abas,
+  .auditoria-importacoes
+) {
+  margin-left: var(--sgp-page-padding-x);
+  margin-right: var(--sgp-page-padding-x);
+}
+
+.app-main :is(
+  .crud-top,
+  .dashboard-header,
+  .cursos-top,
+  .eixos-header,
+  .ferramentas-top,
+  .imp-header,
+  .rel-header,
+  .usuarios-top,
+  .auditoria-top,
+  .termos-top,
+  .revisao-header,
+  .caro-top,
+  .kanban-top,
+  .kanban-quadros-top,
+  .flux-lista-top,
+  .flux-editor-top,
+  .org-top,
+  .form-header
+) + * {
+  margin-top: var(--sgp-page-header-gap);
+}
+
+.app-main :is(
+  .crud-top,
+  .dashboard-header,
+  .cursos-top,
+  .eixos-header,
+  .ferramentas-top,
+  .imp-header,
+  .rel-header,
+  .usuarios-top,
+  .auditoria-top,
+  .termos-top,
+  .revisao-header,
+  .caro-top,
+  .kanban-top,
+  .kanban-quadros-top,
+  .flux-lista-top,
+  .flux-editor-top,
+  .org-top,
+  .form-header
+) + .alert + * {
+  margin-top: var(--sgp-page-header-gap);
+}
+
+.app-main :is(.imp-painel, .rel-painel, .eixos-secao, .eixos-grid, .ferramentas-content) {
+  padding-left: var(--sgp-page-padding-x);
+  padding-right: var(--sgp-page-padding-x);
+}
+
+.app-main .eixos-secao {
+  padding-top: 0;
+  padding-bottom: var(--sgp-page-section-gap);
+}
+
+.app-main .eixos-grid {
+  padding-top: 0;
+}
+
+.app-main :is(.dashboard-metrics-grid, .dashboard-kpi-strip) {
+  margin-bottom: var(--sgp-page-section-gap);
+}
+
+.app-main .dashboard-content-grid {
+  margin-top: 0;
+  margin-bottom: 0;
+  gap: var(--sgp-page-section-gap);
+}
+
+.app-main .alert {
+  margin-left: var(--sgp-page-padding-x);
+  margin-right: var(--sgp-page-padding-x);
+}
+
+.app-main .eixos-paginacao {
+  margin-bottom: var(--sgp-page-section-gap);
+}
+
+.app-main .auditoria-abas {
+  margin-bottom: 0;
+  padding-top: 0;
+}
+
+.inicio-content {
+  padding: var(--sgp-page-header-gap) var(--sgp-page-padding-x) var(--sgp-page-footer-gap);
+}
+
+.inicio-section-head {
+  margin-bottom: var(--sgp-page-section-gap);
+}
+
+.cped-body {
+  padding: var(--sgp-page-header-gap) var(--sgp-page-padding-x) var(--sgp-page-footer-gap);
+}
+
+.cped-section {
+  margin-bottom: var(--sgp-page-footer-gap);
+}
+
+.app-main .form-body {
+  padding: var(--sgp-page-header-gap) var(--sgp-page-padding-x) var(--sgp-page-footer-gap);
+}
+
+.app-main .form-section {
+  margin-bottom: var(--sgp-page-section-gap);
+}

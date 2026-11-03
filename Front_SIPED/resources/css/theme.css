@@ -60,6 +60,33 @@
   --sgp-z-modal: 70;
   --sgp-z-tooltip: 80;
   --sgp-z-skip: 200;
+
+  /* Ritmo de página (shell). Não usar em modal/drawer/dropdown/tooltip. */
+  --sgp-page-padding-x: 2rem;
+  --sgp-page-padding-y: 1.5rem;
+  --sgp-page-header-gap: 3rem;
+  --sgp-page-section-gap: 1.5rem;
+  --sgp-page-footer-gap: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --sgp-page-padding-x: 1.25rem;
+    --sgp-page-padding-y: 1rem;
+    --sgp-page-header-gap: 2rem;
+    --sgp-page-section-gap: 1.25rem;
+    --sgp-page-footer-gap: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --sgp-page-padding-x: 1rem;
+    --sgp-page-padding-y: 0.75rem;
+    --sgp-page-header-gap: 1.5rem;
+    --sgp-page-section-gap: 1rem;
+    --sgp-page-footer-gap: 1.5rem;
+  }
 }
 
 html[data-theme='dark'] {

@@ -1,5 +1,5 @@
 .eixos-page {
-  margin: -1.5rem;
+  margin: calc(-1 * var(--sgp-page-padding-y, 1.5rem));
   min-height: calc(100vh - 0px);
   background: var(--sgp-bg, #f5f7fa);
   color: var(--sgp-text, #0f172a);
@@ -12,7 +12,7 @@
   gap: 1.5rem;
   border-bottom: 1px solid var(--sgp-border, #e5e7eb);
   background: var(--sgp-surface, #fff);
-  padding: 1.5rem 2rem 1.25rem;
+  padding: var(--sgp-page-padding-y, 1.5rem) var(--sgp-page-padding-x, 2rem) var(--sgp-page-section-gap, 1.5rem);
 }
 
 .eixos-header h1 {
@@ -56,7 +56,7 @@
   flex-direction: column;
   align-items: stretch;
   gap: 1.15rem;
-  top: -1.5rem;
+  top: calc(-1 * var(--sgp-page-padding-y, 1.5rem));
   z-index: 31;
 }
 
@@ -133,7 +133,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16.5rem, 1fr));
   gap: 1rem;
-  padding: 1.25rem 2rem 2rem;
+  padding: var(--sgp-page-header-gap, 3rem) var(--sgp-page-padding-x, 2rem) var(--sgp-page-footer-gap, 2.5rem);
 }
 
 .eixo-card {
@@ -209,7 +209,7 @@
 .eixos-secao {
   position: relative;
   z-index: 0;
-  padding: 1.25rem 2rem 0.5rem;
+  padding: var(--sgp-page-header-gap, 3rem) var(--sgp-page-padding-x, 2rem) var(--sgp-page-section-gap, 1.5rem);
 }
 
 .eixos-secao h2 {

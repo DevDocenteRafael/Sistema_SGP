@@ -62,7 +62,7 @@
   }
 
   .app-main {
-    padding: 1rem;
+    padding: var(--sgp-page-padding-y, 1rem);
     width: 100%;
     min-width: 0;
   }
@@ -91,7 +91,7 @@
 
 @media (max-width: 480px) {
   .app-main {
-    padding: 0.75rem;
+    padding: var(--sgp-page-padding-y, 0.75rem);
   }
 
   .app-main.app-main--flush {

@@ -19,11 +19,11 @@
 
 @media (max-width: 768px) {
   .crud-page {
-    margin: -1rem;
+    margin: calc(-1 * var(--sgp-page-padding-y, 1rem));
   }
 
   .crud-top {
-    padding: 1rem 1rem 0.9rem;
+    padding: var(--sgp-page-padding-y, 1rem) var(--sgp-page-padding-x, 1.25rem) var(--sgp-page-section-gap, 1.25rem);
   }
 
   .crud-top h1 {
@@ -74,7 +74,7 @@
   }
 
   .tabela-card {
-    margin: 1.25rem 1rem 1.25rem;
+    margin: 0 var(--sgp-page-padding-x, 1.25rem) var(--sgp-page-footer-gap, 1.75rem);
     border-radius: 0.65rem;
   }
 
@@ -167,7 +167,7 @@
   .kanban-top,
   .flux-lista-top,
   .flux-editor-top {
-    padding: 1rem 1rem 0.9rem;
+    padding: var(--sgp-page-padding-y, 1rem) var(--sgp-page-padding-x, 1.25rem) var(--sgp-page-section-gap, 1.25rem);
   }
 
   .caro-top-inner,

@@ -1,5 +1,5 @@
 .flux-lista-page {
-  margin: -1.5rem;
+  margin: calc(-1 * var(--sgp-page-padding-y, 1.5rem));
   min-height: calc(100vh - 0px);
   background:
     radial-gradient(ellipse 80% 50% at 10% -10%, rgba(13, 148, 136, 0.08), transparent 50%),

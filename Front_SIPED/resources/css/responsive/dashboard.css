@@ -2,7 +2,7 @@
 
 @media (max-width: 768px) {
   .dashboard-header {
-    padding: 1rem 1rem 0.9rem !important;
+    padding: var(--sgp-page-padding-y, 1rem) var(--sgp-page-padding-x, 1.25rem) var(--sgp-page-section-gap, 1.25rem) !important;
     align-items: stretch !important;
   }
 
@@ -29,13 +29,13 @@
   .dashboard-analytics,
   .dashboard-charts-grid,
   .dashboard-split-grid {
-    margin-left: 1rem !important;
-    margin-right: 1rem !important;
+    margin-left: var(--sgp-page-padding-x, 1.25rem) !important;
+    margin-right: var(--sgp-page-padding-x, 1.25rem) !important;
   }
 
   .dashboard-page .alert {
-    margin-left: 1rem !important;
-    margin-right: 1rem !important;
+    margin-left: var(--sgp-page-padding-x, 1.25rem) !important;
+    margin-right: var(--sgp-page-padding-x, 1.25rem) !important;
   }
 
   .dashboard-kpi-strip {

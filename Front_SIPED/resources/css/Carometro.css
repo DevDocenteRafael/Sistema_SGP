@@ -6,7 +6,7 @@
   --caro-borda: var(--sgp-border, #e2e8f0);
   --caro-fundo: var(--sgp-bg, #eef2f7);
 
-  margin: -1.5rem;
+  margin: calc(-1 * var(--sgp-page-padding-y, 1.5rem));
   min-height: calc(100vh - 0px);
   background:
     radial-gradient(ellipse 70% 45% at 100% -5%, rgba(245, 124, 0, 0.1), transparent 55%),
