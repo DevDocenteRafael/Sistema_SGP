@@ -11,7 +11,20 @@
     </header>
 
     <div v-if="erro" class="alert alert-error">{{ erro }}</div>
-    <div v-if="mensagem" class="alert alert-success">{{ mensagem }}</div>
+    <div v-if="resultadoRecente" class="alert alert-success imp-resultado" role="status">
+      <p>{{ resultadoRecente.mensagem }}</p>
+      <ul v-if="resultadoRecente.contagens.length" class="imp-resultado-contagens">
+        <li v-for="item in resultadoRecente.contagens" :key="item">{{ item }}</li>
+      </ul>
+      <router-link
+        v-if="podeVerAuditoria && resultadoRecente.historico_id"
+        class="imp-resultado-link"
+        :to="{ name: 'auditoria', query: { aba: 'importacoes', historico: String(resultadoRecente.historico_id) } }"
+      >
+        Ver na Auditoria
+      </router-link>
+    </div>
+    <div v-else-if="mensagem" class="alert alert-success">{{ mensagem }}</div>
 
     <section class="imp-painel">
       <div v-if="!podeImportar" class="alert alert-error">
@@ -248,10 +261,6 @@
           </template>
         </div>
       </template>
-    </section>
-
-    <section v-if="podeImportar" class="imp-painel">
-      <HistoricoImportacoes ref="historico" />
     </section>
   </div>
 </template>

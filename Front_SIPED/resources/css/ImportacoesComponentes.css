@@ -22,6 +22,41 @@
   font-size: 1.15rem;
 }
 
+.imp-historico__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.9rem;
+}
+
+.imp-historico__filtros .filtro-busca {
+  flex: 1 1 220px;
+}
+
+.imp-historico__filtros input[type="search"],
+.imp-historico__filtros input[type="date"] {
+  width: 100%;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--sgp-border, #d1d5db);
+  border-radius: 0.5rem;
+  background: var(--sgp-input-bg, #fff);
+  color: var(--sgp-filter-text, var(--sgp-text, #111827));
+  font-size: 0.9rem;
+}
+
+.imp-historico__filtros input[type="date"] {
+  flex: 0 1 160px;
+  width: auto;
+}
+
+.imp-historico__filtros .sgp-select,
+.imp-historico__filtros .searchable-select {
+  flex: 1 1 160px;
+  min-width: 10rem;
+}
+
 .imp-historico .imp-tabela-wrap {
   border: 1px solid var(--sgp-border, #e5e7eb);
   border-radius: 0.85rem;

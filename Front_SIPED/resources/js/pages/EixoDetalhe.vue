@@ -10,15 +10,15 @@
       <dl class="eixos-totais eixos-totais-3" aria-label="Indicadores do eixo">
         <div>
           <dt>Cursos</dt>
-          <dd>{{ detalhes.eixo?.cursos ?? 0 }}</dd>
+          <dd>{{ formatarIndicador(detalhes.eixo?.cursos) }}</dd>
         </div>
         <div>
           <dt>Turmas</dt>
-          <dd>{{ detalhes.eixo?.turmas ?? 0 }}</dd>
+          <dd>{{ formatarIndicador(detalhes.eixo?.turmas) }}</dd>
         </div>
         <div>
           <dt>Alunos</dt>
-          <dd>{{ detalhes.eixo?.alunos ?? 0 }}</dd>
+          <dd>{{ formatarIndicador(detalhes.eixo?.alunos) }}</dd>
         </div>
       </dl>
     </header>

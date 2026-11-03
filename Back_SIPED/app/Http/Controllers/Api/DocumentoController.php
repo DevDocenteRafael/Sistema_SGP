@@ -115,6 +115,7 @@ class DocumentoController extends Controller
                 ? 'Documento PDF guardado e vinculado ao registro.'
                 : 'Documento PDF guardado. Vincule-o ao registro quando ele for cadastrado.',
             'documento' => $this->documentos->serializar($documento->fresh('usuario')),
+            'historico_id' => $historico->id,
         ], 201);
     }
 

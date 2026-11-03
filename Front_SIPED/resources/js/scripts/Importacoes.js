@@ -1,7 +1,6 @@
-import { podeImportarDados } from './auth';
+import { podeConsultarAuditoria, podeImportarDados } from './auth';
 import { mixinHistoricoCatalogo } from './formularioHistorico';
 import { lerCicloContexto } from './cicloContexto';
-import HistoricoImportacoes from '../components/importacoes/HistoricoImportacoes.vue';
 import DocumentoPdfUpload from '../components/importacoes/DocumentoPdfUpload.vue';
 import Pagination from '../components/crud/Pagination.vue';
 import { ehPdf } from '../utils/documentos';
@@ -60,7 +59,7 @@ const ROTULOS_ACAO = {
 export default {
   name: 'Importacoes',
   mixins: [mixinHistoricoCatalogo],
-  components: { HistoricoImportacoes, DocumentoPdfUpload, Pagination },
+  components: { DocumentoPdfUpload, Pagination },
 
   data() {
     return {
@@ -72,6 +71,7 @@ export default {
       processando: false,
       erro: '',
       mensagem: '',
+      resultadoRecente: null,
       filtros: filtrosVazios(),
       previa: previaVazia(),
       paginaAtual: 1,
@@ -92,6 +92,10 @@ export default {
   computed: {
     podeImportar() {
       return podeImportarDados();
+    },
+
+    podeVerAuditoria() {
+      return podeConsultarAuditoria();
     },
 
     opcoesModulos() {
@@ -364,8 +368,26 @@ export default {
     aoEnviarDocumento(data) {
       this.voltarUpload();
       this.limparArquivo();
-      this.mensagem = data?.message || 'Documento PDF guardado.';
-      this.$refs.historico?.carregar(1);
+      this.registrarResultado({
+        mensagem: data?.message || 'Documento PDF guardado.',
+        historico_id: data?.historico_id,
+        resumo: data?.resumo_acoes || {},
+      });
+    },
+
+    registrarResultado({ mensagem, historico_id = null, resumo = {}, ignoradas = 0, erros = 0 }) {
+      const contagens = [];
+      if (resumo.novo) contagens.push(`${resumo.novo} novos`);
+      if (resumo.atualizar) contagens.push(`${resumo.atualizar} atualizados`);
+      if (resumo.incompleto) contagens.push(`${resumo.incompleto} incompletos`);
+      if (ignoradas) contagens.push(`${ignoradas} ignorados`);
+      if (erros) contagens.push(`${erros} erros`);
+      this.mensagem = mensagem;
+      this.resultadoRecente = {
+        mensagem,
+        historico_id: historico_id || null,
+        contagens,
+      };
     },
 
     formComArquivo(congelarCiclo = false) {
@@ -501,12 +523,15 @@ export default {
 
         this.voltarUpload();
         this.limparArquivo();
-        this.mensagem = msg;
-        // Sem redirecionar para a Revisão de Dados: o histórico mostra os incompletos.
-        this.$refs.historico?.abrirPorId(data.historico_id);
+        this.registrarResultado({
+          mensagem: msg,
+          historico_id: data.historico_id,
+          resumo: data.resumo_acoes || {},
+          ignoradas: data.ignoradas,
+          erros: Array.isArray(data.erros) ? data.erros.length : Number(data.erros || 0),
+        });
       } catch (error) {
         this.erro = error.response?.data?.message || 'Não foi possível concluir a importação.';
-        this.$refs.historico?.carregar(1);
       } finally {
         this.processando = false;
       }

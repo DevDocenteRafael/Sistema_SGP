@@ -86,6 +86,32 @@
   color: var(--sgp-success-text, #0f7b3b);
 }
 
+.imp-resultado p {
+  margin: 0;
+}
+
+.imp-resultado-contagens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1rem;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 700;
+}
+
+.imp-resultado-link {
+  display: inline-block;
+  margin-top: 0.7rem;
+  color: var(--sgp-brand, #003f7d);
+  font-weight: 700;
+}
+
+.imp-resultado-link:hover,
+.imp-resultado-link:focus-visible {
+  text-decoration: underline;
+}
+
 .imp-painel {
   padding: 1.25rem 2rem 2rem;
 }

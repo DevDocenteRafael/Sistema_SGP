@@ -2,13 +2,13 @@
   <div class="auditoria-page crud-page">
     <CrudPageHeader
       title="Auditoria"
-      subtitle="Histórico de cadastros, edições, exclusões, restaurações, importações e acessos"
-      info="Registro automático de quem fez o quê no SIPED. Exclusões são lógicas: enquanto o registro estiver excluído, o evento mostra o botão Restaurar. Disponível para Root e Administrador."
-      :show-clear-filters="temFiltro"
-      filters-aria-label="Filtros de auditoria"
+      :subtitle="subtituloAba"
+      :info="infoAba"
+      :show-clear-filters="aba === 'atividades' && temFiltro"
+      :filters-aria-label="aba === 'atividades' ? 'Filtros de auditoria' : 'Filtros de auditoria'"
       @limpar-filtros="limparFiltros"
     >
-      <template #filters>
+      <template v-if="aba === 'atividades'" #filters>
         <section class="filtros-bar" aria-label="Filtros de auditoria">
           <div class="filtro-busca">
             <input
@@ -48,10 +48,33 @@
       </template>
     </CrudPageHeader>
 
+    <div class="auditoria-abas" role="tablist" aria-label="Visões da auditoria">
+      <button
+        type="button"
+        class="auditoria-aba"
+        role="tab"
+        :aria-selected="aba === 'atividades' ? 'true' : 'false'"
+        :class="{ active: aba === 'atividades' }"
+        @click="selecionarAba('atividades')"
+      >
+        Atividades do Sistema
+      </button>
+      <button
+        type="button"
+        class="auditoria-aba"
+        role="tab"
+        :aria-selected="aba === 'importacoes' ? 'true' : 'false'"
+        :class="{ active: aba === 'importacoes' }"
+        @click="selecionarAba('importacoes')"
+      >
+        Importações
+      </button>
+    </div>
+
     <div v-if="mensagemSucesso" class="alert alert-success" role="status">{{ mensagemSucesso }}</div>
     <div v-if="mensagemErro" class="alert alert-error" role="alert">{{ mensagemErro }}</div>
 
-    <PageTableCard :total="meta.total" aria-label="Tabela de auditoria">
+    <PageTableCard v-if="aba === 'atividades'" :total="meta.total" aria-label="Tabela de auditoria">
 
       <div v-if="carregando" class="tabela-loading">Carregando...</div>
 
@@ -117,6 +140,10 @@
         @per-page-change="alterarRegistrosPorPagina"
       />
     </PageTableCard>
+
+    <section v-else class="auditoria-importacoes" aria-label="Histórico de importações">
+      <HistoricoImportacoes ref="historico" />
+    </section>
 
     <div v-if="detalhe" class="modal-overlay" @click.self="fecharDetalhe">
       <div class="modal-card">

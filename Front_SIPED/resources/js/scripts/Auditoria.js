@@ -1,6 +1,7 @@
 import PageTableCard from '../components/crud/PageTableCard.vue';
 import CrudPageHeader from '../components/crud/CrudPageHeader.vue';
 import Pagination from '../components/crud/Pagination.vue';
+import HistoricoImportacoes from '../components/importacoes/HistoricoImportacoes.vue';
 
 const ACAO_LABEL = {
   criar: 'Criou',
@@ -17,9 +18,10 @@ const ACAO_LABEL = {
 
 export default {
   name: 'Auditoria',
-  components: { PageTableCard, CrudPageHeader, Pagination },
+  components: { PageTableCard, CrudPageHeader, Pagination, HistoricoImportacoes },
   data() {
     return {
+      aba: 'atividades',
       registros: [],
       meta: {
         total: 0,
@@ -46,7 +48,15 @@ export default {
     };
   },
   mounted() {
-    this.carregar();
+    this.sincronizarAbaDaRota();
+  },
+  watch: {
+    '$route.query.aba'() {
+      this.sincronizarAbaDaRota();
+    },
+    '$route.query.historico'() {
+      this.abrirHistoricoDaRota();
+    },
   },
   computed: {
     temFiltro() {
@@ -58,8 +68,57 @@ export default {
         label: this.labelModulo(modulo),
       }));
     },
+    subtituloAba() {
+      return this.aba === 'importacoes'
+        ? 'Histórico e rastreabilidade das importações realizadas no SIPED'
+        : 'Histórico de cadastros, edições, exclusões, restaurações, importações e acessos';
+    },
+    infoAba() {
+      return this.aba === 'importacoes'
+        ? 'Cada envio de planilha ou PDF fica registrado com arquivo, usuário, data/hora, ciclo, contagens e situação. Disponível para Root e Administrador.'
+        : 'Registro automático de quem fez o quê no SIPED. Exclusões são lógicas: enquanto o registro estiver excluído, o evento mostra o botão Restaurar. Disponível para Root e Administrador.';
+    },
   },
   methods: {
+    abaDaRota() {
+      return this.$route?.query?.aba === 'importacoes' ? 'importacoes' : 'atividades';
+    },
+
+    sincronizarAbaDaRota() {
+      const aba = this.abaDaRota();
+      const mudou = this.aba !== aba;
+      this.aba = aba;
+      if (aba === 'atividades') {
+        this.carregar(this.meta.current_page || 1);
+        return;
+      }
+      if (mudou || this.$route.query.historico) {
+        this.$nextTick(() => this.abrirHistoricoDaRota());
+      }
+    },
+
+    selecionarAba(aba) {
+      const query = { ...this.$route.query };
+      if (aba === 'importacoes') {
+        query.aba = 'importacoes';
+      } else {
+        delete query.aba;
+        delete query.historico;
+      }
+      this.$router.replace({ query }).catch(() => {});
+    },
+
+    abrirHistoricoDaRota() {
+      if (this.aba !== 'importacoes') {
+        return;
+      }
+      const id = Number(this.$route.query.historico);
+      if (!id) {
+        return;
+      }
+      this.$refs.historico?.abrirPorId(id);
+    },
+
     limparFiltros() {
       this.filtros = {
         busca: '',

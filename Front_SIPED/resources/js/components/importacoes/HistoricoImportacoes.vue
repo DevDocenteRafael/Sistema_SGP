@@ -11,6 +11,68 @@
       </div>
     </div>
 
+    <section class="imp-historico__filtros" aria-label="Filtros do histórico de importações">
+      <div class="filtro-busca">
+        <input
+          v-model="filtros.arquivo"
+          type="search"
+          placeholder="Buscar por nome do arquivo..."
+          aria-label="Buscar por nome do arquivo"
+          @input="agendarBusca"
+        />
+      </div>
+      <SearchableSelect
+        v-model="filtros.modulo"
+        :options="opcoes.modulos"
+        empty-option="Todos os módulos"
+        aria-label="Filtrar por módulo"
+        @change="carregar(1)"
+      />
+      <SearchableSelect
+        v-model="filtros.usuario_id"
+        :options="opcoes.usuarios"
+        empty-option="Todos os usuários"
+        aria-label="Filtrar por usuário"
+        @change="carregar(1)"
+      />
+      <SearchableSelect
+        v-model="filtros.ciclo_id"
+        :options="opcoes.ciclos"
+        empty-option="Todos os ciclos"
+        aria-label="Filtrar por ciclo"
+        @change="carregar(1)"
+      />
+      <SearchableSelect
+        v-model="filtros.situacao"
+        :options="opcoes.situacoes"
+        empty-option="Todas as situações"
+        aria-label="Filtrar por situação"
+        @change="carregar(1)"
+      />
+      <input
+        v-model="filtros.data_inicio"
+        type="date"
+        title="Data início"
+        aria-label="Data início"
+        @change="carregar(1)"
+      />
+      <input
+        v-model="filtros.data_fim"
+        type="date"
+        title="Data fim"
+        aria-label="Data fim"
+        @change="carregar(1)"
+      />
+      <button
+        v-if="temFiltro"
+        type="button"
+        class="btn-limpar-filtros"
+        @click="limparFiltros"
+      >
+        Limpar filtros
+      </button>
+    </section>
+
     <p v-if="erro" class="alert alert-error">{{ erro }}</p>
 
     <div class="imp-tabela-wrap">
@@ -152,22 +214,41 @@
 <script>
 import Pagination from '../crud/Pagination.vue';
 import TabelaContador from '../crud/TabelaContador.vue';
+import SearchableSelect from '../SearchableSelect.vue';
 import { formatarDataHora, rotaDoRegistro } from '../../utils/documentos';
+
+function filtrosVazios() {
+  return {
+    arquivo: '',
+    modulo: '',
+    usuario_id: '',
+    ciclo_id: '',
+    situacao: '',
+    data_inicio: '',
+    data_fim: '',
+  };
+}
 
 export default {
   name: 'HistoricoImportacoes',
-  components: { Pagination, TabelaContador },
+  components: { Pagination, TabelaContador, SearchableSelect },
   data() {
     return {
       itens: [],
       meta: { current_page: 1, last_page: 1, total: 0 },
+      opcoes: { modulos: [], situacoes: [], usuarios: [], ciclos: [] },
+      filtros: filtrosVazios(),
       perPage: 10,
       carregando: false,
       erro: '',
       detalhe: null,
+      buscaTimeout: null,
     };
   },
   computed: {
+    temFiltro() {
+      return Object.values(this.filtros).some((valor) => valor !== '' && valor != null);
+    },
     incompletos() {
       return this.detalhe?.detalhes?.incompletos || [];
     },
@@ -180,15 +261,40 @@ export default {
   },
   methods: {
     formatarDataHora,
+    limparFiltros() {
+      this.filtros = filtrosVazios();
+      this.carregar(1);
+    },
+    agendarBusca() {
+      clearTimeout(this.buscaTimeout);
+      this.buscaTimeout = setTimeout(() => this.carregar(1), 250);
+    },
+    paramsHistorico(pagina) {
+      const params = { page: pagina, per_page: this.perPage };
+      Object.entries(this.filtros).forEach(([chave, valor]) => {
+        if (valor !== '' && valor != null) {
+          params[chave] = valor;
+        }
+      });
+      return params;
+    },
     async carregar(pagina = 1) {
       this.carregando = true;
       this.erro = '';
       try {
         const { data } = await window.axios.get('/api/importacoes/historico', {
-          params: { page: pagina, per_page: this.perPage },
+          params: this.paramsHistorico(pagina),
         });
         this.itens = Array.isArray(data.data) ? data.data : [];
         this.meta = { ...this.meta, ...(data.meta || {}) };
+        if (data.meta?.filtros) {
+          this.opcoes = {
+            modulos: data.meta.filtros.modulos || [],
+            situacoes: data.meta.filtros.situacoes || [],
+            usuarios: data.meta.filtros.usuarios || [],
+            ciclos: data.meta.filtros.ciclos || [],
+          };
+        }
       } catch (error) {
         this.erro = error.response?.data?.message || 'Não foi possível carregar o histórico de importações.';
       } finally {

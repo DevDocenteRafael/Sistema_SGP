@@ -54,6 +54,14 @@ export default {
   },
 
   methods: {
+    formatarIndicador(valor) {
+      const numero = Number(valor ?? 0);
+      if (!Number.isFinite(numero)) {
+        return '0';
+      }
+      return numero.toLocaleString('pt-BR');
+    },
+
     queryCiclo() {
       const id = this.$route.query.ciclo_id || this.cicloContextoId || lerCicloContexto()?.id || '';
       return id ? { ciclo_id: id } : {};

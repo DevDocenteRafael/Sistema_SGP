@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\ImportacaoInvalidaException;
 use App\Http\Controllers\Controller;
 use App\Models\ImportacaoHistorico;
+use App\Models\PortfolioCiclo;
+use App\Models\Usuario;
 use App\Services\CicloContextoService;
 use App\Services\Importacao\ImportacaoHistoricoService;
 use App\Services\Importacao\ImportacaoService;
@@ -251,12 +253,7 @@ class ImportacaoController extends Controller
         }
 
         $query = ImportacaoHistorico::query()->with(['usuario', 'ciclo'])->orderByDesc('id');
-        if ($request->filled('modulo')) {
-            $query->where('modulo', (string) $request->modulo);
-        }
-        if ($request->filled('tipo')) {
-            $query->where('tipo', (string) $request->tipo);
-        }
+        $this->aplicarFiltrosHistorico($query, $request);
 
         $perPage = min(max((int) $request->input('per_page', 10), 1), 50);
         $paginator = $query->paginate($perPage);
@@ -270,6 +267,7 @@ class ImportacaoController extends Controller
                 'per_page' => $paginator->perPage(),
                 'current_page' => $paginator->currentPage(),
                 'last_page' => $paginator->lastPage(),
+                'filtros' => $this->opcoesFiltroHistorico(),
             ],
         ]);
     }
@@ -298,5 +296,100 @@ class ImportacaoController extends Controller
         }
 
         return Storage::disk('local')->download($historico->arquivo_path, $historico->arquivo_nome);
+    }
+
+    private function aplicarFiltrosHistorico($query, Request $request): void
+    {
+        if ($request->filled('modulo')) {
+            $query->where('modulo', (string) $request->modulo);
+        }
+        if ($request->filled('tipo')) {
+            $query->where('tipo', (string) $request->tipo);
+        }
+        $situacao = (string) $request->query('situacao', '');
+        if (in_array($situacao, [ImportacaoHistorico::SITUACAO_CONCLUIDA, ImportacaoHistorico::SITUACAO_BLOQUEADA], true)) {
+            $query->where('situacao', $situacao);
+        }
+        if ($request->filled('ciclo_id')) {
+            $query->where('ciclo_id', (int) $request->ciclo_id);
+        }
+        if ($request->filled('usuario_id')) {
+            $query->where('usuario_id', (int) $request->usuario_id);
+        }
+
+        $arquivo = trim((string) $request->query('arquivo', ''));
+        if ($arquivo !== '') {
+            $termo = addcslashes(mb_substr($arquivo, 0, 80), '%_\\');
+            $query->where('arquivo_nome', 'like', '%'.$termo.'%');
+        }
+
+        $inicio = $this->dataFiltro($request->query('data_inicio'));
+        if ($inicio) {
+            $query->whereDate('created_at', '>=', $inicio);
+        }
+        $fim = $this->dataFiltro($request->query('data_fim'));
+        if ($fim) {
+            $query->whereDate('created_at', '<=', $fim);
+        }
+    }
+
+    private function dataFiltro(mixed $valor): ?string
+    {
+        if (! is_string($valor) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $valor)) {
+            return null;
+        }
+
+        return $valor;
+    }
+
+    /**
+     * @return array{modulos: list<array{value: string, label: string}>, situacoes: list<array{value: string, label: string}>, usuarios: list<array{value: int, label: string}>, ciclos: list<array{value: int, label: string}>}
+     */
+    private function opcoesFiltroHistorico(): array
+    {
+        $modulos = ImportacaoHistorico::query()
+            ->select('modulo', 'modulo_label')
+            ->whereNotNull('modulo')
+            ->distinct()
+            ->orderBy('modulo_label')
+            ->get()
+            ->unique('modulo')
+            ->map(fn (ImportacaoHistorico $item) => [
+                'value' => $item->modulo,
+                'label' => $item->modulo_label ?: $item->modulo,
+            ])
+            ->values()
+            ->all();
+
+        $usuarioIds = ImportacaoHistorico::query()->whereNotNull('usuario_id')->distinct()->pluck('usuario_id');
+        $cicloIds = ImportacaoHistorico::query()->whereNotNull('ciclo_id')->distinct()->pluck('ciclo_id');
+
+        return [
+            'modulos' => $modulos,
+            'situacoes' => [
+                ['value' => ImportacaoHistorico::SITUACAO_CONCLUIDA, 'label' => 'Concluída'],
+                ['value' => ImportacaoHistorico::SITUACAO_BLOQUEADA, 'label' => 'Bloqueada'],
+            ],
+            'usuarios' => Usuario::query()
+                ->whereIn('id', $usuarioIds)
+                ->orderBy('nome')
+                ->get(['id', 'nome'])
+                ->map(fn (Usuario $usuario) => [
+                    'value' => $usuario->id,
+                    'label' => $usuario->nome,
+                ])
+                ->values()
+                ->all(),
+            'ciclos' => PortfolioCiclo::query()
+                ->whereIn('id', $cicloIds)
+                ->orderBy('nome')
+                ->get(['id', 'nome'])
+                ->map(fn (PortfolioCiclo $ciclo) => [
+                    'value' => $ciclo->id,
+                    'label' => $ciclo->nome,
+                ])
+                ->values()
+                ->all(),
+        ];
     }
 }

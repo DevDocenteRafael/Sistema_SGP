@@ -271,6 +271,48 @@ class Spec01PrazosImportacoesPdfTest extends TestCase
         $this->getJson('/api/importacoes/historico')->assertOk()->assertJsonPath('data.0.id', $historico->id);
     }
 
+    public function test_historico_filtra_por_modulo_situacao_arquivo_e_usuario(): void
+    {
+        $usuario = $this->editor();
+        $this->actingAs($usuario, 'sanctum');
+
+        ImportacaoHistorico::query()->create([
+            'tipo' => ImportacaoHistorico::TIPO_PLANILHA,
+            'modulo' => 'cursos',
+            'modulo_label' => 'Cursos',
+            'situacao' => ImportacaoHistorico::SITUACAO_CONCLUIDA,
+            'arquivo_nome' => 'cursos-alvo.xlsx',
+            'usuario_id' => $usuario->id,
+            'novos' => 3,
+        ]);
+        ImportacaoHistorico::query()->create([
+            'tipo' => ImportacaoHistorico::TIPO_PLANILHA,
+            'modulo' => 'pcas',
+            'modulo_label' => 'PCA',
+            'situacao' => ImportacaoHistorico::SITUACAO_BLOQUEADA,
+            'arquivo_nome' => 'pca-bloqueado.xlsx',
+            'usuario_id' => $usuario->id,
+        ]);
+
+        $porModulo = $this->getJson('/api/importacoes/historico?modulo=cursos')->assertOk();
+        $porModulo->assertJsonPath('meta.total', 1);
+        $porModulo->assertJsonPath('data.0.arquivo_nome', 'cursos-alvo.xlsx');
+        $this->assertTrue(collect($porModulo->json('meta.filtros.modulos'))->contains('value', 'cursos'));
+
+        $this->getJson('/api/importacoes/historico?situacao=bloqueada')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.modulo', 'pcas');
+
+        $this->getJson('/api/importacoes/historico?arquivo=alvo')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1);
+
+        $this->getJson('/api/importacoes/historico?usuario_id='.$usuario->id)
+            ->assertOk()
+            ->assertJsonPath('meta.total', 2);
+    }
+
     public function test_arquivo_ilegivel_e_bloqueado_e_registrado_sem_alterar_dados(): void
     {
         Storage::fake('local');
