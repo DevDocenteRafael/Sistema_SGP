@@ -280,3 +280,9 @@
   color: var(--sgp-info-text, #1e3a8a);
   font-size: 0.75rem;
 }
+
+@media (max-width: 768px) {
+  .notif-painel {
+    width: min(26rem, calc(100vw - 2.5rem));
+  }
+}

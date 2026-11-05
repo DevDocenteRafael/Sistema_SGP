@@ -42,45 +42,47 @@
     </div>
 
     <div v-if="carregando" class="revisao-vazio">Carregando revisão...</div>
-    <table v-else class="revisao-table">
-      <thead>
-        <tr v-if="tipo === 'sem_eixo'">
-          <th>Curso</th>
-          <th>Valor original</th>
-          <th>Segmento</th>
-          <th>Ação</th>
-        </tr>
-        <tr v-else>
-          <th>Registro importado</th>
-          <th>Eixo / Segmento</th>
-          <th>Código</th>
-          <th>Ação</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="!itens.length">
-          <td colspan="4">Nenhum registro nesta categoria.</td>
-        </tr>
-        <tr v-for="item in itens" :key="tipo + '-' + item.id">
-          <template v-if="tipo === 'sem_eixo'">
-            <td>{{ item.nome }}</td>
-            <td>{{ item.eixo_original || '—' }}</td>
-            <td>{{ item.segmento || '—' }}</td>
-            <td>
-              <button v-if="podeEditar" type="button" class="btn-secondary" @click="abrirClassificacao(item)">Resolver</button>
-            </td>
-          </template>
-          <template v-else>
-            <td>{{ item.nome }}</td>
-            <td>{{ [item.eixo, item.segmento].filter(Boolean).join(' · ') || '—' }}</td>
-            <td>{{ item.codigo || '—' }}</td>
-            <td>
-              <button v-if="podeEditar" type="button" class="btn-secondary" @click="abrirVinculo(item)">Resolver</button>
-            </td>
-          </template>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else class="revisao-table-wrap tabela-wrap">
+      <table class="revisao-table">
+        <thead>
+          <tr v-if="tipo === 'sem_eixo'">
+            <th>Curso</th>
+            <th>Valor original</th>
+            <th>Segmento</th>
+            <th>Ação</th>
+          </tr>
+          <tr v-else>
+            <th>Registro importado</th>
+            <th>Eixo / Segmento</th>
+            <th>Código</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="!itens.length">
+            <td colspan="4">Nenhum registro nesta categoria.</td>
+          </tr>
+          <tr v-for="item in itens" :key="tipo + '-' + item.id">
+            <template v-if="tipo === 'sem_eixo'">
+              <td>{{ item.nome }}</td>
+              <td>{{ item.eixo_original || '—' }}</td>
+              <td>{{ item.segmento || '—' }}</td>
+              <td>
+                <button v-if="podeEditar" type="button" class="btn-secondary" @click="abrirClassificacao(item)">Resolver</button>
+              </td>
+            </template>
+            <template v-else>
+              <td>{{ item.nome }}</td>
+              <td>{{ [item.eixo, item.segmento].filter(Boolean).join(' · ') || '—' }}</td>
+              <td>{{ item.codigo || '—' }}</td>
+              <td>
+                <button v-if="podeEditar" type="button" class="btn-secondary" @click="abrirVinculo(item)">Resolver</button>
+              </td>
+            </template>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div v-if="meta.total" class="revisao-paginacao">
       <span>Mostrando {{ meta.from || 0 }}-{{ meta.to || 0 }} de {{ meta.total }}</span>
